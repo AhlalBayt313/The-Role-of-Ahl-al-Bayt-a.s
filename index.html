@@ -110,7 +110,7 @@
         /* ── Tasbeeh ── */
         .tasbeeh-btn{width:210px;height:210px;border-radius:50%;background:linear-gradient(135deg,#059669,#047857);box-shadow:0 8px 32px rgba(5,150,105,.4),inset 0 2px 4px rgba(255,255,255,.15);transition:transform .1s,box-shadow .1s;border:4px solid rgba(255,255,255,.2);color:#fff;font-size:2.5rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;position:relative;overflow:hidden}
         .tasbeeh-btn::after{content:'';position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.25) 0%,transparent 60%)}
-        .tasbeeh-btn:active{transform:translate(-50%,-50%) scale(.91) translateY(4px) !important;box-shadow:0 2px 0 #036b4a,0 4px 12px rgba(5,150,105,.35),inset 0 3px 8px rgba(0,0,0,.15) !important;filter:brightness(.95)}
+        .tasbeeh-btn:active{transform:translate(-50%,-50%) scale(.91) translateY(2px) !important;box-shadow:0 2px 0 #036b4a,0 4px 12px rgba(5,150,105,.35),inset 0 3px 8px rgba(0,0,0,.15) !important;filter:brightness(.95)}
         @keyframes ripple{0%{transform:scale(0);opacity:.5}100%{transform:scale(4);opacity:0}}
         .tasbeeh-ripple{position:absolute;border-radius:50%;width:50px;height:50px;background:rgba(255,255,255,.3);transform:scale(0);animation:ripple .6s ease-out}
         .tasbeeh-btn-dark{background:linear-gradient(135deg,#064e3b,#065f46)}
@@ -439,11 +439,11 @@
 // ============================================================================
 const DB_NAME = 'AhlAlBaytDB';
 const DB_VERSION = 1;
-let db = null;
+let idb = null;
 
 function openDB() {
     return new Promise((resolve, reject) => {
-        if (db) { resolve(db); return; }
+        if (idb) { resolve(idb); return; }
         const req = indexedDB.open(DB_NAME, DB_VERSION);
         req.onupgradeneeded = e => {
             const d = e.target.result;
@@ -451,7 +451,7 @@ function openDB() {
                 d.createObjectStore('files', { keyPath: 'id' });
             }
         };
-        req.onsuccess = e => { db = e.target.result; resolve(db); };
+        req.onsuccess = e => { idb = e.target.result; resolve(idb); };
         req.onerror = e => reject(e.target.error);
     });
 }
