@@ -815,6 +815,9 @@ function lsGet(key, fallback=null) {
 function lsSet(key, val) {
     try { localStorage.setItem(key, JSON.stringify(val)); } catch(e){ console.warn('ls set failed',e); }
 }
+// Expose to window so Firebase module script can access
+window.lsGet = lsGet;
+window.lsSet = lsSet;
 
 function loadState() {
     try {
@@ -4046,6 +4049,461 @@ function init() {
 }
 
 init();
+</script>
+
+<!-- ============================================================ -->
+<!-- FIREBASE — App + Analytics + Firestore + Storage            -->
+<!-- ============================================================ -->
+<script type="module">
+// ── SDK imports ──────────────────────────────────────────────────
+import { initializeApp }        from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import { getAnalytics }         from "https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js";
+import {
+    getFirestore,
+    collection,
+    doc,
+    addDoc,
+    getDoc,
+    getDocs,
+    setDoc,
+    updateDoc,
+    deleteDoc,
+    query,
+    where,
+    orderBy,
+    limit,
+    onSnapshot,
+    serverTimestamp,
+    increment
+} from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+import {
+    getStorage,
+    ref,
+    uploadBytes,
+    uploadBytesResumable,
+    getDownloadURL,
+    deleteObject,
+    listAll
+} from "https://www.gstatic.com/firebasejs/12.13.0/firebase-storage.js";
+
+// ── Firebase Config ───────────────────────────────────────────────
+const firebaseConfig = {
+    apiKey:            "AIzaSyD5PEdvegmhbht9fXHKCPX8SjSceO1msLE",
+    authDomain:        "ahlulbayt-website-313.firebaseapp.com",
+    projectId:         "ahlulbayt-website-313",
+    storageBucket:     "ahlulbayt-website-313.firebasestorage.app",
+    messagingSenderId: "507896248479",
+    appId:             "1:507896248479:web:c02941b8288ecfd40d8aaa",
+    measurementId:     "G-63SW4KCVS7"
+};
+
+// ── Initialize Services ──────────────────────────────────────────
+const app       = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db        = getFirestore(app);
+const storage   = getStorage(app);
+
+// ── Expose globally for non-module scripts ───────────────────────
+window.firebase = { app, analytics, db, storage };
+
+// ════════════════════════════════════════════════════════════════
+// FIRESTORE HELPER FUNCTIONS
+// ════════════════════════════════════════════════════════════════
+
+/**
+ * কোনো collection-এ নতুন document যোগ করো
+ * @param {string} collectionName  - Firestore collection নাম
+ * @param {object} data            - সেভ করার ডেটা
+ * @returns {string} নতুন document-এর ID
+ */
+window.fsAddDoc = async function(collectionName, data) {
+    try {
+        const ref = await addDoc(collection(db, collectionName), {
+            ...data,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+        });
+        console.log(`[Firestore] Document added → ${collectionName}/${ref.id}`);
+        return ref.id;
+    } catch (e) {
+        console.error("[Firestore] addDoc error:", e);
+        throw e;
+    }
+};
+
+/**
+ * নির্দিষ্ট ID দিয়ে document সেট করো (overwrite)
+ * @param {string} collectionName
+ * @param {string} docId
+ * @param {object} data
+ */
+window.fsSetDoc = async function(collectionName, docId, data) {
+    try {
+        await setDoc(doc(db, collectionName, docId), {
+            ...data,
+            updatedAt: serverTimestamp()
+        }, { merge: true });
+        console.log(`[Firestore] Document set → ${collectionName}/${docId}`);
+    } catch (e) {
+        console.error("[Firestore] setDoc error:", e);
+        throw e;
+    }
+};
+
+/**
+ * একটি document পড়ো
+ * @param {string} collectionName
+ * @param {string} docId
+ * @returns {object|null}
+ */
+window.fsGetDoc = async function(collectionName, docId) {
+    try {
+        const snap = await getDoc(doc(db, collectionName, docId));
+        return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+    } catch (e) {
+        console.error("[Firestore] getDoc error:", e);
+        throw e;
+    }
+};
+
+/**
+ * পুরো collection পড়ো
+ * @param {string} collectionName
+ * @returns {Array}
+ */
+window.fsGetCollection = async function(collectionName) {
+    try {
+        const snap = await getDocs(collection(db, collectionName));
+        return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch (e) {
+        console.error("[Firestore] getCollection error:", e);
+        throw e;
+    }
+};
+
+/**
+ * document আপডেট করো (partial)
+ * @param {string} collectionName
+ * @param {string} docId
+ * @param {object} data
+ */
+window.fsUpdateDoc = async function(collectionName, docId, data) {
+    try {
+        await updateDoc(doc(db, collectionName, docId), {
+            ...data,
+            updatedAt: serverTimestamp()
+        });
+        console.log(`[Firestore] Document updated → ${collectionName}/${docId}`);
+    } catch (e) {
+        console.error("[Firestore] updateDoc error:", e);
+        throw e;
+    }
+};
+
+/**
+ * document মুছে ফেলো
+ * @param {string} collectionName
+ * @param {string} docId
+ */
+window.fsDeleteDoc = async function(collectionName, docId) {
+    try {
+        await deleteDoc(doc(db, collectionName, docId));
+        console.log(`[Firestore] Document deleted → ${collectionName}/${docId}`);
+    } catch (e) {
+        console.error("[Firestore] deleteDoc error:", e);
+        throw e;
+    }
+};
+
+/**
+ * Query দিয়ে document খোঁজো
+ * @param {string} collectionName
+ * @param {Array}  filters  - [{ field, op, value }, ...]
+ * @param {string} [orderField]
+ * @param {number} [limitN]
+ * @returns {Array}
+ */
+window.fsQuery = async function(collectionName, filters = [], orderField = null, limitN = null) {
+    try {
+        let q = collection(db, collectionName);
+        const constraints = [];
+        filters.forEach(f => constraints.push(where(f.field, f.op, f.value)));
+        if (orderField) constraints.push(orderBy(orderField, 'desc'));
+        if (limitN)     constraints.push(limit(limitN));
+        q = query(q, ...constraints);
+        const snap = await getDocs(q);
+        return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch (e) {
+        console.error("[Firestore] query error:", e);
+        throw e;
+    }
+};
+
+/**
+ * Real-time listener — collection পরিবর্তনে callback চলবে
+ * @param {string}   collectionName
+ * @param {Function} callback   - (docs) => {}
+ * @param {Array}    [filters]
+ * @returns {Function} unsubscribe ফাংশন
+ */
+window.fsListen = function(collectionName, callback, filters = []) {
+    let q = collection(db, collectionName);
+    if (filters.length) {
+        const constraints = filters.map(f => where(f.field, f.op, f.value));
+        q = query(q, ...constraints);
+    }
+    return onSnapshot(q, snap => {
+        const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        callback(docs);
+    }, e => console.error("[Firestore] listener error:", e));
+};
+
+/**
+ * Numeric field বাড়াও বা কমাও atomically
+ * @param {string} collectionName
+ * @param {string} docId
+ * @param {string} field
+ * @param {number} [by=1]
+ */
+window.fsIncrement = async function(collectionName, docId, field, by = 1) {
+    try {
+        await updateDoc(doc(db, collectionName, docId), {
+            [field]: increment(by),
+            updatedAt: serverTimestamp()
+        });
+    } catch (e) {
+        console.error("[Firestore] increment error:", e);
+        throw e;
+    }
+};
+
+// ════════════════════════════════════════════════════════════════
+// STORAGE HELPER FUNCTIONS
+// ════════════════════════════════════════════════════════════════
+
+/**
+ * ফাইল আপলোড করো (simple)
+ * @param {string} storagePath  - যেমন "images/profile.jpg"
+ * @param {File|Blob} file
+ * @param {object} [metadata]
+ * @returns {string} download URL
+ */
+window.storageUpload = async function(storagePath, file, metadata = {}) {
+    try {
+        const storageRef = ref(storage, storagePath);
+        const snap = await uploadBytes(storageRef, file, metadata);
+        const url  = await getDownloadURL(snap.ref);
+        console.log(`[Storage] Uploaded → ${storagePath}`);
+        return url;
+    } catch (e) {
+        console.error("[Storage] upload error:", e);
+        throw e;
+    }
+};
+
+/**
+ * ফাইল আপলোড করো — progress সহ
+ * @param {string}   storagePath
+ * @param {File}     file
+ * @param {Function} onProgress   - (percent) => {}
+ * @param {object}   [metadata]
+ * @returns {Promise<string>} download URL
+ */
+window.storageUploadWithProgress = function(storagePath, file, onProgress = () => {}, metadata = {}) {
+    return new Promise((resolve, reject) => {
+        const storageRef   = ref(storage, storagePath);
+        const uploadTask   = uploadBytesResumable(storageRef, file, metadata);
+        uploadTask.on(
+            'state_changed',
+            snap => {
+                const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+                onProgress(pct);
+            },
+            err => { console.error("[Storage] upload error:", err); reject(err); },
+            async () => {
+                const url = await getDownloadURL(uploadTask.snapshot.ref);
+                console.log(`[Storage] Upload complete → ${storagePath}`);
+                resolve(url);
+            }
+        );
+    });
+};
+
+/**
+ * File-এর download URL নাও
+ * @param {string} storagePath
+ * @returns {string}
+ */
+window.storageGetURL = async function(storagePath) {
+    try {
+        return await getDownloadURL(ref(storage, storagePath));
+    } catch (e) {
+        console.error("[Storage] getURL error:", e);
+        throw e;
+    }
+};
+
+/**
+ * ফাইল মুছে ফেলো
+ * @param {string} storagePath
+ */
+window.storageDelete = async function(storagePath) {
+    try {
+        await deleteObject(ref(storage, storagePath));
+        console.log(`[Storage] Deleted → ${storagePath}`);
+    } catch (e) {
+        console.error("[Storage] delete error:", e);
+        throw e;
+    }
+};
+
+/**
+ * কোনো folder-এর সব ফাইলের list দেখো
+ * @param {string} folderPath  - যেমন "images/"
+ * @returns {Array<string>} file paths
+ */
+window.storageListFiles = async function(folderPath) {
+    try {
+        const result = await listAll(ref(storage, folderPath));
+        return result.items.map(item => item.fullPath);
+    } catch (e) {
+        console.error("[Storage] listAll error:", e);
+        throw e;
+    }
+};
+
+// ════════════════════════════════════════════════════════════════
+// APP-SPECIFIC FIRESTORE INTEGRATION
+// ════════════════════════════════════════════════════════════════
+
+// ── ১. Tasbeeh count sync ─────────────────────────────────────────
+/**
+ * Tasbeeh count Firestore-এ সেভ করো
+ * @param {string} userId  - anonymous / logged-in user id
+ * @param {string} type    - "subhanallah" | "alhamdulillah" | "allahuakbar"
+ * @param {number} count
+ */
+window.syncTasbeehToCloud = async function(userId, type, count) {
+    const docId = `${userId}_${type}`;
+    await window.fsSetDoc("tasbeeh", docId, { userId, type, count });
+};
+
+// ── ২. Blog / Article save ────────────────────────────────────────
+/**
+ * Admin panel থেকে নতুন article যোগ করো
+ * @param {object} article - { title, content, category, author, imageFile? }
+ * @returns {string} article ID
+ */
+window.saveArticle = async function(article) {
+    let imageUrl = '';
+    if (article.imageFile) {
+        const path = `articles/${Date.now()}_${article.imageFile.name}`;
+        imageUrl = await window.storageUpload(path, article.imageFile, {
+            contentType: article.imageFile.type
+        });
+    }
+    const id = await window.fsAddDoc("articles", {
+        title:    article.title    || '',
+        content:  article.content  || '',
+        category: article.category || 'general',
+        author:   article.author   || 'Admin',
+        imageUrl,
+        views:    0,
+        likes:    0
+    });
+    return id;
+};
+
+// ── ৩. Comment system ─────────────────────────────────────────────
+/**
+ * কোনো article-এ comment যোগ করো
+ * @param {string} articleId
+ * @param {object} comment - { name, text }
+ */
+window.addComment = async function(articleId, comment) {
+    await window.fsAddDoc(`articles/${articleId}/comments`, {
+        name: comment.name || 'Anonymous',
+        text: comment.text || '',
+    });
+};
+
+/**
+ * Article-এর সব comments real-time-এ listen করো
+ * @param {string}   articleId
+ * @param {Function} callback
+ * @returns {Function} unsubscribe
+ */
+window.listenComments = function(articleId, callback) {
+    return window.fsListen(`articles/${articleId}/comments`, callback);
+};
+
+// ── ৪. Visitor analytics ──────────────────────────────────────────
+(async () => {
+    try {
+        const today     = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+        const visitorId = (typeof window.lsGet === 'function') ? window.lsGet('ahlbayt_vid', '') : '';
+        if (!visitorId) {
+            const newId = 'v_' + Math.random().toString(36).slice(2, 11);
+            if (typeof window.lsSet === 'function') window.lsSet('ahlbayt_vid', newId);
+        }
+        await window.fsIncrement("analytics", today, "pageViews");
+    } catch (_) { /* silent fail */ }
+})();
+
+// ── ৫. User settings sync ─────────────────────────────────────────
+/**
+ * User preferences Firestore-এ সেভ করো
+ * @param {string} userId
+ * @param {object} prefs - { darkMode, language, fontSize }
+ */
+window.saveUserPrefs = async function(userId, prefs) {
+    await window.fsSetDoc("userPrefs", userId, prefs);
+};
+
+/**
+ * User preferences load করো
+ * @param {string} userId
+ * @returns {object|null}
+ */
+window.loadUserPrefs = async function(userId) {
+    return await window.fsGetDoc("userPrefs", userId);
+};
+
+// ── ৬. Dua / Zikr log ────────────────────────────────────────────
+/**
+ * ব্যবহারকারীর zikr history Firestore-এ লগ করো
+ * @param {string} userId
+ * @param {object} entry - { type, count, date }
+ */
+window.logZikr = async function(userId, entry) {
+    await window.fsAddDoc(`zikrHistory/${userId}/logs`, entry);
+};
+
+// ════════════════════════════════════════════════════════════════
+// FILE UPLOAD UI HELPER
+// ════════════════════════════════════════════════════════════════
+
+/**
+ * Progress bar সহ image upload করো এবং Firestore-এ URL সেভ করো
+ * @param {File}     file
+ * @param {string}   folder     - Storage folder নাম
+ * @param {string}   collection - Firestore collection নাম
+ * @param {object}   extraData  - অতিরিক্ত ডেটা
+ * @param {Function} [onProgress]
+ * @returns {{ id, url }}
+ */
+window.uploadAndSave = async function(file, folder, collectionName, extraData = {}, onProgress = () => {}) {
+    const path = `${folder}/${Date.now()}_${file.name}`;
+    const url  = await window.storageUploadWithProgress(path, file, onProgress, {
+        contentType: file.type
+    });
+    const id = await window.fsAddDoc(collectionName, { ...extraData, fileUrl: url, storagePath: path });
+    return { id, url };
+};
+
+console.log("✅ Firebase Firestore + Storage সফলভাবে যুক্ত হয়েছে।");
+console.log("   db:", db);
+console.log("   storage:", storage);
 </script>
 </body>
 </html>
