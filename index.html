@@ -1081,6 +1081,7 @@ async function handleFileUpload(e) {
             else if (state.uploadType==='video') state.videoList.push(meta);
             else if (state.uploadType==='audio') state.audioList.push(meta);
             saveState(); state.uploadProgress = 100; render();
+            try { await syncMediaToCloud(); } catch(e) { console.warn('[Media] index sync failed:', e); }
             const msgs = { image:'ছবি', pdf:'PDF', video:'ভিডিও', audio:'অডিও' };
             showToast(state.language==='bn'?`${msgs[state.uploadType]||'ফাইল'} Cloudinary-তে সেভ হয়েছে ✓`:'Saved to Cloudinary ✓','success');
             setTimeout(() => closeUploadModal(), 800);
@@ -1174,6 +1175,7 @@ async function deleteFile(id, listKey) {
     await dbDelete(id);
     state[listKey] = state[listKey].filter(f => f.id!==id);
     saveState(); render();
+    try { await syncMediaToCloud(); } catch(e) { console.warn('[Media] index sync on delete failed:', e); }
 }
 
 // ============================================================================
@@ -1460,6 +1462,46 @@ function openBlogEditor(post=null) {
 }
 function closeBlogEditor() { state.showBlogEditor=false; state.editingPost=null; render(); }
 // ── Blog → Cloudinary sync ───────────────────────────────────────────────────
+// ── Media index → Cloudinary ─────────────────────────────────────────────────
+async function syncMediaToCloud() {
+    try {
+        const index = {
+            pdfList:   state.pdfList,
+            imageList: state.imageList,
+            videoList: state.videoList,
+            audioList: state.audioList,
+        };
+        const blob = new Blob([JSON.stringify(index)], { type:'application/json' });
+        const file = new File([blob], 'media_index.json', { type:'application/json' });
+        const fd = new FormData();
+        fd.append('file', file);
+        fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+        fd.append('folder', 'library');
+        fd.append('public_id', 'media_index');
+        fd.append('resource_type', 'raw');
+        fd.append('invalidate', 'true');
+        fd.append('overwrite', 'true');
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/raw/upload`, { method:'POST', body:fd });
+        if (!res.ok) throw new Error(await res.text());
+        console.log('[Media] index synced to Cloudinary');
+    } catch(e) { console.error('[Media] sync error:', e); throw e; }
+}
+
+async function fetchMediaFromCloud() {
+    try {
+        const url = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/raw/upload/library/media_index.json?cb=${Date.now()}`;
+        const res = await fetch(url);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.pdfList)   state.pdfList   = data.pdfList;
+        if (data.imageList) state.imageList = data.imageList;
+        if (data.videoList) state.videoList = data.videoList;
+        if (data.audioList) state.audioList = data.audioList;
+        saveState(); render();
+        console.log('[Media] loaded from Cloudinary');
+    } catch(e) { console.warn('[Media] fetch error:', e.message); }
+}
+
 async function syncBlogToCloud(posts) {
     try {
         const blob = new Blob([JSON.stringify(posts)], { type:'application/json' });
@@ -4181,7 +4223,8 @@ function init() {
         setTimeout(schedulePrayerNotifications, 3000);
     }
     setupScrollTop();
-    fetchBlogFromCloud(); // load blog posts from Cloudinary (cross-device)
+    fetchBlogFromCloud();  // load blog posts from Cloudinary (cross-device)
+    fetchMediaFromCloud(); // load media index from Cloudinary (cross-device)
     setTimeout(hideSplash, 2600);
 }
 
@@ -4204,13 +4247,19 @@ const CLOUDINARY_UPLOAD_PRESET = "ahlalbayt_upload";
  */
 window.storageUpload = async function(folder, file) {
     try {
+        const mime = file.type || '';
+        let resourceType = 'auto';
+        if (mime.startsWith('image/')) resourceType = 'image';
+        else if (mime.startsWith('video/') || mime.startsWith('audio/')) resourceType = 'video';
+        else if (mime === 'application/pdf' || mime === 'application/json' || mime.includes('text/')) resourceType = 'raw';
+
         const formData = new FormData();
         formData.append("file", file);
         formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
         formData.append("folder", folder);
 
         const res = await fetch(
-            `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`,
+            `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`,
             { method: "POST", body: formData }
         );
         if (!res.ok) throw new Error("Cloudinary upload failed: " + res.statusText);
@@ -4232,13 +4281,19 @@ window.storageUpload = async function(folder, file) {
  */
 window.storageUploadWithProgress = function(folder, file, onProgress = () => {}) {
     return new Promise((resolve, reject) => {
+        const mime = file.type || '';
+        let resourceType = 'auto';
+        if (mime.startsWith('image/')) resourceType = 'image';
+        else if (mime.startsWith('video/') || mime.startsWith('audio/')) resourceType = 'video';
+        else if (mime === 'application/pdf' || mime === 'application/json' || mime.includes('text/')) resourceType = 'raw';
+
         const formData = new FormData();
         formData.append("file", file);
         formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
         formData.append("folder", folder);
 
         const xhr = new XMLHttpRequest();
-        xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`);
+        xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`);
 
         xhr.upload.onprogress = (e) => {
             if (e.lengthComputable) {
