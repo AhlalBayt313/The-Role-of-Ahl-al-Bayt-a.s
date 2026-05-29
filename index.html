@@ -487,9 +487,16 @@ async function dbDelete(id) {
 }
 
 // ============================================================================
-// ADMIN CONFIG — change ADMIN_PASS to your password
+// ADMIN CONFIG — SHA-256 hash of your password (never store plaintext)
+// To change password: run  crypto.subtle.digest('SHA-256', new TextEncoder().encode('newpass'))
+//   then convert to hex and update ADMIN_PASS_HASH below.
 // ============================================================================
-const ADMIN_PASS = 'ahlbayt2024';
+const ADMIN_PASS_HASH = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9'; // admin123
+
+async function hashPassword(pass) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pass));
+    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
 
 // ============================================================================
 // STATE
@@ -815,7 +822,7 @@ function lsGet(key, fallback=null) {
 function lsSet(key, val) {
     try { localStorage.setItem(key, JSON.stringify(val)); } catch(e){ console.warn('ls set failed',e); }
 }
-// Expose to window so Firebase module script can access
+// Expose to window so other scripts can access
 window.lsGet = lsGet;
 window.lsSet = lsSet;
 
@@ -1013,8 +1020,10 @@ function getUserLocation() {
 // ============================================================================
 // ADMIN
 // ============================================================================
-function tryAdminLogin(pass) {
-    if (pass === ADMIN_PASS) {
+async function tryAdminLogin(pass) {
+    if (!pass) return;
+    const hash = await hashPassword(pass);
+    if (hash === ADMIN_PASS_HASH) {
         state.isAdmin = true;
         state.showAdminLogin = false;
         state.adminLoginError = '';
@@ -1052,33 +1061,81 @@ async function handleFileUpload(e) {
     }
     state.isUploading = true; state.uploadProgress = 0; render();
 
+    const id = 'file_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    const meta = {
+        id, name: file.name, size: file.size, type: file.type,
+        uploadDate: localDate(),
+        sizeFmt: formatBytes(file.size)
+    };
+
+    // ── Cloudinary folder mapping ──────────────────────────────────────────
+    const folderMap = {
+        image: 'library/images',
+        pdf:   'library/pdfs',
+        video: 'library/videos',
+        audio: 'library/audios',
+    };
+    const folder = folderMap[state.uploadType] || 'library/misc';
+
+    // ── All file types → Cloudinary ────────────────────────────────────────
+    if (typeof window.storageUploadWithProgress === 'function') {
+        try {
+            const url = await window.storageUploadWithProgress(
+                folder,
+                file,
+                pct => { state.uploadProgress = pct; render(); }
+            );
+            meta.cloudUrl = url; // CDN URL — no IndexedDB needed
+
+            if      (state.uploadType === 'image') state.imageList.push(meta);
+            else if (state.uploadType === 'pdf')   state.pdfList.push(meta);
+            else if (state.uploadType === 'video') state.videoList.push(meta);
+            else if (state.uploadType === 'audio') state.audioList.push(meta);
+
+            saveState();
+            state.uploadProgress = 100; render();
+
+            const successMsg = {
+                image: state.language==='bn' ? 'ছবি Cloudinary-তে সেভ হয়েছে ✓'   : 'Image saved to Cloudinary ✓',
+                pdf:   state.language==='bn' ? 'PDF Cloudinary-তে সেভ হয়েছে ✓'    : 'PDF saved to Cloudinary ✓',
+                video: state.language==='bn' ? 'ভিডিও Cloudinary-তে সেভ হয়েছে ✓' : 'Video saved to Cloudinary ✓',
+                audio: state.language==='bn' ? 'অডিও Cloudinary-তে সেভ হয়েছে ✓'  : 'Audio saved to Cloudinary ✓',
+            };
+            showToast(successMsg[state.uploadType] || 'Uploaded ✓', 'success');
+            setTimeout(() => closeUploadModal(), 800);
+        } catch(err) {
+            console.error('[Cloudinary] upload error:', err);
+            const errMsg = state.language==='bn'
+                ? 'আপলোড ব্যর্থ হয়েছে — internet connection চেক করুন'
+                : 'Upload failed — please check your internet connection';
+            showToast(errMsg, 'warning');
+            state.isUploading = false; render();
+        }
+        return;
+    }
+
+    // ── Fallback → IndexedDB (if Cloudinary script not loaded) ────────────
     const reader = new FileReader();
     reader.onprogress = ev => {
         if (ev.lengthComputable) {
-            state.uploadProgress = Math.round(ev.loaded/ev.total*90);
+            state.uploadProgress = Math.round(ev.loaded / ev.total * 90);
             render();
         }
     };
     reader.onload = async (ev) => {
         state.uploadProgress = 95; render();
-        const id = 'file_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-        const meta = {
-            id, name: file.name, size: file.size, type: file.type,
-            uploadDate: localDate(),
-            sizeFmt: formatBytes(file.size)
-        };
         try {
             await dbSave(id, ev.target.result);
-            if (state.uploadType==='pdf') state.pdfList.push(meta);
-            else if (state.uploadType==='image') state.imageList.push(meta);
+            if      (state.uploadType==='pdf')   state.pdfList.push(meta);
             else if (state.uploadType==='video') state.videoList.push(meta);
             else if (state.uploadType==='audio') state.audioList.push(meta);
+            else if (state.uploadType==='image') state.imageList.push(meta);
             saveState();
-            state.uploadProgress=100; render();
-            setTimeout(()=>closeUploadModal(), 800);
+            state.uploadProgress = 100; render();
+            setTimeout(() => closeUploadModal(), 800);
         } catch(err) {
             showToast(state.language==='bn'?'ফাইল সংরক্ষণে সমস্যা হয়েছে':'Failed to save file','warning');
-            state.isUploading=false; render();
+            state.isUploading = false; render();
         }
     };
     reader.readAsDataURL(file);
@@ -1104,6 +1161,13 @@ async function openViewer(item, type) {
     state.viewerItem = item; state.viewerType = type;
     state.viewerData = null; state.viewerLoading = true;
     state.currentPage = 'viewer'; render();
+    // Cloudinary images: use URL directly
+    if (item.cloudUrl) {
+        state.viewerData = item.cloudUrl;
+        state.viewerLoading = false; render();
+        return;
+    }
+    // Local files: load from IndexedDB
     try {
         const data = await dbGet(item.id);
         state.viewerData = data; state.viewerLoading = false; render();
@@ -2422,7 +2486,10 @@ function renderMediaPage() {
 function renderMediaCard(item, type, listKey, d, l) {
     const thumb = type==='image'
         ? `<div class="${d?'bg-gray-700':'bg-gray-100'} h-44 rounded-xl overflow-hidden flex items-center justify-center mb-3">
-               <img src="" data-src-id="${item.id}" class="lazy-img w-full h-full object-cover" alt="${sanitize(item.name)}" loading="lazy" />
+               ${item.cloudUrl
+                   ? `<img src="${item.cloudUrl}" class="w-full h-full object-cover" alt="${sanitize(item.name)}" loading="lazy" />`
+                   : `<img src="" data-src-id="${item.id}" class="lazy-img w-full h-full object-cover" alt="${sanitize(item.name)}" loading="lazy" />`
+               }
            </div>`
         : type==='video'
         ? `<div class="${d?'bg-gray-700':'bg-gray-100'} h-44 rounded-xl flex items-center justify-center mb-3 text-4xl">🎬</div>`
@@ -2481,11 +2548,19 @@ function renderViewerPage() {
 }
 
 function renderViewerContent(type, data, item, d, l) {
-    if (type==='pdf') return `
+    if (type==='pdf') {
+        const isCloud = data.startsWith('http');
+        const iframeSrc = isCloud
+            ? `https://docs.google.com/viewer?url=${encodeURIComponent(data)}&embedded=true`
+            : data;
+        return `
         <div class="rounded-xl overflow-hidden" style="height:80vh">
-            <iframe src="${data}" class="w-full h-full border-0 rounded-xl" title="${sanitize(item.name)}"></iframe>
+            <iframe src="${iframeSrc}" class="w-full h-full border-0 rounded-xl" title="${sanitize(item.name)}"></iframe>
         </div>
-        <p class="text-xs text-center mt-3 ${d?'text-gray-500':'text-gray-400'}">${l==='bn'?'পিডিএফ লোড না হলে ডাউনলোড করে পড়ুন':'If PDF doesn\'t load, please download it'}</p>`;
+        <div class="flex flex-wrap items-center justify-center gap-3 mt-3">
+            <p class="text-xs ${d?'text-gray-500':'text-gray-400'}">${l==='bn'?'পিডিএফ লোড না হলে ডাউনলোড করুন':'If PDF doesn\'t load, download it'}</p>
+            ${isCloud?`<a href="${data}" target="_blank" download class="text-xs px-3 py-1.5 rounded-lg font-bold" style="background:rgba(5,150,105,.15);color:#059669;border:1px solid rgba(5,150,105,.25)">⬇ ${l==='bn'?'ডাউনলোড':'Download'}</a>`:''}
+        </div>`; }
 
     if (type==='image') return `
         <div class="flex justify-center bg-${d?'gray-900':'gray-50'} rounded-xl p-4">
@@ -4052,458 +4127,95 @@ init();
 </script>
 
 <!-- ============================================================ -->
-<!-- FIREBASE — App + Analytics + Firestore + Storage            -->
+<!-- CLOUDINARY — Image Upload Helper                            -->
 <!-- ============================================================ -->
-<script type="module">
-// ── SDK imports ──────────────────────────────────────────────────
-import { initializeApp }        from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-import { getAnalytics }         from "https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js";
-import {
-    getFirestore,
-    collection,
-    doc,
-    addDoc,
-    getDoc,
-    getDocs,
-    setDoc,
-    updateDoc,
-    deleteDoc,
-    query,
-    where,
-    orderBy,
-    limit,
-    onSnapshot,
-    serverTimestamp,
-    increment
-} from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
-import {
-    getStorage,
-    ref,
-    uploadBytes,
-    uploadBytesResumable,
-    getDownloadURL,
-    deleteObject,
-    listAll
-} from "https://www.gstatic.com/firebasejs/12.13.0/firebase-storage.js";
-
-// ── Firebase Config ───────────────────────────────────────────────
-const firebaseConfig = {
-    apiKey:            "AIzaSyD5PEdvegmhbht9fXHKCPX8SjSceO1msLE",
-    authDomain:        "ahlulbayt-website-313.firebaseapp.com",
-    projectId:         "ahlulbayt-website-313",
-    storageBucket:     "ahlulbayt-website-313.firebasestorage.app",
-    messagingSenderId: "507896248479",
-    appId:             "1:507896248479:web:c02941b8288ecfd40d8aaa",
-    measurementId:     "G-63SW4KCVS7"
-};
-
-// ── Initialize Services ──────────────────────────────────────────
-const app       = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const db        = getFirestore(app);
-const storage   = getStorage(app);
-
-// ── Expose globally for non-module scripts ───────────────────────
-window.firebase = { app, analytics, db, storage };
-
-// ════════════════════════════════════════════════════════════════
-// FIRESTORE HELPER FUNCTIONS
-// ════════════════════════════════════════════════════════════════
+<script>
+// ── Cloudinary Config ─────────────────────────────────────────────
+const CLOUDINARY_CLOUD_NAME    = "ahlalbayt";
+const CLOUDINARY_UPLOAD_PRESET = "ahlalbayt_upload";
 
 /**
- * কোনো collection-এ নতুন document যোগ করো
- * @param {string} collectionName  - Firestore collection নাম
- * @param {object} data            - সেভ করার ডেটা
- * @returns {string} নতুন document-এর ID
- */
-window.fsAddDoc = async function(collectionName, data) {
-    try {
-        const ref = await addDoc(collection(db, collectionName), {
-            ...data,
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
-        });
-        console.log(`[Firestore] Document added → ${collectionName}/${ref.id}`);
-        return ref.id;
-    } catch (e) {
-        console.error("[Firestore] addDoc error:", e);
-        throw e;
-    }
-};
-
-/**
- * নির্দিষ্ট ID দিয়ে document সেট করো (overwrite)
- * @param {string} collectionName
- * @param {string} docId
- * @param {object} data
- */
-window.fsSetDoc = async function(collectionName, docId, data) {
-    try {
-        await setDoc(doc(db, collectionName, docId), {
-            ...data,
-            updatedAt: serverTimestamp()
-        }, { merge: true });
-        console.log(`[Firestore] Document set → ${collectionName}/${docId}`);
-    } catch (e) {
-        console.error("[Firestore] setDoc error:", e);
-        throw e;
-    }
-};
-
-/**
- * একটি document পড়ো
- * @param {string} collectionName
- * @param {string} docId
- * @returns {object|null}
- */
-window.fsGetDoc = async function(collectionName, docId) {
-    try {
-        const snap = await getDoc(doc(db, collectionName, docId));
-        return snap.exists() ? { id: snap.id, ...snap.data() } : null;
-    } catch (e) {
-        console.error("[Firestore] getDoc error:", e);
-        throw e;
-    }
-};
-
-/**
- * পুরো collection পড়ো
- * @param {string} collectionName
- * @returns {Array}
- */
-window.fsGetCollection = async function(collectionName) {
-    try {
-        const snap = await getDocs(collection(db, collectionName));
-        return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    } catch (e) {
-        console.error("[Firestore] getCollection error:", e);
-        throw e;
-    }
-};
-
-/**
- * document আপডেট করো (partial)
- * @param {string} collectionName
- * @param {string} docId
- * @param {object} data
- */
-window.fsUpdateDoc = async function(collectionName, docId, data) {
-    try {
-        await updateDoc(doc(db, collectionName, docId), {
-            ...data,
-            updatedAt: serverTimestamp()
-        });
-        console.log(`[Firestore] Document updated → ${collectionName}/${docId}`);
-    } catch (e) {
-        console.error("[Firestore] updateDoc error:", e);
-        throw e;
-    }
-};
-
-/**
- * document মুছে ফেলো
- * @param {string} collectionName
- * @param {string} docId
- */
-window.fsDeleteDoc = async function(collectionName, docId) {
-    try {
-        await deleteDoc(doc(db, collectionName, docId));
-        console.log(`[Firestore] Document deleted → ${collectionName}/${docId}`);
-    } catch (e) {
-        console.error("[Firestore] deleteDoc error:", e);
-        throw e;
-    }
-};
-
-/**
- * Query দিয়ে document খোঁজো
- * @param {string} collectionName
- * @param {Array}  filters  - [{ field, op, value }, ...]
- * @param {string} [orderField]
- * @param {number} [limitN]
- * @returns {Array}
- */
-window.fsQuery = async function(collectionName, filters = [], orderField = null, limitN = null) {
-    try {
-        let q = collection(db, collectionName);
-        const constraints = [];
-        filters.forEach(f => constraints.push(where(f.field, f.op, f.value)));
-        if (orderField) constraints.push(orderBy(orderField, 'desc'));
-        if (limitN)     constraints.push(limit(limitN));
-        q = query(q, ...constraints);
-        const snap = await getDocs(q);
-        return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    } catch (e) {
-        console.error("[Firestore] query error:", e);
-        throw e;
-    }
-};
-
-/**
- * Real-time listener — collection পরিবর্তনে callback চলবে
- * @param {string}   collectionName
- * @param {Function} callback   - (docs) => {}
- * @param {Array}    [filters]
- * @returns {Function} unsubscribe ফাংশন
- */
-window.fsListen = function(collectionName, callback, filters = []) {
-    let q = collection(db, collectionName);
-    if (filters.length) {
-        const constraints = filters.map(f => where(f.field, f.op, f.value));
-        q = query(q, ...constraints);
-    }
-    return onSnapshot(q, snap => {
-        const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        callback(docs);
-    }, e => console.error("[Firestore] listener error:", e));
-};
-
-/**
- * Numeric field বাড়াও বা কমাও atomically
- * @param {string} collectionName
- * @param {string} docId
- * @param {string} field
- * @param {number} [by=1]
- */
-window.fsIncrement = async function(collectionName, docId, field, by = 1) {
-    try {
-        await updateDoc(doc(db, collectionName, docId), {
-            [field]: increment(by),
-            updatedAt: serverTimestamp()
-        });
-    } catch (e) {
-        console.error("[Firestore] increment error:", e);
-        throw e;
-    }
-};
-
-// ════════════════════════════════════════════════════════════════
-// STORAGE HELPER FUNCTIONS
-// ════════════════════════════════════════════════════════════════
-
-/**
- * ফাইল আপলোড করো (simple)
- * @param {string} storagePath  - যেমন "images/profile.jpg"
+ * Cloudinary-তে ফাইল আপলোড করো (simple)
+ * @param {string}   folder  - Cloudinary folder (যেমন "articles")
  * @param {File|Blob} file
- * @param {object} [metadata]
- * @returns {string} download URL
+ * @returns {Promise<string>} secure_url
  */
-window.storageUpload = async function(storagePath, file, metadata = {}) {
+window.storageUpload = async function(folder, file) {
     try {
-        const storageRef = ref(storage, storagePath);
-        const snap = await uploadBytes(storageRef, file, metadata);
-        const url  = await getDownloadURL(snap.ref);
-        console.log(`[Storage] Uploaded → ${storagePath}`);
-        return url;
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+        formData.append("folder", folder);
+
+        const res = await fetch(
+            `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`,
+            { method: "POST", body: formData }
+        );
+        if (!res.ok) throw new Error("Cloudinary upload failed: " + res.statusText);
+        const data = await res.json();
+        console.log(`[Cloudinary] Uploaded → ${data.public_id}`);
+        return data.secure_url;
     } catch (e) {
-        console.error("[Storage] upload error:", e);
+        console.error("[Cloudinary] upload error:", e);
         throw e;
     }
 };
 
 /**
- * ফাইল আপলোড করো — progress সহ
- * @param {string}   storagePath
+ * Cloudinary-তে ফাইল আপলোড করো — progress সহ
+ * @param {string}   folder
  * @param {File}     file
- * @param {Function} onProgress   - (percent) => {}
- * @param {object}   [metadata]
- * @returns {Promise<string>} download URL
+ * @param {Function} onProgress  - (percent) => {}
+ * @returns {Promise<string>} secure_url
  */
-window.storageUploadWithProgress = function(storagePath, file, onProgress = () => {}, metadata = {}) {
+window.storageUploadWithProgress = function(folder, file, onProgress = () => {}) {
     return new Promise((resolve, reject) => {
-        const storageRef   = ref(storage, storagePath);
-        const uploadTask   = uploadBytesResumable(storageRef, file, metadata);
-        uploadTask.on(
-            'state_changed',
-            snap => {
-                const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
-                onProgress(pct);
-            },
-            err => { console.error("[Storage] upload error:", err); reject(err); },
-            async () => {
-                const url = await getDownloadURL(uploadTask.snapshot.ref);
-                console.log(`[Storage] Upload complete → ${storagePath}`);
-                resolve(url);
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+        formData.append("folder", folder);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`);
+
+        xhr.upload.onprogress = (e) => {
+            if (e.lengthComputable) {
+                onProgress(Math.round((e.loaded / e.total) * 100));
             }
-        );
+        };
+
+        xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                const data = JSON.parse(xhr.responseText);
+                console.log(`[Cloudinary] Upload complete → ${data.public_id}`);
+                resolve(data.secure_url);
+            } else {
+                try {
+                    const err = JSON.parse(xhr.responseText);
+                    reject(new Error("Cloudinary: " + (err.error?.message || xhr.statusText)));
+                } catch (_) {
+                    reject(new Error("Cloudinary upload failed: " + xhr.statusText));
+                }
+            }
+        };
+
+        xhr.onerror = () => reject(new Error("Network error — internet connection চেক করুন"));
+        xhr.send(formData);
     });
 };
 
 /**
- * File-এর download URL নাও
- * @param {string} storagePath
+ * Cloudinary public_id থেকে CDN URL তৈরি করো
+ * @param {string} publicId
+ * @param {object} [transforms]  - যেমন { width: 800, quality: "auto" }
  * @returns {string}
  */
-window.storageGetURL = async function(storagePath) {
-    try {
-        return await getDownloadURL(ref(storage, storagePath));
-    } catch (e) {
-        console.error("[Storage] getURL error:", e);
-        throw e;
-    }
+window.storageGetURL = function(publicId, transforms = {}) {
+    const t = Object.entries(transforms).map(([k, v]) => `${k}_${v}`).join(',');
+    return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/${t ? t + '/' : ''}${publicId}`;
 };
 
-/**
- * ফাইল মুছে ফেলো
- * @param {string} storagePath
- */
-window.storageDelete = async function(storagePath) {
-    try {
-        await deleteObject(ref(storage, storagePath));
-        console.log(`[Storage] Deleted → ${storagePath}`);
-    } catch (e) {
-        console.error("[Storage] delete error:", e);
-        throw e;
-    }
-};
-
-/**
- * কোনো folder-এর সব ফাইলের list দেখো
- * @param {string} folderPath  - যেমন "images/"
- * @returns {Array<string>} file paths
- */
-window.storageListFiles = async function(folderPath) {
-    try {
-        const result = await listAll(ref(storage, folderPath));
-        return result.items.map(item => item.fullPath);
-    } catch (e) {
-        console.error("[Storage] listAll error:", e);
-        throw e;
-    }
-};
-
-// ════════════════════════════════════════════════════════════════
-// APP-SPECIFIC FIRESTORE INTEGRATION
-// ════════════════════════════════════════════════════════════════
-
-// ── ১. Tasbeeh count sync ─────────────────────────────────────────
-/**
- * Tasbeeh count Firestore-এ সেভ করো
- * @param {string} userId  - anonymous / logged-in user id
- * @param {string} type    - "subhanallah" | "alhamdulillah" | "allahuakbar"
- * @param {number} count
- */
-window.syncTasbeehToCloud = async function(userId, type, count) {
-    const docId = `${userId}_${type}`;
-    await window.fsSetDoc("tasbeeh", docId, { userId, type, count });
-};
-
-// ── ২. Blog / Article save ────────────────────────────────────────
-/**
- * Admin panel থেকে নতুন article যোগ করো
- * @param {object} article - { title, content, category, author, imageFile? }
- * @returns {string} article ID
- */
-window.saveArticle = async function(article) {
-    let imageUrl = '';
-    if (article.imageFile) {
-        const path = `articles/${Date.now()}_${article.imageFile.name}`;
-        imageUrl = await window.storageUpload(path, article.imageFile, {
-            contentType: article.imageFile.type
-        });
-    }
-    const id = await window.fsAddDoc("articles", {
-        title:    article.title    || '',
-        content:  article.content  || '',
-        category: article.category || 'general',
-        author:   article.author   || 'Admin',
-        imageUrl,
-        views:    0,
-        likes:    0
-    });
-    return id;
-};
-
-// ── ৩. Comment system ─────────────────────────────────────────────
-/**
- * কোনো article-এ comment যোগ করো
- * @param {string} articleId
- * @param {object} comment - { name, text }
- */
-window.addComment = async function(articleId, comment) {
-    await window.fsAddDoc(`articles/${articleId}/comments`, {
-        name: comment.name || 'Anonymous',
-        text: comment.text || '',
-    });
-};
-
-/**
- * Article-এর সব comments real-time-এ listen করো
- * @param {string}   articleId
- * @param {Function} callback
- * @returns {Function} unsubscribe
- */
-window.listenComments = function(articleId, callback) {
-    return window.fsListen(`articles/${articleId}/comments`, callback);
-};
-
-// ── ৪. Visitor analytics ──────────────────────────────────────────
-(async () => {
-    try {
-        const today     = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-        const visitorId = (typeof window.lsGet === 'function') ? window.lsGet('ahlbayt_vid', '') : '';
-        if (!visitorId) {
-            const newId = 'v_' + Math.random().toString(36).slice(2, 11);
-            if (typeof window.lsSet === 'function') window.lsSet('ahlbayt_vid', newId);
-        }
-        await window.fsIncrement("analytics", today, "pageViews");
-    } catch (_) { /* silent fail */ }
-})();
-
-// ── ৫. User settings sync ─────────────────────────────────────────
-/**
- * User preferences Firestore-এ সেভ করো
- * @param {string} userId
- * @param {object} prefs - { darkMode, language, fontSize }
- */
-window.saveUserPrefs = async function(userId, prefs) {
-    await window.fsSetDoc("userPrefs", userId, prefs);
-};
-
-/**
- * User preferences load করো
- * @param {string} userId
- * @returns {object|null}
- */
-window.loadUserPrefs = async function(userId) {
-    return await window.fsGetDoc("userPrefs", userId);
-};
-
-// ── ৬. Dua / Zikr log ────────────────────────────────────────────
-/**
- * ব্যবহারকারীর zikr history Firestore-এ লগ করো
- * @param {string} userId
- * @param {object} entry - { type, count, date }
- */
-window.logZikr = async function(userId, entry) {
-    await window.fsAddDoc(`zikrHistory/${userId}/logs`, entry);
-};
-
-// ════════════════════════════════════════════════════════════════
-// FILE UPLOAD UI HELPER
-// ════════════════════════════════════════════════════════════════
-
-/**
- * Progress bar সহ image upload করো এবং Firestore-এ URL সেভ করো
- * @param {File}     file
- * @param {string}   folder     - Storage folder নাম
- * @param {string}   collection - Firestore collection নাম
- * @param {object}   extraData  - অতিরিক্ত ডেটা
- * @param {Function} [onProgress]
- * @returns {{ id, url }}
- */
-window.uploadAndSave = async function(file, folder, collectionName, extraData = {}, onProgress = () => {}) {
-    const path = `${folder}/${Date.now()}_${file.name}`;
-    const url  = await window.storageUploadWithProgress(path, file, onProgress, {
-        contentType: file.type
-    });
-    const id = await window.fsAddDoc(collectionName, { ...extraData, fileUrl: url, storagePath: path });
-    return { id, url };
-};
-
-console.log("✅ Firebase Firestore + Storage সফলভাবে যুক্ত হয়েছে।");
-console.log("   db:", db);
-console.log("   storage:", storage);
+console.log("✅ Cloudinary সফলভাবে যুক্ত হয়েছে — Cloud:", CLOUDINARY_CLOUD_NAME);
 </script>
 </body>
 </html>
