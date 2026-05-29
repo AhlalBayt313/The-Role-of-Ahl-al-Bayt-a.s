@@ -1068,60 +1068,33 @@ async function handleFileUpload(e) {
         sizeFmt: formatBytes(file.size)
     };
 
-    // ── Cloudinary folder mapping ──────────────────────────────────────────
-    const folderMap = {
-        image: 'library/images',
-        pdf:   'library/pdfs',
-        video: 'library/videos',
-        audio: 'library/audios',
-    };
+    // ── All types → Cloudinary ──────────────────────────────────────────────
+    const folderMap = { image:'library/images', pdf:'library/pdfs', video:'library/videos', audio:'library/audios' };
     const folder = folderMap[state.uploadType] || 'library/misc';
 
-    // ── All file types → Cloudinary ────────────────────────────────────────
     if (typeof window.storageUploadWithProgress === 'function') {
         try {
-            const url = await window.storageUploadWithProgress(
-                folder,
-                file,
-                pct => { state.uploadProgress = pct; render(); }
-            );
-            meta.cloudUrl = url; // CDN URL — no IndexedDB needed
-
-            if      (state.uploadType === 'image') state.imageList.push(meta);
-            else if (state.uploadType === 'pdf')   state.pdfList.push(meta);
-            else if (state.uploadType === 'video') state.videoList.push(meta);
-            else if (state.uploadType === 'audio') state.audioList.push(meta);
-
-            saveState();
-            state.uploadProgress = 100; render();
-
-            const successMsg = {
-                image: state.language==='bn' ? 'ছবি Cloudinary-তে সেভ হয়েছে ✓'   : 'Image saved to Cloudinary ✓',
-                pdf:   state.language==='bn' ? 'PDF Cloudinary-তে সেভ হয়েছে ✓'    : 'PDF saved to Cloudinary ✓',
-                video: state.language==='bn' ? 'ভিডিও Cloudinary-তে সেভ হয়েছে ✓' : 'Video saved to Cloudinary ✓',
-                audio: state.language==='bn' ? 'অডিও Cloudinary-তে সেভ হয়েছে ✓'  : 'Audio saved to Cloudinary ✓',
-            };
-            showToast(successMsg[state.uploadType] || 'Uploaded ✓', 'success');
+            const url = await window.storageUploadWithProgress(folder, file, pct => { state.uploadProgress = pct; render(); });
+            meta.cloudUrl = url;
+            if      (state.uploadType==='image') state.imageList.push(meta);
+            else if (state.uploadType==='pdf')   state.pdfList.push(meta);
+            else if (state.uploadType==='video') state.videoList.push(meta);
+            else if (state.uploadType==='audio') state.audioList.push(meta);
+            saveState(); state.uploadProgress = 100; render();
+            const msgs = { image:'ছবি', pdf:'PDF', video:'ভিডিও', audio:'অডিও' };
+            showToast(state.language==='bn'?`${msgs[state.uploadType]||'ফাইল'} Cloudinary-তে সেভ হয়েছে ✓`:'Saved to Cloudinary ✓','success');
             setTimeout(() => closeUploadModal(), 800);
         } catch(err) {
             console.error('[Cloudinary] upload error:', err);
-            const errMsg = state.language==='bn'
-                ? 'আপলোড ব্যর্থ হয়েছে — internet connection চেক করুন'
-                : 'Upload failed — please check your internet connection';
-            showToast(errMsg, 'warning');
+            showToast(state.language==='bn'?'আপলোড ব্যর্থ হয়েছে — internet connection চেক করুন':'Upload failed — check internet connection','warning');
             state.isUploading = false; render();
         }
         return;
     }
 
-    // ── Fallback → IndexedDB (if Cloudinary script not loaded) ────────────
+    // Fallback → IndexedDB
     const reader = new FileReader();
-    reader.onprogress = ev => {
-        if (ev.lengthComputable) {
-            state.uploadProgress = Math.round(ev.loaded / ev.total * 90);
-            render();
-        }
-    };
+    reader.onprogress = ev => { if (ev.lengthComputable) { state.uploadProgress = Math.round(ev.loaded/ev.total*90); render(); } };
     reader.onload = async (ev) => {
         state.uploadProgress = 95; render();
         try {
@@ -1130,8 +1103,7 @@ async function handleFileUpload(e) {
             else if (state.uploadType==='video') state.videoList.push(meta);
             else if (state.uploadType==='audio') state.audioList.push(meta);
             else if (state.uploadType==='image') state.imageList.push(meta);
-            saveState();
-            state.uploadProgress = 100; render();
+            saveState(); state.uploadProgress = 100; render();
             setTimeout(() => closeUploadModal(), 800);
         } catch(err) {
             showToast(state.language==='bn'?'ফাইল সংরক্ষণে সমস্যা হয়েছে':'Failed to save file','warning');
@@ -1148,20 +1120,41 @@ function formatBytes(bytes) {
 }
 
 async function downloadFile(id, name) {
+    const allLists = [...state.pdfList, ...state.imageList, ...state.videoList, ...state.audioList];
+    const item = allLists.find(f => f.id === id);
+    if (item && item.cloudUrl) {
+        showToast(state.language==='bn'?'ডাউনলোড প্রস্তুত হচ্ছে...':'Preparing download...','info');
+        try {
+            const res = await fetch(item.cloudUrl);
+            if (!res.ok) throw new Error('fetch failed');
+            const blob = await res.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = blobUrl; a.download = name;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+            showToast(state.language==='bn'?'ডাউনলোড শুরু হয়েছে ✓':'Download started ✓','success');
+        } catch(e) {
+            window.open(item.cloudUrl, '_blank');
+            showToast(state.language==='bn'?'নতুন ট্যাবে খুলছে — সেখান থেকে সেভ করুন':'Opened in new tab — save from there','info');
+        }
+        return;
+    }
     try {
         const data = await dbGet(id);
         if (!data) { showToast(state.language==='bn'?'ফাইল পাওয়া যায়নি':'File not found','warning'); return; }
         const a = document.createElement('a');
         a.href = data; a.download = name;
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    } catch(e) { showToast('Download failed','warning'); }
+        showToast(state.language==='bn'?'ডাউনলোড শুরু হয়েছে ✓':'Download started ✓','success');
+    } catch(e) { showToast(state.language==='bn'?'ডাউনলোড ব্যর্থ হয়েছে':'Download failed','warning'); }
 }
 
 async function openViewer(item, type) {
     state.viewerItem = item; state.viewerType = type;
     state.viewerData = null; state.viewerLoading = true;
     state.currentPage = 'viewer'; render();
-    // Cloudinary images: use URL directly
+    // Cloudinary files (all types): use URL directly
     if (item.cloudUrl) {
         state.viewerData = item.cloudUrl;
         state.viewerLoading = false; render();
@@ -1466,9 +1459,38 @@ function openBlogEditor(post=null) {
     render();
 }
 function closeBlogEditor() { state.showBlogEditor=false; state.editingPost=null; render(); }
-function saveBlogPost() {
+// ── Blog → Cloudinary sync ───────────────────────────────────────────────────
+async function syncBlogToCloud(posts) {
+    try {
+        const blob = new Blob([JSON.stringify(posts)], { type:'application/json' });
+        const file = new File([blob], 'posts_index.json', { type:'application/json' });
+        const fd = new FormData();
+        fd.append('file', file);
+        fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+        fd.append('folder', 'blog');
+        fd.append('public_id', 'posts_index');
+        fd.append('resource_type', 'raw');
+        fd.append('invalidate', 'true');
+        fd.append('overwrite', 'true');
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/raw/upload`, { method:'POST', body:fd });
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        console.log('[Blog] Synced →', data.secure_url);
+    } catch(e) { console.error('[Blog] sync error:', e); throw e; }
+}
+
+async function fetchBlogFromCloud() {
+    try {
+        const url = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/raw/upload/blog/posts_index.json?cb=${Date.now()}`;
+        const res = await fetch(url);
+        if (!res.ok) return;
+        const posts = await res.json();
+        if (Array.isArray(posts) && posts.length) { state.customPosts = posts; saveState(); render(); }
+    } catch(e) { console.warn('[Blog] fetch error:', e.message); }
+}
+
+async function saveBlogPost() {
     if (!state.editingPost) return;
-    // Sync any field values directly from DOM (defensive)
     const g = id => { const el=document.getElementById(id); return el?el.value:''; };
     if(g('blog-editor-titleBn')) state.editingPost.titleBn = g('blog-editor-titleBn');
     if(g('blog-editor-titleEn')) state.editingPost.titleEn = g('blog-editor-titleEn');
@@ -1485,14 +1507,26 @@ function saveBlogPost() {
     if (idx>-1) state.customPosts[idx]=state.editingPost;
     else state.customPosts.unshift(state.editingPost);
     saveState(); closeBlogEditor();
-    showToast(state.language==='bn'?'পোস্ট সংরক্ষিত হয়েছে ✨':'Post saved successfully ✨','success');
+    showToast(state.language==='bn'?'পোস্ট সংরক্ষিত হচ্ছে...':'Saving post...','info');
+    try {
+        await syncBlogToCloud(state.customPosts);
+        showToast(state.language==='bn'?'পোস্ট Cloudinary-তে সেভ হয়েছে ✨':'Post saved to Cloudinary ✨','success');
+    } catch(e) {
+        showToast(state.language==='bn'?'Cloudinary sync ব্যর্থ — locally সেভ হয়েছে':'Cloudinary sync failed — saved locally','warning');
+    }
 }
-function deleteCustomPost(id) {
+
+async function deleteCustomPost(id) {
     if (!state.isAdmin) return;
-    const msg = state.language==='bn'?'পোস্টটি মুছবেন?':'Delete this post?';
-    if (!confirm(msg)) return;
+    if (!confirm(state.language==='bn'?'পোস্টটি মুছবেন?':'Delete this post?')) return;
     state.customPosts = state.customPosts.filter(p=>p.id!==id);
     saveState(); render();
+    try {
+        await syncBlogToCloud(state.customPosts);
+        showToast(state.language==='bn'?'পোস্ট মুছে ফেলা হয়েছে ✓':'Post deleted ✓','success');
+    } catch(e) {
+        showToast(state.language==='bn'?'Cloudinary sync ব্যর্থ':'Cloudinary sync failed','warning');
+    }
 }
 
 // ── DUA / ZIYARAT EDITOR ──────────────────────────────────────────────────
@@ -2492,8 +2526,15 @@ function renderMediaCard(item, type, listKey, d, l) {
                }
            </div>`
         : type==='video'
-        ? `<div class="${d?'bg-gray-700':'bg-gray-100'} h-44 rounded-xl flex items-center justify-center mb-3 text-4xl">🎬</div>`
-        : `<div class="${d?'bg-gray-700':'bg-gray-100'} h-24 rounded-xl flex items-center justify-center mb-3 text-3xl">🎵</div>`;
+        ? `<div class="${d?'bg-gray-900':'bg-gray-800'} h-44 rounded-xl overflow-hidden flex items-center justify-center mb-3 relative">
+               ${item.cloudUrl?`<video src="${item.cloudUrl}" class="w-full h-full object-cover opacity-70" muted preload="metadata" style="pointer-events:none"></video>`:`<div class="text-5xl">🎬</div>`}
+               <div class="absolute inset-0 flex items-center justify-center">
+                   <div class="w-14 h-14 rounded-full flex items-center justify-center" style="background:rgba(5,150,105,0.85);box-shadow:0 4px 20px rgba(5,150,105,.5)"><span style="font-size:1.4rem;margin-left:3px">▶</span></div>
+               </div>
+           </div>`
+        : `<div class="${d?'bg-gradient-to-br from-gray-800 to-gray-900':'bg-gradient-to-br from-green-50 to-emerald-100'} h-28 rounded-xl flex items-center justify-center mb-3">
+               <div class="text-4xl">🎵</div>
+           </div>`;
 
     return `
     <div class="${d?'bg-gray-800':'bg-white'} border rounded-xl p-4 fade-in card-hover">
@@ -2548,37 +2589,58 @@ function renderViewerPage() {
 }
 
 function renderViewerContent(type, data, item, d, l) {
+    const dlBtn = (label) => `
+        <button data-action="downloadFile" data-param="${item.id}" data-name="${sanitize(item.name)}"
+            class="px-6 py-2.5 rounded-xl font-bold text-sm text-white flex items-center gap-2 mx-auto"
+            style="background:linear-gradient(135deg,#059669,#047857);box-shadow:0 4px 16px rgba(5,150,105,.4)">
+            ⬇ ${label}
+        </button>`;
+
     if (type==='pdf') {
         const isCloud = data.startsWith('http');
-        const iframeSrc = isCloud
-            ? `https://docs.google.com/viewer?url=${encodeURIComponent(data)}&embedded=true`
-            : data;
+        const src = isCloud ? `https://docs.google.com/viewer?url=${encodeURIComponent(data)}&embedded=true` : data;
         return `
-        <div class="rounded-xl overflow-hidden" style="height:80vh">
-            <iframe src="${iframeSrc}" class="w-full h-full border-0 rounded-xl" title="${sanitize(item.name)}"></iframe>
+        <div class="rounded-xl overflow-hidden" style="height:80vh;background:${d?'#111827':'#f9fafb'}">
+            <iframe src="${src}" class="w-full h-full border-0 rounded-xl" title="${sanitize(item.name)}"></iframe>
         </div>
-        <div class="flex flex-wrap items-center justify-center gap-3 mt-3">
-            <p class="text-xs ${d?'text-gray-500':'text-gray-400'}">${l==='bn'?'পিডিএফ লোড না হলে ডাউনলোড করুন':'If PDF doesn\'t load, download it'}</p>
-            ${isCloud?`<a href="${data}" target="_blank" download class="text-xs px-3 py-1.5 rounded-lg font-bold" style="background:rgba(5,150,105,.15);color:#059669;border:1px solid rgba(5,150,105,.25)">⬇ ${l==='bn'?'ডাউনলোড':'Download'}</a>`:''}
+        <div class="flex flex-wrap justify-center items-center gap-3 mt-4">
+            <p class="text-xs ${d?'text-gray-500':'text-gray-400'} w-full text-center">
+                ${l==='bn'?'লোড না হলে নিচের বাটন ব্যবহার করুন':'If it does not load, use the buttons below'}
+            </p>
+            ${isCloud?`<a href="${data}" target="_blank" rel="noopener noreferrer"
+                class="px-5 py-2 rounded-xl font-bold text-sm"
+                style="background:rgba(59,130,246,.15);color:#3b82f6;border:1px solid rgba(59,130,246,.3)">
+                🔗 ${l==='bn'?'নতুন ট্যাবে খুলুন':'Open in new tab'}
+            </a>`:''}
+            ${dlBtn(l==='bn'?'PDF ডাউনলোড করুন':'Download PDF')}
         </div>`; }
 
     if (type==='image') return `
-        <div class="flex justify-center bg-${d?'gray-900':'gray-50'} rounded-xl p-4">
-            <img src="${data}" class="max-w-full max-h-screen rounded-xl object-contain" alt="${sanitize(item.name)}" />
+        <div class="flex flex-col gap-4">
+            <div class="flex justify-center ${d?'bg-gray-900':'bg-gray-50'} rounded-xl p-4" style="min-height:300px">
+                <img src="${data}" class="max-w-full max-h-screen rounded-xl object-contain" alt="${sanitize(item.name)}" />
+            </div>
+            <div class="flex justify-center">${dlBtn(l==='bn'?'ছবি ডাউনলোড করুন':'Download Image')}</div>
         </div>`;
 
     if (type==='video') return `
-        <video src="${data}" class="w-full rounded-xl max-h-screen" controls controlsList="nodownload" autoplay muted playsinline>
-            ${l==='bn'?'আপনার ব্রাউজার ভিডিও সাপোর্ট করে না':'Your browser does not support video'}
-        </video>`;
+        <div class="flex flex-col gap-4">
+            <video src="${data}" class="w-full rounded-xl" style="max-height:75vh" controls playsinline>
+                ${l==='bn'?'আপনার ব্রাউজার ভিডিও সাপোর্ট করে না':'Your browser does not support video'}
+            </video>
+            <div class="flex justify-center">${dlBtn(l==='bn'?'ভিডিও ডাউনলোড করুন':'Download Video')}</div>
+        </div>`;
 
     if (type==='audio') return `
-        <div class="${d?'bg-gray-900':'bg-gray-50'} rounded-xl p-10 text-center">
-            <div class="text-7xl mb-6">🎵</div>
-            <h3 class="text-lg font-bold mb-6">${sanitize(item.name)}</h3>
-            <audio src="${data}" class="w-full" controls autoplay>
+        <div class="${d?'bg-gray-900':'bg-gradient-to-br from-green-50 to-emerald-100'} rounded-2xl p-10 text-center">
+            <div class="w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center text-4xl"
+                style="background:linear-gradient(135deg,#059669,#047857);box-shadow:0 8px 32px rgba(5,150,105,.4)">🎵</div>
+            <h3 class="text-lg font-bold mb-2">${sanitize(item.name)}</h3>
+            <p class="text-xs ${d?'text-gray-500':'text-gray-400'} mb-6">${sanitize(item.sizeFmt)} • ${sanitize(item.uploadDate)}</p>
+            <audio src="${data}" class="w-full mb-6" controls>
                 ${l==='bn'?'আপনার ব্রাউজার অডিও সাপোর্ট করে না':'Your browser does not support audio'}
             </audio>
+            <div class="flex justify-center">${dlBtn(l==='bn'?'অডিও ডাউনলোড করুন':'Download Audio')}</div>
         </div>`;
 
     return '';
@@ -4119,7 +4181,7 @@ function init() {
         setTimeout(schedulePrayerNotifications, 3000);
     }
     setupScrollTop();
-    // Hide splash after minimum 2 seconds for nice effect
+    fetchBlogFromCloud(); // load blog posts from Cloudinary (cross-device)
     setTimeout(hideSplash, 2600);
 }
 
