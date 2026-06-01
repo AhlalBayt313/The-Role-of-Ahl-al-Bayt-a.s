@@ -286,15 +286,34 @@
 
         /* ── Hero ── */
         .hero-luxury{position:relative;overflow:hidden;background:radial-gradient(ellipse at 20% 60%,#064e3b 0%,#022c22 35%,#0f172a 65%,#1e3a8a 100%)}
-        .hero-luxury-light{background:linear-gradient(135deg,#ecfdf5 0%,#d1fae5 30%,#eff6ff 70%,#dbeafe 100%)}
-        .hero-geo-bg{position:absolute;inset:0;pointer-events:none;background-image:repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(5,150,105,.05) 60px),repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(180,83,9,.03) 60px);animation:geoBg 30s linear infinite}
-        @keyframes geoBg{to{background-position:60px 60px}}
+        .hero-luxury-light{background:linear-gradient(145deg,#e8fdf4 0%,#d1fae5 25%,#ecfdf5 55%,#e0f2fe 80%,#dbeafe 100%)}
+        .hero-geo-bg{position:absolute;inset:0;pointer-events:none;background-image:repeating-linear-gradient(60deg,transparent,transparent 38px,rgba(5,150,105,.035) 38px,rgba(5,150,105,.035) 39px),repeating-linear-gradient(-60deg,transparent,transparent 38px,rgba(180,83,9,.025) 38px,rgba(180,83,9,.025) 39px)}
         .hero-orb{position:absolute;border-radius:50%;filter:blur(60px);pointer-events:none;opacity:.5}
         .hero-orb-1{width:380px;height:380px;background:radial-gradient(circle,#047857,transparent);top:-100px;right:-100px;animation:orbF 8s ease-in-out infinite}
         .hero-orb-2{width:280px;height:280px;background:radial-gradient(circle,#92400e,transparent);bottom:-80px;left:-80px;animation:orbF 10s ease-in-out infinite reverse;opacity:.3}
         @keyframes orbF{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-20px) scale(1.05)}66%{transform:translate(-20px,15px) scale(.95)}}
         .hero-particle{position:absolute;pointer-events:none;border-radius:50%;animation:heroP linear infinite}
         @keyframes heroP{0%{opacity:0;transform:translateY(0) translateX(0) scale(0)}10%{opacity:.6;transform:translateY(-10vh) translateX(calc(var(--drift,0px)*0.1)) scale(1)}90%{opacity:.2;transform:translateY(-78vh) translateX(var(--drift,0px))}100%{opacity:0;transform:translateY(-82vh) translateX(var(--drift,0px)) scale(.3)}}
+        .hero-ornament{position:absolute;border-radius:4px;transform:rotate(45deg);pointer-events:none;border:1.5px solid rgba(5,150,105,.18)}
+        .hero-ornament-tl{width:160px;height:160px;top:-55px;left:-55px}
+        .hero-ornament-tl2{width:110px;height:110px;top:-32px;left:-32px;border-color:rgba(180,83,9,.12)}
+        .hero-ornament-br{width:160px;height:160px;bottom:-55px;right:-55px}
+        .hero-ornament-br2{width:110px;height:110px;bottom:-32px;right:-32px;border-color:rgba(180,83,9,.12)}
+        .hero-float-dot{position:absolute;border-radius:50%;pointer-events:none;animation:heroDotFloat ease-in-out infinite}
+        @keyframes heroDotFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+        .hero-bismillah-pill{display:inline-flex;align-items:center;gap:10px;padding:8px 22px;border-radius:50px;background:rgba(255,255,255,.72);border:1px solid rgba(5,150,105,.2);backdrop-filter:blur(8px);margin-bottom:20px;box-shadow:0 2px 14px rgba(5,150,105,.1)}
+        .hero-bismillah-line{width:20px;height:1.5px;background:linear-gradient(90deg,transparent,#b45309)}
+        .hero-bismillah-line-r{background:linear-gradient(90deg,#b45309,transparent)}
+        .hero-crescent-badge{width:56px;height:56px;background:linear-gradient(135deg,#d97706,#b45309);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:1.5rem;box-shadow:0 4px 20px rgba(180,83,9,.3);animation:crescentBadgePulse 3s ease-in-out infinite}
+        @keyframes crescentBadgePulse{0%,100%{box-shadow:0 4px 20px rgba(180,83,9,.3);transform:scale(1)}50%{box-shadow:0 6px 32px rgba(180,83,9,.5);transform:scale(1.04)}}
+        .hero-arabic-sub{font-family:'Amiri',serif;font-size:1.1rem;color:#c9a227;direction:rtl;margin-bottom:6px;letter-spacing:1px}
+        .hero-divider-dots{display:flex;align-items:center;justify-content:center;gap:8px;margin:10px 0 18px}
+        .hero-divider-dot{width:5px;height:5px;border-radius:50%;background:#c9a227;opacity:.55}
+        .hero-divider-dot-mid{width:8px;height:8px;opacity:1}
+        .hero-stats-row{display:flex;gap:24px;justify-content:center;margin-top:26px;padding-top:20px;border-top:1px solid rgba(5,150,105,.12);flex-wrap:wrap}
+        .hero-stat-item{text-align:center}
+        .hero-stat-num{font-size:1.3rem;font-weight:800;color:#059669;display:block;line-height:1}
+        .hero-stat-label{font-size:.65rem;color:rgba(2,44,34,.5);margin-top:3px;letter-spacing:.5px}
 
         /* ── Footer luxury ── */
         .footer-luxury{background:linear-gradient(180deg,#022c22 0%,#011a14 60%,#0f172a 100%);position:relative;overflow:hidden}
