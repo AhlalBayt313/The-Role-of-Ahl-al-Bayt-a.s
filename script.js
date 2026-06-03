@@ -233,10 +233,22 @@ const state = {
     hadithIndex: 0,
     customHadiths: [],
     customAyahs: [],
+    nahjulBalagha: [],
+    sahifaSajjadiya: [],
+    imamHadiths: [],
+    specialDays: [],
     showHadithEditor: false,
     showAyahEditor: false,
     editingHadith: null,
     editingAyah: null,
+    // মুহাররম ইভেন্ট CRUD
+    muharramEvents: [],
+    showMuharramEditor: false,
+    editingMuharramEvent: null,
+    // শিয়া বিশেষ দিন CRUD
+    shiaSpecialDays: [],
+    showShiaDayEditor: false,
+    editingShiaDay: null,
 };
 
 // ============================================================================
@@ -464,15 +476,38 @@ const duas = [
 const hijriMonthsBn = ['মহররম','সফর','রবিউল আউয়াল','রবিউস সানি','জামাদিউল আউয়াল','জামাদিউস সানি','রজব','শাবান','রমজান','শাওয়াল','জিলক্বদ','জিলহজ'];
 const hijriMonthsEn = ['Muharram','Safar','Rabi al-Awwal','Rabi al-Thani','Jumada al-Awwal','Jumada al-Thani','Rajab','Shaban','Ramadan','Shawwal','Dhu al-Qidah','Dhu al-Hijjah'];
 const hijriEvents = {
-    '1-1':{bn:'হিজরি নববর্ষ',en:'Islamic New Year'},
-    '1-10':{bn:'আশুরা',en:'Ashura'},
-    '3-12':{bn:'ঈদে মিলাদুন্নবী (সা.)',en:'Mawlid al-Nabi'},
-    '7-27':{bn:'শবে মেরাজ',en:'Laylat al-Miraj'},
-    '8-15':{bn:'শবে বরাত',en:'Shab-e-Barat'},
-    '9-1':{bn:'রমজান শুরু',en:'Ramadan begins'},
-    '9-27':{bn:'শবে কদর',en:'Laylat al-Qadr'},
-    '10-1':{bn:'ঈদুল ফিতর',en:'Eid al-Fitr'},
-    '12-10':{bn:'ঈদুল আযহা',en:'Eid al-Adha'},
+    // ── মূল ইসলামিক দিন ──
+    '1-1':{bn:'হিজরি নববর্ষ 🌙',en:'Islamic New Year 🌙',type:'special'},
+    '1-10':{bn:'🔴 আশুরা — ইমাম হোসাইন (আ.)-এর শাহাদাত',en:'🔴 Ashura — Imam Hussain (AS) Martyrdom',type:'ashura'},
+    '2-20':{bn:'চেহলুম — আরবাঈন',en:'Chehlum — Arbaeen',type:'martyrdom'},
+    '3-12':{bn:'ঈদে মিলাদুন্নবী (সা.)',en:"Mawlid al-Nabi",type:'eid'},
+    '3-17':{bn:'ইমাম সাদিক (আ.) জন্মদিন 🌟',en:'Imam Sadiq (AS) Birthday 🌟',type:'birth'},
+    '7-13':{bn:'ইমাম আলী (আ.) জন্মদিন 🦁',en:'Imam Ali (AS) Birthday 🦁',type:'birth'},
+    '7-27':{bn:'শবে মেরাজ',en:'Laylat al-Miraj',type:'special'},
+    '7-28':{bn:'ইমাম হাসান (আ.) শাহাদাত 🕊️',en:'Imam Hasan (AS) Martyrdom 🕊️',type:'martyrdom'},
+    '8-3':{bn:'ইমাম হোসাইন (আ.) জন্মদিন 🌸',en:'Imam Hussain (AS) Birthday 🌸',type:'birth'},
+    '8-10':{bn:'ইমাম হাসান আসকারি (আ.) জন্মদিন',en:'Imam Askari (AS) Birthday',type:'birth'},
+    '8-15':{bn:'নিমে শাবান — ইমাম মাহদি (আ.) জন্মদিন 🌙',en:"Mid-Shaban — Imam Mahdi (AS) Birthday 🌙",type:'birth'},
+    '9-1':{bn:'রমজান শুরু',en:'Ramadan begins',type:'special'},
+    '9-19':{bn:'শবে ক্বদর (১৯) — ইমাম আলী (আ.) আঘাতপ্রাপ্ত',en:"Laylat al-Qadr (19) — Imam Ali (AS) struck",type:'martyrdom'},
+    '9-21':{bn:'ইমাম আলী (আ.) শাহাদাত 🕊️ / শবে ক্বদর (২১)',en:"Imam Ali (AS) Martyrdom 🕊️ / Laylat al-Qadr (21)",type:'martyrdom'},
+    '9-23':{bn:'শবে ক্বদর (২৩ রমজান) ⭐',en:'Laylat al-Qadr (23 Ramadan) ⭐',type:'special'},
+    '9-27':{bn:'শবে কদর (২৭)',en:"Laylat al-Qadr (27)",type:'special'},
+    '10-1':{bn:'ঈদুল ফিতর 🎉',en:'Eid al-Fitr 🎉',type:'eid'},
+    '10-25':{bn:'ইমাম সাদিক (আ.) শাহাদাত 🕊️',en:'Imam Sadiq (AS) Martyrdom 🕊️',type:'martyrdom'},
+    '6-3':{bn:'ফাতেমা যাহরা (আ.) শাহাদাত 🌹',en:'Fatima al-Zahra (AS) Martyrdom 🌹',type:'martyrdom'},
+    '6-20':{bn:'ফাতেমা যাহরা (আ.) জন্মদিন 🌷',en:'Fatima al-Zahra (AS) Birthday 🌷',type:'birth'},
+    '3-8':{bn:'ইমাম আসকারি (আ.) শাহাদাত 🕊️',en:'Imam Askari (AS) Martyrdom 🕊️',type:'martyrdom'},
+    '3-15':{bn:'ইমাম হাসান (আ.) জন্মদিন',en:'Imam Hasan (AS) Birthday',type:'birth'},
+    '5-25':{bn:'ইমাম কাযিম (আ.) শাহাদাত 🕊️',en:'Imam Kazim (AS) Martyrdom 🕊️',type:'martyrdom'},
+    '7-7':{bn:'ইমাম কাযিম (আ.) জন্মদিন / ইমাম বাকির (আ.) শাহাদাত',en:'Imam Kazim (AS) Birthday / Imam Baqir (AS) Martyrdom',type:'mixed'},
+    '2-17':{bn:'ইমাম রেজা (আ.) শাহাদাত 🕊️',en:'Imam Ridha (AS) Martyrdom 🕊️',type:'martyrdom'},
+    '11-11':{bn:'ইমাম রেজা (আ.) জন্মদিন',en:'Imam Ridha (AS) Birthday',type:'birth'},
+    '12-10':{bn:'ঈদুল আযহা 🎉',en:'Eid al-Adha 🎉',type:'eid'},
+    '12-18':{bn:'ঈদে গাদির খুম 🎊',en:'Eid al-Ghadeer 🎊',type:'eid'},
+    '12-24':{bn:'ঈদে মুবাহিলা ✨',en:'Eid al-Mubahila ✨',type:'eid'},
+    '12-15':{bn:'ইমাম হাদি (আ.) জন্মদিন',en:'Imam Hadi (AS) Birthday',type:'birth'},
+    '4-3':{bn:'ইমাম হাদি (আ.) শাহাদাত 🕊️',en:'Imam Hadi (AS) Martyrdom 🕊️',type:'martyrdom'},
 };
 
 // ============================================================================
@@ -493,6 +528,12 @@ const KEYS = {
     PRAYER_TIMES:'ahlbayt_prayer_times',
     CUSTOM_HADITHS:'ahlbayt_custom_hadiths',
     CUSTOM_AYAHS:'ahlbayt_custom_ayahs',
+    NAHJUL_BALAGHA:'ahlbayt_nahjul_balagha',
+    SAHIFA_SAJJADIYA:'ahlbayt_sahifa_sajjadiya',
+    IMAM_HADITHS:'ahlbayt_imam_hadiths',
+    SPECIAL_DAYS:'ahlbayt_special_days',
+    MUHARRAM_EVENTS:'ahlbayt_muharram_events',
+    SHIA_SPECIAL_DAYS:'ahlbayt_shia_special_days',
 };
 
 function lsGet(key, fallback=null) {
@@ -526,6 +567,12 @@ function loadState() {
         state.customZiyarat = lsGet(KEYS.CUSTOM_ZIYARAT, []);
         state.customHadiths = lsGet(KEYS.CUSTOM_HADITHS, []);
         state.customAyahs = lsGet(KEYS.CUSTOM_AYAHS, []);
+        state.nahjulBalagha = lsGet(KEYS.NAHJUL_BALAGHA, []);
+        state.sahifaSajjadiya = lsGet(KEYS.SAHIFA_SAJJADIYA, []);
+        state.imamHadiths = lsGet(KEYS.IMAM_HADITHS, []);
+        state.specialDays = lsGet(KEYS.SPECIAL_DAYS, []);
+        state.muharramEvents = lsGet(KEYS.MUHARRAM_EVENTS, []);
+        state.shiaSpecialDays = lsGet(KEYS.SHIA_SPECIAL_DAYS, []);
         state.tasbeehCount  = lsGet(KEYS.TASBEEH_COUNT, 0);
         state.tasbeehLabel  = lsGet(KEYS.TASBEEH_LABEL, 'সুবহানআল্লাহ');
         state.tasbeehTarget = lsGet(KEYS.TASBEEH_TARGET, 33);
@@ -559,6 +606,12 @@ function saveState() {
     lsSet(KEYS.CUSTOM_ZIYARAT, state.customZiyarat);
     lsSet(KEYS.CUSTOM_HADITHS, state.customHadiths);
     lsSet(KEYS.CUSTOM_AYAHS, state.customAyahs);
+    lsSet(KEYS.NAHJUL_BALAGHA, state.nahjulBalagha);
+    lsSet(KEYS.SAHIFA_SAJJADIYA, state.sahifaSajjadiya);
+    lsSet(KEYS.IMAM_HADITHS, state.imamHadiths);
+    lsSet(KEYS.SPECIAL_DAYS, state.specialDays);
+    lsSet(KEYS.MUHARRAM_EVENTS, state.muharramEvents);
+    lsSet(KEYS.SHIA_SPECIAL_DAYS, state.shiaSpecialDays);
     lsSet(KEYS.TASBEEH_COUNT, state.tasbeehCount);
     lsSet(KEYS.TASBEEH_LABEL, state.tasbeehLabel);
     lsSet(KEYS.TASBEEH_TARGET, state.tasbeehTarget);
@@ -1554,7 +1607,32 @@ function setupEventListeners() {
                 case 'deleteCustomPost': deleteCustomPost(param); break;
                 // DUA / ZIYARAT
                 case 'setDuaTab': state.duaTab=param; render(); break;
-                case 'openDuaEditor': openDuaEditor(null, param); break;
+                case 'openKnowledgeEditor':
+            if(!state.isAdmin) return;
+            state.knowledgeEditorType = param;
+            state.editingKnowledgeItem = {};
+            state.editingKnowledgeIdx = -1;
+            state.showKnowledgeEditor = true;
+            render(); break;
+        case 'editKnowledgeItem':
+            if(!state.isAdmin) return;
+            {const dtype=el.dataset.dtype; const idx=parseInt(param);
+            const dataMap2={nahjul:'nahjulBalagha',sahifa:'sahifaSajjadiya',imamhadiths:'imamHadiths',specialdays:'specialDays'};
+            const arr=state[dataMap2[dtype]];
+            if(arr&&arr[idx]){state.knowledgeEditorType=dtype;state.editingKnowledgeItem={...arr[idx]};state.editingKnowledgeIdx=idx;state.showKnowledgeEditor=true;render();}}
+            break;
+        case 'deleteKnowledgeItem':
+            if(!state.isAdmin) return;
+            {const dtype=el.dataset.dtype; const idx=parseInt(param);
+            const dataMap3={nahjul:'nahjulBalagha',sahifa:'sahifaSajjadiya',imamhadiths:'imamHadiths',specialdays:'specialDays'};
+            const arrKey=dataMap3[dtype];
+            if(arrKey&&state[arrKey]){
+                if(confirm(state.language==='bn'?'মুছে ফেলবেন?':'Delete this item?')){
+                    state[arrKey].splice(idx,1);saveState();render();}}}
+            break;
+        case 'closeKnowledgeEditor':
+            state.showKnowledgeEditor=false;state.editingKnowledgeItem=null;render(); break;
+        case 'openDuaEditor': openDuaEditor(null, param); break;
                 case 'editCustomDua': {
                     const dtype=btn.getAttribute('data-dtype')||'dua';
                     const arr=dtype==='ziyarat'?state.customZiyarat:state.customDuas;
@@ -1631,6 +1709,62 @@ function setupEventListeners() {
                     state.currentImam=imams.find(im=>im.id===parseInt(param));
                     state.previousPage=state.currentPage; state.currentPage='imamDetail';
                     render(); window.scrollTo(0,0); break;
+                }
+                // ── মুহাররম ইভেন্ট CRUD ──
+                case 'openMuharramEditor': {
+                    if(!state.isAdmin){state.showAdminLogin=true;render();break;}
+                    state.editingMuharramEvent = param ? {...state.muharramEvents.find(x=>x.id===param)} : {id:'mev_'+Date.now(), icon:'🕌', date:'', titleBn:'', descBn:'', color:'#dc2626'};
+                    state.showMuharramEditor = true; render(); break;
+                }
+                case 'closeMuharramEditor': { state.showMuharramEditor=false; state.editingMuharramEvent=null; render(); break; }
+                case 'saveMuharramEvent': {
+                    if(!state.editingMuharramEvent) break;
+                    const me = state.editingMuharramEvent;
+                    me.icon = document.getElementById('mev-icon')?.value?.trim() || '🕌';
+                    me.date = document.getElementById('mev-date')?.value?.trim() || '';
+                    me.titleBn = document.getElementById('mev-title')?.value?.trim() || '';
+                    me.descBn = document.getElementById('mev-desc')?.value?.trim() || '';
+                    me.color = document.getElementById('mev-color')?.value || '#dc2626';
+                    if(!me.titleBn){alert('শিরোনাম লিখুন');break;}
+                    const idx=state.muharramEvents.findIndex(x=>x.id===me.id);
+                    if(idx>-1) state.muharramEvents[idx]=me; else state.muharramEvents.push(me);
+                    state.showMuharramEditor=false; state.editingMuharramEvent=null;
+                    saveState(); render(); showToast(state.language==='bn'?'সংরক্ষিত হয়েছে ✓':'Saved ✓','success'); break;
+                }
+                case 'deleteMuharramEvent': {
+                    if(!confirm(state.language==='bn'?'এই ঘটনা মুছবেন?':'Delete this event?')) break;
+                    state.muharramEvents = state.muharramEvents.filter(x=>x.id!==param);
+                    saveState(); render(); showToast(state.language==='bn'?'মুছে ফেলা হয়েছে':'Deleted','warning'); break;
+                }
+                // ── শিয়া বিশেষ দিন CRUD ──
+                case 'openShiaDayEditor': {
+                    if(!state.isAdmin){state.showAdminLogin=true;render();break;}
+                    state.editingShiaDay = param ? {...state.shiaSpecialDays.find(x=>x.id===param)} : {id:'sd_'+Date.now(), icon:'✨', type:'eid', hijriDate:'', titleBn:'', arabicTitle:'', descBn:'', amaal:'', importance:'', color:'#059669'};
+                    state.showShiaDayEditor = true; render(); break;
+                }
+                case 'closeShiaDayEditor': { state.showShiaDayEditor=false; state.editingShiaDay=null; render(); break; }
+                case 'saveShiaDay': {
+                    if(!state.editingShiaDay) break;
+                    const sd = state.editingShiaDay;
+                    sd.icon = document.getElementById('sd-icon')?.value?.trim() || '✨';
+                    sd.type = document.getElementById('sd-type')?.value || 'eid';
+                    sd.hijriDate = document.getElementById('sd-hijridate')?.value?.trim() || '';
+                    sd.titleBn = document.getElementById('sd-title')?.value?.trim() || '';
+                    sd.arabicTitle = document.getElementById('sd-arabic')?.value?.trim() || '';
+                    sd.descBn = document.getElementById('sd-desc')?.value?.trim() || '';
+                    sd.amaal = document.getElementById('sd-amaal')?.value?.trim() || '';
+                    sd.importance = document.getElementById('sd-importance')?.value?.trim() || '';
+                    sd.color = sd.type==='eid'?'#059669':sd.type==='martyrdom'?'#dc2626':'#b45309';
+                    if(!sd.titleBn){alert('শিরোনাম লিখুন');break;}
+                    const idx=state.shiaSpecialDays.findIndex(x=>x.id===sd.id);
+                    if(idx>-1) state.shiaSpecialDays[idx]=sd; else state.shiaSpecialDays.push(sd);
+                    state.showShiaDayEditor=false; state.editingShiaDay=null;
+                    saveState(); render(); showToast(state.language==='bn'?'সংরক্ষিত হয়েছে ✓':'Saved ✓','success'); break;
+                }
+                case 'deleteShiaDay': {
+                    if(!confirm(state.language==='bn'?'এই বিশেষ দিন মুছবেন?':'Delete this special day?')) break;
+                    state.shiaSpecialDays = state.shiaSpecialDays.filter(x=>x.id!==param);
+                    saveState(); render(); showToast(state.language==='bn'?'মুছে ফেলা হয়েছে':'Deleted','warning'); break;
                 }
             }
         }
@@ -2193,7 +2327,7 @@ function renderHomePage()
         </div>
     </div>
     <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-14">
-        ${[['📖',l==='bn'?'ব্লগ':'Blog',l==='bn'?'ইসলামিক লেখা':'Islamic writings','blog','#059669','rgba(5,150,105,.1)','rgba(5,150,105,.25)',l==='bn'?'ব্লগ':'Blog'],['👑',l==='bn'?'১২ ইমাম':'12 Imams',l==='bn'?'পবিত্র ইমামগণ':'Holy Imams','imams','#7c3aed','rgba(124,58,237,.1)','rgba(124,58,237,.25)',l==='bn'?'ইমাম':'Imams'],['🤲',l==='bn'?'দোয়া':'Duas',l==='bn'?'আহলে বাইতের দোয়া':'Prayers','dua','#b45309','rgba(180,83,9,.1)','rgba(180,83,9,.25)',l==='bn'?'দোয়া':'Duas'],['📚',l==='bn'?'লাইব্রেরি':'Library',l==='bn'?'ইসলামিক বই':'Islamic books','library','#0369a1','rgba(3,105,161,.1)','rgba(3,105,161,.25)',l==='bn'?'লাইব্রেরি':'Library'],['📿',l==='bn'?'তাসবিহ':'Tasbeeh',l==='bn'?'ডিজিটাল তাসবিহ':'Digital tasbeeh','tasbeeh','#059669','rgba(5,150,105,.1)','rgba(5,150,105,.25)',l==='bn'?'তাসবিহ':'Tasbeeh'],['🧠',l==='bn'?'কুইজ':'Quiz',l==='bn'?'জ্ঞান পরীক্ষা':'Test knowledge','quiz','#dc2626','rgba(220,38,38,.1)','rgba(220,38,38,.25)',l==='bn'?'কুইজ':'Quiz'],['☀️',l==='bn'?'৯৯ নাম':'99 Names',l==='bn'?'আসমাউল হুসনা':'Names of Allah','asmaul','#b45309','rgba(180,83,9,.1)','rgba(180,83,9,.25)',l==='bn'?'৯৯ নাম':'Names'],['🧭',l==='bn'?'কিবলা':'Qibla',l==='bn'?'কিবলার দিক':'Qibla direction','qibla','#0d9488','rgba(13,148,136,.1)','rgba(13,148,136,.25)',l==='bn'?'কিবলা':'Qibla'],['📅',l==='bn'?'ক্যালেন্ডার':'Calendar',l==='bn'?'হিজরি ক্যালেন্ডার':'Hijri Calendar','calendar','#7c3aed','rgba(124,58,237,.1)','rgba(124,58,237,.25)',l==='bn'?'ক্যালেন্ডার':'Calendar']].map(([icon,title,desc,page,color,bg,faint,badge],fi)=>`
+        ${[['📖',l==='bn'?'ব্লগ':'Blog',l==='bn'?'ইসলামিক লেখা':'Islamic writings','blog','#059669','rgba(5,150,105,.1)','rgba(5,150,105,.25)',l==='bn'?'ব্লগ':'Blog'],['📚',l==='bn'?'লাইব্রেরি':'Library',l==='bn'?'ইসলামিক বই':'Islamic books','library','#0369a1','rgba(3,105,161,.1)','rgba(3,105,161,.25)',l==='bn'?'লাইব্রেরি':'Library'],['📿',l==='bn'?'তাসবিহ':'Tasbeeh',l==='bn'?'ডিজিটাল তাসবিহ':'Digital tasbeeh','tasbeeh','#059669','rgba(5,150,105,.1)','rgba(5,150,105,.25)',l==='bn'?'তাসবিহ':'Tasbeeh'],['🧠',l==='bn'?'কুইজ':'Quiz',l==='bn'?'জ্ঞান পরীক্ষা':'Test knowledge','quiz','#dc2626','rgba(220,38,38,.1)','rgba(220,38,38,.25)',l==='bn'?'কুইজ':'Quiz'],['☀️',l==='bn'?'৯৯ নাম':'99 Names',l==='bn'?'আসমাউল হুসনা':'Names of Allah','asmaul','#b45309','rgba(180,83,9,.1)','rgba(180,83,9,.25)',l==='bn'?'৯৯ নাম':'Names'],['🧭',l==='bn'?'কিবলা':'Qibla',l==='bn'?'কিবলার দিক':'Qibla direction','qibla','#0d9488','rgba(13,148,136,.1)','rgba(13,148,136,.25)',l==='bn'?'কিবলা':'Qibla']].map(([icon,title,desc,page,color,bg,faint,badge],fi)=>`
             <button data-action="changePage" data-param="${page}" class="feature-card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border text-left w-full p-5 reveal reveal-delay-${fi%4+1}" style="box-shadow:var(--shadow-sm);--fc-accent:${color};--fc-accent-bg:${bg};--fc-accent-faint:${faint}">
                 <span class="feature-card-badge">${badge}</span>
                 <div class="feature-card-content">
@@ -2204,7 +2338,35 @@ function renderHomePage()
                 </div>
             </button>`).join('')}
     </div>
-    <div class="grid md:grid-cols-3 gap-8">
+    <!-- ── ইসলামিক ক্যালেন্ডার কুইক অ্যাকসেস ── -->
+    <div class="mb-10">
+        <h3 class="text-base font-bold mb-3 flex items-center gap-2">
+            <span style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#dc2626,#7c1d1d);display:inline-flex;align-items:center;justify-content:center">🌙</span>
+            ${l==='bn'?'ইসলামিক ক্যালেন্ডার ও বিশেষ দিন':'Islamic Calendar & Special Days'}
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5" style="min-height:130px">
+            ${(()=>{
+                const h=approxHijriNow();
+                const ashuraYear=(h.month>1||(h.month===1&&h.day>10))?h.year+1:h.year;
+                const ashuraGreg=hijriToGregorian(10,1,ashuraYear);
+                const today=new Date(); today.setHours(0,0,0,0); ashuraGreg.setHours(0,0,0,0);
+                const daysLeft=Math.ceil((ashuraGreg-today)/86400000);
+                const cdLabel=daysLeft===0?'🔴 আজ আশুরা':daysLeft<0?'কারবালার ঘটনা জানুন':`আশুরা ${l==='bn'?toBengaliDigits(daysLeft):daysLeft} দিন বাকি`;
+                return [
+                    {page:'muharram',icon:'🌙',grad:'linear-gradient(135deg,#7f1d1d,#dc2626)',title:l==='bn'?'মুহাররম ও আশুরা':'Muharram & Ashura',desc:cdLabel},
+                    {page:'shia-days',icon:'✨',grad:'linear-gradient(135deg,#1e3a8a,#7c3aed)',title:l==='bn'?'শিয়া বিশেষ দিন':'Shia Special Days',desc:l==='bn'?'ঈদে গাদির · মুবাহিলা · নিমে শাবান':'Ghadeer · Mubahila · Mid-Shaban'},
+                    {page:'calendar',icon:'📅',grad:'linear-gradient(135deg,#065f46,#059669)',title:l==='bn'?'হিজরি ক্যালেন্ডার':'Hijri Calendar',desc:l==='bn'?'ইমামদের তারিখ হাইলাইট সহ':'With Imam dates highlighted'},
+                ].map(c=>`
+                <button data-action="changePage" data-param="${c.page}" class="text-left rounded-2xl hover:brightness-110 transition-all focus:outline-none" style="background:${c.grad};padding:1.1rem 1.1rem 1.4rem;box-shadow:0 4px 16px rgba(0,0,0,.2)">
+                    <div style="font-size:1.8rem;margin-bottom:.4rem">${c.icon}</div>
+                    <h4 style="font-weight:800;font-size:.93rem;color:white;margin-bottom:.2rem">${c.title}</h4>
+                    <p style="font-size:.75rem;color:rgba(255,255,255,.8)">${c.desc}</p>
+                </button>`).join('');
+            })()}
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8 mt-2">
         <div class="md:col-span-2 space-y-8">
             <div>
                 <div class="section-heading"><h3 class="section-title">${t('latestPosts')}</h3><button data-action="changePage" data-param="blog" class="text-xs font-bold px-3 py-1.5 rounded-full hover:scale-105 transition-all" style="background:rgba(5,150,105,.1);color:#059669">${t('viewAll')} →</button></div>
@@ -2273,12 +2435,26 @@ function renderLibraryPage() {
     const d=state.darkMode; const l=state.language;
     return `
     <div class="space-y-8">
+        <!-- Header with tabs -->
         <div class="flex flex-wrap justify-between items-center gap-4">
             <h2 class="text-3xl font-bold">📕 ${t('library')}</h2>
             ${state.isAdmin?`<button data-action="openUploadModal" data-param="pdf"
                 class="${d?'bg-green-900 text-green-300':'bg-green-600 text-white'} px-5 py-2.5 rounded-xl font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-green-500"
             >+ ${l==='bn'?'পিডিএফ আপলোড':'Upload PDF'}</button>`
             :`<p class="text-sm ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?'🔐 অ্যাডমিন আপলোড করবেন':'🔐 Admin uploads content'}</p>`}
+        </div>
+
+        <!-- Tab bar -->
+        <div class="flex gap-3 flex-wrap">
+            <div class="flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm" style="background:linear-gradient(135deg,#059669,#065f46);color:white;box-shadow:0 4px 12px rgba(5,150,105,.3)">
+                📕 ${l==='bn'?'পিডিএফ লাইব্রেরি':'PDF Library'}
+            </div>
+            <button data-action="changePage" data-param="dua"
+                class="flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm border transition-all hover:scale-[1.02]"
+                style="background:${d?'rgba(180,83,9,.15)':'rgba(180,83,9,.08)'};color:#b45309;border-color:${d?'rgba(180,83,9,.3)':'rgba(180,83,9,.2)'}">
+                🤲 ${l==='bn'?'দোয়া ও যিয়ারত':'Duas & Ziyarat'}
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+            </button>
         </div>
         ${state.pdfList.length===0?`
             <div class="text-center py-16 ${d?'text-gray-400':'text-gray-500'}">
@@ -2561,26 +2737,40 @@ function renderDuaPage() {
             <h2 class="text-3xl font-bold">🤲 ${t('dua')}</h2>
             ${state.isAdmin ? `
             <div class="flex gap-2 flex-wrap">
-                <button data-action="openDuaEditor" data-param="dua"
-                    class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-xl font-semibold text-sm transition-colors">
-                    + ${l==='bn'?'নতুন দোয়া যোগ':'Add Dua'}
-                </button>
-                <button data-action="openDuaEditor" data-param="ziyarat"
-                    class="flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 rounded-xl font-semibold text-sm transition-colors">
-                    + ${l==='bn'?'নতুন যিয়ারত যোগ':'Add Ziyarat'}
-                </button>
+                ${tab==='dua'?`<button data-action="openDuaEditor" data-param="dua" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl font-semibold text-sm transition-colors">+ ${l==='bn'?'নতুন দোয়া':'Add Dua'}</button>`:''}
+                ${tab==='ziyarat'?`<button data-action="openDuaEditor" data-param="ziyarat" class="flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl font-semibold text-sm transition-colors">+ ${l==='bn'?'নতুন যিয়ারত':'Add Ziyarat'}</button>`:''}
+                ${tab==='nahjul'?`<button data-action="openKnowledgeEditor" data-param="nahjul" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-semibold text-sm transition-colors">+ ${l==='bn'?'নতুন খুতবা/বাণী যোগ':'Add Sermon/Letter'}</button>`:''}
+                ${tab==='sahifa'?`<button data-action="openKnowledgeEditor" data-param="sahifa" class="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl font-semibold text-sm transition-colors">+ ${l==='bn'?'নতুন দুআ যোগ':'Add Prayer'}</button>`:''}
+                ${tab==='imamhadiths'?`<button data-action="openKnowledgeEditor" data-param="imamhadiths" class="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-xl font-semibold text-sm transition-colors">+ ${l==='bn'?'নতুন হাদিস যোগ':'Add Hadith'}</button>`:''}
+                ${tab==='specialdays'?`<button data-action="openKnowledgeEditor" data-param="specialdays" class="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl font-semibold text-sm transition-colors">+ ${l==='bn'?'নতুন দিন যোগ':'Add Special Day'}</button>`:''}
             </div>` : ''}
         </div>
 
         <!-- Tabs -->
-        <div class="flex gap-2 ${d?'bg-gray-800':'bg-gray-100'} p-1 rounded-2xl w-fit">
+        <div class="flex flex-wrap gap-2 ${d?'bg-gray-800':'bg-gray-100'} p-1 rounded-2xl w-fit">
             <button data-action="setDuaTab" data-param="dua"
-                class="${tab==='dua'?(d?'bg-green-700 text-white shadow':'bg-white text-green-700 shadow-sm'):(d?'text-gray-400 hover:text-white':'text-gray-500 hover:text-gray-900')} px-5 py-2 rounded-xl font-semibold text-sm transition-all">
+                class="${tab==='dua'?(d?'bg-green-700 text-white shadow':'bg-white text-green-700 shadow-sm'):(d?'text-gray-400 hover:text-white':'text-gray-500 hover:text-gray-900')} px-4 py-2 rounded-xl font-semibold text-sm transition-all">
                 🤲 ${l==='bn'?'দোয়া':'Duas'} <span class="ml-1 text-xs opacity-70">${allDuas.length}</span>
             </button>
             <button data-action="setDuaTab" data-param="ziyarat"
-                class="${tab==='ziyarat'?(d?'bg-amber-700 text-white shadow':'bg-white text-amber-700 shadow-sm'):(d?'text-gray-400 hover:text-white':'text-gray-500 hover:text-gray-900')} px-5 py-2 rounded-xl font-semibold text-sm transition-all">
+                class="${tab==='ziyarat'?(d?'bg-amber-700 text-white shadow':'bg-white text-amber-700 shadow-sm'):(d?'text-gray-400 hover:text-white':'text-gray-500 hover:text-gray-900')} px-4 py-2 rounded-xl font-semibold text-sm transition-all">
                 ☪️ ${l==='bn'?'যিয়ারত':'Ziyarat'} <span class="ml-1 text-xs opacity-70">${allZiyarat.length}</span>
+            </button>
+            <button data-action="setDuaTab" data-param="nahjul"
+                class="${tab==='nahjul'?(d?'bg-blue-700 text-white shadow':'bg-white text-blue-700 shadow-sm'):(d?'text-gray-400 hover:text-white':'text-gray-500 hover:text-gray-900')} px-4 py-2 rounded-xl font-semibold text-sm transition-all">
+                📖 ${l==='bn'?'নাহজুল বালাগা':'Nahjul Balagha'} <span class="ml-1 text-xs opacity-70">${state.nahjulBalagha.length}</span>
+            </button>
+            <button data-action="setDuaTab" data-param="sahifa"
+                class="${tab==='sahifa'?(d?'bg-purple-700 text-white shadow':'bg-white text-purple-700 shadow-sm'):(d?'text-gray-400 hover:text-white':'text-gray-500 hover:text-gray-900')} px-4 py-2 rounded-xl font-semibold text-sm transition-all">
+                🌹 ${l==='bn'?'সাহিফা সাজ্জাদিয়্যা':'Sahifa Sajjadiya'} <span class="ml-1 text-xs opacity-70">${state.sahifaSajjadiya.length}</span>
+            </button>
+            <button data-action="setDuaTab" data-param="imamhadiths"
+                class="${tab==='imamhadiths'?(d?'bg-teal-700 text-white shadow':'bg-white text-teal-700 shadow-sm'):(d?'text-gray-400 hover:text-white':'text-gray-500 hover:text-gray-900')} px-4 py-2 rounded-xl font-semibold text-sm transition-all">
+                ⭐ ${l==='bn'?'ইমামদের হাদিস':'Imam Hadiths'} <span class="ml-1 text-xs opacity-70">${state.imamHadiths.length}</span>
+            </button>
+            <button data-action="setDuaTab" data-param="specialdays"
+                class="${tab==='specialdays'?(d?'bg-rose-700 text-white shadow':'bg-white text-rose-700 shadow-sm'):(d?'text-gray-400 hover:text-white':'text-gray-500 hover:text-gray-900')} px-4 py-2 rounded-xl font-semibold text-sm transition-all">
+                ✨ ${l==='bn'?'বিশেষ দিন':'Special Days'} <span class="ml-1 text-xs opacity-70">${state.specialDays.length}</span>
             </button>
         </div>
 
@@ -2658,6 +2848,137 @@ function renderDuaPage() {
                     <button data-action="readZiyarat" data-param="${z.id}" class="${d?'text-amber-400':'text-amber-700'} font-semibold hover:underline text-sm">${t('readMore')} →</button>
                 </article>`).join('')}
         </div>` : ''}
+
+        <!-- NAHJUL BALAGHA TAB -->
+        ${tab==='nahjul' ? `
+        <div class="space-y-5">
+            ${state.nahjulBalagha.length===0 ? `
+            <div class="text-center py-16 ${d?'text-gray-500':'text-gray-400'}">
+                <div class="text-5xl mb-3">📖</div>
+                <p class="text-lg font-medium mb-1">${l==='bn'?'নাহজুল বালাগা থেকে কোনো বাণী নেই':'No entries from Nahjul Balagha yet'}</p>
+                ${state.isAdmin?`<p class="text-sm">${l==='bn'?'উপরের বাটন থেকে যোগ করুন':'Use the button above to add'}</p>`:''}
+            </div>` :
+            state.nahjulBalagha.map((item,i)=>`
+            <article class="${d?'bg-gray-800 border-gray-700':'bg-white border-blue-100'} border rounded-2xl p-6 card-hover fade-in" style="border-top:3px solid #1d4ed8;box-shadow:var(--shadow-card)">
+                <div class="flex items-start justify-between gap-3 mb-3">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="${d?'bg-blue-900 text-blue-200':'bg-blue-100 text-blue-700'} text-xs font-bold px-2 py-0.5 rounded-full">📖 ${item.type==='sermon'?(l==='bn'?'খুতবা':'Sermon'):item.type==='letter'?(l==='bn'?'চিঠি':'Letter'):(l==='bn'?'বাণী':'Saying')} ${item.number?'#'+item.number:''}</span>
+                        </div>
+                        <h3 class="text-lg font-bold">${sanitize(l==='bn'?item.titleBn:item.titleEn)}</h3>
+                        ${item.topic?`<p class="text-xs ${d?'text-blue-400':'text-blue-600'} font-medium mt-1">🏷️ ${sanitize(item.topic)}</p>`:''}
+                    </div>
+                    ${state.isAdmin?`
+                    <div class="flex gap-1 flex-shrink-0">
+                        <button data-action="editKnowledgeItem" data-param="${i}" data-dtype="nahjul" class="${d?'bg-blue-900 text-blue-300 hover:bg-blue-800':'bg-blue-100 text-blue-700 hover:bg-blue-200'} p-2 rounded-lg text-sm transition-colors">✏️</button>
+                        <button data-action="deleteKnowledgeItem" data-param="${i}" data-dtype="nahjul" class="${d?'bg-red-900 text-red-300 hover:bg-red-800':'bg-red-100 text-red-700 hover:bg-red-200'} p-2 rounded-lg text-sm transition-colors">🗑</button>
+                    </div>`:''}
+                </div>
+                ${item.arabic?`<div class="${d?'bg-gray-900 border-gray-700':'bg-blue-50 border-blue-100'} border rounded-xl p-4 mb-3"><p class="arabic-text text-center" dir="rtl" lang="ar" style="font-size:1.4rem;line-height:2.2">${sanitize(item.arabic)}</p></div>`:''}
+                <p class="text-sm ${d?'text-gray-300':'text-gray-700'} leading-relaxed">${sanitize(l==='bn'?item.textBn:item.textEn)}</p>
+                ${item.source?`<p class="text-xs ${d?'text-gray-500':'text-gray-400'} mt-2">— ${sanitize(item.source)}</p>`:''}
+            </article>`).join('')}
+        </div>` : ''}
+
+        <!-- SAHIFA SAJJADIYA TAB -->
+        ${tab==='sahifa' ? `
+        <div class="space-y-5">
+            ${state.sahifaSajjadiya.length===0 ? `
+            <div class="text-center py-16 ${d?'text-gray-500':'text-gray-400'}">
+                <div class="text-5xl mb-3">🌹</div>
+                <p class="text-lg font-medium mb-1">${l==='bn'?'সাহিফা সাজ্জাদিয়্যা থেকে কোনো দুআ নেই':'No prayers from Sahifa Sajjadiya yet'}</p>
+                ${state.isAdmin?`<p class="text-sm">${l==='bn'?'উপরের বাটন থেকে যোগ করুন':'Use the button above to add'}</p>`:''}
+            </div>` :
+            state.sahifaSajjadiya.map((item,i)=>`
+            <article class="${d?'bg-gray-800 border-gray-700':'bg-white border-purple-100'} border rounded-2xl p-6 card-hover fade-in" style="border-top:3px solid #7c3aed;box-shadow:var(--shadow-card)">
+                <div class="flex items-start justify-between gap-3 mb-3">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="${d?'bg-purple-900 text-purple-200':'bg-purple-100 text-purple-700'} text-xs font-bold px-2 py-0.5 rounded-full">🌹 ${l==='bn'?'দুআ নং':'Dua No.'} ${item.number||'—'}</span>
+                        </div>
+                        <h3 class="text-lg font-bold">${sanitize(l==='bn'?item.titleBn:item.titleEn)}</h3>
+                        ${item.occasion?`<p class="text-xs ${d?'text-purple-400':'text-purple-600'} font-medium mt-1">📅 ${sanitize(item.occasion)}</p>`:''}
+                    </div>
+                    ${state.isAdmin?`
+                    <div class="flex gap-1 flex-shrink-0">
+                        <button data-action="editKnowledgeItem" data-param="${i}" data-dtype="sahifa" class="${d?'bg-purple-900 text-purple-300 hover:bg-purple-800':'bg-purple-100 text-purple-700 hover:bg-purple-200'} p-2 rounded-lg text-sm transition-colors">✏️</button>
+                        <button data-action="deleteKnowledgeItem" data-param="${i}" data-dtype="sahifa" class="${d?'bg-red-900 text-red-300 hover:bg-red-800':'bg-red-100 text-red-700 hover:bg-red-200'} p-2 rounded-lg text-sm transition-colors">🗑</button>
+                    </div>`:''}
+                </div>
+                <div class="${d?'bg-gray-900 border-gray-700':'bg-purple-50 border-purple-100'} border rounded-xl p-5 mb-3">
+                    <p class="arabic-text text-center mb-3" dir="rtl" lang="ar" style="font-size:1.5rem;line-height:2.2">${sanitize(item.arabic)}</p>
+                    ${item.transliteration?`<p class="text-center text-xs italic ${d?'text-gray-400':'text-gray-500'} mb-2">${sanitize(item.transliteration)}</p>`:''}
+                    <p class="text-center text-sm ${d?'text-gray-300':'text-gray-600'} leading-relaxed">${sanitize(l==='bn'?item.meaningBn:item.meaningEn)}</p>
+                </div>
+                ${item.source?`<p class="text-xs ${d?'text-gray-500':'text-gray-400'}">— ${sanitize(item.source)}</p>`:''}
+            </article>`).join('')}
+        </div>` : ''}
+
+        <!-- IMAM HADITHS TAB -->
+        ${tab==='imamhadiths' ? `
+        <div class="space-y-5">
+            ${state.imamHadiths.length===0 ? `
+            <div class="text-center py-16 ${d?'text-gray-500':'text-gray-400'}">
+                <div class="text-5xl mb-3">⭐</div>
+                <p class="text-lg font-medium mb-1">${l==='bn'?'কোনো হাদিস যোগ করা হয়নি':'No hadith added yet'}</p>
+                ${state.isAdmin?`<p class="text-sm">${l==='bn'?'উপরের বাটন থেকে যোগ করুন':'Use the button above to add'}</p>`:''}
+            </div>` :
+            state.imamHadiths.map((item,i)=>`
+            <article class="${d?'bg-gray-800 border-gray-700':'bg-white border-teal-100'} border rounded-2xl p-6 card-hover fade-in" style="border-left:4px solid #0d9488;box-shadow:var(--shadow-card)">
+                <div class="flex items-start justify-between gap-3 mb-3">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 flex-wrap mb-1">
+                            <span class="${d?'bg-teal-900 text-teal-200':'bg-teal-100 text-teal-700'} text-xs font-bold px-2 py-0.5 rounded-full">⭐ ${sanitize(l==='bn'?item.imamBn:item.imamEn)}</span>
+                            ${item.topic?`<span class="${d?'bg-gray-700 text-gray-300':'bg-gray-100 text-gray-600'} text-xs px-2 py-0.5 rounded-full">🏷️ ${sanitize(item.topic)}</span>`:''}
+                        </div>
+                    </div>
+                    ${state.isAdmin?`
+                    <div class="flex gap-1 flex-shrink-0">
+                        <button data-action="editKnowledgeItem" data-param="${i}" data-dtype="imamhadiths" class="${d?'bg-teal-900 text-teal-300 hover:bg-teal-800':'bg-teal-100 text-teal-700 hover:bg-teal-200'} p-2 rounded-lg text-sm transition-colors">✏️</button>
+                        <button data-action="deleteKnowledgeItem" data-param="${i}" data-dtype="imamhadiths" class="${d?'bg-red-900 text-red-300 hover:bg-red-800':'bg-red-100 text-red-700 hover:bg-red-200'} p-2 rounded-lg text-sm transition-colors">🗑</button>
+                    </div>`:''}
+                </div>
+                ${item.arabic?`<p class="arabic-text text-right mb-3" dir="rtl" lang="ar" style="font-size:1.2rem;line-height:2;color:${d?'#5eead4':'#0f766e'}">${sanitize(item.arabic)}</p>`:''}
+                <div class="${d?'bg-teal-950/40 border-teal-900':'bg-teal-50 border-teal-100'} border rounded-xl p-4">
+                    <p class="text-sm ${d?'text-gray-200':'text-gray-800'} leading-relaxed italic">"${sanitize(l==='bn'?item.textBn:item.textEn)}"</p>
+                </div>
+                ${item.source?`<p class="text-xs ${d?'text-gray-500':'text-gray-400'} mt-2">— ${sanitize(item.source)}</p>`:''}
+            </article>`).join('')}
+        </div>` : ''}
+
+        <!-- SPECIAL DAYS TAB -->
+        ${tab==='specialdays' ? `
+        <div class="space-y-5">
+            ${state.specialDays.length===0 ? `
+            <div class="text-center py-16 ${d?'text-gray-500':'text-gray-400'}">
+                <div class="text-5xl mb-3">✨</div>
+                <p class="text-lg font-medium mb-1">${l==='bn'?'কোনো বিশেষ দিন যোগ করা হয়নি':'No special days added yet'}</p>
+                ${state.isAdmin?`<p class="text-sm">${l==='bn'?'উপরের বাটন থেকে যোগ করুন':'Use the button above to add'}</p>`:''}
+            </div>` :
+            state.specialDays.map((item,i)=>`
+            <article class="${d?'bg-gray-800 border-gray-700':'bg-white border-rose-100'} border rounded-2xl p-6 card-hover fade-in" style="border-top:3px solid ${item.type==='eid'?'#059669':item.type==='martyrdom'?'#dc2626':'#f59e0b'};box-shadow:var(--shadow-card)">
+                <div class="flex items-start justify-between gap-3 mb-3">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 flex-wrap mb-1">
+                            <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:${item.type==='eid'?'#ecfdf5':item.type==='martyrdom'?'#fef2f2':'#fffbeb'};color:${item.type==='eid'?'#065f46':item.type==='martyrdom'?'#991b1b':'#92400e'}">
+                                ${item.type==='eid'?(l==='bn'?'🎉 ঈদ/উৎসব':'🎉 Eid/Festival'):item.type==='martyrdom'?(l==='bn'?'⚔️ শাহাদাত':'⚔️ Martyrdom'):(l==='bn'?'⭐ স্মরণীয় দিন':'⭐ Occasion')}
+                            </span>
+                            ${item.hijriDate?`<span class="text-xs ${d?'text-gray-400':'text-gray-500'}">📅 ${sanitize(item.hijriDate)}</span>`:''}
+                        </div>
+                        <h3 class="text-lg font-bold">${sanitize(l==='bn'?item.titleBn:item.titleEn)}</h3>
+                        ${item.imam?`<p class="text-xs ${d?'text-rose-400':'text-rose-600'} font-medium mt-1">👑 ${sanitize(item.imam)}</p>`:''}
+                    </div>
+                    ${state.isAdmin?`
+                    <div class="flex gap-1 flex-shrink-0">
+                        <button data-action="editKnowledgeItem" data-param="${i}" data-dtype="specialdays" class="${d?'bg-rose-900 text-rose-300 hover:bg-rose-800':'bg-rose-100 text-rose-700 hover:bg-rose-200'} p-2 rounded-lg text-sm transition-colors">✏️</button>
+                        <button data-action="deleteKnowledgeItem" data-param="${i}" data-dtype="specialdays" class="${d?'bg-red-900 text-red-300 hover:bg-red-800':'bg-red-100 text-red-700 hover:bg-red-200'} p-2 rounded-lg text-sm transition-colors">🗑</button>
+                    </div>`:''}
+                </div>
+                <p class="text-sm ${d?'text-gray-300':'text-gray-700'} leading-relaxed mb-3">${sanitize(l==='bn'?item.descBn:item.descEn)}</p>
+                ${item.dua?`<div class="${d?'bg-gray-900 border-gray-700':'bg-amber-50 border-amber-100'} border rounded-xl p-4"><p class="text-xs font-semibold ${d?'text-amber-400':'text-amber-700'} mb-2">${l==='bn'?'বিশেষ দোয়া/আমল:':'Special Dua/Amal:'}</p><p class="text-sm ${d?'text-gray-300':'text-gray-700'} leading-relaxed">${sanitize(item.dua)}</p></div>`:''}
+            </article>`).join('')}
+        </div>` : ''}
+
     </div>`;
 }
 
@@ -2773,10 +3094,23 @@ function renderCalendarPage() {
                     const bnHijriColor = isTodayGreg ? 'rgba(255,255,255,.85)'
                         : (d?'#86efac':'#15803d');
 
+                    // ইমাম তারিখ হাইলাইট
+                    const evType = ev ? ev.type : null;
+                    const isBirth    = evType === 'birth';
+                    const isMartyr   = evType === 'martyrdom';
+                    const isAshura   = evType === 'ashura';
+                    const isEid      = evType === 'eid';
+
                     const cellBg = isTodayGreg
                         ? '#059669'
-                        : ev ? (d?'#292524':'#fef3c7')
+                        : isAshura ? (d?'#3b0000':'#fff0f0')
+                        : isMartyr ? (d?'#2d1515':'#fff5f5')
+                        : isBirth  ? (d?'#052e16':'#f0fdf4')
+                        : isEid    ? (d?'#1a2e1a':'#f0fff4')
+                        : ev       ? (d?'#292524':'#fef3c7')
                         : (d?'#1f2937':'#ffffff');
+
+                    const dotColor = isAshura ? '#dc2626' : isMartyr ? '#f87171' : isBirth ? '#059669' : isEid ? '#059669' : '#f59e0b';
 
                     return `<div style="background:${cellBg};min-height:72px;padding:3px 4px;position:relative;display:flex;flex-direction:column;justify-content:space-between;align-items:stretch" role="gridcell"
                         title="${gDay} ${gregMonthsEnFull[gMon]} ${gYear} | ${bnGregDay} ${bnGregMon} | ${bnHijriDay} ${bnHijriMon} ${toBengaliDigits(year)} হিজরি${ev?' | '+(l==='bn'?ev.bn:ev.en):''}">
@@ -2797,7 +3131,7 @@ function renderCalendarPage() {
                             <span style="color:${bnHijriColor};font-size:.63rem;font-weight:700;line-height:1">${bnHijriDay} ${bnHijriMon}</span>
                         </div>
 
-                        ${ev?`<div style="position:absolute;top:2px;right:3px;width:5px;height:5px;border-radius:50%;background:#f59e0b"></div>`:''}
+                        ${ev?`<div style="position:absolute;top:2px;right:3px;width:5px;height:5px;border-radius:50%;background:${dotColor}"></div>`:''}
                         ${isTodayGreg?`<div style="position:absolute;top:0;left:0;background:#f59e0b;color:white;font-size:.48rem;font-weight:900;padding:1px 3px;border-radius:0 0 5px 0;line-height:1.4">${l==='bn'?'আজ':'TODAY'}</div>`:''}
                     </div>`;
                 }).join('')}
@@ -2808,7 +3142,9 @@ function renderCalendarPage() {
                 <span style="color:${d?'#f3f4f6':'#111827'};font-weight:700">■</span> ${l==='bn'?'ইংরেজি তারিখ':'Gregorian date'} &nbsp;
                 <span style="color:#1d4ed8;font-weight:700">■</span> ${l==='bn'?'বাংলা তারিখ':'Bangla date'} &nbsp;
                 <span style="color:#dc2626;font-weight:700">■</span> ${l==='bn'?'হিজরি তারিখ':'Hijri date'} &nbsp;
-                <span style="color:#f59e0b;font-weight:700">●</span> ${l==='bn'?'ইসলামিক ঘটনা':'Islamic event'}
+                <span style="color:#f59e0b;font-weight:700">●</span> ${l==='bn'?'ইসলামিক ঘটনা':'Islamic event'} &nbsp;
+                <span style="color:#059669;font-weight:700">●</span> ${l==='bn'?'ইমামের জন্মদিন':'Imam Birthday'} &nbsp;
+                <span style="color:#dc2626;font-weight:700">●</span> ${l==='bn'?'ইমামের শাহাদাত':'Imam Martyrdom'}
             </div>
 
             <!-- ── EVENTS LIST ── -->
@@ -3014,7 +3350,9 @@ function renderReadDuaPage()
 function renderImamsPage()
 {
     const d=state.darkMode; const l=state.language;
-    const ACS=['#059669','#7c3aed','#b45309','#0369a1','#be185d','#065f46','#1e3a8a','#92400e','#14532d','#4c1d95','#7f1d1d','#164e63'];
+    const ACS=['#059669','#0d9488','#c9a227','#7c3aed','#0369a1','#d97706','#166534','#be123c','#0e7490','#4f46e5','#0f766e','#c9a227'];
+    const ACS2=['#022c22','#134e4a','#7a5c0a','#3b0764','#0c2a4a','#78350f','#052e16','#500724','#083344','#1e1b4b','#042f2e','#065f46'];
+    const CONIC=['conic-gradient(from 0deg,#059669,#6ee7b7,#065f46,#34d399,#059669)','conic-gradient(from 0deg,#0d9488,#5eead4,#0f766e,#99f6e4,#0d9488)','conic-gradient(from 0deg,#c9a227,#fde68a,#b45309,#fbbf24,#c9a227)','conic-gradient(from 0deg,#7c3aed,#c4b5fd,#5b21b6,#a78bfa,#7c3aed)','conic-gradient(from 0deg,#0369a1,#7dd3fc,#075985,#38bdf8,#0369a1)','conic-gradient(from 0deg,#d97706,#fcd34d,#b45309,#fbbf24,#d97706)','conic-gradient(from 0deg,#166534,#86efac,#14532d,#4ade80,#166534)','conic-gradient(from 0deg,#be123c,#fda4af,#9f1239,#fb7185,#be123c)','conic-gradient(from 0deg,#0e7490,#67e8f9,#155e75,#22d3ee,#0e7490)','conic-gradient(from 0deg,#4f46e5,#a5b4fc,#4338ca,#818cf8,#4f46e5)','conic-gradient(from 0deg,#0f766e,#5eead4,#115e59,#2dd4bf,#0f766e)','conic-gradient(from 0deg,#c9a227,#fde68a,#059669,#6ee7b7,#c9a227)'];
     return `
     <div class="space-y-8 page-enter">
         <div class="flex flex-wrap justify-between items-center gap-4">
@@ -3022,28 +3360,111 @@ function renderImamsPage()
             <button data-action="toggleTimeline" class="btn-primary px-5 py-2.5 rounded-2xl font-bold text-sm flex items-center gap-2" style="${state.showTimeline?'background:linear-gradient(135deg,#059669,#065f46);color:white;box-shadow:0 4px 16px rgba(5,150,105,.4)':(d?'background:rgba(255,255,255,.08);color:#9ca3af':'background:rgba(0,0,0,.06);color:#6b7280')}">📅 ${l==='bn'?'টাইমলাইন':'Timeline'} ${state.showTimeline?'✓':''}</button>
         </div>
         ${state.showTimeline?renderImamTimeline(d,l):''}
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            ${imams.map((im,idx)=>{const ac=ACS[idx%12];const ac2=ACS[(idx+3)%12];return`
-            <div class="imam-card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border text-center p-6 reveal reveal-delay-${idx%4+1}" style="box-shadow:var(--shadow-sm)">
-                <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${ac},${ac2});border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
-                <div class="imam-num" style="background:linear-gradient(135deg,${ac},${ac2})">${im.id}</div>
-                <div style="position:relative;display:inline-block;margin-bottom:1rem">
-                    <div class="imam-avatar-luxury" style="background:linear-gradient(145deg,${ac}33,${ac}11);color:${ac};font-family:'Amiri',serif;font-weight:700">${im.arabicName.split(' ')[0]||im.icon}</div>
-                </div>
-                <h3 class="text-base font-bold mb-1 leading-snug">${sanitize(l==='bn'?im.nameBn:im.nameEn)}</h3>
-                <p class="mb-2" style="font-family:'Amiri',serif;font-size:1rem;color:${ac}">${sanitize(im.arabicName)}</p>
-                <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold mb-3" style="background:${ac}18;color:${ac};border:1px solid ${ac}25">${sanitize(l==='bn'?im.epithetBn:im.epithetEn)}</div>
-                <p class="text-xs ${d?'text-gray-400':'text-gray-500'} mb-4 leading-relaxed line-clamp-2">${sanitize(l==='bn'?im.descBn:im.descEn)}</p>
-                <div class="grid grid-cols-2 gap-2 text-xs mb-4">
-                    <div class="rounded-xl p-2.5" style="background:${ac}12;border:1px solid ${ac}20"><p class="font-bold mb-0.5" style="color:${ac}">🌙 ${l==='bn'?'জন্ম':'Birth'}</p><p class="${d?'text-gray-300':'text-gray-700'} leading-snug">${sanitize(l==='bn'?im.birthBn:im.birthEn)}</p></div>
-                    <div class="${d?'bg-red-950/40 border-red-900':'bg-red-50 border-red-100'} rounded-xl p-2.5 border"><p class="${d?'text-red-400':'text-red-600'} font-bold mb-0.5">⚔️ ${l==='bn'?'শাহাদাত':'Martyrdom'}</p><p class="${d?'text-gray-300':'text-gray-700'} leading-snug">${sanitize(l==='bn'?im.martyrdomBn:im.martyrdomEn)}</p></div>
-                </div>
-                <div class="rounded-xl p-3 mb-4 text-left" style="border-left:3px solid ${ac};background:${ac}0a"><p class="text-xs italic ${d?'text-gray-300':'text-gray-700'} leading-relaxed line-clamp-2">"${sanitize(l==='bn'?im.quoteBn:im.quoteEn)}"</p></div>
-                <div class="flex gap-2">
-                    <button data-action="viewImam" data-param="${im.id}" class="flex-1 py-2 rounded-xl text-xs font-bold hover:scale-[1.03] transition-all" style="background:${ac};color:white;box-shadow:0 3px 10px ${ac}45">${l==='bn'?'বিস্তারিত':'Details'} →</button>
-                    <button data-action="shareImamQuote" data-param="${im.id}" class="px-3 py-2 rounded-xl text-xs font-bold hover:scale-110 transition-all" style="background:${ac}15;color:${ac};border:1px solid ${ac}25">🔗</button>
-                </div>
-            </div>`}).join('')}
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
+            ${imams.map((im,idx)=>{const ac=ACS[idx%12];const ac2=ACS2[idx%12];const conic=CONIC[idx%12];
+            const quoteText=sanitize(l==='bn'?im.quoteBn:im.quoteEn);
+            const flipId=`imam-flip-${im.id}`;
+            return`
+            <!-- ═══ IMAM CARD #${im.id} — flip wrapper ═══ -->
+            <div class="imam-flip-wrapper" style="height:100%">
+              <div class="imam-flip-inner" id="${flipId}" style="min-height:420px">
+
+                <!-- ───── FRONT FACE ───── -->
+                <div class="imam-card-luxury imam-card-front border text-center p-6"
+                     style="display:flex;flex-direction:column;background:${d?'#1e2d26':'#ffffff'};border-color:${d?'rgba(52,211,153,.18)':'#e8e2db'};box-shadow:var(--shadow-sm);height:100%"
+                     onmouseenter="imamCardParticles(this,'${ac}')"
+                >
+                    <!-- Animated top bar -->
+                    <div class="imam-top-bar" style="background:linear-gradient(90deg,${ac},${ac}bb,#c9a227,${ac2},${ac});background-size:300% 100%"></div>
+
+                    <!-- Number badge -->
+                    <div class="imam-num" style="background:linear-gradient(135deg,#c9a227,#92400e)">${im.id}</div>
+
+                    <!-- Flip hint -->
+                    <button onclick="imamFlip('${flipId}')" title="${l==='bn'?'উক্তি দেখুন':'See quote'}"
+                        style="position:absolute;top:14px;left:14px;width:26px;height:26px;border-radius:50%;background:${ac}22;border:1px solid ${ac}40;color:${ac};font-size:.65rem;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:5;transition:transform .3s"
+                        onmouseover="this.style.transform='rotate(180deg)'"
+                        onmouseout="this.style.transform='rotate(0deg)'">↺</button>
+
+                    <!-- Avatar with rotate + glow -->
+                    <div style="position:relative;display:flex;justify-content:center;margin-bottom:1rem">
+                        <div class="imam-avatar-inner-wrap" style="width:74px;height:74px;border-radius:50%;position:relative">
+                            <div class="imam-avatar-rotate" style="position:absolute;inset:-3px;border-radius:50%;background:${conic};animation:avatarRotate 8s linear infinite;z-index:0"></div>
+                            <div style="position:absolute;inset:0;border-radius:50%;background:${d?'#1e2d26':'#ffffff'};z-index:1;display:flex;align-items:center;justify-content:center;font-family:'Amiri',serif;font-size:1rem;font-weight:700;color:${ac};border:2px solid ${d?'rgba(52,211,153,.15)':'rgba(255,255,255,.9)'}">${im.arabicName.split(' ')[0]||im.icon}</div>
+                        </div>
+                    </div>
+
+                    <!-- Name -->
+                    <h3 class="text-base font-bold mb-1 leading-snug">${sanitize(l==='bn'?im.nameBn:im.nameEn)}</h3>
+
+                    <!-- Arabic shimmer name -->
+                    <p class="mb-2" style="font-family:'Amiri',serif;font-size:1rem">
+                        <span class="imam-arabic-shimmer">${sanitize(im.arabicName)}</span>
+                    </p>
+
+                    <!-- Epithet badge with bounce -->
+                    <div style="display:flex;justify-content:center;margin-bottom:.75rem">
+                        <span class="imam-epithet-badge text-xs font-bold px-3 py-1 rounded-full"
+                              style="background:${ac}18;color:${ac};border:1px solid ${ac}30;display:inline-block">
+                            ${sanitize(l==='bn'?im.epithetBn:im.epithetEn)}
+                        </span>
+                    </div>
+
+                    <!-- Description -->
+                    <p class="text-xs ${d?'text-gray-400':'text-gray-500'} mb-4 leading-relaxed line-clamp-2">${sanitize(l==='bn'?im.descBn:im.descEn)}</p>
+
+                    <!-- Birth / Martyrdom grid -->
+                    <div class="grid grid-cols-2 gap-2 text-xs mb-4">
+                        <div class="rounded-xl p-2.5" style="background:${ac}12;border:1px solid ${ac}22">
+                            <p class="font-bold mb-0.5" style="color:${ac}">🌙 ${l==='bn'?'জন্ম':'Birth'}</p>
+                            <p class="${d?'text-gray-300':'text-gray-700'} leading-snug">${sanitize(l==='bn'?im.birthBn:im.birthEn)}</p>
+                        </div>
+                        <div class="${d?'bg-red-950/40 border-red-900':'bg-red-50 border-red-100'} rounded-xl p-2.5 border">
+                            <p class="${d?'text-red-400':'text-red-600'} font-bold mb-0.5">⚔️ ${l==='bn'?'শাহাদাত':'Martyrdom'}</p>
+                            <p class="${d?'text-gray-300':'text-gray-700'} leading-snug">${sanitize(l==='bn'?im.martyrdomBn:im.martyrdomEn)}</p>
+                        </div>
+                    </div>
+
+                    <!-- Quote — expands on hover -->
+                    <div class="imam-quote-wrap rounded-xl p-3 mb-4 text-left" style="border-left:3px solid ${ac};background:${ac}0a;flex:1">
+                        <p class="imam-quote-text text-xs italic ${d?'text-gray-300':'text-gray-700'} leading-relaxed"
+                           data-quote="${quoteText}">"${quoteText}"</p>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="flex gap-2">
+                        <button data-action="viewImam" data-param="${im.id}"
+                            class="imam-detail-btn flex-1 py-2 rounded-xl text-xs font-bold transition-all"
+                            style="background:linear-gradient(135deg,${ac},${ac2});color:white;box-shadow:0 3px 10px ${ac}45">
+                            ${l==='bn'?'বিস্তারিত':'Details'} →
+                        </button>
+                        <button data-action="shareImamQuote" data-param="${im.id}"
+                            class="px-3 py-2 rounded-xl text-xs font-bold hover:scale-110 transition-all"
+                            style="background:${ac}15;color:${ac};border:1px solid ${ac}30">🔗</button>
+                    </div>
+                </div><!-- /front -->
+
+                <!-- ───── BACK FACE (Quote card) ───── -->
+                <div class="imam-card-back"
+                     style="background:linear-gradient(145deg,${ac2},${d?'#0a1a0e':'#022c22'});color:white;border:1px solid ${ac}40;box-shadow:var(--shadow-lg)">
+                    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,${ac}25 0%,transparent 70%);pointer-events:none;border-radius:var(--r-lg)"></div>
+                    <div style="position:relative;z-index:2;width:100%;text-align:center">
+                        <div style="font-family:'Amiri',serif;font-size:2.2rem;color:${ac};margin-bottom:.5rem;line-height:1">❝</div>
+                        <p style="font-family:'Amiri',serif;font-size:1.05rem;line-height:1.7;color:rgba(255,255,255,.92);margin-bottom:1rem;padding:0 .5rem">${sanitize(l==='bn'?im.quoteBn:im.quoteEn)}</p>
+                        <div style="width:40px;height:2px;background:${ac};margin:0 auto .75rem"></div>
+                        <p style="font-size:.75rem;font-weight:700;color:${ac};letter-spacing:.5px">${sanitize(l==='bn'?im.nameBn:im.nameEn)}</p>
+                        <button onclick="imamFlip('${flipId}')"
+                            style="margin-top:1.2rem;padding:6px 18px;border-radius:50px;background:${ac}30;border:1px solid ${ac}60;color:white;font-size:.75rem;cursor:pointer;transition:background .2s"
+                            onmouseover="this.style.background='${ac}55'"
+                            onmouseout="this.style.background='${ac}30'">
+                            ← ${l==='bn'?'ফিরে যান':'Back'}
+                        </button>
+                    </div>
+                </div><!-- /back -->
+
+              </div><!-- /flip-inner -->
+            </div><!-- /flip-wrapper -->
+            `}).join('')}
         </div>
     </div>`;
 }
@@ -3102,8 +3523,10 @@ function renderImamDetailPage()
     const idx=imams.indexOf(im);
     const prev=idx>0?imams[idx-1]:null;
     const next=idx<imams.length-1?imams[idx+1]:null;
-    const ACS=['#059669','#7c3aed','#b45309','#0369a1','#be185d','#065f46','#1e3a8a','#92400e','#14532d','#4c1d95','#7f1d1d','#164e63'];
-    const ac=ACS[idx%12]; const ac2=ACS[(idx+3)%12];
+    const ACS=['#059669','#0d9488','#c9a227','#7c3aed','#0369a1','#d97706','#166534','#be123c','#0e7490','#4f46e5','#0f766e','#c9a227'];
+    const ACS2=['#022c22','#134e4a','#7a5c0a','#3b0764','#0c2a4a','#78350f','#052e16','#500724','#083344','#1e1b4b','#042f2e','#065f46'];
+    const CONIC2=['conic-gradient(from 0deg,#059669,#6ee7b7,#065f46,#34d399,#059669)','conic-gradient(from 0deg,#0d9488,#5eead4,#0f766e,#99f6e4,#0d9488)','conic-gradient(from 0deg,#c9a227,#fde68a,#b45309,#fbbf24,#c9a227)','conic-gradient(from 0deg,#7c3aed,#c4b5fd,#5b21b6,#a78bfa,#7c3aed)','conic-gradient(from 0deg,#0369a1,#7dd3fc,#075985,#38bdf8,#0369a1)','conic-gradient(from 0deg,#d97706,#fcd34d,#b45309,#fbbf24,#d97706)','conic-gradient(from 0deg,#166534,#86efac,#14532d,#4ade80,#166534)','conic-gradient(from 0deg,#be123c,#fda4af,#9f1239,#fb7185,#be123c)','conic-gradient(from 0deg,#0e7490,#67e8f9,#155e75,#22d3ee,#0e7490)','conic-gradient(from 0deg,#4f46e5,#a5b4fc,#4338ca,#818cf8,#4f46e5)','conic-gradient(from 0deg,#0f766e,#5eead4,#115e59,#2dd4bf,#0f766e)','conic-gradient(from 0deg,#c9a227,#fde68a,#059669,#6ee7b7,#c9a227)'];
+    const ac=ACS[idx%12]; const ac2=ACS2[idx%12]; const conic2=CONIC2[idx%12];
     return `
     <div class="max-w-2xl mx-auto page-enter">
         <button data-action="changePage" data-param="imams" class="flex items-center gap-2 mb-6 px-4 py-2 rounded-xl font-semibold text-sm hover:scale-[1.02] transition-all" style="background:${ac}12;color:${ac}">← ${l==='bn'?'সকল ইমাম':'All Imams'}</button>
@@ -3111,8 +3534,11 @@ function renderImamDetailPage()
             <div style="height:4px;background:linear-gradient(90deg,${ac},${ac2},${ac});border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
             <div style="background:linear-gradient(135deg,${ac}10,transparent,${ac2}07);padding:2.5rem 2rem 1.5rem;text-align:center;position:relative">
                 <div style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,${ac},${ac2});display:flex;align-items:center;justify-content:center;color:white;font-size:.75rem;font-weight:800;box-shadow:0 3px 10px ${ac}50">${im.id}</div>
-                <div style="position:relative;display:inline-block;margin-bottom:1.2rem">
-                    <div class="imam-avatar-luxury" style="width:96px;height:96px;background:linear-gradient(145deg,${ac}3a,${ac}18);color:${ac};font-size:2rem;font-family:'Amiri',serif;font-weight:700;margin:0 auto">${im.arabicName.split(' ')[0]||im.icon}</div>
+                <div style="position:relative;display:flex;justify-content:center;margin-bottom:1.2rem">
+                    <div style="width:96px;height:96px;border-radius:50%;position:relative">
+                        <div style="position:absolute;inset:-4px;border-radius:50%;background:${conic2};animation:avatarRotate 7s linear infinite;z-index:0"></div>
+                        <div style="position:absolute;inset:0;border-radius:50%;background:${d?'#1f2937':'white'};z-index:1;display:flex;align-items:center;justify-content:center;font-family:'Amiri',serif;font-size:2rem;font-weight:700;color:${ac2}">${im.arabicName.split(' ')[0]||im.icon}</div>
+                    </div>
                 </div>
                 <h1 class="text-2xl md:text-3xl font-black mb-2">${sanitize(l==='bn'?im.nameBn:im.nameEn)}</h1>
                 <p class="arabic-text mb-3" style="font-size:1.5rem;color:${ac}">${sanitize(im.arabicName)}</p>
@@ -3748,6 +4174,139 @@ function renderAyahEditorModal() {
         </div>
     </div>`;
 }
+function renderKnowledgeEditorModal() {
+    if (!state.showKnowledgeEditor || !state.editingKnowledgeItem) return '';
+    const d=state.darkMode; const l=state.language;
+    const type=state.knowledgeEditorType; // 'nahjul'|'sahifa'|'imamhadiths'|'specialdays'
+    const item=state.editingKnowledgeItem;
+    const isNew=state.editingKnowledgeIdx===-1;
+    const colors={nahjul:'blue',sahifa:'purple',imamhadiths:'teal',specialdays:'rose'};
+    const titles={
+        nahjul:{bn:'নাহজুল বালাগা',en:'Nahjul Balagha'},
+        sahifa:{bn:'সাহিফা সাজ্জাদিয়্যা',en:'Sahifa Sajjadiya'},
+        imamhadiths:{bn:'ইমামদের হাদিস',en:'Imam Hadiths'},
+        specialdays:{bn:'বিশেষ দিন',en:'Special Day'}
+    };
+    const c=colors[type]||'green';
+    const titleLabel=titles[type]||{bn:'',en:''};
+    return `
+    <div class="fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4 overflow-y-auto" id="knowledge-editor-overlay">
+        <div class="${d?'bg-gray-900 border-gray-700':'bg-white border-gray-200'} border rounded-2xl w-full max-w-2xl shadow-2xl fade-in my-4">
+            <div class="flex justify-between items-center p-6 border-b ${d?'border-gray-700':'border-gray-100'}">
+                <h3 class="font-bold text-lg">${isNew?(l==='bn'?'নতুন যোগ করুন':'Add New'):(l==='bn'?'সম্পাদনা':'Edit')} — ${l==='bn'?titleLabel.bn:titleLabel.en}</h3>
+                <button data-action="closeKnowledgeEditor" class="${d?'text-gray-400 hover:text-white':'text-gray-400 hover:text-gray-700'} text-2xl p-1">&times;</button>
+            </div>
+            <div class="p-6 space-y-4 overflow-y-auto max-h-[70vh]">
+
+                ${type==='nahjul'?`
+                <div><label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'ধরন':'Type'}</label>
+                <select id="ke-type" class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full">
+                    <option value="sermon" ${item.type==='sermon'?'selected':''}>${l==='bn'?'খুতবা':'Sermon'}</option>
+                    <option value="letter" ${item.type==='letter'?'selected':''}>${l==='bn'?'চিঠি':'Letter'}</option>
+                    <option value="saying" ${item.type==='saying'?'selected':''}>${l==='bn'?'বাণী':'Saying'}</option>
+                </select></div>
+                <div><label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'নম্বর (ঐচ্ছিক)':'Number (optional)'}</label>
+                <input id="ke-number" type="text" value="${sanitize(item.number||'')}" class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full"/></div>
+                <div><label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'বিষয়/টপিক':'Topic/Category'}</label>
+                <input id="ke-topic" type="text" value="${sanitize(item.topic||'')}" placeholder="${l==='bn'?'যেমন: ন্যায়বিচার, জ্ঞান':'e.g. Justice, Knowledge'}" class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full"/></div>
+                ` : ''}
+
+                ${type==='sahifa'?`
+                <div><label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'দুআ নম্বর':'Dua Number'}</label>
+                <input id="ke-number" type="text" value="${sanitize(item.number||'')}" placeholder="১, ২, ৩..." class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full"/></div>
+                <div><label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'অনুষ্ঠান/সময়':'Occasion/Time'}</label>
+                <input id="ke-occasion" type="text" value="${sanitize(item.occasion||'')}" placeholder="${l==='bn'?'যেমন: শুক্রবার রাতের দুআ':'e.g. Prayer for Friday Night'}" class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full"/></div>
+                <div><label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'উচ্চারণ (ঐচ্ছিক)':'Transliteration (optional)'}</label>
+                <input id="ke-translit" type="text" value="${sanitize(item.transliteration||'')}" class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full"/></div>
+                <div><label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'বাংলা অর্থ':'Bengali Meaning'}</label>
+                <textarea id="ke-meaningBn" class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full h-20">${sanitize(item.meaningBn||'')}</textarea></div>
+                ` : ''}
+
+                ${type==='imamhadiths'?`
+                <div><label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'ইমামের নাম (বাংলা)':'Imam Name (Bengali)'} <span class="text-red-500">*</span></label>
+                <input id="ke-imamBn" type="text" value="${sanitize(item.imamBn||'')}" placeholder="${l==='bn'?'যেমন: ইমাম আলী (আ.)':'e.g. ইমাম আলী (আ.)'}" class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full"/></div>
+                <div><label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'ইমামের নাম (ইংরেজি)':'Imam Name (English)'}</label>
+                <input id="ke-imamEn" type="text" value="${sanitize(item.imamEn||'')}" placeholder="e.g. Imam Ali (AS)" class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full"/></div>
+                <div><label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'বিষয়':'Topic'}</label>
+                <input id="ke-topic" type="text" value="${sanitize(item.topic||'')}" placeholder="${l==='bn'?'যেমন: আখলাক, ইবাদত, পরিবার':'e.g. Akhlaq, Ibadah, Family'}" class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full"/></div>
+                ` : ''}
+
+                ${type==='specialdays'?`
+                <div><label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'ধরন':'Type'}</label>
+                <select id="ke-type" class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full">
+                    <option value="eid" ${item.type==='eid'?'selected':''}>${l==='bn'?'ঈদ/উৎসব':'Eid/Festival'}</option>
+                    <option value="martyrdom" ${item.type==='martyrdom'?'selected':''}>${l==='bn'?'শাহাদাত দিবস':'Martyrdom Day'}</option>
+                    <option value="occasion" ${item.type==='occasion'?'selected':''}>${l==='bn'?'স্মরণীয় দিন':'Occasion'}</option>
+                </select></div>
+                <div><label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'হিজরি তারিখ':'Hijri Date'}</label>
+                <input id="ke-hijriDate" type="text" value="${sanitize(item.hijriDate||'')}" placeholder="${l==='bn'?'যেমন: ১৮ জিলহজ':'e.g. 18 Dhul Hijjah'}" class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full"/></div>
+                <div><label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'সম্পর্কিত ইমাম (ঐচ্ছিক)':'Related Imam (optional)'}</label>
+                <input id="ke-imam" type="text" value="${sanitize(item.imam||'')}" placeholder="${l==='bn'?'যেমন: ইমাম আলী (আ.)':'e.g. Imam Ali (AS)'}" class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full"/></div>
+                <div><label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'বিশেষ দোয়া/আমল (ঐচ্ছিক)':'Special Dua/Amal (optional)'}</label>
+                <textarea id="ke-dua" class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full h-20">${sanitize(item.dua||'')}</textarea></div>
+                ` : ''}
+
+                <!-- Common Fields -->
+                <div><label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'শিরোনাম (বাংলা)':'Title (Bengali)'} <span class="text-red-500">*</span></label>
+                <input id="ke-titleBn" type="text" value="${sanitize(item.titleBn||'')}" class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full"/></div>
+
+                <div><label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'শিরোনাম (ইংরেজি)':'Title (English)'}</label>
+                <input id="ke-titleEn" type="text" value="${sanitize(item.titleEn||'')}" class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full"/></div>
+
+                ${type!=='specialdays'?`
+                <div><label class="block mb-1.5 text-sm font-semibold">عربي — ${l==='bn'?'আরবি পাঠ':'Arabic Text'} ${type==='sahifa'?'<span class="text-red-500">*</span>':''}</label>
+                <textarea id="ke-arabic" dir="rtl" lang="ar" class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full h-24" style="font-family:'Amiri',serif;font-size:1.2rem;line-height:2">${sanitize(item.arabic||'')}</textarea></div>
+                `:''}
+
+                <div><label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'বাংলা পাঠ/বিবরণ':'Bengali Text/Description'} <span class="text-red-500">*</span></label>
+                <textarea id="ke-textBn" class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full h-28">${sanitize(item.textBn||item.descBn||item.meaningBn||'')}</textarea></div>
+
+                <div><label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'ইংরেজি পাঠ/বিবরণ':'English Text/Description'}</label>
+                <textarea id="ke-textEn" class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full h-20">${sanitize(item.textEn||item.descEn||item.meaningEn||'')}</textarea></div>
+
+                <div><label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'উৎস / সূত্র':'Source / Reference'}</label>
+                <input id="ke-source" type="text" value="${sanitize(item.source||'')}" placeholder="${l==='bn'?'যেমন: নাহজুল বালাগা, খুতবা ১':'e.g. Nahjul Balagha, Sermon 1'}" class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full"/></div>
+            </div>
+
+            <div class="flex gap-3 p-6 border-t ${d?'border-gray-700':'border-gray-100'}">
+                <button data-action="closeKnowledgeEditor" class="${d?'bg-gray-700 hover:bg-gray-600 text-white':'bg-gray-100 hover:bg-gray-200 text-gray-700'} flex-1 py-3 rounded-xl font-semibold text-sm">${l==='bn'?'বাতিল':'Cancel'}</button>
+                <button onclick="event.stopPropagation();(function(){
+                    const type='${type}';
+                    const titleBn=(document.getElementById('ke-titleBn')?.value||'').trim();
+                    const titleEn=(document.getElementById('ke-titleEn')?.value||'').trim();
+                    const textBn=(document.getElementById('ke-textBn')?.value||'').trim();
+                    const textEn=(document.getElementById('ke-textEn')?.value||'').trim();
+                    const arabic=(document.getElementById('ke-arabic')?.value||'').trim();
+                    const source=(document.getElementById('ke-source')?.value||'').trim();
+                    if(!titleBn){alert('শিরোনাম (বাংলা) দিন');return;}
+                    if(!textBn&&type!=='sahifa'){alert('বাংলা পাঠ/বিবরণ দিন');return;}
+                    const extra={};
+                    if(document.getElementById('ke-type')) extra.type=document.getElementById('ke-type').value;
+                    if(document.getElementById('ke-number')) extra.number=document.getElementById('ke-number').value;
+                    if(document.getElementById('ke-topic')) extra.topic=document.getElementById('ke-topic').value;
+                    if(document.getElementById('ke-occasion')) extra.occasion=document.getElementById('ke-occasion').value;
+                    if(document.getElementById('ke-translit')) extra.transliteration=document.getElementById('ke-translit').value;
+                    if(document.getElementById('ke-meaningBn')) extra.meaningBn=document.getElementById('ke-meaningBn').value;
+                    if(document.getElementById('ke-imamBn')) extra.imamBn=document.getElementById('ke-imamBn').value;
+                    if(document.getElementById('ke-imamEn')) extra.imamEn=document.getElementById('ke-imamEn').value;
+                    if(document.getElementById('ke-hijriDate')) extra.hijriDate=document.getElementById('ke-hijriDate').value;
+                    if(document.getElementById('ke-imam')) extra.imam=document.getElementById('ke-imam').value;
+                    if(document.getElementById('ke-dua')) extra.dua=document.getElementById('ke-dua').value;
+                    const dataMap={nahjul:'nahjulBalagha',sahifa:'sahifaSajjadiya',imamhadiths:'imamHadiths',specialdays:'specialDays'};
+                    const key=dataMap[type];
+                    const newItem={titleBn,titleEn,arabic,source,textBn:type==='specialdays'?undefined:textBn,textEn:type==='specialdays'?undefined:textEn,descBn:type==='specialdays'?textBn:undefined,descEn:type==='specialdays'?textEn:undefined,...extra};
+                    const idx=state.editingKnowledgeIdx;
+                    if(idx===-1) state[key].push(newItem);
+                    else state[key][idx]=newItem;
+                    state.showKnowledgeEditor=false;
+                    state.editingKnowledgeItem=null;
+                    saveState();render();
+                })()" class="flex-1 py-3 rounded-xl font-semibold text-sm text-white" style="background:linear-gradient(135deg,#059669,#065f46)">${l==='bn'?'✅ সংরক্ষণ করুন':'✅ Save'}</button>
+            </div>
+        </div>
+    </div>`;
+}
+
 function renderBlogEditorModal() {
     if (!state.showBlogEditor || !state.editingPost) return '';
     const d=state.darkMode; const l=state.language;
@@ -3996,6 +4555,8 @@ function renderMainContent() {
         searchPage:renderSearchPage, analytics:renderAnalyticsPage,
         readZiyarat:renderReadZiyaratPage,
         asmaul:renderAsmaulHusnaPage, qibla:renderQiblaPage,
+        muharram:renderMuharramPage,
+        'shia-days':renderShiaDaysPage,
     };
     return (pages[state.currentPage]||pages.home)();
 }
@@ -4015,7 +4576,10 @@ function render() {
         ${renderBlogEditorModal()}
         ${renderDuaEditorModal()}
         ${renderHadithEditorModal()}
+        ${renderKnowledgeEditorModal()}
         ${renderAyahEditorModal()}
+        ${renderMuharramEditorModal()}
+        ${renderShiaDayEditorModal()}
     `;
     // load lazy images after render
     document.querySelectorAll('img[data-src-id]').forEach(img => {
@@ -4207,4 +4771,410 @@ function init() {
     setTimeout(hideSplash, 2600);
 }
 
+// ============================================================================
+// IMAM CARD ANIMATIONS — flip & particles
+// ============================================================================
+
+/** Toggle 3-D flip on an imam card */
+function imamFlip(flipId) {
+    const wrapper = document.getElementById(flipId);
+    if (!wrapper) return;
+    const outer = wrapper.closest('.imam-flip-wrapper');
+    if (!outer) return;
+    outer.classList.toggle('flipped');
+}
+
+/** Spawn particle burst on card mouseenter */
+function imamCardParticles(cardEl, color) {
+    if (window._imamParticleCooldown) return;
+    window._imamParticleCooldown = true;
+    setTimeout(() => { window._imamParticleCooldown = false; }, 900);
+
+    const directions = [
+        'translate(-28px,-32px)','translate(28px,-32px)',
+        'translate(-36px,0px)', 'translate(36px,0px)',
+        'translate(-22px,28px)','translate(22px,28px)',
+        'translate(0px,-38px)', 'translate(12px,-26px)',
+    ];
+    const rect = cardEl.getBoundingClientRect();
+    // anchor particles to top-center of the card (avatar area)
+    const ox = rect.width / 2;
+    const oy = rect.height * 0.22;
+
+    directions.forEach((tx, i) => {
+        const p = document.createElement('div');
+        p.className = 'imam-particle';
+        p.style.cssText = `
+            background:${i % 2 === 0 ? color : '#c9a227'};
+            left:${ox}px; top:${oy}px;
+            --ptx:${tx};
+            animation-delay:${i * 0.06}s;
+            width:${4 + (i % 3) * 2}px;
+            height:${4 + (i % 3) * 2}px;
+        `;
+        cardEl.appendChild(p);
+        setTimeout(() => p.remove(), 900);
+    });
+}
+
 init();
+// ============================================================================
+// মুহাররম / আশুরা কাউন্টডাউন পেজ
+// ============================================================================
+function getAshuraGregorianDate() {
+    const h = approxHijriNow();
+    const ashuraYear = (h.month > 1 || (h.month === 1 && h.day > 10)) ? h.year + 1 : h.year;
+    const ashuraGreg = hijriToGregorian(10, 1, ashuraYear);
+    return { date: ashuraGreg, hijriYear: ashuraYear };
+}
+
+// ============================================================================
+// মুহাররম / আশুরা পেজ — CRUD সহ
+// ============================================================================
+function renderMuharramEditorModal() {
+    if (!state.showMuharramEditor || !state.editingMuharramEvent) return '';
+    const d = state.darkMode, ev = state.editingMuharramEvent;
+    const isNew = !state.muharramEvents.find(x=>x.id===ev.id);
+    return `
+    <div class="fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="${d?'bg-gray-900 border-gray-700':'bg-white border-gray-200'} border rounded-2xl w-full max-w-lg shadow-2xl fade-in my-4">
+            <div class="flex items-center justify-between p-5 border-b ${d?'border-gray-700':'border-gray-100'}">
+                <h3 class="font-bold text-lg flex items-center gap-2">⚔️ ${isNew?'নতুন কারবালা ঘটনা যোগ':'ঘটনা সম্পাদনা'}</h3>
+                <button data-action="closeMuharramEditor" class="text-2xl leading-none ${d?'text-gray-400 hover:text-white':'text-gray-400 hover:text-gray-700'}">&times;</button>
+            </div>
+            <div class="p-5 space-y-4 overflow-y-auto max-h-[70vh]">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-semibold mb-1.5">আইকন (ইমোজি)</label>
+                        <input id="mev-icon" type="text" value="${sanitize(ev.icon||'🕌')}" maxlength="4"
+                            class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-3 py-2.5 w-full text-2xl focus:outline-none focus:ring-2 focus:ring-red-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-1.5">রঙ</label>
+                        <input id="mev-color" type="color" value="${ev.color||'#dc2626'}"
+                            class="border rounded-xl w-full h-11 cursor-pointer focus:outline-none" style="padding:2px 4px" />
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1.5">তারিখ (হিজরি) <span class="text-red-500">*</span></label>
+                    <input id="mev-date" type="text" value="${sanitize(ev.date||'')}" placeholder="যেমন: ১০ মহররম"
+                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-2.5 w-full focus:outline-none focus:ring-2 focus:ring-red-500" />
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1.5">শিরোনাম (বাংলা) <span class="text-red-500">*</span></label>
+                    <input id="mev-title" type="text" value="${sanitize(ev.titleBn||'')}" placeholder="যেমন: আশুরার শাহাদাত"
+                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-2.5 w-full focus:outline-none focus:ring-2 focus:ring-red-500" />
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1.5">বিস্তারিত বিবরণ</label>
+                    <textarea id="mev-desc" placeholder="ঘটনার বিস্তারিত লিখুন..."
+                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-2.5 w-full h-28 focus:outline-none focus:ring-2 focus:ring-red-500">${sanitize(ev.descBn||'')}</textarea>
+                </div>
+            </div>
+            <div class="flex gap-3 p-5 border-t ${d?'border-gray-700':'border-gray-100'}">
+                <button data-action="saveMuharramEvent" class="bg-red-600 hover:bg-red-700 text-white flex-1 py-3 rounded-xl font-bold transition-colors">💾 ${isNew?'যোগ করুন':'আপডেট করুন'}</button>
+                <button data-action="closeMuharramEditor" class="${d?'bg-gray-700 hover:bg-gray-600':'bg-gray-100 hover:bg-gray-200'} px-6 py-3 rounded-xl font-semibold transition-colors">বাতিল</button>
+            </div>
+        </div>
+    </div>`;
+}
+
+function renderShiaDayEditorModal() {
+    if (!state.showShiaDayEditor || !state.editingShiaDay) return '';
+    const d = state.darkMode, sd = state.editingShiaDay;
+    const isNew = !state.shiaSpecialDays.find(x=>x.id===sd.id);
+    const types = [['eid','🎉 ঈদ/উৎসব'],['martyrdom','🕊️ শাহাদাত'],['special','⭐ বিশেষ রাত/দিন']];
+    return `
+    <div class="fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="${d?'bg-gray-900 border-gray-700':'bg-white border-gray-200'} border rounded-2xl w-full max-w-lg shadow-2xl fade-in my-4">
+            <div class="flex items-center justify-between p-5 border-b ${d?'border-gray-700':'border-gray-100'}">
+                <h3 class="font-bold text-lg flex items-center gap-2">✨ ${isNew?'নতুন বিশেষ দিন যোগ':'বিশেষ দিন সম্পাদনা'}</h3>
+                <button data-action="closeShiaDayEditor" class="text-2xl leading-none ${d?'text-gray-400 hover:text-white':'text-gray-400 hover:text-gray-700'}">&times;</button>
+            </div>
+            <div class="p-5 space-y-4 overflow-y-auto max-h-[72vh]">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-semibold mb-1.5">আইকন (ইমোজি)</label>
+                        <input id="sd-icon" type="text" value="${sanitize(sd.icon||'✨')}" maxlength="4"
+                            class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-3 py-2.5 w-full text-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-1.5">ধরন <span class="text-red-500">*</span></label>
+                        <select id="sd-type" class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-3 py-2.5 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            ${types.map(([v,l2])=>`<option value="${v}" ${sd.type===v?'selected':''}>${l2}</option>`).join('')}
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1.5">হিজরি তারিখ</label>
+                    <input id="sd-hijridate" type="text" value="${sanitize(sd.hijriDate||'')}" placeholder="যেমন: ১৮ জিলহজ"
+                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-2.5 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1.5">শিরোনাম (বাংলা) <span class="text-red-500">*</span></label>
+                    <input id="sd-title" type="text" value="${sanitize(sd.titleBn||'')}" placeholder="যেমন: ঈদে গাদির"
+                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-2.5 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1.5">আরবি শিরোনাম</label>
+                    <input id="sd-arabic" type="text" dir="rtl" value="${sanitize(sd.arabicTitle||'')}" placeholder="عيد الغدير"
+                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-2.5 w-full arabic-text focus:outline-none focus:ring-2 focus:ring-emerald-500" style="font-family:'Amiri',serif;font-size:1.1rem" />
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1.5">বিস্তারিত বিবরণ</label>
+                    <textarea id="sd-desc" placeholder="ঐতিহাসিক ঘটনা বিস্তারিত লিখুন..."
+                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-2.5 w-full h-24 focus:outline-none focus:ring-2 focus:ring-emerald-500">${sanitize(sd.descBn||'')}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1.5">📿 বিশেষ আমল</label>
+                    <textarea id="sd-amaal" placeholder="রোজা, নামাজ, দোয়া ইত্যাদি..."
+                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-2.5 w-full h-20 focus:outline-none focus:ring-2 focus:ring-emerald-500">${sanitize(sd.amaal||'')}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1.5">✨ গুরুত্ব</label>
+                    <input id="sd-importance" type="text" value="${sanitize(sd.importance||'')}" placeholder="এই দিনের বিশেষ তাৎপর্য..."
+                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-2.5 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                </div>
+            </div>
+            <div class="flex gap-3 p-5 border-t ${d?'border-gray-700':'border-gray-100'}">
+                <button data-action="saveShiaDay" class="bg-emerald-600 hover:bg-emerald-700 text-white flex-1 py-3 rounded-xl font-bold transition-colors">💾 ${isNew?'যোগ করুন':'আপডেট করুন'}</button>
+                <button data-action="closeShiaDayEditor" class="${d?'bg-gray-700 hover:bg-gray-600':'bg-gray-100 hover:bg-gray-200'} px-6 py-3 rounded-xl font-semibold transition-colors">বাতিল</button>
+            </div>
+        </div>
+    </div>`;
+}
+
+function renderMuharramPage() {
+    const d = state.darkMode, l = state.language;
+    const { date: ashuraDate, hijriYear } = getAshuraGregorianDate();
+    const today = new Date(); today.setHours(0,0,0,0);
+    ashuraDate.setHours(0,0,0,0);
+    const daysLeft = Math.ceil((ashuraDate - today) / 86400000);
+    const isToday = daysLeft === 0;
+    const isPast = daysLeft < 0;
+
+    const gregMonthsEn2=['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const ashuraDateStr = ashuraDate.getDate()+' '+gregMonthsEn2[ashuraDate.getMonth()]+' '+ashuraDate.getFullYear();
+
+    // Static + custom events merged
+    const staticTimeline = [
+        {id:'s1', icon:'🚶', date:l==='bn'?'১ মহররম':'1 Muharram', color:'#3b82f6', titleBn:l==='bn'?'ইমাম হোসাইন (আ.) মদিনা থেকে যাত্রা শুরু':'Imam Husayn (AS) Departs Madinah', descBn:l==='bn'?'ইয়াজিদের বায়াত প্রত্যাখ্যান করে পরিবার ও সঙ্গীদের নিয়ে মদিনা ত্যাগ করেন।':'Refusing to pledge allegiance to Yazid, he left Madinah with his family and companions.'},
+        {id:'s2', icon:'🏜️', date:l==='bn'?'৩ মহররম':'3 Muharram', color:'#f59e0b', titleBn:l==='bn'?'কারবালায় পৌঁছানো':'Arrival at Karbala', descBn:l==='bn'?'ইমামের কাফেলা কারবালার প্রান্তরে পৌঁছায়। হুর ইবনে ইয়াযিদের বাহিনী পথ রোধ করে।':"The Imam's caravan reaches the plains of Karbala. Hurr ibn Yazid's forces block their path."},
+        {id:'s3', icon:'💧', date:l==='bn'?'৭ মহররম':'7 Muharram', color:'#ef4444', titleBn:l==='bn'?'পানি সরবরাহ বন্ধ':'Water Supply Cut Off', descBn:l==='bn'?'ফোরাত নদীর পানি সম্পূর্ণ বন্ধ করা হয়। ৭২ সঙ্গী ও শিশুরা পিপাসায় কষ্ট পেতে থাকে।':'Access to the Euphrates river is completely blocked. The 72 companions and children suffer from thirst.'},
+        {id:'s4', icon:'🌙', date:l==='bn'?'৯ মহররম (তাসুআ)':'9 Muharram (Tasua)', color:'#8b5cf6', titleBn:l==='bn'?'তাসুআ — শেষ রাত':'Tasua — The Last Night', descBn:l==='bn'?'ইমাম সঙ্গীদের মুক্ত করে দেন। রাতভর ইবাদত, নামাজ ও কুরআন তিলাওয়াত।':'The Imam releases his companions from obligation. The night is spent in worship, prayer, and recitation of the Quran.'},
+        {id:'s5', icon:'⚔️', date:l==='bn'?'১০ মহররম (আশুরা)':'10 Muharram (Ashura)', color:'#dc2626', titleBn:l==='bn'?'🔴 আশুরা — কারবালার মহাশাহাদাত':'🔴 Ashura — The Great Martyrdom of Karbala', descBn:l==='bn'?'৭২ জন বনাম ৩০,০০০ সৈন্য। একে একে সব সঙ্গী শহীদ হন। ইমাম হোসাইন (আ.) আসর নামাজের পর শাহাদাত বরণ করেন।':'72 against 30,000 soldiers. All companions are martyred one by one. Imam Husayn (AS) is martyred after the Asr prayer.'},
+        {id:'s6', icon:'⛓️', date:l==='bn'?'১১ মহররম':'11 Muharram', color:'#6b7280', titleBn:l==='bn'?'বন্দী কাফেলা কুফার পথে':'Captive Caravan Towards Kufa', descBn:l==='bn'?'হযরত যয়নাব (আ.) সহ মহিলা ও শিশুদের বন্দী করে কুফায় নেওয়া হয়।':'Lady Zaynab (AS) and the women and children are taken captive towards Kufa.'},
+        {id:'s7', icon:'🗣️', date:l==='bn'?'সফর মাস':'Month of Safar', color:'#059669', titleBn:l==='bn'?'যয়নাব (আ.)-এর ঐতিহাসিক ভাষণ':"Zaynab (AS)'s Historic Speech", descBn:l==='bn'?'যয়নাব (আ.) ইয়াজিদের দরবারে ঐতিহাসিক ভাষণ দেন। কারবালার বার্তা বিশ্বে ছড়িয়ে দেন।':"Zaynab (AS) delivers her historic speech in Yazid's court, spreading the message of Karbala to the world."},
+    ];
+    const allTimeline = [...staticTimeline, ...state.muharramEvents];
+
+    const majalis = [
+        {icon:'🕌', time:l==='bn'?'১–১০ মহররম':'1–10 Muharram', titleBn:l==='bn'?'মজলিস':'Majlis', descBn:l==='bn'?'শোকসভা যেখানে বক্তা কারবালার ঘটনা বর্ণনা করেন।':'A mourning gathering where a speaker narrates the events of Karbala.'},
+        {icon:'🕯️', time:l==='bn'?'১০ মহররম রাত':'Night of 10 Muharram', titleBn:l==='bn'?'শাম-এ-গরিবান':'Sham-e-Ghariban', descBn:l==='bn'?'আশুরার রাতে মোমবাতি জ্বালিয়ে ইমামের শিবিরে আগুনের স্মরণ।':"Candles are lit on the night of Ashura to commemorate the burning of the Imam's camp."},
+        {icon:'🌿', time:l==='bn'?'২০ সফর':'20 Safar', titleBn:l==='bn'?'চেহলুম / আরবাঈন':'Chehlum / Arbaeen', descBn:l==='bn'?'শাহাদাতের ৪০তম দিন। যয়নাব ও সুরবীরা এই দিনে কারবালায় ফিরে আসেন।':'The 40th day after the martyrdom. Zaynab and the survivors returned to Karbala on this day.'},
+    ];
+
+    const cdHtml = isToday
+        ? `<div style="color:#dc2626;font-size:2rem;font-weight:900">${l==='bn'?'🔴 আজ আশুরা!':'🔴 Today is Ashura!'}</div>`
+        : isPast
+        ? `<div style="font-size:1.1rem;font-weight:700;color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?'আগামী বছরের জন্য প্রতীক্ষায়':'Awaiting next year'}</div>`
+        : `<div style="font-size:3.5rem;font-weight:900;color:#dc2626;line-height:1">${l==='bn'?toBengaliDigits(daysLeft):daysLeft}</div>
+           <div style="font-size:1rem;color:${d?'#9ca3af':'#6b7280'};margin-top:.25rem">${l==='bn'?'দিন বাকি':'days remaining'}</div>`;
+
+    const isStatic = id => id && id.startsWith('s');
+
+    return `<div class="space-y-8 page-enter">
+        <button data-action="changePage" data-param="home" class="flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm hover:scale-[1.02] transition-all" style="background:${d?'rgba(220,38,38,.15)':'rgba(220,38,38,.08)'};color:#dc2626">← ${l==='bn'?'হোমে ফিরুন':'Back to Home'}</button>
+
+        <div class="relative overflow-hidden rounded-3xl text-center" style="background:linear-gradient(135deg,#1a0000,#3b0000,#1a0000);padding:2.5rem 2rem;box-shadow:0 8px 40px rgba(220,38,38,.35)">
+            <div style="font-size:2.5rem;margin-bottom:.5rem">🌙⚔️🌙</div>
+            <h2 style="font-size:2rem;font-weight:900;color:#f87171;margin-bottom:.25rem">${l==='bn'?'মহররম ও আশুরা':'Muharram & Ashura'}</h2>
+            <p class="arabic-text" dir="rtl" style="color:#fca5a5;font-size:1.4rem">يَا أَبَا عَبْدِ اللَّهِ السَّلَامُ عَلَيْكَ</p>
+        </div>
+
+        <div class="${d?'bg-gray-800 border-red-900':'bg-red-50 border-red-200'} border-2 rounded-2xl p-6 text-center" style="box-shadow:0 4px 20px rgba(220,38,38,.15)">
+            <p class="text-sm font-bold mb-3" style="color:#dc2626">${l==='bn'?'🕐 আশুরা কাউন্টডাউন':'🕐 Ashura Countdown'}</p>
+            ${cdHtml}
+            <p class="text-sm mt-2 ${d?'text-gray-400':'text-gray-600'}">📅 ${ashuraDateStr}</p>
+            <p class="text-xs mt-1 ${d?'text-gray-500':'text-gray-500'}">${l==='bn'?`১০ মহররম ${toBengaliDigits(hijriYear)} হিজরি`:`10 Muharram ${hijriYear} AH`}</p>
+        </div>
+
+        <div>
+            <div class="flex gap-2 flex-wrap mb-5">
+                ${[[`tl`, l==='bn'?'📜 কারবালার ঘটনা':'📜 Events of Karbala'],[`mj`, l==='bn'?'🕌 মজলিস ও আমল':'🕌 Majlis & Practices'],[`zr`, l==='bn'?'🤲 বিশেষ যিয়ারত':'🤲 Special Ziyarat']].map(([id,label],i)=>`
+                <button onclick="document.querySelectorAll('.mhp').forEach(p=>p.style.display='none');document.getElementById('mhp-${id}').style.display='block';document.querySelectorAll('.mhtb').forEach(b=>{b.style.background='';b.style.color=''});this.style.background='#dc2626';this.style.color='white'"
+                    class="mhtb px-4 py-2 rounded-xl font-semibold text-sm border focus:outline-none ${d?'border-gray-700 text-gray-300':'border-gray-300 text-gray-600'}"
+                    style="${i===0?'background:#dc2626;color:white':''}">${label}</button>`).join('')}
+            </div>
+
+            <!-- ─── ঘটনাক্রম ─── -->
+            <div id="mhp-tl" class="mhp space-y-4">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-xl font-bold">${l==='bn'?'📜 কারবালার ঘটনাক্রম':'📜 Timeline of Karbala'}</h3>
+                    ${state.isAdmin?`<button data-action="openMuharramEditor" class="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold text-white" style="background:#dc2626">${l==='bn'?'＋ নতুন ঘটনা যোগ':'＋ Add New Event'}</button>`:''}
+                </div>
+                ${allTimeline.map((ev,i)=>`
+                <div class="relative" style="padding-left:52px">
+                    <div style="position:absolute;left:0;top:16px;width:36px;height:36px;border-radius:50%;background:${ev.color||'#6b7280'};display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;z-index:1">${ev.icon||'🕌'}</div>
+                    ${i<allTimeline.length-1?`<div style="position:absolute;left:17px;top:54px;width:2px;height:calc(100% + 8px);background:${d?'#374151':'#e5e7eb'}"></div>`:''}
+                    <div class="${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-2xl p-4 ${ev.color==='#dc2626'?'border-red-400':''}" style="${ev.color==='#dc2626'?'box-shadow:0 4px 20px rgba(220,38,38,.12)':''}">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex-1">
+                                <span class="text-xs font-bold px-2 py-0.5 rounded-full mb-1 inline-block" style="background:${ev.color||'#6b7280'}22;color:${ev.color||'#6b7280'}">${ev.date||''}</span>
+                                <h4 class="font-bold mb-1">${sanitize(ev.titleBn||'')}</h4>
+                                <p class="text-sm ${d?'text-gray-300':'text-gray-700'} leading-relaxed">${sanitize(ev.descBn||'')}</p>
+                            </div>
+                            ${state.isAdmin && !isStatic(ev.id) ? `<div class="flex gap-1 flex-shrink-0">
+                                <button data-action="openMuharramEditor" data-param="${ev.id}" class="text-xs px-2 py-1 rounded-lg font-semibold ${d?'bg-gray-700 text-gray-300':'bg-gray-100 text-gray-600'} hover:opacity-80">✏️</button>
+                                <button data-action="deleteMuharramEvent" data-param="${ev.id}" class="text-xs px-2 py-1 rounded-lg font-semibold bg-red-100 text-red-600 hover:bg-red-200">🗑️</button>
+                            </div>` : ''}
+                        </div>
+                    </div>
+                </div>`).join('')}
+            </div>
+
+            <!-- ─── মজলিস ─── -->
+            <div id="mhp-mj" class="mhp space-y-4" style="display:none">
+                <h3 class="text-xl font-bold">${l==='bn'?'🕌 মজলিস ও বিশেষ আমল':'🕌 Majlis & Special Practices'}</h3>
+                ${majalis.map(m=>`
+                <div class="${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-2xl p-5" style="border-left:4px solid #dc2626">
+                    <div class="flex items-center gap-3 mb-2 flex-wrap">
+                        <span style="font-size:1.4rem">${m.icon}</span>
+                        <h4 class="font-bold">${m.titleBn}</h4>
+                        <span class="text-xs px-2 py-0.5 rounded-full font-bold" style="background:#dc262622;color:#dc2626">📅 ${m.time}</span>
+                    </div>
+                    <p class="text-sm ${d?'text-gray-300':'text-gray-700'} leading-relaxed">${m.descBn}</p>
+                </div>`).join('')}
+                <div class="${d?'bg-red-950 border-red-900':'bg-red-50 border-red-200'} border rounded-2xl p-5">
+                    <h4 class="font-bold mb-3" style="color:#dc2626">${l==='bn'?'📌 মহররমের বিশেষ আমল':'📌 Special Practices of Muharram'}</h4>
+                    <ul class="space-y-1.5 text-sm ${d?'text-gray-300':'text-gray-700'}">
+                        ${(l==='bn'?['যিয়ারত আশুরা পাঠ (১–১০ মহররম)','ইমাম হোসাইনের জন্য শোক পালন','কারবালার ঘটনা পরিবারে আলোচনা','দোয়ায়ে তাওয়াসসুল পাঠ','মজলিসে অংশগ্রহণ','আশুরার দিন খাবার সীমিত রাখা']:['Recite Ziyarat Ashura (1–10 Muharram)','Mourn for Imam Husayn','Discuss the events of Karbala with family','Recite Dua Tawassul','Attend Majlis gatherings','Limit food on the day of Ashura']).map(a=>`<li>✅ ${a}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- ─── যিয়ারত ─── -->
+            <div id="mhp-zr" class="mhp space-y-4" style="display:none">
+                <h3 class="text-xl font-bold">${l==='bn'?'🤲 বিশেষ যিয়ারত ও দোয়া':'🤲 Special Ziyarat & Dua'}</h3>
+                <div class="${d?'bg-gray-800 border-amber-900':'bg-amber-50 border-amber-200'} border rounded-2xl p-6">
+                    <h4 class="font-bold mb-3" style="color:#b45309">${l==='bn'?'যিয়ারত আশুরা':'Ziyarat Ashura'}</h4>
+                    <p class="arabic-text text-right text-xl mb-3" dir="rtl" style="color:${d?'#fca5a5':'#991b1b'};line-height:2">السَّلَامُ عَلَيْكَ يَا أَبَا عَبْدِ اللَّهِ وَعَلَى الْأَرْوَاحِ الَّتِي حَلَّتْ بِفِنَائِكَ</p>
+                    <p class="text-sm ${d?'text-gray-300':'text-gray-700'}">${l==='bn'?'হে আবা আব্দিল্লাহ! আপনার প্রতি এবং আপনার দরগায় অবস্থিত আত্মাদের প্রতি শান্তি বর্ষিত হোক।':'Peace be upon you, O Aba Abdillah, and upon the souls who have gathered in your courtyard.'}</p>
+                </div>
+                <div class="${d?'bg-gray-800 border-green-900':'bg-green-50 border-green-200'} border rounded-2xl p-6">
+                    <h4 class="font-bold mb-2" style="color:#059669">${l==='bn'?'দোয়ায়ে তাওয়াসসুল':'Dua Tawassul'}</h4>
+                    <p class="text-sm ${d?'text-gray-300':'text-gray-700'}">${l==='bn'?'ইমাম হোসাইন (আ.) ও আহলে বাইতের মাধ্যমে আল্লাহর কাছে তাওয়াসসুল করা মুস্তাহাব।':'Seeking intercession (tawassul) to Allah through Imam Husayn (AS) and the Ahlul Bayt is recommended.'}</p>
+                    <button data-action="changePage" data-param="dua" class="mt-3 text-sm font-bold px-4 py-2 rounded-xl" style="background:#05966918;color:#059669">${l==='bn'?'🤲 দোয়া পেজে যান →':'🤲 Go to Dua Page →'}</button>
+                </div>
+            </div>
+        </div>
+    </div>`;
+}
+
+// ============================================================================
+// শিয়া বিশেষ দিনসমূহ পেজ — CRUD সহ
+// ============================================================================
+function renderShiaDaysPage() {
+    const d = state.darkMode, l = state.language;
+
+    const staticDays = [
+        {id:'st1', icon:'👑', color:'#059669', type:'eid', hijriDate:l==='bn'?'১৮ জিলহজ':'18 Dhul Hijjah', titleBn:l==='bn'?'ঈদে গাদির খুম':'Eid al-Ghadeer Khumm', arabicTitle:'عيد الغدير', descBn:l==='bn'?'১০ম হিজরিতে বিদায় হজ থেকে ফেরার পথে গাদির খুমে রাসূলুল্লাহ (সা.) আল্লাহর নির্দেশে ইমাম আলী (আ.)-কে উম্মাহর নেতা ঘোষণা করেন।':'On returning from the Farewell Hajj in 10 AH, the Prophet (PBUH) declared Imam Ali (AS) as the leader of the Ummah at Ghadir Khumm by divine command.', amaal:l==='bn'?'রোজা, গোসল, নতুন পোশাক, মুমিনদের অভিনন্দন, দোয়ায়ে নুদবা পাঠ':'Fasting, Ghusl, new clothes, congratulating believers, reciting Dua Nudbah', importance:l==='bn'?'শিয়া ইসলামের সর্বোচ্চ উৎসব':'The greatest celebration of Shia Islam'},
+        {id:'st2', icon:'✨', color:'#7c3aed', type:'eid', hijriDate:l==='bn'?'২৪ জিলহজ':'24 Dhul Hijjah', titleBn:l==='bn'?'ঈদে মুবাহিলা':'Eid al-Mubahala', arabicTitle:'عيد المباهلة', descBn:l==='bn'?'৯ম হিজরিতে নাজরানের খ্রিস্টানদের সাথে মুবাহিলায় রাসূলুল্লাহ (সা.) ইমাম আলী, ফাতেমা, হাসান ও হোসাইন (আ.)-কে নিলেন। খ্রিস্টানরা পিছিয়ে যায়।':'In 9 AH, for the Mubahala with the Christians of Najran, the Prophet brought Imam Ali, Fatima, Hasan, and Husayn (AS). The Christians withdrew.', amaal:l==='bn'?'রোজা, গোসল, ২ রাকাত নামাজ':'Fasting, Ghusl, 2 Rakat prayer', importance:l==='bn'?'আহলে বাইতের শ্রেষ্ঠত্বের কুরআনি প্রমাণ':'Quranic proof of the excellence of the Ahlul Bayt'},
+        {id:'st3', icon:'🌙', color:'#059669', type:'eid', hijriDate:l==='bn'?'১৫ শাবান':'15 Shaban', titleBn:l==='bn'?'নিমে শাবান — ইমাম মাহদি (আ.) জন্মদিন':'Mid-Shaban — Birthday of Imam Mahdi (AS)', arabicTitle:'نيمه شعبان', descBn:l==='bn'?'১৫ শাবান, ২৫৫ হিজরি — ইমাম মাহদি (আ.) সামারায় জন্মগ্রহণ করেন। দ্বাদশ ইমাম আল্লাহর নির্দেশে গায়বতে আছেন।':'15 Shaban, 255 AH — Imam Mahdi (AS) was born in Samarra. The Twelfth Imam is in occultation by divine command.', amaal:l==='bn'?'দোয়ায়ে নুদবা, দোয়ায়ে আহদ, সালাওয়াত, রোজা':'Dua Nudbah, Dua Ahd, Salawat, Fasting', importance:l==='bn'?'ইমামে যামানার জন্মদিন':'Birthday of the Imam of Our Time'},
+        {id:'st4', icon:'🦁', color:'#059669', type:'eid', hijriDate:l==='bn'?'১৩ রজব':'13 Rajab', titleBn:l==='bn'?'ইমাম আলী (আ.) জন্মদিন':'Birthday of Imam Ali (AS)', arabicTitle:'مولد علي بن أبي طالب', descBn:l==='bn'?'১৩ রজব — কাবাঘরের ভেতরে ইমাম আলী (আ.)-এর জন্ম।':'13 Rajab — Imam Ali (AS) was born inside the Kaaba.', amaal:l==='bn'?'আনন্দ, দান-সদকা, নামাজ, যিয়ারত':'Celebration, charity, prayer, ziyarat', importance:l==='bn'?'একমাত্র ব্যক্তি যিনি কাবার ভেতরে জন্মগ্রহণ করেছেন':'The only person ever born inside the Kaaba'},
+        {id:'st5', icon:'🌹', color:'#be185d', type:'eid', hijriDate:l==='bn'?'২০ জামাদিউস সানি':'20 Jumada al-Thani', titleBn:l==='bn'?'হযরত ফাতেমা যাহরা (আ.) জন্মদিন':'Birthday of Lady Fatima al-Zahra (AS)', arabicTitle:'مولد فاطمة الزهراء', descBn:l==='bn'?'"ফাতেমা আমার হৃদয়ের একটুকরো" — রাসূলুল্লাহ (সা.)। ইসলামের শ্রেষ্ঠ নারী।':'"Fatima is a piece of my heart" — Prophet (PBUH). The greatest woman in Islam.', amaal:l==='bn'?'মহিলাদের সম্মান, দান, দোয়া':'Honouring women, charity, dua', importance:l==='bn'?'ইরানে মহিলা দিবস হিসেবে পালিত':'Celebrated as Women\'s Day in Iran'},
+        {id:'st6', icon:'🌸', color:'#059669', type:'eid', hijriDate:l==='bn'?'৩ শাবান':'3 Shaban', titleBn:l==='bn'?'ইমাম হোসাইন (আ.) জন্মদিন':'Birthday of Imam Husayn (AS)', arabicTitle:'مولد الحسين', descBn:l==='bn'?'"হোসাইন আমার থেকে, আমি হোসাইন থেকে।" — রাসূলুল্লাহ (সা.)।':'"Husayn is from me, and I am from Husayn." — Prophet (PBUH).', amaal:l==='bn'?'আনন্দ, দান, যিয়ারত ইমাম হোসাইন':'Celebration, charity, Ziyarat of Imam Husayn', importance:l==='bn'?'সাইয়্যিদুশ শুহাদার জন্মদিন':'Birthday of the Master of Martyrs'},
+        {id:'st7', icon:'⭐', color:'#b45309', type:'special', hijriDate:l==='bn'?'১৯, ২১, ২৩ রমজান':'19, 21, 23 Ramadan', titleBn:l==='bn'?'লাইলাতুল ক্বদর (তিন রাত)':'Laylat al-Qadr (Three Nights)', arabicTitle:'ليلة القدر', descBn:l==='bn'?'১৯ রমজান — ইমাম আলী (আ.) আঘাতপ্রাপ্ত। ২১ রমজান — ইমাম আলী শহীদ। ২৩ রমজান — সর্বোচ্চ সম্ভাব্য ক্বদরের রাত।':'19 Ramadan — Imam Ali (AS) is struck. 21 Ramadan — Imam Ali is martyred. 23 Ramadan — the most probable Night of Qadr.', amaal:l==='bn'?'রাতভর ইবাদত, কুরআন মাথায় রাখা, দোয়ায়ে জওশানে কাবির':'All-night worship, placing the Quran on the head, Dua Jawshan al-Kabir', importance:l==='bn'?'হাজার মাসের চেয়ে উত্তম':'Better than a thousand months'},
+        {id:'st8', icon:'🕊️', color:'#dc2626', type:'martyrdom', hijriDate:l==='bn'?'২১ রমজান':'21 Ramadan', titleBn:l==='bn'?'ইমাম আলী (আ.) শাহাদাত':'Martyrdom of Imam Ali (AS)', arabicTitle:'شهادة علي بن أبي طالب', descBn:l==='bn'?'২১ রমজান — ইমাম আলী (আ.) শহীদ হন। তিনি বলেছিলেন: "রমজান মাসে ক্বদরের রাতে শাহাদাত — কতই না সৌভাগ্য।"':'21 Ramadan — Imam Ali (AS) is martyred. He said: "To be martyred on the Night of Qadr in Ramadan — what great fortune."', amaal:l==='bn'?'শোক পালন, যিয়ারত ইমাম আলী, দোয়ায়ে কুমাইল':'Mourning, Ziyarat of Imam Ali, Dua Kumayl', importance:l==='bn'?'প্রথম ইমামের শাহাদাত ও ক্বদরের রাত':'Martyrdom of the First Imam and the Night of Qadr'},
+        {id:'st9', icon:'🌹', color:'#dc2626', type:'martyrdom', hijriDate:l==='bn'?'৩ জামাদিউস সানি':'3 Jumada al-Thani', titleBn:l==='bn'?'হযরত ফাতেমা যাহরা (আ.) শাহাদাত':'Martyrdom of Lady Fatima al-Zahra (AS)', arabicTitle:'شهادة فاطمة الزهراء', descBn:l==='bn'?'রাসূলুল্লাহ (সা.)-এর ওফাতের মাত্র ৭৫-৯৫ দিন পর শহীদ হন। তাঁর দাফনস্থান অজ্ঞাত।':'She was martyred only 75–95 days after the passing of the Prophet (PBUH). Her burial place remains unknown.', amaal:l==='bn'?'শোক পালন, ফাতেমার যিয়ারত':'Mourning, reciting Fatima\'s Ziyarat', importance:l==='bn'?'ইসলামের শ্রেষ্ঠ নারীর শাহাদাত':'Martyrdom of the greatest woman in Islam'},
+        {id:'st10',icon:'🔴', color:'#dc2626', type:'martyrdom', hijriDate:l==='bn'?'১০ মহররম':'10 Muharram', titleBn:l==='bn'?'আশুরা — ইমাম হোসাইন (আ.) শাহাদাত':'Ashura — Martyrdom of Imam Husayn (AS)', arabicTitle:'عاشوراء', descBn:l==='bn'?'৬১ হিজরিতে কারবালায় ইমাম হোসাইন (আ.) পরিবার ও ৭২ সঙ্গীসহ শহীদ হন।':'In 61 AH at Karbala, Imam Husayn (AS) was martyred along with his family and 72 companions.', amaal:l==='bn'?'মজলিস, যিয়ারত আশুরা, শোক পালন':'Majlis, Ziyarat Ashura, mourning', importance:l==='bn'?'ইতিহাসের সর্বশ্রেষ্ঠ শাহাদাত':'The greatest martyrdom in history'},
+    ];
+    const allDays = [...staticDays, ...state.shiaSpecialDays];
+
+    const typeBg = { eid: d?'#052e16':'#ecfdf5', martyrdom: d?'#1a0000':'#fef2f2', special: d?'#1c1400':'#fffbeb' };
+    const typeColor = { eid:'#059669', martyrdom:'#dc2626', special:'#b45309' };
+    const typeLabel = {
+        eid: l==='bn'?'🎉 ঈদ/উৎসব':'🎉 Eid/Celebration',
+        martyrdom: l==='bn'?'🕊️ শাহাদাত':'🕊️ Martyrdom',
+        special: l==='bn'?'⭐ বিশেষ দিন':'⭐ Special Day'
+    };
+    const isStatic = id => id && id.startsWith('st');
+
+    const cardHtml = items => items.map(item=>`
+    <article class="${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-2xl overflow-hidden card-hover" style="border-top:3px solid ${item.color||'#059669'}">
+        <div class="p-5">
+            <div class="flex items-start gap-3 mb-3">
+                <span style="width:36px;height:36px;border-radius:10px;background:${item.color||'#059669'}18;display:inline-flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">${item.icon||'✨'}</span>
+                <div class="flex-1 min-w-0">
+                    <div class="flex flex-wrap items-center gap-1.5 mb-1">
+                        <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:${typeBg[item.type]||typeBg.eid};color:${typeColor[item.type]||'#059669'}">${typeLabel[item.type]||typeLabel.eid}</span>
+                        <span class="text-xs ${d?'text-gray-400':'text-gray-500'}">📅 ${sanitize(item.hijriDate||'')}</span>
+                    </div>
+                    <h3 class="font-bold text-base leading-snug">${sanitize(item.titleBn||'')}</h3>
+                    ${item.arabicTitle?`<p class="arabic-text text-right text-sm mt-0.5" dir="rtl" style="color:${d?'#9ca3af':'#9ca3af'}">${sanitize(item.arabicTitle)}</p>`:''}
+                </div>
+                ${state.isAdmin && !isStatic(item.id)?`
+                <div class="flex gap-1 flex-shrink-0">
+                    <button data-action="openShiaDayEditor" data-param="${item.id}" class="text-xs px-2 py-1 rounded-lg ${d?'bg-gray-700 text-gray-300':'bg-gray-100 text-gray-600'} hover:opacity-80">✏️</button>
+                    <button data-action="deleteShiaDay" data-param="${item.id}" class="text-xs px-2 py-1 rounded-lg bg-red-100 text-red-600 hover:bg-red-200">🗑️</button>
+                </div>`:
+                state.isAdmin && isStatic(item.id)?'':''
+                }
+            </div>
+            <p class="text-sm ${d?'text-gray-300':'text-gray-700'} leading-relaxed mb-3">${sanitize(item.descBn||'')}</p>
+            ${item.amaal?`<div class="${d?'bg-gray-900 border-gray-700':'bg-emerald-50 border-emerald-100'} border rounded-xl p-3 mb-2">
+                <p class="text-xs font-bold mb-1" style="color:#059669">${l==='bn'?'📿 বিশেষ আমল':'📿 Special Practices'}</p>
+                <p class="text-xs ${d?'text-gray-300':'text-gray-700'}">${sanitize(item.amaal)}</p>
+            </div>`:''}
+            ${item.importance?`<div class="${d?'bg-amber-950 border-amber-900':'bg-amber-50 border-amber-200'} border rounded-xl p-3">
+                <p class="text-xs font-bold mb-1" style="color:#b45309">${l==='bn'?'✨ গুরুত্ব':'✨ Significance'}</p>
+                <p class="text-xs ${d?'text-amber-200':'text-amber-800'}">${sanitize(item.importance)}</p>
+            </div>`:''}
+        </div>
+    </article>`).join('');
+
+    const eids      = allDays.filter(x=>x.type==='eid');
+    const specials  = allDays.filter(x=>x.type==='special');
+    const martyrdoms= allDays.filter(x=>x.type==='martyrdom');
+
+    return `<div class="space-y-8 page-enter">
+        <button data-action="changePage" data-param="home" class="flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm hover:scale-[1.02] transition-all" style="background:${d?'rgba(5,150,105,.15)':'rgba(5,150,105,.08)'};color:#059669">← ${l==='bn'?'হোমে ফিরুন':'Back to Home'}</button>
+
+        <div class="relative overflow-hidden rounded-3xl text-center" style="background:linear-gradient(135deg,#064e3b,#065f46,#1e3a8a);padding:2rem;box-shadow:0 8px 32px rgba(5,150,105,.3)">
+            <div style="font-size:2.5rem;margin-bottom:.5rem">✨🌙⭐</div>
+            <h2 style="font-size:1.8rem;font-weight:900;color:white">${l==='bn'?'শিয়া বিশেষ দিনসমূহ':'Shia Special Days'}</h2>
+            <p style="color:rgba(255,255,255,.8);font-size:.9rem;margin-top:.25rem">${l==='bn'?'ঈদে গাদির · মুবাহিলা · শবে ক্বদর · নিমে শাবান · ইমামদের জন্ম-শাহাদাত':'Eid al-Ghadeer · Mubahala · Laylat al-Qadr · Mid-Shaban · Imams\' Birth & Martyrdom'}</p>
+        </div>
+
+        ${state.isAdmin?`
+        <div class="flex justify-end">
+            <button data-action="openShiaDayEditor" class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white" style="background:linear-gradient(135deg,#059669,#065f46)">＋ ${l==='bn'?'নতুন বিশেষ দিন যোগ করুন':'Add New Special Day'}</button>
+        </div>`:''}
+
+        <section>
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#059669,#065f46);display:inline-flex;align-items:center;justify-content:center">🎉</span>
+                ${l==='bn'?'ঈদ ও আনন্দময় দিন':'Eids & Celebrations'}
+            </h3>
+            <div class="grid md:grid-cols-2 gap-4">${cardHtml(eids)}</div>
+        </section>
+
+        <section>
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#b45309,#92400e);display:inline-flex;align-items:center;justify-content:center">⭐</span>
+                ${l==='bn'?'বিশেষ রাত':'Special Nights'}
+            </h3>
+            <div class="grid md:grid-cols-2 gap-4">${cardHtml(specials)}</div>
+        </section>
+
+        <section>
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#dc2626,#991b1b);display:inline-flex;align-items:center;justify-content:center">🕊️</span>
+                ${l==='bn'?'শাহাদাত দিবস':'Days of Martyrdom'}
+            </h3>
+            <div class="grid md:grid-cols-2 gap-4">${cardHtml(martyrdoms)}</div>
+        </section>
+    </div>`;
+}
+
+console.log('✅ ফিচার লোড: মুহাররম, শিয়া বিশেষ দিন CRUD সহ');

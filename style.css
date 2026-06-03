@@ -220,15 +220,237 @@
         .blog-card-luxury{border-radius:var(--r-lg);overflow:hidden;position:relative;transition:transform var(--t-base),box-shadow var(--t-base)}
         .blog-card-luxury:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg) !important}
 
-        /* ── Imam card luxury ── */
-        .imam-card-luxury{border-radius:var(--r-lg);transition:transform var(--t-base),box-shadow var(--t-base);position:relative;overflow:hidden;cursor:pointer}
-        .imam-card-luxury:hover{transform:translateY(-8px) scale(1.015);box-shadow:var(--shadow-lg) !important}
+        /* ══════════════════════════════════════════
+           IMAM CARD — FULL ANIMATION SUITE
+        ══════════════════════════════════════════ */
+
+        /* ── 1. Staggered Entry Animation ── */
+        @keyframes cardSlideUp{
+            from{opacity:0;transform:translateY(48px) scale(0.90)}
+            to  {opacity:1;transform:translateY(0)    scale(1)}
+        }
+        .imam-card-luxury{
+            border-radius:var(--r-lg);
+            position:relative;overflow:hidden;cursor:pointer;
+            background-color:#ffffff;
+            animation:cardSlideUp 0.65s cubic-bezier(0.34,1.46,0.64,1) both;
+            /* smooth transitions for hover */
+            transition:transform 0.35s cubic-bezier(0.34,1.46,0.64,1),
+                        box-shadow 0.35s ease,
+                        border-color 0.3s ease;
+        }
+        /* per-card stagger delays for 12 imams */
+        .imam-card-luxury:nth-child(1) {animation-delay:0.04s}
+        .imam-card-luxury:nth-child(2) {animation-delay:0.10s}
+        .imam-card-luxury:nth-child(3) {animation-delay:0.16s}
+        .imam-card-luxury:nth-child(4) {animation-delay:0.22s}
+        .imam-card-luxury:nth-child(5) {animation-delay:0.28s}
+        .imam-card-luxury:nth-child(6) {animation-delay:0.34s}
+        .imam-card-luxury:nth-child(7) {animation-delay:0.40s}
+        .imam-card-luxury:nth-child(8) {animation-delay:0.46s}
+        .imam-card-luxury:nth-child(9) {animation-delay:0.52s}
+        .imam-card-luxury:nth-child(10){animation-delay:0.58s}
+        .imam-card-luxury:nth-child(11){animation-delay:0.64s}
+        .imam-card-luxury:nth-child(12){animation-delay:0.70s}
+
+        /* ── Hover lift ── */
+        .imam-card-luxury:hover{
+            transform:translateY(-10px) scale(1.018) !important;
+            box-shadow:var(--shadow-lg),0 0 32px rgba(201,162,39,.18) !important;
+        }
+
+        /* ── 2. Animated Top Gradient Bar ── */
+        @keyframes barSlide{
+            0%  {background-position:0%   50%}
+            50% {background-position:100% 50%}
+            100%{background-position:0%   50%}
+        }
+        .imam-top-bar{
+            position:absolute;top:0;left:0;right:0;height:3px;
+            border-radius:var(--r-lg) var(--r-lg) 0 0;
+            background-size:300% 100%;
+            animation:barSlide 3.5s linear infinite;
+            z-index:2;
+        }
+
+        /* ── 3. Gold Bottom Shimmer sweep — translateX (overflow:hidden safe) ── */
+        .imam-card-luxury::after{
+            content:'';
+            position:absolute;
+            bottom:0;left:0;
+            width:100%;height:2px;
+            background:linear-gradient(90deg,
+                transparent 0%,
+                rgba(201,162,39,.9) 40%,
+                rgba(5,150,105,.7) 65%,
+                transparent 100%);
+            transform:translateX(-100%);
+            animation:imam-shimmer 3.5s ease-in-out infinite;
+            pointer-events:none;
+            z-index:10;
+        }
+        .imam-card-luxury:hover::after{animation-duration:1.5s}
+        @keyframes imam-shimmer{
+            0%   {transform:translateX(-100%);opacity:0}
+            10%  {opacity:1}
+            90%  {opacity:1}
+            100% {transform:translateX(100%);opacity:0}
+        }
+
+        /* ── 4. Arabesque radial glow behind content ── */
+        .imam-card-luxury::before{
+            content:'';
+            position:absolute;inset:0;
+            background:
+                radial-gradient(ellipse at 50% 0%,   rgba(5,150,105,.07) 0%,transparent 60%),
+                radial-gradient(ellipse at 50% 100%,  rgba(201,162,39,.06) 0%,transparent 50%);
+            pointer-events:none;z-index:0;
+            transition:opacity 0.4s ease;
+        }
+        .imam-card-luxury:hover::before{
+            background:
+                radial-gradient(ellipse at 50% 0%,   rgba(5,150,105,.14) 0%,transparent 65%),
+                radial-gradient(ellipse at 50% 100%,  rgba(201,162,39,.12) 0%,transparent 55%);
+        }
+        /* All direct children sit above ::before */
+        .imam-card-luxury > * { position:relative; z-index:1; }
+
+        /* ── 5. Avatar rotate + glow pulse ── */
         .imam-avatar-luxury{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;position:relative;z-index:1;animation:avatarGlow 4s ease-in-out infinite alternate}
         .imam-avatar-luxury::before{content:'';position:absolute;inset:-3px;border-radius:50%;background:conic-gradient(#34d399,#f59e0b,#34d399);z-index:-1;animation:avatarRotate 4s linear infinite}
         .imam-avatar-luxury::after{content:'';position:absolute;inset:-8px;border-radius:50%;background:conic-gradient(transparent 60%,rgba(180,83,9,.25) 80%,transparent 90%);animation:avatarRotate 7s linear infinite reverse}
-        @keyframes avatarGlow{from{filter:drop-shadow(0 0 8px rgba(5,150,105,.4))}to{filter:drop-shadow(0 0 20px rgba(5,150,105,.75))}}
+
+        @keyframes avatarGlow{
+            from{filter:drop-shadow(0 0 6px rgba(5,150,105,.4))}
+            to  {filter:drop-shadow(0 0 22px rgba(201,162,39,.8))}
+        }
         @keyframes avatarRotate{to{transform:rotate(360deg)}}
-        .imam-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:.72rem;font-weight:800;position:absolute;top:14px;right:14px;box-shadow:0 2px 8px rgba(5,150,105,.4)}
+
+        /* Hover: avatar fast-spin + strong glow */
+        .imam-card-luxury:hover .imam-avatar-rotate{
+            animation:avatarRotate 1.8s linear infinite !important;
+        }
+        @keyframes avatarGlowPulse{
+            0%,100%{filter:drop-shadow(0 0 8px rgba(201,162,39,.5))}
+            50%    {filter:drop-shadow(0 0 24px rgba(201,162,39,.95))}
+        }
+        .imam-card-luxury:hover .imam-avatar-inner-wrap{
+            animation:avatarGlowPulse 1.4s ease-in-out infinite;
+        }
+
+        /* ── 6. Arabic Name Shimmer ── */
+        @keyframes shimmerText{
+            0%  {background-position:-200% center}
+            100%{background-position: 200% center}
+        }
+        .imam-arabic-shimmer{
+            background:linear-gradient(90deg,#c9a227 25%,#fde68a 45%,#f59e0b 55%,#c9a227 75%);
+            background-size:200% auto;
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+            background-clip:text;
+            animation:shimmerText 2.8s linear infinite;
+            display:inline-block;
+        }
+
+        /* ── 7. Number badge pulse ── */
+        @keyframes numPop{
+            0%,100%{transform:scale(1)}
+            50%    {transform:scale(1.2) rotate(-8deg)}
+        }
+        .imam-num{
+            width:30px;height:30px;border-radius:50%;
+            display:flex;align-items:center;justify-content:center;
+            color:white;font-size:.72rem;font-weight:800;
+            position:absolute;top:14px;right:14px;
+            box-shadow:0 2px 8px rgba(5,150,105,.4);
+            transition:transform 0.2s ease;
+        }
+        .imam-card-luxury:hover .imam-num{
+            animation:numPop 0.5s ease forwards;
+        }
+
+        /* ── 8. Quote reveal on hover ── */
+        .imam-quote-wrap{
+            overflow:hidden;
+            max-height:56px;
+            transition:max-height 0.45s cubic-bezier(0.4,0,0.2,1),
+                        opacity     0.4s ease;
+            opacity:0.75;
+        }
+        .imam-card-luxury:hover .imam-quote-wrap{
+            max-height:120px;
+            opacity:1;
+        }
+
+        /* ── 9. Epithet badge bounce ── */
+        @keyframes badgeBounce{
+            0%,100%{transform:translateY(0) scale(1)}
+            40%    {transform:translateY(-5px) scale(1.08)}
+            70%    {transform:translateY(-2px) scale(1.04)}
+        }
+        .imam-card-luxury:hover .imam-epithet-badge{
+            animation:badgeBounce 0.6s ease forwards;
+        }
+
+        /* ── 10. Button shine sweep ── */
+        @keyframes btnShine{
+            0%  {left:-60%}
+            100%{left:130%}
+        }
+        .imam-detail-btn{
+            position:relative;overflow:hidden;
+        }
+        .imam-detail-btn::after{
+            content:'';
+            position:absolute;top:0;left:-60%;
+            width:40%;height:100%;
+            background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);
+            transform:skewX(-20deg);
+            opacity:0;
+        }
+        .imam-card-luxury:hover .imam-detail-btn::after{
+            animation:btnShine 0.65s ease forwards;
+            opacity:1;
+        }
+
+        /* ── 11. 3D Flip card wrapper ── */
+        .imam-flip-wrapper{
+            perspective:1100px;
+        }
+        .imam-flip-inner{
+            position:relative;
+            transform-style:preserve-3d;
+            transition:transform 0.65s cubic-bezier(0.4,0.2,0.2,1);
+            width:100%;height:100%;
+        }
+        .imam-flip-wrapper.flipped .imam-flip-inner{
+            transform:rotateY(180deg);
+        }
+        .imam-card-front,.imam-card-back{
+            backface-visibility:hidden;
+            -webkit-backface-visibility:hidden;
+        }
+        .imam-card-back{
+            position:absolute;inset:0;
+            transform:rotateY(180deg);
+            border-radius:var(--r-lg);
+            display:flex;flex-direction:column;
+            align-items:center;justify-content:center;
+            padding:1.5rem;
+            z-index:2;
+        }
+
+        /* ── 12. Particles burst (CSS only via clip-path) ── */
+        @keyframes particleFloat{
+            0%  {transform:translate(0,0) scale(1);  opacity:.9}
+            100%{transform:var(--ptx,translate(20px,-30px)) scale(0);opacity:0}
+        }
+        .imam-particle{
+            position:absolute;width:6px;height:6px;border-radius:50%;
+            pointer-events:none;z-index:20;
+            animation:particleFloat 0.7s ease-out forwards;
+        }
 
         /* ── Prayer ── */
         .prayer-row{transition:all var(--t-base);border-radius:12px;border-left:3px solid transparent}
@@ -283,6 +505,11 @@
 
         /* ── Transition on dark mode toggle ── */
         body,header,footer,main,.bg-white,.bg-gray-800,.bg-gray-900,.bg-gray-950,.bg-gray-50{transition:background-color var(--t-slow) !important}
+        /* Dark mode imam card background */
+        .dark-mode .imam-card-luxury,
+        body.dark .imam-card-luxury{background-color:#1e2d26 !important}
+        .dark-mode .imam-card-back,
+        body.dark .imam-card-back{background:#1a2e24 !important;color:#e5e7eb}
 
         /* ── Hero ── */
         .hero-luxury{position:relative;overflow:hidden;background:radial-gradient(ellipse at 20% 60%,#064e3b 0%,#022c22 35%,#0f172a 65%,#1e3a8a 100%)}
@@ -346,8 +573,29 @@
         @keyframes fabPop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
         
         /* ══ UPGRADE: Islamic Pattern Background ══ */
+        /* ══ PAGE BACKGROUND: Emerald Mist + Islamic Geometric Tile ══ */
         .islamic-pattern-bg {
-            background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23059669' fill-opacity='0.04'%3E%3Cpath d='M40 0L50 15H65L55 25L60 40L40 30L20 40L25 25L15 15H30Z'/%3E%3Cpath d='M0 40L10 55H25L15 65L20 80L0 70L-20 80L-15 65L-25 55H-10Z' opacity='.5'/%3E%3Cpath d='M80 40L90 55H105L95 65L100 80L80 70L60 80L65 65L55 55H70Z' opacity='.5'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            background-color: #f0fdf8;
+            background-image:
+                radial-gradient(ellipse at 20% 20%, rgba(5,150,105,.07) 0%, transparent 55%),
+                radial-gradient(ellipse at 80% 80%, rgba(201,162,39,.06) 0%, transparent 55%),
+                radial-gradient(ellipse at 80% 20%, rgba(5,150,105,.04) 0%, transparent 45%),
+                radial-gradient(ellipse at 20% 80%, rgba(201,162,39,.04) 0%, transparent 45%),
+                repeating-linear-gradient(45deg,  rgba(5,150,105,.045) 0px, rgba(5,150,105,.045) 1px, transparent 0px, transparent 22px),
+                repeating-linear-gradient(-45deg, rgba(5,150,105,.045) 0px, rgba(5,150,105,.045) 1px, transparent 0px, transparent 22px);
+        }
+        /* Dark mode page background — targets bg-gray-950 which script.js adds */
+        .bg-gray-950.islamic-pattern-bg,
+        .dark .islamic-pattern-bg,
+        [data-theme="dark"] .islamic-pattern-bg {
+            background-color: #061410 !important;
+            background-image:
+                radial-gradient(ellipse at 20% 20%, rgba(5,150,105,.14) 0%, transparent 55%),
+                radial-gradient(ellipse at 80% 80%, rgba(201,162,39,.10) 0%, transparent 55%),
+                radial-gradient(ellipse at 80% 20%, rgba(5,150,105,.08) 0%, transparent 45%),
+                radial-gradient(ellipse at 20% 80%, rgba(201,162,39,.07) 0%, transparent 45%),
+                repeating-linear-gradient(45deg,  rgba(52,211,153,.05) 0px, rgba(52,211,153,.05) 1px, transparent 0px, transparent 22px),
+                repeating-linear-gradient(-45deg, rgba(52,211,153,.05) 0px, rgba(52,211,153,.05) 1px, transparent 0px, transparent 22px) !important;
         }
         .islamic-geo-overlay {
             position:absolute;inset:0;pointer-events:none;
