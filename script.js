@@ -5,39 +5,6 @@ window.CLOUDINARY_CLOUD_NAME    = CLOUDINARY_CLOUD_NAME;
 window.CLOUDINARY_UPLOAD_PRESET = CLOUDINARY_UPLOAD_PRESET;
 
 /**
- * Cloudinary-তে ফাইল আপলোড করো (simple)
- * @param {string}   folder  - Cloudinary folder (যেমন "articles")
- * @param {File|Blob} file
- * @returns {Promise<string>} secure_url
- */
-window.storageUpload = async function(folder, file) {
-    try {
-        const mime = file.type || '';
-        let resourceType = 'raw';
-        if (mime.startsWith('image/')) resourceType = 'image';
-        else if (mime.startsWith('video/')) resourceType = 'video';
-        else if (mime.startsWith('audio/')) resourceType = 'video'; // audio uses video resource type
-
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-        formData.append("folder", folder);
-
-        const res = await fetch(
-            `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`,
-            { method: "POST", body: formData }
-        );
-        if (!res.ok) throw new Error("Cloudinary upload failed: " + res.statusText);
-        const data = await res.json();
-        console.log(`[Cloudinary] Uploaded → ${data.public_id}`);
-        return data.secure_url;
-    } catch (e) {
-        console.error("[Cloudinary] upload error:", e);
-        throw e;
-    }
-};
-
-/**
  * Cloudinary-তে ফাইল আপলোড করো — progress সহ
  * @param {string}   folder
  * @param {File}     file
@@ -84,17 +51,6 @@ window.storageUploadWithProgress = function(folder, file, onProgress = () => {})
         xhr.onerror = () => reject(new Error("Network error — internet connection চেক করুন"));
         xhr.send(formData);
     });
-};
-
-/**
- * Cloudinary public_id থেকে CDN URL তৈরি করো
- * @param {string} publicId
- * @param {object} [transforms]  - যেমন { width: 800, quality: "auto" }
- * @returns {string}
- */
-window.storageGetURL = function(publicId, transforms = {}) {
-    const t = Object.entries(transforms).map(([k, v]) => `${k}_${v}`).join(',');
-    return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/${t ? t + '/' : ''}${publicId}`;
 };
 
 console.log("✅ Cloudinary সফলভাবে যুক্ত হয়েছে — Cloud:", CLOUDINARY_CLOUD_NAME);
@@ -179,6 +135,7 @@ const state = {
     uploadType: null,
     uploadProgress: 0,
     isUploading: false,
+    uploadFolderKey: null,
     fontSize: 'medium', // small | medium | large | xlarge
     showTimeline: false,
     prayerTimes: { fajr:'04:15 AM', dhuhr:'12:05 PM', asr:'03:30 PM', maghrib:'06:20 PM', isha:'07:35 PM' },
@@ -194,6 +151,10 @@ const state = {
     imageList: [],
     videoList: [],
     audioList: [],
+    nahjulPdfs: [],
+    sahifaPdfs: [],
+    imamHadithPdfs: [],
+    specialDayPdfs: [],
     // imam detail
     currentImam: null,
     // viewer
@@ -228,6 +189,8 @@ const state = {
     customZiyarat: [],
     // dua tab & ziyarat reader
     duaTab: 'dua',
+    // library tab
+    libraryTab: '',
     currentZiyarat: null,
     // hadith of day index
     hadithIndex: 0,
@@ -294,16 +257,50 @@ const imams = [
 ];
 
 const hadiths = [
-    {textBn:'নিশ্চয়ই আল্লাহ সুন্দর, তিনি সৌন্দর্যকে ভালোবাসেন।',textEn:'Indeed Allah is beautiful and He loves beauty.',sourceBn:'সহিহ মুসলিম',sourceEn:'Sahih Muslim'},
-    {textBn:'তোমাদের মধ্যে সেই ব্যক্তি সর্বোত্তম যে নিজের পরিবারের কাছে সর্বোত্তম।',textEn:'The best of you is the one who is best to his family.',sourceBn:'তিরমিযি',sourceEn:'Tirmidhi'},
-    {textBn:'জ্ঞান অর্জন করা প্রতিটি মুসলমানের উপর ফরজ।',textEn:'Seeking knowledge is an obligation upon every Muslim.',sourceBn:'ইবনে মাজাহ',sourceEn:'Ibn Majah'},
-    {textBn:'মুসলমান সেই ব্যক্তি যার হাত ও মুখ থেকে অন্য মুসলমান নিরাপদ।',textEn:'A Muslim is one from whose tongue and hand other Muslims are safe.',sourceBn:'সহিহ বুখারি',sourceEn:'Sahih Bukhari'},
-    {textBn:'দুনিয়া মুমিনের জন্য কারাগার আর কাফেরের জন্য জান্নাত।',textEn:'The world is a prison for the believer and a paradise for the disbeliever.',sourceBn:'সহিহ মুসলিম',sourceEn:'Sahih Muslim'},
-    {textBn:'যে ব্যক্তি আল্লাহর উপর ভরসা করে, আল্লাহ তার জন্য যথেষ্ট।',textEn:'Whoever relies upon Allah, He will be sufficient for him.',sourceBn:'তিরমিযি',sourceEn:'Tirmidhi'},
-    {textBn:'প্রতিটি ভালো কাজই সদকা।',textEn:'Every act of kindness is charity.',sourceBn:'সহিহ বুখারি',sourceEn:'Sahih Bukhari'},
-    {textBn:'নিজের জন্য যা পছন্দ করো, অন্যের জন্যও তা পছন্দ করো।',textEn:'Love for others what you love for yourself.',sourceBn:'সহিহ বুখারি',sourceEn:'Sahih Bukhari'},
-    {textBn:'রাগান্বিত অবস্থায় কোনো সিদ্ধান্ত নিও না।',textEn:'Do not make decisions when you are angry.',sourceBn:'আহমদ',sourceEn:'Ahmad'},
-    {textBn:'সর্বোত্তম যিকির হলো লা ইলাহা ইল্লাল্লাহ।',textEn:'The best remembrance is La ilaha illa Allah.',sourceBn:'তিরমিযি',sourceEn:'Tirmidhi'},
+    // ── ইমাম আলী (আ.) — নাহজুল বালাগা ──
+    {textBn:'মানুষ যা জানে না তার শত্রু।',textEn:'Man is the enemy of what he does not know.',sourceBn:'ইমাম আলী (আ.) — নাহজুল বালাগা',sourceEn:'Imam Ali (AS) — Nahjul Balagha'},
+    {textBn:'জ্ঞান হলো সর্বোত্তম উত্তরাধিকার।',textEn:'Knowledge is the best inheritance.',sourceBn:'ইমাম আলী (আ.) — নাহজুল বালাগা',sourceEn:'Imam Ali (AS) — Nahjul Balagha'},
+    {textBn:'নীরবতা জ্ঞানীদের অলংকার এবং মূর্খদের আবরণ।',textEn:'Silence is the ornament of the wise and the covering of the fool.',sourceBn:'ইমাম আলী (আ.) — নাহজুল বালাগা',sourceEn:'Imam Ali (AS) — Nahjul Balagha'},
+    {textBn:'যে নিজেকে চেনে সে তার রবকে চেনে।',textEn:'Whoever knows himself knows his Lord.',sourceBn:'ইমাম আলী (আ.) — গুরারুল হিকাম',sourceEn:'Imam Ali (AS) — Ghurar al-Hikam'},
+    {textBn:'ধৈর্য দুই প্রকার: বিপদে ধৈর্য এবং যা তুমি অপছন্দ করো তা থেকে বিরত থাকার ধৈর্য।',textEn:'Patience is of two types: patience in what you dislike, and patience against what you desire.',sourceBn:'ইমাম আলী (আ.) — নাহজুল বালাগা',sourceEn:'Imam Ali (AS) — Nahjul Balagha'},
+    {textBn:'মানুষের মূল্য তার গুণ দিয়ে, তার সম্পদ দিয়ে নয়।',textEn:'The value of a person is in his virtue, not his wealth.',sourceBn:'ইমাম আলী (আ.) — গুরারুল হিকাম',sourceEn:'Imam Ali (AS) — Ghurar al-Hikam'},
+    {textBn:'অহংকার হলো বোকামির প্রথম চিহ্ন।',textEn:'Arrogance is the first sign of foolishness.',sourceBn:'ইমাম আলী (আ.) — নাহজুল বালাগা',sourceEn:'Imam Ali (AS) — Nahjul Balagha'},
+    {textBn:'তোমার ভাইয়ের সাথে যখন দেখা হয় তখন তার কল্যাণ কামনা করো।',textEn:'When you meet your brother, wish him well.',sourceBn:'ইমাম আলী (আ.) — গুরারুল হিকাম',sourceEn:'Imam Ali (AS) — Ghurar al-Hikam'},
+    {textBn:'দুনিয়া একটি মৃত সত্তা; যে এটাকে ভালোবাসে সে মৃত।',textEn:'The world is a carcass; whoever loves it is with the dead.',sourceBn:'ইমাম আলী (আ.) — নাহজুল বালাগা',sourceEn:'Imam Ali (AS) — Nahjul Balagha'},
+    {textBn:'বিনম্রতা হলো জ্ঞানের ফল।',textEn:'Humility is the fruit of knowledge.',sourceBn:'ইমাম আলী (আ.) — গুরারুল হিকাম',sourceEn:'Imam Ali (AS) — Ghurar al-Hikam'},
+
+    // ── রাসূলুল্লাহ (সা.) — শিয়া সূত্র ──
+    {textBn:'আমি জ্ঞানের শহর এবং আলী তার দরজা।',textEn:'I am the city of knowledge and Ali is its gate.',sourceBn:'রাসূলুল্লাহ (সা.) — আল-হাকিম, মুস্তাদরাক',sourceEn:'Prophet (PBUH) — al-Hakim, Mustadrak'},
+    {textBn:'হোসাইন আমার থেকে এবং আমি হোসাইন থেকে।',textEn:'Husayn is from me and I am from Husayn.',sourceBn:'রাসূলুল্লাহ (সা.) — বিহারুল আনোয়ার',sourceEn:'Prophet (PBUH) — Bihar al-Anwar'},
+    {textBn:'আমি তোমাদের মাঝে দুটি ভারী বস্তু রেখে যাচ্ছি: আল্লাহর কিতাব এবং আমার আহলে বাইত।',textEn:'I am leaving among you two weighty things: the Book of Allah and my Ahlul Bayt.',sourceBn:'রাসূলুল্লাহ (সা.) — হাদিসে সাকালাইন',sourceEn:'Prophet (PBUH) — Hadith al-Thaqalayn'},
+    {textBn:'ফাতেমা আমার হৃদয়ের একটুকরো। যা তাকে কষ্ট দেয় তা আমাকে কষ্ট দেয়।',textEn:'Fatima is a piece of my heart. Whatever grieves her grieves me.',sourceBn:'রাসূলুল্লাহ (সা.) — বিহারুল আনোয়ার',sourceEn:'Prophet (PBUH) — Bihar al-Anwar'},
+    {textBn:'আলী সত্যের সাথে এবং সত্য আলীর সাথে।',textEn:'Ali is with the truth and the truth is with Ali.',sourceBn:'রাসূলুল্লাহ (সা.) — আল-মুস্তাদরাক',sourceEn:'Prophet (PBUH) — al-Mustadrak'},
+
+    // ── ইমাম হোসাইন (আ.) ──
+    {textBn:'মৃত্যু শাহাদাত ছাড়া কিছুই নয়, আর ইয়াজিদের সাথে বাঁচা লজ্জাছাড়া কিছুই নয়।',textEn:'Death is nothing but martyrdom, and life with Yazid is nothing but disgrace.',sourceBn:'ইমাম হোসাইন (আ.) — কারবালার খুতবা',sourceEn:'Imam Husayn (AS) — Sermon at Karbala'},
+    {textBn:'যদি তোমার দ্বীন না থাকে তাহলে অন্তত স্বাধীন মানুষ হও।',textEn:'If you have no religion, at least be free.',sourceBn:'ইমাম হোসাইন (আ.) — বিহারুল আনোয়ার',sourceEn:'Imam Husayn (AS) — Bihar al-Anwar'},
+
+    // ── ইমাম সাজ্জাদ (আ.) — সাহিফায়ে সাজ্জাদিয়্যা ──
+    {textBn:'হে আল্লাহ! আমাকে সেই জিনিস দাও যা তুমি জানো আমার জন্য সর্বোত্তম।',textEn:'O Allah, grant me what You know to be best for me.',sourceBn:'ইমাম সাজ্জাদ (আ.) — সাহিফায়ে সাজ্জাদিয়্যা',sourceEn:'Imam Sajjad (AS) — Sahifa al-Sajjadiyya'},
+    {textBn:'আল্লাহ তাঁর বান্দার কাছ থেকে কোনো আমল কবুল করেন না যতক্ষণ না সে তাঁর ওলিদের ওলি এবং তাঁর শত্রুদের শত্রু হয়।',textEn:'Allah accepts no deed from a servant unless he befriends His friends and is an enemy of His enemies.',sourceBn:'ইমাম সাজ্জাদ (আ.) — বিহারুল আনোয়ার',sourceEn:'Imam Sajjad (AS) — Bihar al-Anwar'},
+
+    // ── ইমাম বাকির (আ.) ──
+    {textBn:'আমাদের শিয়ারা হলো তারা যারা তাকওয়ার পোশাক পরে, আল্লাহকে ভয় করে এবং তাঁর ইবাদত করে।',textEn:'Our Shia are those who wear the garment of piety, fear Allah, and worship Him.',sourceBn:'ইমাম বাকির (আ.) — উসুলে কাফি',sourceEn:'Imam Baqir (AS) — Usul al-Kafi'},
+    {textBn:'জ্ঞানীদের সাথে বসা — যদিও তারা কথা না বলে — উপকারী।',textEn:'Sitting with the learned — even if they speak not — is beneficial.',sourceBn:'ইমাম বাকির (আ.) — উসুলে কাফি',sourceEn:'Imam Baqir (AS) — Usul al-Kafi'},
+
+    // ── ইমাম সাদিক (আ.) ──
+    {textBn:'যে ব্যক্তি তার ভাইয়ের সমস্যা সমাধান করে, আল্লাহ তার দুনিয়া ও আখিরাতের সমস্যা সমাধান করেন।',textEn:'Whoever resolves a difficulty for his brother, Allah resolves his difficulties in this world and the next.',sourceBn:'ইমাম সাদিক (আ.) — উসুলে কাফি',sourceEn:'Imam Sadiq (AS) — Usul al-Kafi'},
+    {textBn:'আমাদের ভালোবাসা কথায় নয়, হৃদয়ে এবং কাজে।',textEn:'Love for us is not in words, but in the heart and in deeds.',sourceBn:'ইমাম সাদিক (আ.) — বিহারুল আনোয়ার',sourceEn:'Imam Sadiq (AS) — Bihar al-Anwar'},
+    {textBn:'নামাজের মধ্যে আল্লাহর সাথে কথা বলো যেন তুমি তাঁকে দেখতে পাচ্ছো।',textEn:'In prayer, speak to Allah as though you can see Him.',sourceBn:'ইমাম সাদিক (আ.) — উসুলে কাফি',sourceEn:'Imam Sadiq (AS) — Usul al-Kafi'},
+    {textBn:'প্রতিবেশীর সাথে ভালো ব্যবহার করা ঈমানের অংশ।',textEn:'Good treatment of neighbors is part of faith.',sourceBn:'ইমাম সাদিক (আ.) — উসুলে কাফি',sourceEn:'Imam Sadiq (AS) — Usul al-Kafi'},
+
+    // ── ইমাম মুসা কাযিম (আ.) ──
+    {textBn:'আল্লাহর কাছে কৃতজ্ঞতা প্রকাশ করো যা তিনি দিয়েছেন তার জন্য, এবং তাঁর কাছে ক্ষমা চাও যা তুমি ভুলে গেছো তার জন্য।',textEn:'Give thanks to Allah for what He has given you, and seek forgiveness for what you have neglected.',sourceBn:'ইমাম কাযিম (আ.) — তুহাফুল উকুল',sourceEn:'Imam Kadhim (AS) — Tuhaf al-Uqul'},
+    {textBn:'বুদ্ধিমান ব্যক্তি সেই যে নিজের ইচ্ছাকে আল্লাহর ইচ্ছার অধীনে রাখে।',textEn:'The wise man is he who submits his desires to the will of Allah.',sourceBn:'ইমাম কাযিম (আ.) — তুহাফুল উকুল',sourceEn:'Imam Kadhim (AS) — Tuhaf al-Uqul'},
+
+    // ── ইমাম রেযা (আ.) ──
+    {textBn:'ঈমান হলো হৃদয়ের স্বীকৃতি, মুখের ঘোষণা এবং অঙ্গ-প্রত্যঙ্গের আমল।',textEn:'Faith is acknowledgment of the heart, declaration of the tongue, and action of the limbs.',sourceBn:'ইমাম রেযা (আ.) — উয়ুনে আখবারির রেযা',sourceEn:'Imam Ridha (AS) — Uyun Akhbar al-Ridha'},
+    {textBn:'যে ব্যক্তি সালাওয়াত পাঠ করে তার গুনাহ মাফ হয় যদিও তা পাহাড়ের মতো বড় হয়।',textEn:'Whoever sends Salawat, his sins are forgiven even if they are as great as mountains.',sourceBn:'ইমাম রেযা (আ.) — বিহারুল আনোয়ার',sourceEn:'Imam Ridha (AS) — Bihar al-Anwar'},
 ];
 
 const quizQuestions = [
@@ -311,7 +308,7 @@ const quizQuestions = [
     {qBn:'কুরআনে মোট কয়টি সূরা আছে?',qEn:'How many Surahs are in the Quran?',options:[{bn:'১১৪',en:'114'},{bn:'১২০',en:'120'},{bn:'১১০',en:'110'},{bn:'১০০',en:'100'}],correct:0},
     {qBn:'আহলে বাইতের ইমামের সংখ্যা কত?',qEn:'How many Imams are there in Ahl al-Bayt?',options:[{bn:'১০',en:'10'},{bn:'১১',en:'11'},{bn:'১২',en:'12'},{bn:'১৩',en:'13'}],correct:2},
     {qBn:'দোয়ায়ে কুমাইল কে শিক্ষা দেন?',qEn:'Who taught Dua Kumayl?',options:[{bn:'ইমাম হোসাইন (আ.)',en:'Imam Hussain (AS)'},{bn:'ইমাম আলী (আ.)',en:'Imam Ali (AS)'},{bn:'ইমাম সাজ্জাদ (আ.)',en:'Imam Sajjad (AS)'},{bn:'ইমাম সাদিক (আ.)',en:'Imam Sadiq (AS)'}],correct:1},
-    {qBn:'আশুরা কোন তারিখে পালিত হয়?',qEn:'On what date is Ashura observed?',options:[{bn:'১ মহররম',en:'1 Muharram'},{bn:'৫ মহররম',en:'5 Muharram'},{bn:'১০ মহররম',en:'10 Muharram'},{bn:'১৫ মহররম',en:'15 Muharram'}],correct:2},
+    {qBn:'আশুরা কোন তারিখে পালিত হয়?',qEn:'On what date is Ashura observed?',options:[{bn:'১ মুহাররম',en:'1 Muharram'},{bn:'৫ মুহাররম',en:'5 Muharram'},{bn:'১০ মুহাররম',en:'10 Muharram'},{bn:'১৫ মুহাররম',en:'15 Muharram'}],correct:2},
     {qBn:'কোন ইমাম সবচেয়ে কম বয়সে ইমামত লাভ করেন?',qEn:'Which Imam became Imam at the youngest age?',options:[{bn:'ইমাম হাদি (আ.)',en:'Imam Hadi (AS)'},{bn:'ইমাম জওয়াদ (আ.)',en:'Imam Jawad (AS)'},{bn:'ইমাম আসকারি (আ.)',en:'Imam Askari (AS)'},{bn:'ইমাম মাহদি (আ.)',en:'Imam Mahdi (AS)'}],correct:1},
     {qBn:'ইসলামের পাঁচটি স্তম্ভের একটি হলো?',qEn:'One of the five pillars of Islam is?',options:[{bn:'তাফসীর',en:'Tafsir'},{bn:'রোজা',en:'Fasting'},{bn:'জিহাদ',en:'Jihad'},{bn:'তাওয়াফ',en:'Tawaf'}],correct:1},
     {qBn:'সাহিফায়ে সাজ্জাদিয়্যা কে রচনা করেন?',qEn:'Who authored Sahifa al-Sajjadiyya?',options:[{bn:'ইমাম বাকির (আ.)',en:'Imam Baqir (AS)'},{bn:'ইমাম সাজ্জাদ (আ.)',en:'Imam Sajjad (AS)'},{bn:'ইমাম আলী (আ.)',en:'Imam Ali (AS)'},{bn:'ইমাম সাদিক (আ.)',en:'Imam Sadiq (AS)'}],correct:1},
@@ -333,22 +330,216 @@ const tasbeehLabels = [
 // DAILY AYAH DATA
 // ============================================================================
 const dailyAyahs = [
-    {arabic:'إِنَّ مَعَ الْعُسْرِ يُسْرًا',ref:'সূরা ইনশিরাহ: ৬',refEn:'Surah Inshirah: 6',meaningBn:'নিশ্চয়ই কষ্টের সাথে রয়েছে সহজ।',meaningEn:'Indeed, with hardship comes ease.'},
-    {arabic:'وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ',ref:'সূরা ত্বালাক: ৩',refEn:'Surah Talaq: 3',meaningBn:'যে আল্লাহর উপর ভরসা করে, তার জন্য আল্লাহই যথেষ্ট।',meaningEn:'Whoever relies upon Allah — then He is sufficient for him.'},
-    {arabic:'وَلَا تَيْأَسُوا مِن رَّوْحِ اللَّهِ',ref:'সূরা ইউসুফ: ৮৭',refEn:'Surah Yusuf: 87',meaningBn:'এবং আল্লাহর রহমত থেকে নিরাশ হয়ো না।',meaningEn:'Do not despair of the mercy of Allah.'},
-    {arabic:'فَاذْكُرُونِي أَذْكُرْكُمْ',ref:'সূরা বাকারা: ১৫২',refEn:'Surah Baqarah: 152',meaningBn:'সুতরাং আমাকে স্মরণ করো, আমি তোমাদের স্মরণ করব।',meaningEn:'Remember Me, and I will remember you.'},
-    {arabic:'إِنَّ اللَّهَ مَعَ الصَّابِرِينَ',ref:'সূরা বাকারা: ১৫৩',refEn:'Surah Baqarah: 153',meaningBn:'নিশ্চয়ই আল্লাহ ধৈর্যশীলদের সাথে আছেন।',meaningEn:'Indeed, Allah is with the patient.'},
-    {arabic:'وَهُوَ مَعَكُمْ أَيْنَ مَا كُنتُمْ',ref:'সূরা হাদীদ: ৪',refEn:'Surah Hadid: 4',meaningBn:'এবং তোমরা যেখানেই থাকো, তিনি তোমাদের সাথে আছেন।',meaningEn:'And He is with you wherever you are.'},
-    {arabic:'قُلْ هُوَ اللَّهُ أَحَدٌ',ref:'সূরা ইখলাস: ১',refEn:'Surah Ikhlas: 1',meaningBn:'বলুন, তিনি আল্লাহ, এক।',meaningEn:'Say: He is Allah, the One.'},
+    // ── সূরা ফাতিহা (১) ──
+    {arabic:'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',ref:'সূরা ফাতিহা: ১',refEn:'Surah Al-Fatihah: 1',meaningBn:'পরম করুণাময় অতি দয়ালু আল্লাহর নামে।',meaningEn:'In the name of Allah, the Most Gracious, the Most Merciful.'},
+    {arabic:'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ',ref:'সূরা ফাতিহা: ২',refEn:'Surah Al-Fatihah: 2',meaningBn:'সকল প্রশংসা আল্লাহর জন্য, যিনি সমস্ত জগতের রব।',meaningEn:'All praise is due to Allah, Lord of all the worlds.'},
+    {arabic:'إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ',ref:'সূরা ফাতিহা: ৫',refEn:'Surah Al-Fatihah: 5',meaningBn:'আমরা শুধু তোমারই ইবাদত করি এবং শুধু তোমার কাছেই সাহায্য চাই।',meaningEn:'You alone we worship, and You alone we ask for help.'},
+    // ── সূরা বাকারা (২) ──
+    {arabic:'ذَٰلِكَ الْكِتَابُ لَا رَيْبَ ۛ فِيهِ ۛ هُدًى لِّلْمُتَّقِينَ',ref:'সূরা বাকারা: ২',refEn:'Surah Al-Baqarah: 2',meaningBn:'এই কিতাব — এতে কোনো সন্দেহ নেই; মুত্তাকিদের জন্য পথনির্দেশ।',meaningEn:'This is the Book about which there is no doubt, a guidance for those conscious of Allah.'},
+    {arabic:'وَاسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ',ref:'সূরা বাকারা: ৪৫',refEn:'Surah Al-Baqarah: 45',meaningBn:'ধৈর্য ও নামাজের মাধ্যমে সাহায্য প্রার্থনা করো।',meaningEn:'Seek help through patience and prayer.'},
+    {arabic:'فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ',ref:'সূরা বাকারা: ১৫২',refEn:'Surah Al-Baqarah: 152',meaningBn:'সুতরাং আমাকে স্মরণ করো, আমি তোমাদের স্মরণ করব; এবং আমার কৃতজ্ঞতা আদায় করো, অকৃতজ্ঞ হয়ো না।',meaningEn:'So remember Me; I will remember you. And be grateful to Me and do not deny Me.'},
+    {arabic:'إِنَّ اللَّهَ مَعَ الصَّابِرِينَ',ref:'সূরা বাকারা: ১৫৩',refEn:'Surah Al-Baqarah: 153',meaningBn:'নিশ্চয়ই আল্লাহ ধৈর্যশীলদের সাথে আছেন।',meaningEn:'Indeed, Allah is with the patient.'},
+    {arabic:'وَلَنَبْلُوَنَّكُم بِشَيْءٍ مِّنَ الْخَوْفِ وَالْجُوعِ',ref:'সূরা বাকারা: ১৫৫',refEn:'Surah Al-Baqarah: 155',meaningBn:'আমি অবশ্যই তোমাদের পরীক্ষা করব ভয়, ক্ষুধা এবং সম্পদ, জীবন ও ফল-ফসলের ক্ষতির মাধ্যমে।',meaningEn:'And We will surely test you with something of fear and hunger and a loss of wealth, lives, and fruits.'},
+    {arabic:'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ',ref:'সূরা বাকারা: ২৫৫ (আয়াতুল কুরসি)',refEn:'Surah Al-Baqarah: 255 (Ayatul Kursi)',meaningBn:'আল্লাহ — তিনি ছাড়া কোনো উপাস্য নেই, তিনি চিরজীবন্ত, সর্বসত্তার ধারক।',meaningEn:'Allah — there is no deity except Him, the Ever-Living, the Sustainer of existence.'},
+    {arabic:'لَا إِكْرَاهَ فِي الدِّينِ',ref:'সূরা বাকারা: ২৫৬',refEn:'Surah Al-Baqarah: 256',meaningBn:'দ্বীনের ব্যাপারে কোনো জবরদস্তি নেই।',meaningEn:'There is no compulsion in religion.'},
+    // ── সূরা আলে ইমরান (৩) ──
+    {arabic:'إِنَّ الدِّينَ عِندَ اللَّهِ الْإِسْلَامُ',ref:'সূরা আলে ইমরান: ১৯',refEn:'Surah Aal-e-Imran: 19',meaningBn:'নিশ্চয়ই আল্লাহর কাছে গ্রহণযোগ্য দ্বীন হলো ইসলাম।',meaningEn:'Indeed, the religion in the sight of Allah is Islam.'},
+    {arabic:'وَاعْتَصِمُوا بِحَبْلِ اللَّهِ جَمِيعًا وَلَا تَفَرَّقُوا',ref:'সূরা আলে ইমরান: ১০৩',refEn:'Surah Aal-e-Imran: 103',meaningBn:'এবং তোমরা সবাই মিলে আল্লাহর রশি শক্তভাবে ধরো এবং বিভক্ত হয়ো না।',meaningEn:'And hold firmly to the rope of Allah all together and do not become divided.'},
+    {arabic:'إِنَّمَا وَلِيُّكُمُ اللَّهُ وَرَسُولُهُ وَالَّذِينَ آمَنُوا',ref:'সূরা মায়িদা: ৫৫',refEn:'Surah Al-Maidah: 55',meaningBn:'তোমাদের অভিভাবক কেবল আল্লাহ, তাঁর রাসূল এবং মুমিনগণ।',meaningEn:'Your ally is none but Allah and His Messenger and those who have believed.'},
+    // ── সূরা নিসা (৪) ──
+    {arabic:'يَا أَيُّهَا النَّاسُ اتَّقُوا رَبَّكُمُ الَّذِي خَلَقَكُم مِّن نَّفْسٍ وَاحِدَةٍ',ref:'সূরা নিসা: ১',refEn:'Surah An-Nisa: 1',meaningBn:'হে মানবজাতি! তোমাদের রবকে ভয় করো যিনি তোমাদের এক সত্তা থেকে সৃষ্টি করেছেন।',meaningEn:'O mankind, fear your Lord, who created you from one soul.'},
+    {arabic:'إِنَّ اللَّهَ كَانَ عَلَيْكُمْ رَقِيبًا',ref:'সূরা নিসা: ১',refEn:'Surah An-Nisa: 1',meaningBn:'নিশ্চয়ই আল্লাহ তোমাদের উপর সতর্ক পর্যবেক্ষক।',meaningEn:'Indeed, Allah is ever watching over you.'},
+    // ── সূরা মায়িদা (৫) ──
+    {arabic:'الْيَوْمَ أَكْمَلْتُ لَكُمْ دِينَكُمْ وَأَتْمَمْتُ عَلَيْكُمْ نِعْمَتِي',ref:'সূরা মায়িদা: ৩',refEn:'Surah Al-Maidah: 3',meaningBn:'আজ আমি তোমাদের জন্য তোমাদের দ্বীন পরিপূর্ণ করলাম এবং তোমাদের উপর আমার নিয়ামত সম্পূর্ণ করলাম।',meaningEn:'Today I have perfected for you your religion and completed My favor upon you.'},
+    {arabic:'وَمَن يَتَوَلَّ اللَّهَ وَرَسُولَهُ وَالَّذِينَ آمَنُوا فَإِنَّ حِزْبَ اللَّهِ هُمُ الْغَالِبُونَ',ref:'সূরা মায়িদা: ৫৬',refEn:'Surah Al-Maidah: 56',meaningBn:'যে আল্লাহ, তাঁর রাসূল এবং মুমিনদের বন্ধু হিসেবে গ্রহণ করবে — তাহলে নিশ্চয়ই আল্লাহর দল বিজয়ী।',meaningEn:'Whoever takes Allah, His Messenger, and the believers as allies — indeed, the party of Allah will be victorious.'},
+    // ── সূরা আনআম (৬) ──
+    {arabic:'قُلْ إِنَّ صَلَاتِي وَنُسُكِي وَمَحْيَايَ وَمَمَاتِي لِلَّهِ رَبِّ الْعَالَمِينَ',ref:'সূরা আনআম: ১৬২',refEn:'Surah Al-Anam: 162',meaningBn:'বলুন, নিশ্চয়ই আমার নামাজ, আমার কুরবানি, আমার জীবন এবং আমার মৃত্যু — সবই আল্লাহর জন্য, যিনি সমস্ত জগতের রব।',meaningEn:'Say: My prayer, my rites, my living and my dying are for Allah, Lord of all the worlds.'},
+    // ── সূরা আরাফ (৭) ──
+    {arabic:'إِنَّ رَحْمَتَ اللَّهِ قَرِيبٌ مِّنَ الْمُحْسِنِينَ',ref:'সূরা আরাফ: ৫৬',refEn:'Surah Al-Araf: 56',meaningBn:'নিশ্চয়ই আল্লাহর রহমত সৎকর্মশীলদের নিকটে।',meaningEn:'Indeed, the mercy of Allah is near to the doers of good.'},
+    {arabic:'وَادْعُوهُ خَوْفًا وَطَمَعًا',ref:'সূরা আরাফ: ৫৬',refEn:'Surah Al-Araf: 56',meaningBn:'এবং ভয় ও আশা নিয়ে তাঁকে ডাকো।',meaningEn:'And call upon Him in fear and aspiration.'},
+    // ── সূরা তওবা (৯) ──
+    {arabic:'إِنَّ اللَّهَ مَعَ الَّذِينَ اتَّقَوا وَّالَّذِينَ هُم مُّحْسِنُونَ',ref:'সূরা তওবা: ১২৩',refEn:'Surah At-Tawbah: 123',meaningBn:'নিশ্চয়ই আল্লাহ তাদের সাথে আছেন যারা তাকওয়াবান এবং যারা সৎকর্মশীল।',meaningEn:'Indeed, Allah is with those who are righteous and those who do good.'},
+    // ── সূরা ইউনুস (১০) ──
+    {arabic:'أَلَا إِنَّ أَوْلِيَاءَ اللَّهِ لَا خَوْفٌ عَلَيْهِمْ وَلَا هُمْ يَحْزَنُونَ',ref:'সূরা ইউনুস: ৬২',refEn:'Surah Yunus: 62',meaningBn:'জেনে রাখো, আল্লাহর বন্ধুদের কোনো ভয় নেই এবং তারা দুঃখিত হবে না।',meaningEn:'Unquestionably, [for] the allies of Allah there will be no fear concerning them, nor will they grieve.'},
+    // ── সূরা হুদ (১১) ──
+    {arabic:'وَإِلَى اللَّهِ تُرْجَعُ الْأُمُورُ',ref:'সূরা হুদ: ১২৩',refEn:'Surah Hud: 123',meaningBn:'এবং সকল বিষয় আল্লাহর দিকেই ফিরে যায়।',meaningEn:'And to Allah all matters are returned.'},
+    // ── সূরা ইউসুফ (১২) ──
+    {arabic:'وَلَا تَيْأَسُوا مِن رَّوْحِ اللَّهِ ۖ إِنَّهُ لَا يَيْأَسُ مِن رَّوْحِ اللَّهِ إِلَّا الْقَوْمُ الْكَافِرُونَ',ref:'সূরা ইউসুফ: ৮৭',refEn:'Surah Yusuf: 87',meaningBn:'এবং আল্লাহর রহমত থেকে নিরাশ হয়ো না। নিশ্চয়ই কাফির ছাড়া কেউ আল্লাহর রহমত থেকে নিরাশ হয় না।',meaningEn:'Do not despair of the mercy of Allah. Indeed, no one despairs of the mercy of Allah except the disbelieving people.'},
+    {arabic:'إِنَّهُ مَن يَتَّقِ وَيَصْبِرْ فَإِنَّ اللَّهَ لَا يُضِيعُ أَجْرَ الْمُحْسِنِينَ',ref:'সূরা ইউসুফ: ৯০',refEn:'Surah Yusuf: 90',meaningBn:'যে তাকওয়া অবলম্বন করে এবং ধৈর্য ধারণ করে — নিশ্চয়ই আল্লাহ সৎকর্মশীলদের প্রতিদান নষ্ট করেন না।',meaningEn:'Indeed, whoever fears Allah and is patient — then indeed, Allah does not allow to be lost the reward of those who do good.'},
+    // ── সূরা রাদ (১৩) ──
+    {arabic:'إِنَّ اللَّهَ لَا يُغَيِّرُ مَا بِقَوْمٍ حَتَّىٰ يُغَيِّرُوا مَا بِأَنفُسِهِمْ',ref:'সূরা রাদ: ১১',refEn:'Surah Ar-Rad: 11',meaningBn:'নিশ্চয়ই আল্লাহ কোনো জাতির অবস্থা পরিবর্তন করেন না যতক্ষণ না তারা নিজেদের পরিবর্তন করে।',meaningEn:'Indeed, Allah will not change the condition of a people until they change what is in themselves.'},
+    {arabic:'أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ',ref:'সূরা রাদ: ২৮',refEn:'Surah Ar-Rad: 28',meaningBn:'জেনে রাখো, আল্লাহর স্মরণেই হৃদয় প্রশান্ত হয়।',meaningEn:'Verily, in the remembrance of Allah do hearts find rest.'},
+    // ── সূরা ইবরাহিম (১৪) ──
+    {arabic:'وَإِذْ تَأَذَّنَ رَبُّكُمْ لَئِن شَكَرْتُمْ لَأَزِيدَنَّكُمْ',ref:'সূরা ইবরাহিম: ৭',refEn:'Surah Ibrahim: 7',meaningBn:'এবং স্মরণ করো যখন তোমাদের রব ঘোষণা করলেন: তোমরা কৃতজ্ঞ হলে আমি অবশ্যই তোমাদের আরো বাড়িয়ে দেব।',meaningEn:'If you are grateful, I will surely increase you in favor.'},
+    // ── সূরা হিজর (১৫) ──
+    {arabic:'نَبِّئْ عِبَادِي أَنِّي أَنَا الْغَفُورُ الرَّحِيمُ',ref:'সূরা হিজর: ৪৯',refEn:'Surah Al-Hijr: 49',meaningBn:'আমার বান্দাদের জানিয়ে দাও যে আমি অবশ্যই ক্ষমাশীল, পরম দয়ালু।',meaningEn:'Inform My servants that it is I who am the Forgiving, the Merciful.'},
+    // ── সূরা নাহল (১৬) ──
+    {arabic:'إِنَّ اللَّهَ يَأْمُرُ بِالْعَدْلِ وَالْإِحْسَانِ',ref:'সূরা নাহল: ৯০',refEn:'Surah An-Nahl: 90',meaningBn:'নিশ্চয়ই আল্লাহ ন্যায়বিচার ও সৎকর্মের আদেশ দেন।',meaningEn:'Indeed, Allah orders justice and good conduct.'},
+    // ── সূরা বনি ইসরাইল (১৭) ──
+    {arabic:'وَقُل رَّبِّ زِدْنِي عِلْمًا',ref:'সূরা বনি ইসরাইল: ৮৫',refEn:'Surah Al-Isra: 85',meaningBn:'এবং বলো: হে আমার রব! আমার জ্ঞান বাড়িয়ে দাও।',meaningEn:'And say: My Lord, increase me in knowledge.'},
+    // ── সূরা কাহফ (১৮) ──
+    {arabic:'وَلَا تَقُولَنَّ لِشَيْءٍ إِنِّي فَاعِلٌ ذَٰلِكَ غَدًا إِلَّا أَن يَشَاءَ اللَّهُ',ref:'সূরা কাহফ: ২৩-২৪',refEn:'Surah Al-Kahf: 23-24',meaningBn:'কোনো বিষয়ে কখনো বলো না যে আমি আগামীকাল এটা করব, তবে আল্লাহ যদি চান।',meaningEn:'And never say of anything, "Indeed, I will do that tomorrow," except when adding, "If Allah wills."'},
+    {arabic:'إِنَّ الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ كَانَتْ لَهُمْ جَنَّاتُ الْفِرْدَوْسِ نُزُلًا',ref:'সূরা কাহফ: ১০৭',refEn:'Surah Al-Kahf: 107',meaningBn:'যারা ঈমান আনে ও সৎকর্ম করে, তাদের জন্য আতিথেয়তাস্বরূপ থাকবে ফিরদাউসের জান্নাত।',meaningEn:'Indeed, those who believe and do righteous deeds — they will have the Gardens of Paradise as a lodging.'},
+    // ── সূরা মারিয়াম (১৯) ──
+    {arabic:'وَاذْكُر رَّبَّكَ كَثِيرًا وَسَبِّحْ بِالْعَشِيِّ وَالْإِبْكَارِ',ref:'সূরা আলে ইমরান: ৪১',refEn:'Surah Aal-e-Imran: 41',meaningBn:'এবং তোমার রবকে অধিক স্মরণ করো এবং সন্ধ্যায় ও ভোরে তাঁর পবিত্রতা বর্ণনা করো।',meaningEn:'And remember your Lord much and exalt Him morning and afternoon.'},
+    // ── সূরা তোয়াহা (২০) ──
+    {arabic:'رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي',ref:'সূরা তোয়াহা: ২৫-২৬',refEn:'Surah Ta-Ha: 25-26',meaningBn:'হে আমার রব! আমার বুক প্রশস্ত করো এবং আমার কাজ সহজ করো।',meaningEn:'My Lord, expand for me my breast and ease for me my task.'},
+    // ── সূরা আম্বিয়া (২১) ──
+    {arabic:'وَمَا أَرْسَلْنَاكَ إِلَّا رَحْمَةً لِّلْعَالَمِينَ',ref:'সূরা আম্বিয়া: ১০৭',refEn:'Surah Al-Anbiya: 107',meaningBn:'এবং আমি তোমাকে বিশ্বজগতের জন্য রহমতস্বরূপ পাঠিয়েছি।',meaningEn:'And We have not sent you except as a mercy to the worlds.'},
+    {arabic:'لَا إِلَٰهَ إِلَّا أَنتَ سُبْحَانَكَ إِنِّي كُنتُ مِنَ الظَّالِمِينَ',ref:'সূরা আম্বিয়া: ৮৭',refEn:'Surah Al-Anbiya: 87',meaningBn:'তুমি ছাড়া কোনো উপাস্য নেই; তুমি পবিত্র। নিশ্চয়ই আমি সীমালঙ্ঘনকারীদের অন্তর্ভুক্ত।',meaningEn:'There is no deity except You; exalted are You. Indeed, I have been of the wrongdoers.'},
+    // ── সূরা হজ্ব (২২) ──
+    {arabic:'وَبَشِّرِ الصَّابِرِينَ',ref:'সূরা বাকারা: ১৫৫',refEn:'Surah Al-Baqarah: 155',meaningBn:'এবং ধৈর্যশীলদের সুসংবাদ দাও।',meaningEn:'And give good tidings to the patient.'},
+    // ── সূরা নুর (২৪) ──
+    {arabic:'اللَّهُ نُورُ السَّمَاوَاتِ وَالْأَرْضِ',ref:'সূরা নুর: ৩৫',refEn:'Surah An-Nur: 35',meaningBn:'আল্লাহ আকাশ ও পৃথিবীর আলো।',meaningEn:'Allah is the Light of the heavens and the earth.'},
+    // ── সূরা ফুরকান (২৫) ──
+    {arabic:'وَعِبَادُ الرَّحْمَٰنِ الَّذِينَ يَمْشُونَ عَلَى الْأَرْضِ هَوْنًا',ref:'সূরা ফুরকান: ৬৩',refEn:'Surah Al-Furqan: 63',meaningBn:'রহমানের বান্দারা হলো তারা যারা পৃথিবীতে বিনম্রভাবে চলে।',meaningEn:'The servants of the Most Merciful are those who walk upon the earth humbly.'},
+    // ── সূরা শুআরা (২৬) ──
+    {arabic:'وَلَا تُخْزِنِي يَوْمَ يُبْعَثُونَ',ref:'সূরা শুআরা: ৮৭',refEn:'Surah Ash-Shuara: 87',meaningBn:'এবং যেদিন পুনরুত্থান হবে সেদিন আমাকে লজ্জিত করো না।',meaningEn:'And do not disgrace me on the Day they are resurrected.'},
+    // ── সূরা নামল (২৭) ──
+    {arabic:'أَمَّن يُجِيبُ الْمُضْطَرَّ إِذَا دَعَاهُ وَيَكْشِفُ السُّوءَ',ref:'সূরা নামল: ৬২',refEn:'Surah An-Naml: 62',meaningBn:'কে বিপদগ্রস্তের ডাকে সাড়া দেন যখন সে ডাকে এবং বিপদ দূর করেন?',meaningEn:'Is He not who responds to the desperate one when he calls upon Him and removes evil?'},
+    // ── সূরা কাসাস (২৮) ──
+    {arabic:'وَابْتَغِ فِيمَا آتَاكَ اللَّهُ الدَّارَ الْآخِرَةَ',ref:'সূরা কাসাস: ৭৭',refEn:'Surah Al-Qasas: 77',meaningBn:'আল্লাহ তোমাকে যা দিয়েছেন তা দিয়ে আখিরাতের গৃহ অনুসন্ধান করো।',meaningEn:'Seek, through that which Allah has given you, the home of the Hereafter.'},
+    // ── সূরা আনকাবুত (২৯) ──
+    {arabic:'وَالَّذِينَ جَاهَدُوا فِينَا لَنَهْدِيَنَّهُمْ سُبُلَنَا',ref:'সূরা আনকাবুত: ৬৯',refEn:'Surah Al-Ankabut: 69',meaningBn:'যারা আমার পথে সংগ্রাম করে, আমি অবশ্যই তাদের আমার পথ দেখাব।',meaningEn:'Those who strive for Us — We will surely guide them to Our ways.'},
+    // ── সূরা রুম (৩০) ──
+    {arabic:'فَسُبْحَانَ اللَّهِ حِينَ تُمْسُونَ وَحِينَ تُصْبِحُونَ',ref:'সূরা রুম: ১৭',refEn:'Surah Ar-Rum: 17',meaningBn:'সুতরাং তোমরা আল্লাহর পবিত্রতা বর্ণনা করো সন্ধ্যায় এবং সকালে।',meaningEn:'So exalt Allah when you reach the evening and when you reach the morning.'},
+    // ── সূরা লুকমান (৩১) ──
+    {arabic:'وَمَن يُسْلِمْ وَجْهَهُ إِلَى اللَّهِ وَهُوَ مُحْسِنٌ فَقَدِ اسْتَمْسَكَ بِالْعُرْوَةِ الْوُثْقَىٰ',ref:'সূরা লুকমান: ২২',refEn:'Surah Luqman: 22',meaningBn:'যে সৎকর্মশীল হয়ে আল্লাহর কাছে নিজেকে সমর্পণ করে, সে মজবুত রশি আঁকড়ে ধরে।',meaningEn:'Whoever submits his face to Allah while being a doer of good has grasped the most trustworthy handhold.'},
+    // ── সূরা সাজদা (৩২) ──
+    {arabic:'إِنَّمَا يُؤْمِنُ بِآيَاتِنَا الَّذِينَ إِذَا ذُكِّرُوا بِهَا خَرُّوا سُجَّدًا',ref:'সূরা সাজদা: ১৫',refEn:'Surah As-Sajdah: 15',meaningBn:'আমাদের আয়াতে কেবল তারাই ঈমান আনে, যখন এগুলো দিয়ে স্মরণ করানো হয় তারা সিজদায় লুটিয়ে পড়ে।',meaningEn:'Only those believe in Our verses who, when they are reminded by them, fall down in prostration.'},
+    // ── সূরা আহযাব (৩৩) ──
+    {arabic:'إِنَّمَا يُرِيدُ اللَّهُ لِيُذْهِبَ عَنكُمُ الرِّجْسَ أَهْلَ الْبَيْتِ وَيُطَهِّرَكُمْ تَطْهِيرًا',ref:'সূরা আহযাব: ৩৩ (আয়াতে তাতহির)',refEn:'Surah Al-Ahzab: 33 (Ayah of Purification)',meaningBn:'হে আহলে বাইত! আল্লাহ শুধু চান তোমাদের থেকে অপবিত্রতা দূর করতে এবং তোমাদের সম্পূর্ণরূপে পবিত্র করতে।',meaningEn:'Allah intends only to remove from you the impurity, O people of the household, and to purify you with extensive purification.'},
+    {arabic:'يَا أَيُّهَا النَّبِيُّ قُل لِّأَزْوَاجِكَ وَبَنَاتِكَ وَنِسَاءِ الْمُؤْمِنِينَ',ref:'সূরা আহযাব: ৫৯',refEn:'Surah Al-Ahzab: 59',meaningBn:'হে নবী! তোমার স্ত্রীদের, কন্যাদের এবং মুমিন নারীদের বলো।',meaningEn:'O Prophet, tell your wives and your daughters and the women of the believers to draw their cloaks close.'},
+    // ── সূরা সাবা (৩৪) ──
+    {arabic:'قُلْ إِنَّ رَبِّي يَبْسُطُ الرِّزْقَ لِمَن يَشَاءُ وَيَقْدِرُ',ref:'সূরা সাবা: ৩৬',refEn:'Surah Saba: 36',meaningBn:'বলুন, নিশ্চয়ই আমার রব যার জন্য চান রিজিক প্রশস্ত করেন এবং সংকুচিত করেন।',meaningEn:'Say: Indeed, my Lord extends provision for whom He wills and restricts it.'},
+    // ── সূরা ফাতির (৩৫) ──
+    {arabic:'يَا أَيُّهَا النَّاسُ أَنتُمُ الْفُقَرَاءُ إِلَى اللَّهِ ۖ وَاللَّهُ هُوَ الْغَنِيُّ الْحَمِيدُ',ref:'সূরা ফাতির: ১৫',refEn:'Surah Fatir: 15',meaningBn:'হে মানুষ! তোমরাই আল্লাহর মুখাপেক্ষী; আর আল্লাহ — তিনিই অভাবমুক্ত, প্রশংসিত।',meaningEn:'O mankind, you are those in need of Allah, while Allah is the Free of need, the Praiseworthy.'},
+    // ── সূরা ইয়াসিন (৩৬) ──
+    {arabic:'إِنَّمَا أَمْرُهُ إِذَا أَرَادَ شَيْئًا أَن يَقُولَ لَهُ كُن فَيَكُونُ',ref:'সূরা ইয়াসিন: ৮২',refEn:'Surah Ya-Sin: 82',meaningBn:'তাঁর বিষয় তো এই যে, তিনি যখন কোনো কিছু করতে চান তখন বলেন "হও" — আর তা হয়ে যায়।',meaningEn:'His command is only when He intends a thing that He says to it, "Be," and it is.'},
+    {arabic:'سُبْحَانَ الَّذِي بِيَدِهِ مَلَكُوتُ كُلِّ شَيْءٍ وَإِلَيْهِ تُرْجَعُونَ',ref:'সূরা ইয়াসিন: ৮৩',refEn:'Surah Ya-Sin: 83',meaningBn:'পবিত্র তিনি যাঁর হাতে সবকিছুর রাজত্ব এবং তাঁর দিকেই তোমরা ফিরে যাবে।',meaningEn:'Exalted is He in whose hand is the realm of all things, and to Him you will be returned.'},
+    // ── সূরা সাফফাত (৩৭) ──
+    {arabic:'وَإِنَّ جُندَنَا لَهُمُ الْغَالِبُونَ',ref:'সূরা সাফফাত: ১৭৩',refEn:'Surah As-Saffat: 173',meaningBn:'এবং নিশ্চয়ই আমার বাহিনীই বিজয়ী হবে।',meaningEn:'And indeed, Our soldiers will be those who overcome.'},
+    // ── সূরা যুমার (৩৯) ──
+    {arabic:'قُلْ يَا عِبَادِيَ الَّذِينَ أَسْرَفُوا عَلَىٰ أَنفُسِهِمْ لَا تَقْنَطُوا مِن رَّحْمَةِ اللَّهِ',ref:'সূরা যুমার: ৫৩',refEn:'Surah Az-Zumar: 53',meaningBn:'বলুন: হে আমার বান্দারা যারা নিজেদের উপর সীমালঙ্ঘন করেছো, আল্লাহর রহমত থেকে নিরাশ হয়ো না।',meaningEn:'Say: O My servants who have transgressed against themselves, do not despair of the mercy of Allah.'},
+    // ── সূরা মুমিন/গাফির (৪০) ──
+    {arabic:'ادْعُونِي أَسْتَجِبْ لَكُمْ',ref:'সূরা গাফির: ৬০',refEn:'Surah Ghafir: 60',meaningBn:'আমাকে ডাকো, আমি তোমাদের সাড়া দেব।',meaningEn:'Call upon Me; I will respond to you.'},
+    // ── সূরা ফুসিলাত (৪১) ──
+    {arabic:'إِنَّ الَّذِينَ قَالُوا رَبُّنَا اللَّهُ ثُمَّ اسْتَقَامُوا تَتَنَزَّلُ عَلَيْهِمُ الْمَلَائِكَةُ',ref:'সূরা ফুসিলাত: ৩০',refEn:'Surah Fussilat: 30',meaningBn:'যারা বলে আমাদের রব আল্লাহ, তারপর অটল থাকে — তাদের কাছে ফেরেশতা নাযিল হয়।',meaningEn:'Indeed, those who say "Our Lord is Allah" and then remain on the right course, the angels will descend upon them.'},
+    // ── সূরা শুরা (৪২) ──
+    {arabic:'قُل لَّا أَسْأَلُكُمْ عَلَيْهِ أَجْرًا إِلَّا الْمَوَدَّةَ فِي الْقُرْبَىٰ',ref:'সূরা শুরা: ২৩ (আয়াতে মাওয়াদ্দাত)',refEn:'Surah Ash-Shura: 23 (Ayah of Mawaddah)',meaningBn:'বলুন: আমি এর জন্য তোমাদের কাছে কোনো পারিশ্রমিক চাই না, শুধু নিকটাত্মীয়দের প্রতি ভালোবাসা ছাড়া।',meaningEn:'Say: I ask of you no payment for this message except affection for my nearest kin.'},
+    // ── সূরা যুখরুফ (৪৩) ──
+    {arabic:'وَإِنَّهُ لَذِكْرٌ لَّكَ وَلِقَوْمِكَ ۖ وَسَوْفَ تُسْأَلُونَ',ref:'সূরা যুখরুফ: ৪৪',refEn:'Surah Az-Zukhruf: 44',meaningBn:'এবং নিশ্চয়ই এটি তোমার ও তোমার সম্প্রদায়ের জন্য উপদেশ; এবং তোমরা অবশ্যই জিজ্ঞাসিত হবে।',meaningEn:'And indeed, it is a reminder for you and your people, and you will be questioned.'},
+    // ── সূরা দুখান (৪৪) ──
+    {arabic:'إِنَّا أَنزَلْنَاهُ فِي لَيْلَةٍ مُّبَارَكَةٍ',ref:'সূরা দুখান: ৩',refEn:'Surah Ad-Dukhan: 3',meaningBn:'নিশ্চয়ই আমি এটি এক বরকতময় রাতে নাযিল করেছি।',meaningEn:'Indeed, We sent it down during a blessed night.'},
+    // ── সূরা জাসিয়া (৪৫) ──
+    {arabic:'مَن عَمِلَ صَالِحًا فَلِنَفْسِهِ ۖ وَمَنْ أَسَاءَ فَعَلَيْهَا',ref:'সূরা জাসিয়া: ১৫',refEn:'Surah Al-Jathiyah: 15',meaningBn:'যে সৎকর্ম করে সে তার নিজের জন্যই করে; এবং যে মন্দ করে তার ক্ষতি তার নিজেরই।',meaningEn:'Whoever does good, it is for himself; and whoever does evil, it is against himself.'},
+    // ── সূরা ফাতহ (৪৮) ──
+    {arabic:'هُوَ الَّذِي أَنزَلَ السَّكِينَةَ فِي قُلُوبِ الْمُؤْمِنِينَ',ref:'সূরা ফাতহ: ৪',refEn:'Surah Al-Fath: 4',meaningBn:'তিনিই মুমিনদের হৃদয়ে প্রশান্তি নাযিল করেন।',meaningEn:'It is He who sent down tranquillity into the hearts of the believers.'},
+    // ── সূরা হুজুরাত (৪৯) ──
+    {arabic:'يَا أَيُّهَا النَّاسُ إِنَّا خَلَقْنَاكُم مِّن ذَكَرٍ وَأُنثَىٰ وَجَعَلْنَاكُمْ شُعُوبًا وَقَبَائِلَ لِتَعَارَفُوا',ref:'সূরা হুজুরাত: ১৩',refEn:'Surah Al-Hujurat: 13',meaningBn:'হে মানুষ! আমি তোমাদের পুরুষ ও নারী থেকে সৃষ্টি করেছি এবং তোমাদের বিভিন্ন জাতি ও গোত্রে বিভক্ত করেছি যাতে তোমরা একে অপরকে চিনতে পারো।',meaningEn:'O mankind, indeed We have created you from male and female and made you peoples and tribes that you may know one another.'},
+    {arabic:'إِنَّ أَكْرَمَكُمْ عِندَ اللَّهِ أَتْقَاكُمْ',ref:'সূরা হুজুরাত: ১৩',refEn:'Surah Al-Hujurat: 13',meaningBn:'নিশ্চয়ই আল্লাহর কাছে তোমাদের মধ্যে সবচেয়ে মর্যাদাবান সেই যে সবচেয়ে বেশি মুত্তাকি।',meaningEn:'Indeed, the most noble of you in the sight of Allah is the most righteous of you.'},
+    // ── সূরা কাফ (৫০) ──
+    {arabic:'وَنَحْنُ أَقْرَبُ إِلَيْهِ مِنْ حَبْلِ الْوَرِيدِ',ref:'সূরা কাফ: ১৬',refEn:'Surah Qaf: 16',meaningBn:'এবং আমরা তার ঘাড়ের শিরার চেয়েও তার নিকটে।',meaningEn:'And We are closer to him than his jugular vein.'},
+    // ── সূরা যারিয়াত (৫১) ──
+    {arabic:'وَمَا خَلَقْتُ الْجِنَّ وَالْإِنسَ إِلَّا لِيَعْبُدُونِ',ref:'সূরা যারিয়াত: ৫৬',refEn:'Surah Adh-Dhariyat: 56',meaningBn:'আমি জিন ও মানুষকে কেবল আমার ইবাদতের জন্যই সৃষ্টি করেছি।',meaningEn:'I did not create the jinn and mankind except to worship Me.'},
+    // ── সূরা রহমান (৫৫) ──
+    {arabic:'فَبِأَيِّ آلَاءِ رَبِّكُمَا تُكَذِّبَانِ',ref:'সূরা রহমান: ১৩',refEn:'Surah Ar-Rahman: 13',meaningBn:'সুতরাং তোমরা উভয়ে তোমাদের রবের কোন কোন নিয়ামতকে অস্বীকার করবে?',meaningEn:'So which of the favors of your Lord would you deny?'},
+    // ── সূরা হাদিদ (৫৭) ──
+    {arabic:'وَهُوَ مَعَكُمْ أَيْنَ مَا كُنتُمْ ۚ وَاللَّهُ بِمَا تَعْمَلُونَ بَصِيرٌ',ref:'সূরা হাদিদ: ৪',refEn:'Surah Al-Hadid: 4',meaningBn:'এবং তোমরা যেখানেই থাকো, তিনি তোমাদের সাথে আছেন; এবং তোমরা যা করো আল্লাহ তা দেখেন।',meaningEn:'And He is with you wherever you are, and Allah sees what you do.'},
+    // ── সূরা মুজাদালা (৫৮) ──
+    {arabic:'إِنَّ الَّذِينَ يُحَادُّونَ اللَّهَ وَرَسُولَهُ أُولَٰئِكَ فِي الْأَذَلِّينَ',ref:'সূরা মুজাদালা: ২০',refEn:'Surah Al-Mujadilah: 20',meaningBn:'যারা আল্লাহ ও তাঁর রাসূলের বিরুদ্ধে যায় তারা সবচেয়ে লাঞ্ছিতদের মধ্যে থাকবে।',meaningEn:'Those who oppose Allah and His Messenger — those are among the most humbled.'},
+    // ── সূরা হাশর (৫৯) ──
+    {arabic:'هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ ۖ عَالِمُ الْغَيْبِ وَالشَّهَادَةِ',ref:'সূরা হাশর: ২২',refEn:'Surah Al-Hashr: 22',meaningBn:'তিনি আল্লাহ যিনি ছাড়া কোনো উপাস্য নেই; দৃশ্য ও অদৃশ্যের জ্ঞানী।',meaningEn:'He is Allah, other than whom there is no deity, Knower of the unseen and the witnessed.'},
+    {arabic:'هُوَ اللَّهُ الْخَالِقُ الْبَارِئُ الْمُصَوِّرُ ۖ لَهُ الْأَسْمَاءُ الْحُسْنَىٰ',ref:'সূরা হাশর: ২৪',refEn:'Surah Al-Hashr: 24',meaningBn:'তিনি আল্লাহ, স্রষ্টা, উদ্ভাবক, রূপদাতা। তাঁর রয়েছে সুন্দরতম নামসমূহ।',meaningEn:'He is Allah, the Creator, the Inventor, the Fashioner. To Him belong the best names.'},
+    // ── সূরা জুমুআ (৬২) ──
+    {arabic:'يَا أَيُّهَا الَّذِينَ آمَنُوا إِذَا نُودِيَ لِلصَّلَاةِ مِن يَوْمِ الْجُمُعَةِ فَاسْعَوْا إِلَىٰ ذِكْرِ اللَّهِ',ref:'সূরা জুমুআ: ৯',refEn:'Surah Al-Jumuah: 9',meaningBn:'হে মুমিনগণ! জুমুআর দিনে যখন নামাজের জন্য আহ্বান করা হয় তখন আল্লাহর স্মরণের দিকে দ্রুত চলো।',meaningEn:'O you who believe! When the call to prayer is made on Friday, hasten to the remembrance of Allah.'},
+    // ── সূরা তাগাবুন (৬৪) ──
+    {arabic:'وَمَن يُؤْمِن بِاللَّهِ يَهْدِ قَلْبَهُ',ref:'সূরা তাগাবুন: ১১',refEn:'Surah At-Taghabun: 11',meaningBn:'এবং যে আল্লাহর প্রতি ঈমান আনে, তিনি তার হৃদয় সঠিক পথে পরিচালিত করেন।',meaningEn:'Whoever believes in Allah, He will guide his heart.'},
+    // ── সূরা তালাক (৬৫) ──
+    {arabic:'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا',ref:'সূরা তালাক: ২',refEn:'Surah At-Talaq: 2',meaningBn:'যে আল্লাহকে ভয় করে, তিনি তার জন্য পথ বের করে দেন।',meaningEn:'Whoever fears Allah, He will make for him a way out.'},
+    {arabic:'وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ',ref:'সূরা তালাক: ৩',refEn:'Surah At-Talaq: 3',meaningBn:'যে আল্লাহর উপর ভরসা করে, তার জন্য আল্লাহই যথেষ্ট।',meaningEn:'And whoever relies upon Allah — then He is sufficient for him.'},
+    // ── সূরা তাহরিম (৬৬) ──
+    {arabic:'يَا أَيُّهَا الَّذِينَ آمَنُوا تُوبُوا إِلَى اللَّهِ تَوْبَةً نَّصُوحًا',ref:'সূরা তাহরিম: ৮',refEn:'Surah At-Tahrim: 8',meaningBn:'হে মুমিনগণ! তোমরা আল্লাহর কাছে খালেস তওবা করো।',meaningEn:'O you who believe, repent to Allah with sincere repentance.'},
+    // ── সূরা মুলক (৬৭) ──
+    {arabic:'تَبَارَكَ الَّذِي بِيَدِهِ الْمُلْكُ وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ',ref:'সূরা মুলক: ১',refEn:'Surah Al-Mulk: 1',meaningBn:'বরকতময় তিনি যাঁর হাতে রাজত্ব এবং তিনি সবকিছুর উপর শক্তিমান।',meaningEn:'Blessed is He in whose hand is dominion, and He is over all things competent.'},
+    {arabic:'أَلَا يَعْلَمُ مَنْ خَلَقَ وَهُوَ اللَّطِيفُ الْخَبِيرُ',ref:'সূরা মুলক: ১৪',refEn:'Surah Al-Mulk: 14',meaningBn:'যিনি সৃষ্টি করেছেন, তিনি কি জানেন না? তিনি সূক্ষ্মদর্শী, সর্বজ্ঞ।',meaningEn:'Does He who created not know, while He is the Subtle, the Acquainted?'},
+    // ── সূরা কলম (৬৮) ──
+    {arabic:'وَإِنَّكَ لَعَلَىٰ خُلُقٍ عَظِيمٍ',ref:'সূরা কলম: ৪',refEn:'Surah Al-Qalam: 4',meaningBn:'এবং নিশ্চয়ই তুমি মহান চরিত্রের অধিকারী।',meaningEn:'And indeed, you are of a great moral character.'},
+    // ── সূরা হাক্কা (৬৯) ──
+    {arabic:'فَسَبِّحْ بِاسْمِ رَبِّكَ الْعَظِيمِ',ref:'সূরা ওয়াকিআ: ৯৬',refEn:'Surah Al-Waqiah: 96',meaningBn:'সুতরাং তোমার মহান রবের নামে পবিত্রতা বর্ণনা করো।',meaningEn:'So exalt the name of your Lord, the Most Great.'},
+    // ── সূরা মাআরিজ (৭০) ──
+    {arabic:'إِنَّ الْإِنسَانَ خُلِقَ هَلُوعًا',ref:'সূরা মাআরিজ: ১৯',refEn:'Surah Al-Maarij: 19',meaningBn:'নিশ্চয়ই মানুষকে অস্থিরমনা করে সৃষ্টি করা হয়েছে।',meaningEn:'Indeed, mankind was created anxious.'},
+    // ── সূরা নুহ (৭১) ──
+    {arabic:'مِّمَّا خَطِيئَاتِهِمْ أُغْرِقُوا فَأُدْخِلُوا نَارًا',ref:'সূরা নুহ: ২৫',refEn:'Surah Nuh: 25',meaningBn:'তাদের পাপের কারণে তাদের ডুবানো হয়েছিল, অতঃপর আগুনে প্রবেশ করানো হয়।',meaningEn:'Because of their sins they were drowned and put into the Fire.'},
+    // ── সূরা জিন (৭২) ──
+    {arabic:'وَأَنَّ الْمَسَاجِدَ لِلَّهِ فَلَا تَدْعُوا مَعَ اللَّهِ أَحَدًا',ref:'সূরা জিন: ১৮',refEn:'Surah Al-Jinn: 18',meaningBn:'এবং মসজিদগুলো আল্লাহর জন্য; সুতরাং আল্লাহর সাথে অন্য কাউকে ডেকো না।',meaningEn:'And the masjids are for Allah, so do not invoke anyone along with Allah.'},
+    // ── সূরা মুযযাম্মিল (৭৩) ──
+    {arabic:'وَاذْكُرِ اسْمَ رَبِّكَ وَتَبَتَّلْ إِلَيْهِ تَبْتِيلًا',ref:'সূরা মুযযাম্মিল: ৮',refEn:'Surah Al-Muzzammil: 8',meaningBn:'এবং তোমার রবের নাম স্মরণ করো এবং সম্পূর্ণভাবে তাঁর প্রতি নিবেদিত হও।',meaningEn:'And remember the name of your Lord and devote yourself to Him with complete devotion.'},
+    // ── সূরা ইনসান (৭৬) ──
+    {arabic:'إِنَّ هَٰذِهِ تَذْكِرَةٌ ۖ فَمَن شَاءَ اتَّخَذَ إِلَىٰ رَبِّهِ سَبِيلًا',ref:'সূরা ইনসান: ২৯',refEn:'Surah Al-Insan: 29',meaningBn:'নিশ্চয়ই এটি একটি উপদেশ; সুতরাং যে চায় সে তার রবের পথ অবলম্বন করুক।',meaningEn:'Indeed, this is a reminder, so whoever wills may take to his Lord a way.'},
+    // ── সূরা নাযিয়াত (৭৯) ──
+    {arabic:'فَأَمَّا مَن طَغَىٰ وَآثَرَ الْحَيَاةَ الدُّنْيَا فَإِنَّ الْجَحِيمَ هِيَ الْمَأْوَىٰ',ref:'সূরা নাযিয়াত: ৩৭-৩৯',refEn:'Surah An-Naziat: 37-39',meaningBn:'যে সীমালঙ্ঘন করেছে এবং দুনিয়ার জীবনকে প্রাধান্য দিয়েছে — জাহান্নামই তার আবাস।',meaningEn:'As for he who transgressed and preferred the life of the world — then indeed, Hellfire will be the refuge.'},
+    // ── সূরা ইনফিতার (৮২) ──
+    {arabic:'يَا أَيُّهَا الْإِنسَانُ مَا غَرَّكَ بِرَبِّكَ الْكَرِيمِ',ref:'সূরা ইনফিতার: ৬',refEn:'Surah Al-Infitar: 6',meaningBn:'হে মানুষ! কোন জিনিস তোমাকে তোমার মহান রব সম্পর্কে প্রতারিত করেছে?',meaningEn:'O mankind, what has deceived you concerning your Lord, the Generous?'},
+    // ── সূরা মুতাফফিফিন (৮৩) ──
+    {arabic:'كَلَّا إِنَّ كِتَابَ الْأَبْرَارِ لَفِي عِلِّيِّينَ',ref:'সূরা মুতাফফিফিন: ১৮',refEn:'Surah Al-Mutaffifin: 18',meaningBn:'কখনো না! নিশ্চয়ই সৎকর্মশীলদের আমলনামা ইল্লিয়্যিনে আছে।',meaningEn:'No! Indeed, the record of the righteous is in Illiyyun.'},
+    // ── সূরা ইনশিকাক (৮৪) ──
+    {arabic:'يَا أَيُّهَا الْإِنسَانُ إِنَّكَ كَادِحٌ إِلَىٰ رَبِّكَ كَدْحًا فَمُلَاقِيهِ',ref:'সূরা ইনশিকাক: ৬',refEn:'Surah Al-Inshiqaq: 6',meaningBn:'হে মানুষ! তুমি তোমার রবের দিকে কঠোর পরিশ্রম করে চলেছো এবং তুমি তাঁর সাথে মিলিত হবে।',meaningEn:'O mankind, indeed you are laboring toward your Lord with exertion and will meet Him.'},
+    // ── সূরা গাশিয়া (৮৮) ──
+    {arabic:'إِنَّ إِلَيْنَا إِيَابَهُمْ ثُمَّ إِنَّ عَلَيْنَا حِسَابَهُمْ',ref:'সূরা গাশিয়া: ২৫-২৬',refEn:'Surah Al-Ghashiyah: 25-26',meaningBn:'নিশ্চয়ই তাদের প্রত্যাবর্তন আমার কাছে, তারপর অবশ্যই তাদের হিসাব আমারই দায়িত্ব।',meaningEn:'Indeed, to Us is their return. Then indeed, upon Us is their account.'},
+    // ── সূরা ফজর (৮৯) ──
+    {arabic:'يَا أَيَّتُهَا النَّفْسُ الْمُطْمَئِنَّةُ ارْجِعِي إِلَىٰ رَبِّكِ رَاضِيَةً مَّرْضِيَّةً',ref:'সূরা ফজর: ২৭-২৮',refEn:'Surah Al-Fajr: 27-28',meaningBn:'হে প্রশান্ত আত্মা! ফিরে যাও তোমার রবের কাছে সন্তুষ্ট হয়ে, সন্তুষ্টি লাভ করে।',meaningEn:'O reassured soul, return to your Lord, well-pleased and pleasing to Him.'},
+    // ── সূরা শামস (৯১) ──
+    {arabic:'قَدْ أَفْلَحَ مَن زَكَّاهَا وَقَدْ خَابَ مَن دَسَّاهَا',ref:'সূরা শামস: ৯-১০',refEn:'Surah Ash-Shams: 9-10',meaningBn:'সফল হয়েছে সে যে নিজেকে পরিশুদ্ধ করেছে এবং ব্যর্থ হয়েছে সে যে নিজেকে কলুষিত করেছে।',meaningEn:'Successful is the one who purifies it, and failed is the one who corrupts it.'},
+    // ── সূরা লাইল (৯২) ──
+    {arabic:'وَمَا يُغْنِي عَنْهُ مَالُهُ إِذَا تَرَدَّىٰ',ref:'সূরা লাইল: ১১',refEn:'Surah Al-Layl: 11',meaningBn:'যখন সে ধ্বংস হবে তখন তার সম্পদ কোনো কাজে আসবে না।',meaningEn:'And what will his wealth avail him when he falls?'},
+    // ── সূরা দুহা (৯৩) ──
+    {arabic:'وَأَمَّا بِنِعْمَةِ رَبِّكَ فَحَدِّثْ',ref:'সূরা দুহা: ১১',refEn:'Surah Ad-Duha: 11',meaningBn:'এবং তোমার রবের নিয়ামতের কথা বর্ণনা করো।',meaningEn:'And proclaim the blessing of your Lord.'},
+    // ── সূরা ইনশিরাহ (৯৪) ──
+    {arabic:'إِنَّ مَعَ الْعُسْرِ يُسْرًا',ref:'সূরা ইনশিরাহ: ৬',refEn:'Surah Al-Inshirah: 6',meaningBn:'নিশ্চয়ই কষ্টের সাথে রয়েছে সহজ।',meaningEn:'Indeed, with hardship will be ease.'},
+    // ── সূরা আলাক (৯৬) ──
+    {arabic:'اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ',ref:'সূরা আলাক: ১',refEn:'Surah Al-Alaq: 1',meaningBn:'পড়ো তোমার রবের নামে যিনি সৃষ্টি করেছেন।',meaningEn:'Read in the name of your Lord who created.'},
+    // ── সূরা কাদর (৯৭) ──
+    {arabic:'إِنَّا أَنزَلْنَاهُ فِي لَيْلَةِ الْقَدْرِ',ref:'সূরা কাদর: ১',refEn:'Surah Al-Qadr: 1',meaningBn:'নিশ্চয়ই আমি এটি লাইলাতুল কাদরে নাযিল করেছি।',meaningEn:'Indeed, We sent it down during the Night of Decree.'},
+    {arabic:'لَيْلَةُ الْقَدْرِ خَيْرٌ مِّنْ أَلْفِ شَهْرٍ',ref:'সূরা কাদর: ৩',refEn:'Surah Al-Qadr: 3',meaningBn:'কদরের রাত হাজার মাসের চেয়ে উত্তম।',meaningEn:'The Night of Decree is better than a thousand months.'},
+    // ── সূরা যিলযাল (৯৯) ──
+    {arabic:'فَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ خَيْرًا يَرَهُ',ref:'সূরা যিলযাল: ৭',refEn:'Surah Az-Zalzalah: 7',meaningBn:'সুতরাং যে অণু পরিমাণ ভালো কাজ করবে সে তা দেখবে।',meaningEn:'So whoever does an atom\'s weight of good will see it.'},
+    {arabic:'وَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ شَرًّا يَرَهُ',ref:'সূরা যিলযাল: ৮',refEn:'Surah Az-Zalzalah: 8',meaningBn:'এবং যে অণু পরিমাণ মন্দ কাজ করবে সে তাও দেখবে।',meaningEn:'And whoever does an atom\'s weight of evil will see it.'},
+    // ── সূরা আদিয়াত (১০০) ──
+    {arabic:'إِنَّ الْإِنسَانَ لِرَبِّهِ لَكَنُودٌ',ref:'সূরা আদিয়াত: ৬',refEn:'Surah Al-Adiyat: 6',meaningBn:'নিশ্চয়ই মানুষ তার রবের প্রতি অকৃতজ্ঞ।',meaningEn:'Indeed mankind, to his Lord, is ungrateful.'},
+    // ── সূরা আসর (১০৩) ──
+    {arabic:'وَالْعَصْرِ إِنَّ الْإِنسَانَ لَفِي خُسْرٍ',ref:'সূরা আসর: ১-২',refEn:'Surah Al-Asr: 1-2',meaningBn:'সময়ের শপথ! নিশ্চয়ই মানুষ ক্ষতিগ্রস্ত।',meaningEn:'By time, indeed, mankind is in loss.'},
+    // ── সূরা হুমাযা (১০৪) ──
+    {arabic:'وَيْلٌ لِّكُلِّ هُمَزَةٍ لُّمَزَةٍ',ref:'সূরা হুমাযা: ১',refEn:'Surah Al-Humazah: 1',meaningBn:'প্রত্যেক পরনিন্দাকারী ও দোষান্বেষীর জন্য দুর্ভোগ।',meaningEn:'Woe to every scorner and mocker.'},
+    // ── সূরা কাওসার (১০৮) ──
+    {arabic:'إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ',ref:'সূরা কাওসার: ১',refEn:'Surah Al-Kawthar: 1',meaningBn:'নিশ্চয়ই আমি তোমাকে কাওসার দিয়েছি।',meaningEn:'Indeed, We have granted you the Kawthar.'},
+    // ── সূরা কাফিরুন (১০৯) ──
+    {arabic:'لَكُمْ دِينُكُمْ وَلِيَ دِينِ',ref:'সূরা কাফিরুন: ৬',refEn:'Surah Al-Kafirun: 6',meaningBn:'তোমাদের দ্বীন তোমাদের জন্য এবং আমার দ্বীন আমার জন্য।',meaningEn:'For you is your religion, and for me is my religion.'},
+    // ── সূরা নাসর (১১০) ──
+    {arabic:'إِذَا جَاءَ نَصْرُ اللَّهِ وَالْفَتْحُ',ref:'সূরা নাসর: ১',refEn:'Surah An-Nasr: 1',meaningBn:'যখন আল্লাহর সাহায্য ও বিজয় আসবে।',meaningEn:'When the victory of Allah has come and the conquest.'},
+    // ── সূরা ইখলাস (১১২) ──
+    {arabic:'قُلْ هُوَ اللَّهُ أَحَدٌ اللَّهُ الصَّمَدُ',ref:'সূরা ইখলাস: ১-২',refEn:'Surah Al-Ikhlas: 1-2',meaningBn:'বলুন: তিনি আল্লাহ, এক। আল্লাহ অমুখাপেক্ষী।',meaningEn:'Say: He is Allah, One. Allah, the Eternal Refuge.'},
+    {arabic:'لَمْ يَلِدْ وَلَمْ يُولَدْ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ',ref:'সূরা ইখলাস: ৩-৪',refEn:'Surah Al-Ikhlas: 3-4',meaningBn:'তিনি জন্ম দেননি এবং জন্মগ্রহণ করেননি এবং তাঁর সমতুল্য কেউ নেই।',meaningEn:'He neither begets nor is born, nor is there to Him any equivalent.'},
+    // ── সূরা ফালাক (১১৩) ──
+    {arabic:'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ',ref:'সূরা ফালাক: ১',refEn:'Surah Al-Falaq: 1',meaningBn:'বলুন: আমি আশ্রয় নিচ্ছি প্রভাতের রবের।',meaningEn:'Say: I seek refuge in the Lord of daybreak.'},
+    // ── সূরা নাস (১১৪) ──
+    {arabic:'قُلْ أَعُوذُ بِرَبِّ النَّاسِ مَلِكِ النَّاسِ إِلَٰهِ النَّاسِ',ref:'সূরা নাস: ১-৩',refEn:'Surah An-Nas: 1-3',meaningBn:'বলুন: আমি আশ্রয় নিচ্ছি মানুষের রব, মানুষের মালিক, মানুষের উপাস্যের।',meaningEn:'Say: I seek refuge in the Lord of mankind, the King of mankind, the God of mankind.'},
 ];
 function getDailyAyah() {
     const pool = (state.customAyahs && state.customAyahs.length > 0) ? state.customAyahs : dailyAyahs;
-    const idx = new Date().getDate() % pool.length;
+    // Date-based daily rotation: প্রতিদিন স্বয়ংক্রিয়ভাবে নতুন আয়াত
+    const now = new Date();
+    const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+    const idx = dayOfYear % pool.length;
     return pool[idx];
 }
 function getDailyHadith() {
     const pool = (state.customHadiths && state.customHadiths.length > 0) ? state.customHadiths : hadiths;
-    return pool[state.hadithIndex % pool.length];
+    // Date-based daily rotation: প্রতিদিন স্বয়ংক্রিয়ভাবে নতুন হাদিস
+    const now = new Date();
+    const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+    const idx = dayOfYear % pool.length;
+    return pool[idx];
 }
 
 // ============================================================================
@@ -473,41 +664,72 @@ const duas = [
     {titleBn:'দোয়ায়ে তাওয়াসসুল',titleEn:'Dua Tawassul',arabic:'يَا اللَّهُ يَا رَبَّنَا بِحَقِّ مُحَمَّدٍ وَآلِ مُحَمَّدٍ',meaningBn:'হে আল্লাহ! হে আমাদের রব! মুহাম্মদ (সা.) ও তাঁর পরিবারের হক্বের ওসিলায়',meaningEn:'O Allah! O our Lord! Through the right of Muhammad and the family of Muhammad'}
 ];
 
-const hijriMonthsBn = ['মহররম','সফর','রবিউল আউয়াল','রবিউস সানি','জামাদিউল আউয়াল','জামাদিউস সানি','রজব','শাবান','রমজান','শাওয়াল','জিলক্বদ','জিলহজ'];
+const hijriMonthsBn = ['মুহাররম','সফর','রবিউল আউয়াল','রবিউস সানি','জামাদিউল আউয়াল','জামাদিউস সানি','রজব','শাবান','রমজান','শাওয়াল','জিলক্বদ','জিলহজ'];
 const hijriMonthsEn = ['Muharram','Safar','Rabi al-Awwal','Rabi al-Thani','Jumada al-Awwal','Jumada al-Thani','Rajab','Shaban','Ramadan','Shawwal','Dhu al-Qidah','Dhu al-Hijjah'];
 const hijriEvents = {
     // ── মূল ইসলামিক দিন ──
     '1-1':{bn:'হিজরি নববর্ষ 🌙',en:'Islamic New Year 🌙',type:'special'},
-    '1-10':{bn:'🔴 আশুরা — ইমাম হোসাইন (আ.)-এর শাহাদাত',en:'🔴 Ashura — Imam Hussain (AS) Martyrdom',type:'ashura'},
-    '2-20':{bn:'চেহলুম — আরবাঈন',en:'Chehlum — Arbaeen',type:'martyrdom'},
-    '3-12':{bn:'ঈদে মিলাদুন্নবী (সা.)',en:"Mawlid al-Nabi",type:'eid'},
-    '3-17':{bn:'ইমাম সাদিক (আ.) জন্মদিন 🌟',en:'Imam Sadiq (AS) Birthday 🌟',type:'birth'},
-    '7-13':{bn:'ইমাম আলী (আ.) জন্মদিন 🦁',en:'Imam Ali (AS) Birthday 🦁',type:'birth'},
-    '7-27':{bn:'শবে মেরাজ',en:'Laylat al-Miraj',type:'special'},
-    '7-28':{bn:'ইমাম হাসান (আ.) শাহাদাত 🕊️',en:'Imam Hasan (AS) Martyrdom 🕊️',type:'martyrdom'},
-    '8-3':{bn:'ইমাম হোসাইন (আ.) জন্মদিন 🌸',en:'Imam Hussain (AS) Birthday 🌸',type:'birth'},
-    '8-10':{bn:'ইমাম হাসান আসকারি (আ.) জন্মদিন',en:'Imam Askari (AS) Birthday',type:'birth'},
-    '8-15':{bn:'নিমে শাবান — ইমাম মাহদি (আ.) জন্মদিন 🌙',en:"Mid-Shaban — Imam Mahdi (AS) Birthday 🌙",type:'birth'},
-    '9-1':{bn:'রমজান শুরু',en:'Ramadan begins',type:'special'},
-    '9-19':{bn:'শবে ক্বদর (১৯) — ইমাম আলী (আ.) আঘাতপ্রাপ্ত',en:"Laylat al-Qadr (19) — Imam Ali (AS) struck",type:'martyrdom'},
-    '9-21':{bn:'ইমাম আলী (আ.) শাহাদাত 🕊️ / শবে ক্বদর (২১)',en:"Imam Ali (AS) Martyrdom 🕊️ / Laylat al-Qadr (21)",type:'martyrdom'},
+
+    // ── মুহাররম ──
+    '1-7':{bn:'🔴 মুহাররম — ইমাম হোসাইন (আ.) শিবিরে পানি বন্ধ',en:'🔴 Muharram — Water blocked to Imam Hussain (AS) camp',type:'ashura'},
+    '1-10':{bn:'🔴 আশুরা — ইমাম হোসাইন (আ.)-এর শাহাদাত দিবস',en:'🔴 Ashura — Imam Hussain (AS) Martyrdom Day',type:'ashura'},
+
+    // ── সফর ──
+    '2-1':{bn:'ইমাম সাজ্জাদ (আ.) ও বন্দিরা কারবালা ছাড়েন',en:'Imam Sajjad (AS) & captives leave Karbala',type:'martyrdom'},
+    '2-7':{bn:'ইমাম হাসান (আ.) শাহাদাত দিবস 🕊️ — ২৮ সফর ৫০ হি.',en:'Imam Hasan (AS) Martyrdom Day 🕊️ — 28 Safar 50 AH',type:'martyrdom'},
+    '2-20':{bn:'🌹 চেহলুম — আরবাঈন — ইমাম হোসাইন (আ.) চল্লিশতম দিন',en:'🌹 Chehlum — Arbaeen — 40th day of Imam Hussain (AS)',type:'martyrdom'},
+    '2-28':{bn:'🕊️ রাসূলুল্লাহ (সা.) শাহাদাত দিবস — ২৮ সফর ১১ হি.',en:'🕊️ Prophet Muhammad (SAW) Martyrdom Day — 28 Safar 11 AH',type:'martyrdom'},
+
+    // ── রবিউল আউয়াল ──
+    '3-8':{bn:'🕊️ ইমাম হাসান আসকারি (আ.) শাহাদাত দিবস — ৮ রবিউল আউয়াল ২৬০ হি.',en:'🕊️ Imam Hasan al-Askari (AS) Martyrdom Day — 8 Rabi al-Awwal 260 AH',type:'martyrdom'},
+    '3-12':{bn:'ঈদে মিলাদুন্নবী (সা.) — রাসূলের জন্মদিন 🌸',en:'Mawlid al-Nabi — Prophet\'s Birthday 🌸',type:'eid'},
+    '3-15':{bn:'ইমাম হাসান (আ.) জন্মদিন 🌸 — ১৫ রমাযান ৩ হি.',en:'Imam Hasan (AS) Birthday 🌸 — 15 Ramadan 3 AH',type:'birth'},
+    '3-17':{bn:'ইমাম সাদিক (আ.) জন্মদিন 🌟 — ১৭ রবিউল আউয়াল ৮৩ হি.',en:'Imam Sadiq (AS) Birthday 🌟 — 17 Rabi al-Awwal 83 AH',type:'birth'},
+
+    // ── জমাদিউল আখিরা ──
+    '6-3':{bn:'🌹 ফাতেমা যাহরা (আ.) শাহাদাত দিবস — ৩ জমাদিউল আখিরা ১১ হি.',en:'🌹 Fatima al-Zahra (AS) Martyrdom Day — 3 Jumada al-Thani 11 AH',type:'martyrdom'},
+    '6-20':{bn:'ফাতেমা যাহরা (আ.) জন্মদিন 🌷 — ২০ জমাদিউল আখিরা ৫ বি.হি.',en:'Fatima al-Zahra (AS) Birthday 🌷 — 20 Jumada al-Thani 5 BH',type:'birth'},
+
+    // ── রজব ──
+    '7-3':{bn:'🕊️ ইমাম আলী ইবনে হোসাইন সাজ্জাদ (আ.) শাহাদাত দিবস — ২৫ মুহাররম ৯৫ হি.',en:'🕊️ Imam Sajjad (AS) Martyrdom Day — 25 Muharram 95 AH',type:'martyrdom'},
+    '7-7':{bn:'ইমাম কাযিম (আ.) জন্মদিন / ইমাম বাকির (আ.) শাহাদাত 🕊️',en:'Imam Kazim (AS) Birthday / Imam Baqir (AS) Martyrdom 🕊️',type:'mixed'},
+    '7-13':{bn:'ইমাম আলী (আ.) জন্মদিন 🦁 — ১৩ রজব ৩০ বি.হি.',en:'Imam Ali (AS) Birthday 🦁 — 13 Rajab 30 BH',type:'birth'},
+    '7-27':{bn:'শবে মেরাজ ✨',en:'Laylat al-Miraj ✨',type:'special'},
+    '7-28':{bn:'🕊️ ইমাম হাসান (আ.) শাহাদাত দিবস — ২৮ সফর ৫০ হি.',en:'🕊️ Imam Hasan (AS) Martyrdom Day — 28 Safar 50 AH',type:'martyrdom'},
+
+    // ── শাবান ──
+    '8-3':{bn:'ইমাম হোসাইন (আ.) জন্মদিন 🌸 — ৩ শাবান ৪ হি.',en:'Imam Hussain (AS) Birthday 🌸 — 3 Shaban 4 AH',type:'birth'},
+    '8-10':{bn:'ইমাম হাসান আসকারি (আ.) জন্মদিন 🌟 — ১০ রবিউল আউয়াল ২৩২ হি.',en:'Imam Askari (AS) Birthday 🌟 — 10 Rabi al-Awwal 232 AH',type:'birth'},
+    '8-15':{bn:'নিমে শাবান — ইমাম মাহদি (আ.) জন্মদিন 🌙 — ১৫ শাবান ২৫৫ হি.',en:'Mid-Shaban — Imam Mahdi (AS) Birthday 🌙 — 15 Shaban 255 AH',type:'birth'},
+
+    // ── রমজান ──
+    '9-1':{bn:'রমজান শুরু 🌙',en:'Ramadan begins 🌙',type:'special'},
+    '9-19':{bn:'শবে ক্বদর (১৯) — ইমাম আলী (আ.) আঘাতপ্রাপ্ত ⚔️',en:'Laylat al-Qadr (19) — Imam Ali (AS) struck ⚔️',type:'martyrdom'},
+    '9-21':{bn:'🕊️ ইমাম আলী (আ.) শাহাদাত দিবস — ২১ রমজান ৪০ হি. / শবে ক্বদর',en:'🕊️ Imam Ali (AS) Martyrdom Day — 21 Ramadan 40 AH / Laylat al-Qadr',type:'martyrdom'},
     '9-23':{bn:'শবে ক্বদর (২৩ রমজান) ⭐',en:'Laylat al-Qadr (23 Ramadan) ⭐',type:'special'},
-    '9-27':{bn:'শবে কদর (২৭)',en:"Laylat al-Qadr (27)",type:'special'},
+    '9-27':{bn:'শবে কদর (২৭ রমজান) ⭐',en:'Laylat al-Qadr (27 Ramadan) ⭐',type:'special'},
+
+    // ── শাওয়াল ──
     '10-1':{bn:'ঈদুল ফিতর 🎉',en:'Eid al-Fitr 🎉',type:'eid'},
-    '10-25':{bn:'ইমাম সাদিক (আ.) শাহাদাত 🕊️',en:'Imam Sadiq (AS) Martyrdom 🕊️',type:'martyrdom'},
-    '6-3':{bn:'ফাতেমা যাহরা (আ.) শাহাদাত 🌹',en:'Fatima al-Zahra (AS) Martyrdom 🌹',type:'martyrdom'},
-    '6-20':{bn:'ফাতেমা যাহরা (আ.) জন্মদিন 🌷',en:'Fatima al-Zahra (AS) Birthday 🌷',type:'birth'},
-    '3-8':{bn:'ইমাম আসকারি (আ.) শাহাদাত 🕊️',en:'Imam Askari (AS) Martyrdom 🕊️',type:'martyrdom'},
-    '3-15':{bn:'ইমাম হাসান (আ.) জন্মদিন',en:'Imam Hasan (AS) Birthday',type:'birth'},
-    '5-25':{bn:'ইমাম কাযিম (আ.) শাহাদাত 🕊️',en:'Imam Kazim (AS) Martyrdom 🕊️',type:'martyrdom'},
-    '7-7':{bn:'ইমাম কাযিম (আ.) জন্মদিন / ইমাম বাকির (আ.) শাহাদাত',en:'Imam Kazim (AS) Birthday / Imam Baqir (AS) Martyrdom',type:'mixed'},
-    '2-17':{bn:'ইমাম রেজা (আ.) শাহাদাত 🕊️',en:'Imam Ridha (AS) Martyrdom 🕊️',type:'martyrdom'},
-    '11-11':{bn:'ইমাম রেজা (আ.) জন্মদিন',en:'Imam Ridha (AS) Birthday',type:'birth'},
+    '10-25':{bn:'🕊️ ইমাম সাদিক (আ.) শাহাদাত দিবস — ২৫ শাওয়াল ১৪৮ হি.',en:'🕊️ Imam Sadiq (AS) Martyrdom Day — 25 Shawwal 148 AH',type:'martyrdom'},
+
+    // ── জিলকদ ──
+    '11-11':{bn:'ইমাম রেজা (আ.) জন্মদিন 🌹 — ১১ যিলকদ ১৪৮ হি.',en:'Imam Ridha (AS) Birthday 🌹 — 11 Dhu al-Qadah 148 AH',type:'birth'},
+    '11-23':{bn:'🕊️ ইমাম জওয়াদ (আ.) শাহাদাত দিবস — ২৩ জিলকদ ২২০ হি.',en:'🕊️ Imam Jawad (AS) Martyrdom Day — 23 Dhu al-Qadah 220 AH',type:'martyrdom'},
+
+    // ── জিলহজ্ব ──
+    '12-5':{bn:'ইমাম জওয়াদ (আ.) জন্মদিন ✨ — ১০ রজব ১৯৫ হি.',en:'Imam Jawad (AS) Birthday ✨ — 10 Rajab 195 AH',type:'birth'},
     '12-10':{bn:'ঈদুল আযহা 🎉',en:'Eid al-Adha 🎉',type:'eid'},
-    '12-18':{bn:'ঈদে গাদির খুম 🎊',en:'Eid al-Ghadeer 🎊',type:'eid'},
+    '12-15':{bn:'ইমাম হাদি (আ.) জন্মদিন 💎 — ১৫ যিলহজ্ব ২১২ হি.',en:'Imam Hadi (AS) Birthday 💎 — 15 Dhu al-Hijjah 212 AH',type:'birth'},
+    '12-18':{bn:'🎊 ঈদে গাদির খুম — ইমাম আলী (আ.) মনোনয়ন দিবস',en:'🎊 Eid al-Ghadeer — Imam Ali (AS) Designation Day',type:'eid'},
     '12-24':{bn:'ঈদে মুবাহিলা ✨',en:'Eid al-Mubahila ✨',type:'eid'},
-    '12-15':{bn:'ইমাম হাদি (আ.) জন্মদিন',en:'Imam Hadi (AS) Birthday',type:'birth'},
-    '4-3':{bn:'ইমাম হাদি (আ.) শাহাদাত 🕊️',en:'Imam Hadi (AS) Martyrdom 🕊️',type:'martyrdom'},
+
+    // ── বিভিন্ন মাসে শাহাদাত ──
+    '2-17':{bn:'🕊️ ইমাম রেজা (আ.) শাহাদাত দিবস — ১৭ সফর ২০৩ হি.',en:'🕊️ Imam Ridha (AS) Martyrdom Day — 17 Safar 203 AH',type:'martyrdom'},
+    '4-3':{bn:'🕊️ ইমাম হাদি (আ.) শাহাদাত দিবস — ৩ রজব ২৫৪ হি.',en:'🕊️ Imam Hadi (AS) Martyrdom Day — 3 Rajab 254 AH',type:'martyrdom'},
+    '5-25':{bn:'🕊️ ইমাম কাযিম (আ.) শাহাদাত দিবস — ২৫ রজব ১৮৩ হি.',en:'🕊️ Imam Kazim (AS) Martyrdom Day — 25 Rajab 183 AH',type:'martyrdom'},
+    '1-25':{bn:'🕊️ ইমাম সাজ্জাদ (আ.) শাহাদাত দিবস — ২৫ মুহাররম ৯৫ হি.',en:'🕊️ Imam Sajjad (AS) Martyrdom Day — 25 Muharram 95 AH',type:'martyrdom'},
+    '7-7':{bn:'🕊️ ইমাম বাকির (আ.) শাহাদাত দিবস — ৭ যিলহজ্ব ১১৪ হি.',en:'🕊️ Imam Baqir (AS) Martyrdom Day — 7 Dhu al-Hijjah 114 AH',type:'martyrdom'},
 };
 
 // ============================================================================
@@ -534,6 +756,10 @@ const KEYS = {
     SPECIAL_DAYS:'ahlbayt_special_days',
     MUHARRAM_EVENTS:'ahlbayt_muharram_events',
     SHIA_SPECIAL_DAYS:'ahlbayt_shia_special_days',
+    NAHJUL_PDFS:'ahlbayt_nahjul_pdfs',
+    SAHIFA_PDFS:'ahlbayt_sahifa_pdfs',
+    IMAM_HADITH_PDFS:'ahlbayt_imam_hadith_pdfs',
+    SPECIAL_DAY_PDFS:'ahlbayt_special_day_pdfs',
 };
 
 function lsGet(key, fallback=null) {
@@ -553,6 +779,10 @@ function loadState() {
         state.language = lsGet(KEYS.LANG, 'bn');
         state.bookmarks = lsGet(KEYS.BOOKMARKS, []);
         state.pdfList = lsGet(KEYS.PDFS, []);
+        state.nahjulPdfs = lsGet(KEYS.NAHJUL_PDFS, []);
+        state.sahifaPdfs = lsGet(KEYS.SAHIFA_PDFS, []);
+        state.imamHadithPdfs = lsGet(KEYS.IMAM_HADITH_PDFS, []);
+        state.specialDayPdfs = lsGet(KEYS.SPECIAL_DAY_PDFS, []);
         state.imageList = lsGet(KEYS.IMAGES, []);
         state.videoList = lsGet(KEYS.VIDEOS, []);
         state.audioList = lsGet(KEYS.AUDIOS, []);
@@ -592,6 +822,10 @@ function saveState() {
     lsSet(KEYS.LANG, state.language);
     lsSet(KEYS.BOOKMARKS, state.bookmarks);
     lsSet(KEYS.PDFS, state.pdfList);
+    lsSet(KEYS.NAHJUL_PDFS, state.nahjulPdfs);
+    lsSet(KEYS.SAHIFA_PDFS, state.sahifaPdfs);
+    lsSet(KEYS.IMAM_HADITH_PDFS, state.imamHadithPdfs);
+    lsSet(KEYS.SPECIAL_DAY_PDFS, state.specialDayPdfs);
     lsSet(KEYS.IMAGES, state.imageList);
     lsSet(KEYS.VIDEOS, state.videoList);
     lsSet(KEYS.AUDIOS, state.audioList);
@@ -784,7 +1018,33 @@ function openUploadModal(type) {
     if (!state.isAdmin) { state.showAdminLogin=true; render(); return; }
     state.showUploadModal=true; state.uploadType=type; state.uploadProgress=0; render();
 }
-function closeUploadModal() { state.showUploadModal=false; state.uploadType=null; state.isUploading=false; render(); }
+function closeUploadModal() { state.showUploadModal=false; state.uploadType=null; state.isUploading=false; state.uploadFolderKey=null; render(); }
+
+// folder key → state list key
+const FOLDER_LIST_MAP = {
+    pdf: 'pdfList',
+    nahjul: 'nahjulPdfs',
+    sahifa: 'sahifaPdfs',
+    imamhadiths: 'imamHadithPdfs',
+    specialdays: 'specialDayPdfs',
+};
+const FOLDER_CLOUDINARY_MAP = {
+    pdf: 'library/pdfs',
+    nahjul: 'library/nahjul',
+    sahifa: 'library/sahifa',
+    imamhadiths: 'library/imam-hadiths',
+    specialdays: 'library/special-days',
+};
+
+function openFolderUpload(folderKey) {
+    if (!state.isAdmin) { state.showAdminLogin=true; render(); return; }
+    state.showUploadModal = true;
+    state.uploadType = 'pdf';
+    state.uploadFolderKey = folderKey;
+    state.uploadProgress = 0;
+    render();
+}
+
 
 async function handleFileUpload(e) {
     const file = e.target.files[0];
@@ -807,7 +1067,7 @@ async function handleFileUpload(e) {
 
     // ── All types → Cloudinary ──────────────────────────────────────────────
     const folderMap = { image:'library/images', pdf:'library/pdfs', video:'library/videos', audio:'library/audios' };
-    const folder = folderMap[state.uploadType] || 'library/misc';
+    const folder = (state.uploadFolderKey && FOLDER_CLOUDINARY_MAP[state.uploadFolderKey]) || folderMap[state.uploadType] || 'library/misc';
 
     if (typeof window.storageUploadWithProgress === 'function') {
         try {
@@ -820,7 +1080,10 @@ async function handleFileUpload(e) {
                 if (pt) pt.textContent = pct + '%';
             });
             meta.cloudUrl = url;
-            if      (state.uploadType==='image') state.imageList.push(meta);
+            if (state.uploadFolderKey && FOLDER_LIST_MAP[state.uploadFolderKey]) {
+                state[FOLDER_LIST_MAP[state.uploadFolderKey]].push(meta);
+                state.uploadFolderKey = null;
+            } else if (state.uploadType==='image') state.imageList.push(meta);
             else if (state.uploadType==='pdf')   state.pdfList.push(meta);
             else if (state.uploadType==='video') state.videoList.push(meta);
             else if (state.uploadType==='audio') state.audioList.push(meta);
@@ -852,7 +1115,10 @@ async function handleFileUpload(e) {
         state.uploadProgress = 95; render();
         try {
             await dbSave(id, ev.target.result);
-            if      (state.uploadType==='pdf')   state.pdfList.push(meta);
+            if (state.uploadFolderKey && FOLDER_LIST_MAP[state.uploadFolderKey]) {
+                state[FOLDER_LIST_MAP[state.uploadFolderKey]].push(meta);
+                state.uploadFolderKey = null;
+            } else if (state.uploadType==='pdf')   state.pdfList.push(meta);
             else if (state.uploadType==='video') state.videoList.push(meta);
             else if (state.uploadType==='audio') state.audioList.push(meta);
             else if (state.uploadType==='image') state.imageList.push(meta);
@@ -1000,6 +1266,8 @@ function changePage(page) {
     state.previousPage=state.currentPage; state.currentPage=page;
     state.menuOpen=false; state.currentPost=null; state.currentDua=null;
     state.currentZiyarat=null; state.viewerItem=null; state.viewerData=null;
+    // Reset library to folder grid when navigating to library
+    if (page==='library') state.libraryTab='';
     // analytics tracking
     state.pageViews[page] = (state.pageViews[page]||0) + 1;
     saveState();
@@ -1155,11 +1423,12 @@ async function requestNotificationPermission() {
 let _notifTimers = [];
 function schedulePrayerNotifications() {
     if (!state.prayerTimes || Notification.permission!=='granted') return;
-    // Clear previous timers
     _notifTimers.forEach(id => clearTimeout(id));
     _notifTimers = [];
-    const prayerNames = Object.entries(state.prayerTimes);
-    prayerNames.forEach(([name, time])=>{
+    const prayerNamesBn2={fajr:'ফজর',dhuhr:'যোহর',asr:'আসর',maghrib:'মাগরিব',isha:'ইশা'};
+    const prayerNamesEn2={fajr:'Fajr',dhuhr:'Dhuhr',asr:'Asr',maghrib:'Maghrib',isha:'Isha'};
+    Object.entries(state.prayerTimes).forEach(([key, time])=>{
+        const displayName=state.language==='bn'?(prayerNamesBn2[key]||key):(prayerNamesEn2[key]||key);
         const [timePart, ampm] = time.split(' ');
         let [h,m] = timePart.split(':').map(Number);
         if (ampm==='PM' && h!==12) h+=12;
@@ -1169,11 +1438,11 @@ function schedulePrayerNotifications() {
         target.setHours(h,m,0,0);
         if (target > now) {
             const delay = target - now;
-            if (delay < 86400000) { // only schedule within 24h
+            if (delay < 86400000) {
                 const tid = setTimeout(()=>{
                     try {
-                        new Notification(state.language==='bn'?`🕌 ${name} নামাজের সময়`:`🕌 ${name} Prayer Time`, {
-                            body: state.language==='bn'?`${name} নামাজের সময় হয়েছে`:`It's time for ${name} prayer`,
+                        new Notification(state.language==='bn'?`🕌 ${displayName} নামাজের সময়`:`🕌 ${displayName} Prayer Time`, {
+                            body: state.language==='bn'?`${displayName} নামাজের সময় হয়েছে`:`It's time for ${displayName} prayer`,
                             icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="%23059669"/><text x="20" y="27" text-anchor="middle" font-size="18" fill="white">☽</text></svg>'
                         });
                     } catch(e) {}
@@ -1483,11 +1752,6 @@ function toBengaliDigits(n) {
     return String(n).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
 }
 
-// Arabic digit conversion
-function toArabicIndic(n) {
-    return String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
-}
-
 const gregMonthsBn = ['জান','ফেব','মার','এপ্র','মে','জুন','জুল','আগ','সেপ','অক্ট','নভ','ডিস'];
 const banglaMonthNames = ['বৈশাখ','জ্যৈষ্ঠ','আষাঢ়','শ্রাবণ','ভাদ্র','আশ্বিন','কার্তিক','অগ্রহায়ণ','পৌষ','মাঘ','ফাল্গুন','চৈত্র'];
 const _BN_START = [{m:3,d:14},{m:4,d:15},{m:5,d:15},{m:6,d:16},{m:7,d:17},{m:8,d:17},{m:9,d:18},{m:10,d:17},{m:11,d:16},{m:0,d:14},{m:1,d:13},{m:2,d:14}];
@@ -1554,6 +1818,7 @@ function setupEventListeners() {
                 case 'readPost': readPost(param); break;
                 case 'readDua': readDua(param); break;
                 case 'openUploadModal': openUploadModal(param); break;
+                case 'openFolderUpload': openFolderUpload(param); break;
                 case 'closeUploadModal': closeUploadModal(); break;
                 case 'downloadFile': {
                     const name=btn.getAttribute('data-name')||'file';
@@ -1607,23 +1872,24 @@ function setupEventListeners() {
                 case 'deleteCustomPost': deleteCustomPost(param); break;
                 // DUA / ZIYARAT
                 case 'setDuaTab': state.duaTab=param; render(); break;
+                case 'setLibraryTab': state.libraryTab=param; render(); break;
                 case 'openKnowledgeEditor':
-            if(!state.isAdmin) return;
-            state.knowledgeEditorType = param;
-            state.editingKnowledgeItem = {};
-            state.editingKnowledgeIdx = -1;
-            state.showKnowledgeEditor = true;
-            render(); break;
+                    if(!state.isAdmin) { state.showAdminLogin=true; render(); break; }
+                    state.knowledgeEditorType = param;
+                    state.editingKnowledgeItem = {};
+                    state.editingKnowledgeIdx = -1;
+                    state.showKnowledgeEditor = true;
+                    render(); break;
         case 'editKnowledgeItem':
             if(!state.isAdmin) return;
-            {const dtype=el.dataset.dtype; const idx=parseInt(param);
+            {const dtype=btn.getAttribute('data-dtype'); const idx=parseInt(param);
             const dataMap2={nahjul:'nahjulBalagha',sahifa:'sahifaSajjadiya',imamhadiths:'imamHadiths',specialdays:'specialDays'};
             const arr=state[dataMap2[dtype]];
             if(arr&&arr[idx]){state.knowledgeEditorType=dtype;state.editingKnowledgeItem={...arr[idx]};state.editingKnowledgeIdx=idx;state.showKnowledgeEditor=true;render();}}
             break;
         case 'deleteKnowledgeItem':
             if(!state.isAdmin) return;
-            {const dtype=el.dataset.dtype; const idx=parseInt(param);
+            {const dtype=btn.getAttribute('data-dtype'); const idx=parseInt(param);
             const dataMap3={nahjul:'nahjulBalagha',sahifa:'sahifaSajjadiya',imamhadiths:'imamHadiths',specialdays:'specialDays'};
             const arrKey=dataMap3[dtype];
             if(arrKey&&state[arrKey]){
@@ -1661,10 +1927,10 @@ function setupEventListeners() {
                     const sourceEn=(document.getElementById('he-sourceEn')?.value||'').trim();
                     if(!textBn&&!textEn){alert(state.language==='bn'?'হাদিস লিখুন':'Please enter hadith text');break;}
                     const item={textBn,textEn,sourceBn,sourceEn};
-                    const idx=param!==''?parseInt(param):null;
-                    if(idx!=null) state.customHadiths[idx]=item;
+                    const idx=param!==''&&param!=null?parseInt(param):null;
+                    if(idx!=null && !isNaN(idx)) state.customHadiths[idx]=item;
                     else state.customHadiths.push(item);
-                    state.hadithIndex=0;
+                    if(state.customHadiths.length>0) state.hadithIndex = state.hadithIndex % state.customHadiths.length;
                     state.showHadithEditor=false; state.editingHadith=null;
                     saveState(); render(); break;
                 }
@@ -1688,8 +1954,8 @@ function setupEventListeners() {
                     const refEn=(document.getElementById('ae-refEn')?.value||'').trim();
                     if(!arabic){alert(state.language==='bn'?'আরবি আয়াত লিখুন':'Please enter Arabic ayah');break;}
                     const item={arabic,meaningBn,meaningEn,ref,refEn};
-                    const idx=param!==''?parseInt(param):null;
-                    if(idx!=null) state.customAyahs[idx]=item;
+                    const idx=param!==''&&param!=null?parseInt(param):null;
+                    if(idx!=null && !isNaN(idx)) state.customAyahs[idx]=item;
                     else state.customAyahs.push(item);
                     state.showAyahEditor=false; state.editingAyah=null;
                     saveState(); render(); break;
@@ -1871,11 +2137,15 @@ function renderHijriBanner(d, l) {
 
 function renderDailyAyahInner(d, l) {
     const ay = getDailyAyah();
+    if (!ay) return '';
+    const arabic = ay.arabic || '';
+    const meaning = l==='bn' ? (ay.meaningBn||ay.meaningEn||'') : (ay.meaningEn||ay.meaningBn||'');
+    const ref = l==='bn' ? (ay.ref||ay.refEn||'') : (ay.refEn||ay.ref||'');
     return '<div class="' + (d?'bg-black/20':'bg-white/70') + ' rounded-2xl p-4 mb-3">'
-        + '<p class="arabic-text arabic-reveal text-center mb-2" dir="rtl" style="font-size:1.4rem;line-height:2;color:' + (d?'#c9a227':'#92400e') + '">' + ay.arabic + '</p>'
-        + '<p class="text-xs text-center ' + (d?'text-gray-300':'text-gray-700') + ' leading-relaxed italic">' + (l==='bn'?ay.meaningBn:ay.meaningEn) + '</p>'
+        + '<p class="arabic-text arabic-reveal text-center mb-2" dir="rtl" style="font-size:1.4rem;line-height:2;color:' + (d?'#c9a227':'#92400e') + '">' + arabic + '</p>'
+        + '<p class="text-xs text-center ' + (d?'text-gray-300':'text-gray-700') + ' leading-relaxed italic">' + meaning + '</p>'
         + '</div>'
-        + '<p class="text-xs font-bold text-center" style="color:' + (d?'#6ee7b7':'#059669') + '">' + (l==='bn'?ay.ref:ay.refEn) + '</p>';
+        + (ref ? '<p class="text-xs font-bold text-center" style="color:' + (d?'#6ee7b7':'#059669') + '">' + ref + '</p>' : '');
 }
 
 // ============================================================================
@@ -2065,8 +2335,8 @@ function renderUploadModal() {
 function renderHeader()
 {
     const d=state.darkMode; const l=state.language;
-    const mainPages=['home','imams','dua','blog','tasbeeh'];
-    const morePages=['library','media','calendar','quiz','bookmarks','about','contact'];
+    const mainPages=['home','imams','library','blog','tasbeeh'];
+    const morePages=['media','calendar','quiz','bookmarks','about','contact'];
     const bg=d?'rgba(17,24,39,0.92)':'rgba(255,255,255,0.88)';
     const border=d?'rgba(52,211,153,0.1)':'rgba(5,150,105,0.12)';
     return `
@@ -2136,7 +2406,7 @@ function renderHeader()
 function renderMobileMenu()
 {
     const d=state.darkMode; const l=state.language;
-    const allPages=['home','blog','imams','dua','library','media','calendar','tasbeeh','quiz','bookmarks','about','contact','searchPage','analytics'];
+    const allPages=['home','blog','dua','imams','library','media','calendar','tasbeeh','quiz','bookmarks','about','contact','searchPage','analytics'];
     const icons={home:'🏠',blog:'📝',imams:'👑',dua:'🤲',library:'📚',media:'🎬',calendar:'📅',tasbeeh:'📿',quiz:'🧠',bookmarks:'🔖',about:'ℹ️',contact:'📞',searchPage:'🔍',analytics:'📊'};
     return `
     <div id="mobile-menu-backdrop" class="${state.menuOpen?'block':'hidden'} fixed inset-0 z-40" style="background:rgba(0,0,0,.55);backdrop-filter:blur(4px)" data-action="toggleMenu"></div>
@@ -2220,7 +2490,7 @@ function renderFooter()
                 <div>
                     <h4 class="font-bold text-white mb-4">${l==='bn'?'দ্রুত লিংক':'Quick Links'}</h4>
                     <div class="grid grid-cols-2 gap-y-2">
-                        ${['home','blog','imams','dua','library','tasbeeh','quiz','asmaul','qibla','contact'].map(p=>`<button data-action="changePage" data-param="${p}" class="text-left text-sm text-gray-400 hover:text-emerald-400 transition-colors">${t(p)}</button>`).join('')}
+                        ${['home','blog','imams','library','tasbeeh','quiz','asmaul','qibla','contact'].map(p=>`<button data-action="changePage" data-param="${p}" class="text-left text-sm text-gray-400 hover:text-emerald-400 transition-colors">${t(p)}</button>`).join('')}
                     </div>
                 </div>
                 <div>
@@ -2258,7 +2528,6 @@ function renderPrayerWidget()
         return keys[nextIdx-1];
     }
     const activePrayer=getActive();
-    // Next prayer = the upcoming prayer (countdown goes here, not on active)
     const nextPrayerInfo=getNextPrayerInfo();
     const nextPrayer=nextPrayerInfo?nextPrayerInfo.key:null;
     return `
@@ -2272,10 +2541,11 @@ function renderPrayerWidget()
             state.prayerTimesError?`<p class="text-center text-red-500 py-4 text-sm">${sanitize(state.prayerTimesError)}</p>`:
             `<div class="space-y-1">
                 ${Object.entries(state.prayerTimes).map(([k,v])=>{
+                    const isActive=k===activePrayer;
                     const isNext=k===nextPrayer;
-                    return `<div class="prayer-row flex justify-between items-center px-3 py-2.5 ${d?'bg-gray-900':'bg-gray-50'} ${isNext?'prayer-row-active':''}">
-                        <div class="flex items-center gap-2.5"><span>${prayerIcons[k]||'🕌'}</span><div><p class="font-semibold text-sm ${isNext?(d?'text-emerald-300':'text-emerald-700'):''}">${t(k)}</p>${isNext?`<p class="prayer-countdown" id="pclock-${k}">…</p>`:''}</div>${isNext?`<span class="prayer-pulse w-1.5 h-1.5 rounded-full bg-emerald-500"></span>`:''}</div>
-                        <span class="font-bold text-sm ${isNext?(d?'text-emerald-300':'text-emerald-600'):''}">${sanitize(v)}</span>
+                    return `<div class="prayer-row flex justify-between items-center px-3 py-2.5 ${d?'bg-gray-900':'bg-gray-50'} ${isActive?'prayer-row-active':''}">
+                        <div class="flex items-center gap-2.5"><span>${prayerIcons[k]||'🕌'}</span><div><p class="font-semibold text-sm ${isActive?(d?'text-emerald-300':'text-emerald-700'):''}">${t(k)}</p>${isNext?`<p class="prayer-countdown" id="pclock-${k}">…</p>`:''}</div>${isActive?`<span class="prayer-pulse w-1.5 h-1.5 rounded-full bg-emerald-500"></span>`:''}</div>
+                        <span class="font-bold text-sm ${isActive?(d?'text-emerald-300':'text-emerald-600'):''}">${sanitize(v)}</span>
                     </div>`;
                 }).join('')}
             </div>`}
@@ -2319,11 +2589,15 @@ function renderHomePage()
             ${!d?`<div class="hero-divider-dots"><span class="hero-divider-dot"></span><span class="hero-divider-dot hero-divider-dot-mid"></span><span class="hero-divider-dot"></span></div>`:''}
             <p style="font-size:clamp(.9rem,2.5vw,1.05rem);margin-bottom:2rem;line-height:1.7;color:${d?'rgba(255,255,255,.8)':'rgba(2,44,34,.6)'};max-width:480px;margin-left:auto;margin-right:auto">${l==='bn'?'কুরআন, হাদিস ও পবিত্র ইমামদের শিক্ষায় আলোকিত হোন':'Enlighten yourself with Quran, Hadith & Holy Imams\' teachings'}</p>
             <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-                <button data-action="changePage" data-param="dua" class="btn-primary" style="background:linear-gradient(135deg,#b45309,#92400e);color:white;padding:13px 28px;border-radius:50px;font-weight:700;border:none;cursor:pointer;box-shadow:0 8px 24px rgba(180,83,9,.4);display:flex;align-items:center;gap:7px;font-size:.93rem;transition:transform .2s,box-shadow .2s" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 32px rgba(180,83,9,.5)'" onmouseout="this.style.transform='';this.style.boxShadow='0 8px 24px rgba(180,83,9,.4)'">📿 ${l==='bn'?'দোয়া পড়ুন':'Read Duas'}</button>
                 <button data-action="changePage" data-param="imams" class="btn-primary" style="background:${d?'rgba(255,255,255,.12)':'rgba(255,255,255,.7)'};color:${d?'white':'#022c22'};padding:13px 28px;border-radius:50px;font-weight:700;border:1.5px solid ${d?'rgba(255,255,255,.3)':'rgba(5,150,105,.3)'};cursor:pointer;backdrop-filter:blur(8px);display:flex;align-items:center;gap:7px;font-size:.93rem;transition:transform .2s,background .2s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">👑 ${l==='bn'?'ইমামগণ':'The Imams'}</button>
                 <button data-action="changePage" data-param="blog" class="btn-primary" style="background:rgba(5,150,105,.12);color:${d?'#6ee7b7':'#065f46'};padding:13px 28px;border-radius:50px;font-weight:700;border:1.5px solid rgba(5,150,105,.28);cursor:pointer;backdrop-filter:blur(8px);display:flex;align-items:center;gap:7px;font-size:.93rem;transition:transform .2s,background .2s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">📖 ${l==='bn'?'ব্লগ':'Blog'}</button>
             </div>
-            ${!d?`<div class="hero-stats-row"><div class="hero-stat-item"><span class="hero-stat-num">${l==='bn'?'১২':'12'}</span><div class="hero-stat-label">${l==='bn'?'পবিত্র ইমাম':'Holy Imams'}</div></div><div class="hero-stat-item"><span class="hero-stat-num">${l==='bn'?'৯৯+':'99+'}</span><div class="hero-stat-label">${l==='bn'?'দোয়া ও যিয়ারত':'Duas & Ziyarat'}</div></div><div class="hero-stat-item"><span class="hero-stat-num">${l==='bn'?'৯৯':'99'}</span><div class="hero-stat-label">${l==='bn'?'আসমাউল হুসনা':'Names of Allah'}</div></div></div>`:''}
+            ${!d?`<div class="hero-stats-row">
+<div class="hero-stat-item"><span class="hero-stat-num">${l==='bn'?'১':'1'}</span><div class="hero-stat-label">${l==='bn'?'আল্লাহ':'Allah'}</div></div>
+<div class="hero-stat-item"><span class="hero-stat-num">${l==='bn'?'১২৪,৩১৩':'124,313'}</span><div class="hero-stat-label">${l==='bn'?'নবী-রাসূলের সংখ্যা':'Prophets & Messengers'}</div></div>
+<div class="hero-stat-item"><span class="hero-stat-num">${l==='bn'?'১৪':'14'}</span><div class="hero-stat-label">${l==='bn'?'ইমাম ও মাসুমিন':'Imams & Masumeen'}</div></div>
+<div class="hero-stat-item"><span class="hero-stat-num">${l==='bn'?'৯৯':'99'}</span><div class="hero-stat-label">${l==='bn'?'আসমাউল হুসনা':'Names of Allah'}</div></div>
+</div>`:''}
         </div>
     </div>
     <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-14">
@@ -2354,7 +2628,7 @@ function renderHomePage()
                 const cdLabel=daysLeft===0?'🔴 আজ আশুরা':daysLeft<0?'কারবালার ঘটনা জানুন':`আশুরা ${l==='bn'?toBengaliDigits(daysLeft):daysLeft} দিন বাকি`;
                 return [
                     {page:'muharram',icon:'🌙',grad:'linear-gradient(135deg,#7f1d1d,#dc2626)',title:l==='bn'?'মুহাররম ও আশুরা':'Muharram & Ashura',desc:cdLabel},
-                    {page:'shia-days',icon:'✨',grad:'linear-gradient(135deg,#1e3a8a,#7c3aed)',title:l==='bn'?'শিয়া বিশেষ দিন':'Shia Special Days',desc:l==='bn'?'ঈদে গাদির · মুবাহিলা · নিমে শাবান':'Ghadeer · Mubahila · Mid-Shaban'},
+                    {page:'shia-days',icon:'✨',grad:'linear-gradient(135deg,#1e3a8a,#7c3aed)',title:l==='bn'?'বিশেষ দিনসমূহ':'Special Days',desc:l==='bn'?'ঈদে গাদির · মুবাহিলা · নিমে শাবান':'Ghadeer · Mubahila · Mid-Shaban'},
                     {page:'calendar',icon:'📅',grad:'linear-gradient(135deg,#065f46,#059669)',title:l==='bn'?'হিজরি ক্যালেন্ডার':'Hijri Calendar',desc:l==='bn'?'ইমামদের তারিখ হাইলাইট সহ':'With Imam dates highlighted'},
                 ].map(c=>`
                 <button data-action="changePage" data-param="${c.page}" class="text-left rounded-2xl hover:brightness-110 transition-all focus:outline-none" style="background:${c.grad};padding:1.1rem 1.1rem 1.4rem;box-shadow:0 4px 16px rgba(0,0,0,.2)">
@@ -2433,67 +2707,91 @@ function renderHomePage()
 // ============================================================================
 function renderLibraryPage() {
     const d=state.darkMode; const l=state.language;
+    const tab = state.libraryTab || '';
+
+    // Folder definitions
+    const folders = [
+        { key:'pdf',         icon:'📕', color:'#059669', bg: d?'#052e16':'#ecfdf5', border:'#059669', label: l==='bn'?'দোয়া এবং যিয়ারত':'Dua and Ziyarat',      list: state.pdfList },
+        { key:'nahjul',      icon:'📖', color:'#1d4ed8', bg: d?'#1e1b4b':'#eff6ff', border:'#3b82f6', label: l==='bn'?'নাহজুল বালাগা':'Nahjul Balagha',         list: state.nahjulPdfs||[] },
+        { key:'sahifa',      icon:'🌹', color:'#7c3aed', bg: d?'#2e1065':'#faf5ff', border:'#8b5cf6', label: l==='bn'?'সাহিফা সাজ্জাদিয়্যা':'Sahifa Sajjadiya', list: state.sahifaPdfs||[] },
+        { key:'imamhadiths', icon:'⭐', color:'#0d9488', bg: d?'#042f2e':'#f0fdfa', border:'#14b8a6', label: l==='bn'?'ইমামদের হাদিস':'Imam Hadiths',           list: state.imamHadithPdfs||[] },
+        { key:'specialdays', icon:'✨', color:'#dc2626', bg: d?'#450a0a':'#fff1f2', border:'#f87171', label: l==='bn'?'বিশেষ দিন':'Special Days',               list: state.specialDayPdfs||[] },
+    ];
+
+    // If no tab selected → show folder grid
+    if (!tab) {
+        return `
+        <div class="space-y-8">
+            <h2 class="text-3xl font-bold">📚 ${t('library')}</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-5">
+                ${folders.map(f=>`
+                <button data-action="setLibraryTab" data-param="${f.key}"
+                    class="relative flex flex-col items-center justify-center gap-3 p-8 rounded-2xl border-2 transition-all hover:scale-[1.03] hover:shadow-lg text-center"
+                    style="background:${f.bg};border-color:${f.border};box-shadow:0 2px 12px ${f.color}22">
+                    <span style="font-size:2.8rem;filter:drop-shadow(0 2px 6px ${f.color}44)">${f.icon}</span>
+                    <span class="font-bold text-sm leading-snug" style="color:${f.color}">${f.label}</span>
+                    <span class="text-xs px-2.5 py-1 rounded-full font-semibold" style="background:${f.color}18;color:${f.color}">
+                        ${f.list.length} ${l==='bn'?'টি পিডিএফ':'PDFs'}
+                    </span>
+                </button>`).join('')}
+            </div>
+        </div>`;
+    }
+
+    // Inside a folder
+    const folder = folders.find(f=>f.key===tab);
+    if (!folder) { state.libraryTab=''; render(); return ''; }
+
+    const listKeyMap = { pdf:'pdfList', nahjul:'nahjulPdfs', sahifa:'sahifaPdfs', imamhadiths:'imamHadithPdfs', specialdays:'specialDayPdfs' };
+    const listKey = listKeyMap[tab];
+
     return `
-    <div class="space-y-8">
-        <!-- Header with tabs -->
-        <div class="flex flex-wrap justify-between items-center gap-4">
-            <h2 class="text-3xl font-bold">📕 ${t('library')}</h2>
-            ${state.isAdmin?`<button data-action="openUploadModal" data-param="pdf"
-                class="${d?'bg-green-900 text-green-300':'bg-green-600 text-white'} px-5 py-2.5 rounded-xl font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-green-500"
-            >+ ${l==='bn'?'পিডিএফ আপলোড':'Upload PDF'}</button>`
-            :`<p class="text-sm ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?'🔐 অ্যাডমিন আপলোড করবেন':'🔐 Admin uploads content'}</p>`}
+    <div class="space-y-6">
+        <!-- Back + Header -->
+        <div class="flex items-center justify-between flex-wrap gap-3">
+            <div class="flex items-center gap-3">
+                <button data-action="setLibraryTab" data-param=""
+                    class="flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm hover:scale-[1.02] transition-all"
+                    style="background:${folder.color}15;color:${folder.color}">← ${l==='bn'?'ফোল্ডারে ফিরুন':'Back to Folders'}</button>
+                <h2 class="text-2xl font-bold flex items-center gap-2">${folder.icon} ${folder.label}</h2>
+            </div>
+            ${state.isAdmin?`<button data-action="openFolderUpload" data-param="${tab}"
+                class="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white whitespace-nowrap"
+                style="background:linear-gradient(135deg,${folder.color},${folder.color}cc);box-shadow:0 4px 14px ${folder.color}44">
+                ＋ ${l==='bn'?'পিডিএফ আপলোড':'Upload PDF'}
+            </button>`:''}
         </div>
 
-        <!-- Tab bar -->
-        <div class="flex gap-3 flex-wrap">
-            <div class="flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm" style="background:linear-gradient(135deg,#059669,#065f46);color:white;box-shadow:0 4px 12px rgba(5,150,105,.3)">
-                📕 ${l==='bn'?'পিডিএফ লাইব্রেরি':'PDF Library'}
-            </div>
-            <button data-action="changePage" data-param="dua"
-                class="flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm border transition-all hover:scale-[1.02]"
-                style="background:${d?'rgba(180,83,9,.15)':'rgba(180,83,9,.08)'};color:#b45309;border-color:${d?'rgba(180,83,9,.3)':'rgba(180,83,9,.2)'}">
-                🤲 ${l==='bn'?'দোয়া ও যিয়ারত':'Duas & Ziyarat'}
-                <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
-            </button>
-        </div>
-        ${state.pdfList.length===0?`
-            <div class="text-center py-16 ${d?'text-gray-400':'text-gray-500'}">
-                <svg class="mx-auto mb-6" width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="60" cy="60" r="56" fill="${d?'#1f2937':'#f0fdf4'}" stroke="${d?'#374151':'#bbf7d0'}" stroke-width="2"/>
-                    <rect x="30" y="38" width="28" height="40" rx="4" fill="${d?'#065f46':'#86efac'}" opacity="0.7"/>
-                    <rect x="45" y="32" width="28" height="40" rx="4" fill="${d?'#047857':'#4ade80'}" opacity="0.8"/>
-                    <rect x="60" y="38" width="28" height="40" rx="4" fill="${d?'#059669':'#16a34a'}" opacity="0.9"/>
-                    <path d="M50 82 Q60 90 70 82" stroke="${d?'#34d399':'#059669'}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-                    <circle cx="60" cy="72" r="3" fill="${d?'#6ee7b7':'#059669'}">
-                        <animate attributeName="r" values="3;5;3" dur="2s" repeatCount="indefinite"/>
-                    </circle>
-                </svg>
-                <p class="text-xl font-bold mb-2">${l==='bn'?'লাইব্রেরি এখনো খালি':'Library is empty'}</p>
-                <p class="text-sm mb-4 ${d?'text-gray-500':'text-gray-400'}">${l==='bn'?'এখনো কোনো পিডিএফ আপলোড হয়নি':'No PDFs have been uploaded yet'}</p>
-                ${state.isAdmin?`<button data-action="openUploadModal" data-param="pdf" class="${d?'bg-green-800 text-green-200':'bg-green-600 text-white'} px-6 py-2.5 rounded-xl font-semibold hover:opacity-90">${l==='bn'?'+ পিডিএফ আপলোড করুন':'+ Upload PDF'}</button>`:`<p class="text-xs">${l==='bn'?'🔐 অ্যাডমিন শীঘ্রই আপলোড করবেন':'🔐 Admin will upload soon'}</p>`}
-            </div>`:`
-            
-            <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-                ${state.pdfList.map(pdf=>`
-                    <div class="${d?'bg-gray-800':'bg-white'} border rounded-xl p-5 fade-in flex flex-col card-hover">
-                        <div class="${d?'bg-green-900':'bg-green-50'} w-full h-40 rounded-xl flex items-center justify-center text-5xl mb-4">📕</div>
-                        <h3 class="font-bold text-base mb-1 flex-1">${sanitize(pdf.name)}</h3>
-                        <p class="text-xs ${d?'text-gray-400':'text-gray-500'} mb-4">${sanitize(pdf.sizeFmt)} • ${sanitize(pdf.uploadDate)}</p>
-                        <div class="flex gap-2">
-                            <button data-action="openViewer" data-param="${pdf.id}" data-vtype="pdf" data-listkey="pdfList"
-                                class="${d?'bg-blue-900 text-blue-300':'bg-blue-600 text-white'} flex-1 py-2 rounded-lg text-sm font-semibold hover:opacity-90 focus:outline-none"
-                            >👁 ${l==='bn'?'পড়ুন':'Read'}</button>
-                            <button data-action="downloadFile" data-param="${pdf.id}" data-name="${sanitize(pdf.name)}"
-                                class="${d?'bg-green-900 text-green-300':'bg-green-600 text-white'} flex-1 py-2 rounded-lg text-sm font-semibold hover:opacity-90 focus:outline-none"
-                            >⬇ ${l==='bn'?'ডাউনলোড':'Download'}</button>
-                            ${state.isAdmin?`<button data-action="deleteFile" data-param="${pdf.id}" data-listkey="pdfList"
-                                class="${d?'bg-red-900 text-red-300':'bg-red-600 text-white'} px-3 py-2 rounded-lg text-sm hover:opacity-90 focus:outline-none"
-                            >🗑</button>`:''}
-                        </div>
-                    </div>`).join('')}
-            </div>`}
+        <!-- PDF grid -->
+        ${folder.list.length===0?`
+        <div class="text-center py-16 ${d?'text-gray-400':'text-gray-500'}">
+            <div class="text-6xl mb-4">${folder.icon}</div>
+            <p class="text-xl font-bold mb-2">${l==='bn'?'এই ফোল্ডারে কোনো পিডিএফ নেই':'This folder is empty'}</p>
+            ${state.isAdmin?`<p class="text-sm mb-4">${l==='bn'?'উপরের বাটন থেকে পিডিএফ আপলোড করুন':'Upload a PDF using the button above'}</p>`:`<p class="text-sm">${l==='bn'?'🔐 অ্যাডমিন শীঘ্রই আপলোড করবেন':'🔐 Admin will upload soon'}</p>`}
+        </div>`:`
+        <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-5">
+            ${folder.list.map(pdf=>`
+            <div class="${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-2xl p-5 flex flex-col card-hover" style="border-top:3px solid ${folder.color}">
+                <div class="w-full h-36 rounded-xl flex items-center justify-center text-5xl mb-4" style="background:${folder.bg}">${folder.icon}</div>
+                <h3 class="font-bold text-sm mb-1 flex-1 leading-snug">${sanitize(pdf.name)}</h3>
+                <p class="text-xs ${d?'text-gray-400':'text-gray-500'} mb-4">${sanitize(pdf.sizeFmt||'')} • ${sanitize(pdf.uploadDate||'')}</p>
+                <div class="flex gap-2">
+                    <button data-action="openViewer" data-param="${pdf.id}" data-vtype="pdf" data-listkey="${listKey}"
+                        class="flex-1 py-2 rounded-lg text-sm font-semibold hover:opacity-90 text-white" style="background:${folder.color}">
+                        👁 ${l==='bn'?'পড়ুন':'Read'}
+                    </button>
+                    <button data-action="downloadFile" data-param="${pdf.id}" data-name="${sanitize(pdf.name)}"
+                        class="flex-1 py-2 rounded-lg text-sm font-semibold hover:opacity-90 ${d?'bg-gray-700 text-gray-200':'bg-gray-100 text-gray-700'}">
+                        ⬇ ${l==='bn'?'ডাউনলোড':'Download'}
+                    </button>
+                    ${state.isAdmin?`<button data-action="deleteFile" data-param="${pdf.id}" data-listkey="${listKey}"
+                        class="${d?'bg-red-900 text-red-300':'bg-red-100 text-red-600'} px-3 py-2 rounded-lg text-sm hover:opacity-90">🗑</button>`:''}
+                </div>
+            </div>`).join('')}
+        </div>`}
     </div>`;
 }
+
 
 // ============================================================================
 // PAGE: MEDIA (Image / Video / Audio)
@@ -2737,12 +3035,8 @@ function renderDuaPage() {
             <h2 class="text-3xl font-bold">🤲 ${t('dua')}</h2>
             ${state.isAdmin ? `
             <div class="flex gap-2 flex-wrap">
-                ${tab==='dua'?`<button data-action="openDuaEditor" data-param="dua" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl font-semibold text-sm transition-colors">+ ${l==='bn'?'নতুন দোয়া':'Add Dua'}</button>`:''}
-                ${tab==='ziyarat'?`<button data-action="openDuaEditor" data-param="ziyarat" class="flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl font-semibold text-sm transition-colors">+ ${l==='bn'?'নতুন যিয়ারত':'Add Ziyarat'}</button>`:''}
-                ${tab==='nahjul'?`<button data-action="openKnowledgeEditor" data-param="nahjul" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-semibold text-sm transition-colors">+ ${l==='bn'?'নতুন খুতবা/বাণী যোগ':'Add Sermon/Letter'}</button>`:''}
-                ${tab==='sahifa'?`<button data-action="openKnowledgeEditor" data-param="sahifa" class="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl font-semibold text-sm transition-colors">+ ${l==='bn'?'নতুন দুআ যোগ':'Add Prayer'}</button>`:''}
-                ${tab==='imamhadiths'?`<button data-action="openKnowledgeEditor" data-param="imamhadiths" class="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-xl font-semibold text-sm transition-colors">+ ${l==='bn'?'নতুন হাদিস যোগ':'Add Hadith'}</button>`:''}
-                ${tab==='specialdays'?`<button data-action="openKnowledgeEditor" data-param="specialdays" class="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl font-semibold text-sm transition-colors">+ ${l==='bn'?'নতুন দিন যোগ':'Add Special Day'}</button>`:''}
+                ${tab==='dua'?`<button data-action="openDuaEditor" data-param="dua" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-xl font-semibold text-sm transition-colors whitespace-nowrap">+ ${l==='bn'?'নতুন দোয়া':'Add Dua'}</button>`:''}
+                ${tab==='ziyarat'?`<button data-action="openDuaEditor" data-param="ziyarat" class="flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 rounded-xl font-semibold text-sm transition-colors whitespace-nowrap">+ ${l==='bn'?'নতুন যিয়ারত':'Add Ziyarat'}</button>`:''}
             </div>` : ''}
         </div>
 
@@ -2755,22 +3049,6 @@ function renderDuaPage() {
             <button data-action="setDuaTab" data-param="ziyarat"
                 class="${tab==='ziyarat'?(d?'bg-amber-700 text-white shadow':'bg-white text-amber-700 shadow-sm'):(d?'text-gray-400 hover:text-white':'text-gray-500 hover:text-gray-900')} px-4 py-2 rounded-xl font-semibold text-sm transition-all">
                 ☪️ ${l==='bn'?'যিয়ারত':'Ziyarat'} <span class="ml-1 text-xs opacity-70">${allZiyarat.length}</span>
-            </button>
-            <button data-action="setDuaTab" data-param="nahjul"
-                class="${tab==='nahjul'?(d?'bg-blue-700 text-white shadow':'bg-white text-blue-700 shadow-sm'):(d?'text-gray-400 hover:text-white':'text-gray-500 hover:text-gray-900')} px-4 py-2 rounded-xl font-semibold text-sm transition-all">
-                📖 ${l==='bn'?'নাহজুল বালাগা':'Nahjul Balagha'} <span class="ml-1 text-xs opacity-70">${state.nahjulBalagha.length}</span>
-            </button>
-            <button data-action="setDuaTab" data-param="sahifa"
-                class="${tab==='sahifa'?(d?'bg-purple-700 text-white shadow':'bg-white text-purple-700 shadow-sm'):(d?'text-gray-400 hover:text-white':'text-gray-500 hover:text-gray-900')} px-4 py-2 rounded-xl font-semibold text-sm transition-all">
-                🌹 ${l==='bn'?'সাহিফা সাজ্জাদিয়্যা':'Sahifa Sajjadiya'} <span class="ml-1 text-xs opacity-70">${state.sahifaSajjadiya.length}</span>
-            </button>
-            <button data-action="setDuaTab" data-param="imamhadiths"
-                class="${tab==='imamhadiths'?(d?'bg-teal-700 text-white shadow':'bg-white text-teal-700 shadow-sm'):(d?'text-gray-400 hover:text-white':'text-gray-500 hover:text-gray-900')} px-4 py-2 rounded-xl font-semibold text-sm transition-all">
-                ⭐ ${l==='bn'?'ইমামদের হাদিস':'Imam Hadiths'} <span class="ml-1 text-xs opacity-70">${state.imamHadiths.length}</span>
-            </button>
-            <button data-action="setDuaTab" data-param="specialdays"
-                class="${tab==='specialdays'?(d?'bg-rose-700 text-white shadow':'bg-white text-rose-700 shadow-sm'):(d?'text-gray-400 hover:text-white':'text-gray-500 hover:text-gray-900')} px-4 py-2 rounded-xl font-semibold text-sm transition-all">
-                ✨ ${l==='bn'?'বিশেষ দিন':'Special Days'} <span class="ml-1 text-xs opacity-70">${state.specialDays.length}</span>
             </button>
         </div>
 
@@ -2847,136 +3125,6 @@ function renderDuaPage() {
                     </div>
                     <button data-action="readZiyarat" data-param="${z.id}" class="${d?'text-amber-400':'text-amber-700'} font-semibold hover:underline text-sm">${t('readMore')} →</button>
                 </article>`).join('')}
-        </div>` : ''}
-
-        <!-- NAHJUL BALAGHA TAB -->
-        ${tab==='nahjul' ? `
-        <div class="space-y-5">
-            ${state.nahjulBalagha.length===0 ? `
-            <div class="text-center py-16 ${d?'text-gray-500':'text-gray-400'}">
-                <div class="text-5xl mb-3">📖</div>
-                <p class="text-lg font-medium mb-1">${l==='bn'?'নাহজুল বালাগা থেকে কোনো বাণী নেই':'No entries from Nahjul Balagha yet'}</p>
-                ${state.isAdmin?`<p class="text-sm">${l==='bn'?'উপরের বাটন থেকে যোগ করুন':'Use the button above to add'}</p>`:''}
-            </div>` :
-            state.nahjulBalagha.map((item,i)=>`
-            <article class="${d?'bg-gray-800 border-gray-700':'bg-white border-blue-100'} border rounded-2xl p-6 card-hover fade-in" style="border-top:3px solid #1d4ed8;box-shadow:var(--shadow-card)">
-                <div class="flex items-start justify-between gap-3 mb-3">
-                    <div class="flex-1">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="${d?'bg-blue-900 text-blue-200':'bg-blue-100 text-blue-700'} text-xs font-bold px-2 py-0.5 rounded-full">📖 ${item.type==='sermon'?(l==='bn'?'খুতবা':'Sermon'):item.type==='letter'?(l==='bn'?'চিঠি':'Letter'):(l==='bn'?'বাণী':'Saying')} ${item.number?'#'+item.number:''}</span>
-                        </div>
-                        <h3 class="text-lg font-bold">${sanitize(l==='bn'?item.titleBn:item.titleEn)}</h3>
-                        ${item.topic?`<p class="text-xs ${d?'text-blue-400':'text-blue-600'} font-medium mt-1">🏷️ ${sanitize(item.topic)}</p>`:''}
-                    </div>
-                    ${state.isAdmin?`
-                    <div class="flex gap-1 flex-shrink-0">
-                        <button data-action="editKnowledgeItem" data-param="${i}" data-dtype="nahjul" class="${d?'bg-blue-900 text-blue-300 hover:bg-blue-800':'bg-blue-100 text-blue-700 hover:bg-blue-200'} p-2 rounded-lg text-sm transition-colors">✏️</button>
-                        <button data-action="deleteKnowledgeItem" data-param="${i}" data-dtype="nahjul" class="${d?'bg-red-900 text-red-300 hover:bg-red-800':'bg-red-100 text-red-700 hover:bg-red-200'} p-2 rounded-lg text-sm transition-colors">🗑</button>
-                    </div>`:''}
-                </div>
-                ${item.arabic?`<div class="${d?'bg-gray-900 border-gray-700':'bg-blue-50 border-blue-100'} border rounded-xl p-4 mb-3"><p class="arabic-text text-center" dir="rtl" lang="ar" style="font-size:1.4rem;line-height:2.2">${sanitize(item.arabic)}</p></div>`:''}
-                <p class="text-sm ${d?'text-gray-300':'text-gray-700'} leading-relaxed">${sanitize(l==='bn'?item.textBn:item.textEn)}</p>
-                ${item.source?`<p class="text-xs ${d?'text-gray-500':'text-gray-400'} mt-2">— ${sanitize(item.source)}</p>`:''}
-            </article>`).join('')}
-        </div>` : ''}
-
-        <!-- SAHIFA SAJJADIYA TAB -->
-        ${tab==='sahifa' ? `
-        <div class="space-y-5">
-            ${state.sahifaSajjadiya.length===0 ? `
-            <div class="text-center py-16 ${d?'text-gray-500':'text-gray-400'}">
-                <div class="text-5xl mb-3">🌹</div>
-                <p class="text-lg font-medium mb-1">${l==='bn'?'সাহিফা সাজ্জাদিয়্যা থেকে কোনো দুআ নেই':'No prayers from Sahifa Sajjadiya yet'}</p>
-                ${state.isAdmin?`<p class="text-sm">${l==='bn'?'উপরের বাটন থেকে যোগ করুন':'Use the button above to add'}</p>`:''}
-            </div>` :
-            state.sahifaSajjadiya.map((item,i)=>`
-            <article class="${d?'bg-gray-800 border-gray-700':'bg-white border-purple-100'} border rounded-2xl p-6 card-hover fade-in" style="border-top:3px solid #7c3aed;box-shadow:var(--shadow-card)">
-                <div class="flex items-start justify-between gap-3 mb-3">
-                    <div class="flex-1">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="${d?'bg-purple-900 text-purple-200':'bg-purple-100 text-purple-700'} text-xs font-bold px-2 py-0.5 rounded-full">🌹 ${l==='bn'?'দুআ নং':'Dua No.'} ${item.number||'—'}</span>
-                        </div>
-                        <h3 class="text-lg font-bold">${sanitize(l==='bn'?item.titleBn:item.titleEn)}</h3>
-                        ${item.occasion?`<p class="text-xs ${d?'text-purple-400':'text-purple-600'} font-medium mt-1">📅 ${sanitize(item.occasion)}</p>`:''}
-                    </div>
-                    ${state.isAdmin?`
-                    <div class="flex gap-1 flex-shrink-0">
-                        <button data-action="editKnowledgeItem" data-param="${i}" data-dtype="sahifa" class="${d?'bg-purple-900 text-purple-300 hover:bg-purple-800':'bg-purple-100 text-purple-700 hover:bg-purple-200'} p-2 rounded-lg text-sm transition-colors">✏️</button>
-                        <button data-action="deleteKnowledgeItem" data-param="${i}" data-dtype="sahifa" class="${d?'bg-red-900 text-red-300 hover:bg-red-800':'bg-red-100 text-red-700 hover:bg-red-200'} p-2 rounded-lg text-sm transition-colors">🗑</button>
-                    </div>`:''}
-                </div>
-                <div class="${d?'bg-gray-900 border-gray-700':'bg-purple-50 border-purple-100'} border rounded-xl p-5 mb-3">
-                    <p class="arabic-text text-center mb-3" dir="rtl" lang="ar" style="font-size:1.5rem;line-height:2.2">${sanitize(item.arabic)}</p>
-                    ${item.transliteration?`<p class="text-center text-xs italic ${d?'text-gray-400':'text-gray-500'} mb-2">${sanitize(item.transliteration)}</p>`:''}
-                    <p class="text-center text-sm ${d?'text-gray-300':'text-gray-600'} leading-relaxed">${sanitize(l==='bn'?item.meaningBn:item.meaningEn)}</p>
-                </div>
-                ${item.source?`<p class="text-xs ${d?'text-gray-500':'text-gray-400'}">— ${sanitize(item.source)}</p>`:''}
-            </article>`).join('')}
-        </div>` : ''}
-
-        <!-- IMAM HADITHS TAB -->
-        ${tab==='imamhadiths' ? `
-        <div class="space-y-5">
-            ${state.imamHadiths.length===0 ? `
-            <div class="text-center py-16 ${d?'text-gray-500':'text-gray-400'}">
-                <div class="text-5xl mb-3">⭐</div>
-                <p class="text-lg font-medium mb-1">${l==='bn'?'কোনো হাদিস যোগ করা হয়নি':'No hadith added yet'}</p>
-                ${state.isAdmin?`<p class="text-sm">${l==='bn'?'উপরের বাটন থেকে যোগ করুন':'Use the button above to add'}</p>`:''}
-            </div>` :
-            state.imamHadiths.map((item,i)=>`
-            <article class="${d?'bg-gray-800 border-gray-700':'bg-white border-teal-100'} border rounded-2xl p-6 card-hover fade-in" style="border-left:4px solid #0d9488;box-shadow:var(--shadow-card)">
-                <div class="flex items-start justify-between gap-3 mb-3">
-                    <div class="flex-1">
-                        <div class="flex items-center gap-2 flex-wrap mb-1">
-                            <span class="${d?'bg-teal-900 text-teal-200':'bg-teal-100 text-teal-700'} text-xs font-bold px-2 py-0.5 rounded-full">⭐ ${sanitize(l==='bn'?item.imamBn:item.imamEn)}</span>
-                            ${item.topic?`<span class="${d?'bg-gray-700 text-gray-300':'bg-gray-100 text-gray-600'} text-xs px-2 py-0.5 rounded-full">🏷️ ${sanitize(item.topic)}</span>`:''}
-                        </div>
-                    </div>
-                    ${state.isAdmin?`
-                    <div class="flex gap-1 flex-shrink-0">
-                        <button data-action="editKnowledgeItem" data-param="${i}" data-dtype="imamhadiths" class="${d?'bg-teal-900 text-teal-300 hover:bg-teal-800':'bg-teal-100 text-teal-700 hover:bg-teal-200'} p-2 rounded-lg text-sm transition-colors">✏️</button>
-                        <button data-action="deleteKnowledgeItem" data-param="${i}" data-dtype="imamhadiths" class="${d?'bg-red-900 text-red-300 hover:bg-red-800':'bg-red-100 text-red-700 hover:bg-red-200'} p-2 rounded-lg text-sm transition-colors">🗑</button>
-                    </div>`:''}
-                </div>
-                ${item.arabic?`<p class="arabic-text text-right mb-3" dir="rtl" lang="ar" style="font-size:1.2rem;line-height:2;color:${d?'#5eead4':'#0f766e'}">${sanitize(item.arabic)}</p>`:''}
-                <div class="${d?'bg-teal-950/40 border-teal-900':'bg-teal-50 border-teal-100'} border rounded-xl p-4">
-                    <p class="text-sm ${d?'text-gray-200':'text-gray-800'} leading-relaxed italic">"${sanitize(l==='bn'?item.textBn:item.textEn)}"</p>
-                </div>
-                ${item.source?`<p class="text-xs ${d?'text-gray-500':'text-gray-400'} mt-2">— ${sanitize(item.source)}</p>`:''}
-            </article>`).join('')}
-        </div>` : ''}
-
-        <!-- SPECIAL DAYS TAB -->
-        ${tab==='specialdays' ? `
-        <div class="space-y-5">
-            ${state.specialDays.length===0 ? `
-            <div class="text-center py-16 ${d?'text-gray-500':'text-gray-400'}">
-                <div class="text-5xl mb-3">✨</div>
-                <p class="text-lg font-medium mb-1">${l==='bn'?'কোনো বিশেষ দিন যোগ করা হয়নি':'No special days added yet'}</p>
-                ${state.isAdmin?`<p class="text-sm">${l==='bn'?'উপরের বাটন থেকে যোগ করুন':'Use the button above to add'}</p>`:''}
-            </div>` :
-            state.specialDays.map((item,i)=>`
-            <article class="${d?'bg-gray-800 border-gray-700':'bg-white border-rose-100'} border rounded-2xl p-6 card-hover fade-in" style="border-top:3px solid ${item.type==='eid'?'#059669':item.type==='martyrdom'?'#dc2626':'#f59e0b'};box-shadow:var(--shadow-card)">
-                <div class="flex items-start justify-between gap-3 mb-3">
-                    <div class="flex-1">
-                        <div class="flex items-center gap-2 flex-wrap mb-1">
-                            <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:${item.type==='eid'?'#ecfdf5':item.type==='martyrdom'?'#fef2f2':'#fffbeb'};color:${item.type==='eid'?'#065f46':item.type==='martyrdom'?'#991b1b':'#92400e'}">
-                                ${item.type==='eid'?(l==='bn'?'🎉 ঈদ/উৎসব':'🎉 Eid/Festival'):item.type==='martyrdom'?(l==='bn'?'⚔️ শাহাদাত':'⚔️ Martyrdom'):(l==='bn'?'⭐ স্মরণীয় দিন':'⭐ Occasion')}
-                            </span>
-                            ${item.hijriDate?`<span class="text-xs ${d?'text-gray-400':'text-gray-500'}">📅 ${sanitize(item.hijriDate)}</span>`:''}
-                        </div>
-                        <h3 class="text-lg font-bold">${sanitize(l==='bn'?item.titleBn:item.titleEn)}</h3>
-                        ${item.imam?`<p class="text-xs ${d?'text-rose-400':'text-rose-600'} font-medium mt-1">👑 ${sanitize(item.imam)}</p>`:''}
-                    </div>
-                    ${state.isAdmin?`
-                    <div class="flex gap-1 flex-shrink-0">
-                        <button data-action="editKnowledgeItem" data-param="${i}" data-dtype="specialdays" class="${d?'bg-rose-900 text-rose-300 hover:bg-rose-800':'bg-rose-100 text-rose-700 hover:bg-rose-200'} p-2 rounded-lg text-sm transition-colors">✏️</button>
-                        <button data-action="deleteKnowledgeItem" data-param="${i}" data-dtype="specialdays" class="${d?'bg-red-900 text-red-300 hover:bg-red-800':'bg-red-100 text-red-700 hover:bg-red-200'} p-2 rounded-lg text-sm transition-colors">🗑</button>
-                    </div>`:''}
-                </div>
-                <p class="text-sm ${d?'text-gray-300':'text-gray-700'} leading-relaxed mb-3">${sanitize(l==='bn'?item.descBn:item.descEn)}</p>
-                ${item.dua?`<div class="${d?'bg-gray-900 border-gray-700':'bg-amber-50 border-amber-100'} border rounded-xl p-4"><p class="text-xs font-semibold ${d?'text-amber-400':'text-amber-700'} mb-2">${l==='bn'?'বিশেষ দোয়া/আমল:':'Special Dua/Amal:'}</p><p class="text-sm ${d?'text-gray-300':'text-gray-700'} leading-relaxed">${sanitize(item.dua)}</p></div>`:''}
-            </article>`).join('')}
         </div>` : ''}
 
     </div>`;
@@ -3316,7 +3464,7 @@ function renderReadDuaPage()
     const isCustom=!!dua.id;
     return `
     <div class="max-w-3xl mx-auto page-enter">
-        <button data-action="changePage" data-param="${state.previousPage||'dua'}" class="flex items-center gap-2 mb-6 px-4 py-2 rounded-xl font-semibold text-sm hover:scale-[1.02] transition-all" style="background:rgba(180,83,9,.1);color:#b45309">← ${l==='bn'?'দোয়ায় ফিরুন':'Back to Duas'}</button>
+        <button data-action="changePage" data-param="${state.previousPage||'home'}" class="flex items-center gap-2 mb-6 px-4 py-2 rounded-xl font-semibold text-sm hover:scale-[1.02] transition-all" style="background:rgba(180,83,9,.1);color:#b45309">← ${l==='bn'?'দোয়ায় ফিরুন':'Back to Duas'}</button>
         <article class="card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border" style="box-shadow:var(--shadow-lg)">
             <div style="height:4px;background:linear-gradient(90deg,#059669,#b45309,#059669);border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
             <div class="p-7 md:p-10">
@@ -3365,13 +3513,13 @@ function renderImamsPage()
             const quoteText=sanitize(l==='bn'?im.quoteBn:im.quoteEn);
             const flipId=`imam-flip-${im.id}`;
             return`
-            <!-- ═══ IMAM CARD #${im.id} — flip wrapper ═══ -->
-            <div class="imam-flip-wrapper" style="height:100%">
-              <div class="imam-flip-inner" id="${flipId}" style="min-height:420px">
+            <!-- ═══ IMAM CARD #${im.id} ═══ -->
+            <div class="imam-flip-wrapper" style="height:100%;position:relative">
 
                 <!-- ───── FRONT FACE ───── -->
                 <div class="imam-card-luxury imam-card-front border text-center p-6"
-                     style="display:flex;flex-direction:column;background:${d?'#1e2d26':'#ffffff'};border-color:${d?'rgba(52,211,153,.18)':'#e8e2db'};box-shadow:var(--shadow-sm);height:100%"
+                     id="${flipId}-front"
+                     style="display:flex;flex-direction:column;background:${d?'#1e2d26':'#ffffff'};border-color:${d?'rgba(52,211,153,.18)':'#e8e2db'};box-shadow:var(--shadow-sm);height:100%;border-radius:var(--r-lg)"
                      onmouseenter="imamCardParticles(this,'${ac}')"
                 >
                     <!-- Animated top bar -->
@@ -3446,7 +3594,8 @@ function renderImamsPage()
 
                 <!-- ───── BACK FACE (Quote card) ───── -->
                 <div class="imam-card-back"
-                     style="background:linear-gradient(145deg,${ac2},${d?'#0a1a0e':'#022c22'});color:white;border:1px solid ${ac}40;box-shadow:var(--shadow-lg)">
+                     id="${flipId}-back"
+                     style="display:none;position:absolute;inset:0;background:linear-gradient(145deg,${ac2},${d?'#0a1a0e':'#022c22'});color:white;border:1px solid ${ac}40;box-shadow:var(--shadow-lg);border-radius:var(--r-lg)">
                     <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,${ac}25 0%,transparent 70%);pointer-events:none;border-radius:var(--r-lg)"></div>
                     <div style="position:relative;z-index:2;width:100%;text-align:center">
                         <div style="font-family:'Amiri',serif;font-size:2.2rem;color:${ac};margin-bottom:.5rem;line-height:1">❝</div>
@@ -3462,7 +3611,6 @@ function renderImamsPage()
                     </div>
                 </div><!-- /back -->
 
-              </div><!-- /flip-inner -->
             </div><!-- /flip-wrapper -->
             `}).join('')}
         </div>
@@ -4480,7 +4628,7 @@ function renderReadZiyaratPage() {
     if(!z) return renderDuaPage();
     return `
     <div class="max-w-3xl mx-auto">
-        <button data-action="changePage" data-param="${state.previousPage||'dua'}" class="${d?'text-amber-400':'text-amber-700'} mb-6 hover:underline flex items-center gap-2">← ${l==='bn'?'ফিরে যান':'Back'}</button>
+        <button data-action="changePage" data-param="${state.previousPage||'home'}" class="${d?'text-amber-400':'text-amber-700'} mb-6 hover:underline flex items-center gap-2">← ${l==='bn'?'ফিরে যান':'Back'}</button>
         <article class="${d?'bg-gray-800':'bg-white'} border rounded-2xl p-8" style="border-top:3px solid #B45309">
             <div class="flex items-center gap-3 mb-6 flex-wrap">
                 <span class="${d?'gold-badge-dark':'gold-badge'}">☪️ ${l==='bn'?'যিয়ারত':'Ziyarat'}</span>
@@ -4526,7 +4674,7 @@ function renderMobileBottomNav() {
     const items=[
         {page:'home',icon:'🏠',label:l==='bn'?'হোম':'Home'},
         {page:'imams',icon:'👑',label:l==='bn'?'ইমাম':'Imams'},
-        {page:'dua',icon:'🤲',label:l==='bn'?'দোয়া':'Dua'},
+        {page:'library',icon:'📕',label:l==='bn'?'পিডিএফ':'Library'},
         {page:'tasbeeh',icon:'📿',label:l==='bn'?'তাসবিহ':'Tasbeeh'},
         {page:'blog',icon:'📖',label:l==='bn'?'ব্লগ':'Blog'},
     ];
@@ -4547,7 +4695,7 @@ function renderMobileBottomNav() {
 function renderMainContent() {
     const pages={
         home:renderHomePage, blog:renderBlogPage, library:renderLibraryPage,
-        media:renderMediaPage, dua:renderDuaPage, calendar:renderCalendarPage,
+        media:renderMediaPage, calendar:renderCalendarPage,
         contact:renderContactPage, about:renderAboutPage, bookmarks:renderBookmarksPage,
         readPost:renderReadPostPage, readDua:renderReadDuaPage, viewer:renderViewerPage,
         imams:renderImamsPage, imamDetail:renderImamDetailPage,
@@ -4690,7 +4838,7 @@ function initHeaderScroll() {
 }
 let _pClk = null;
 function startPrayerClock() {
-    if (_pClk) return; // already running — don't add another interval
+    if (_pClk) { clearInterval(_pClk); _pClk = null; }
     _pClk = setInterval(() => {
         document.querySelectorAll('[id^="pclock-"]').forEach(el => {
             const k = el.id.replace('pclock-', '');
@@ -4723,7 +4871,7 @@ function premiumAfterRender() {
 // Next prayer countdown for home page banner
 let _npClock = null;
 function startNextPrayerCountdown() {
-    if (_npClock) return; // already running — don't restart on every render
+    if (_npClock) { clearInterval(_npClock); _npClock = null; }
     const update = () => {
         const info = getNextPrayerInfo();
         if (!info) return;
@@ -4777,11 +4925,20 @@ function init() {
 
 /** Toggle 3-D flip on an imam card */
 function imamFlip(flipId) {
-    const wrapper = document.getElementById(flipId);
-    if (!wrapper) return;
-    const outer = wrapper.closest('.imam-flip-wrapper');
-    if (!outer) return;
-    outer.classList.toggle('flipped');
+    const front = document.getElementById(flipId + '-front');
+    const back  = document.getElementById(flipId + '-back');
+    if (!front || !back) return;
+    const isShowingBack = back.style.display !== 'none';
+    if (isShowingBack) {
+        back.style.display  = 'none';
+        front.style.display = 'flex';
+    } else {
+        front.style.display = 'none';
+        back.style.display  = 'flex';
+        back.style.flexDirection = 'column';
+        back.style.alignItems = 'center';
+        back.style.justifyContent = 'center';
+    }
 }
 
 /** Spawn particle burst on card mouseenter */
@@ -4857,7 +5014,7 @@ function renderMuharramEditorModal() {
                 </div>
                 <div>
                     <label class="block text-sm font-semibold mb-1.5">তারিখ (হিজরি) <span class="text-red-500">*</span></label>
-                    <input id="mev-date" type="text" value="${sanitize(ev.date||'')}" placeholder="যেমন: ১০ মহররম"
+                    <input id="mev-date" type="text" value="${sanitize(ev.date||'')}" placeholder="যেমন: ১০ মুহাররম"
                         class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-2.5 w-full focus:outline-none focus:ring-2 focus:ring-red-500" />
                 </div>
                 <div>
@@ -4958,19 +5115,19 @@ function renderMuharramPage() {
 
     // Static + custom events merged
     const staticTimeline = [
-        {id:'s1', icon:'🚶', date:l==='bn'?'১ মহররম':'1 Muharram', color:'#3b82f6', titleBn:l==='bn'?'ইমাম হোসাইন (আ.) মদিনা থেকে যাত্রা শুরু':'Imam Husayn (AS) Departs Madinah', descBn:l==='bn'?'ইয়াজিদের বায়াত প্রত্যাখ্যান করে পরিবার ও সঙ্গীদের নিয়ে মদিনা ত্যাগ করেন।':'Refusing to pledge allegiance to Yazid, he left Madinah with his family and companions.'},
-        {id:'s2', icon:'🏜️', date:l==='bn'?'৩ মহররম':'3 Muharram', color:'#f59e0b', titleBn:l==='bn'?'কারবালায় পৌঁছানো':'Arrival at Karbala', descBn:l==='bn'?'ইমামের কাফেলা কারবালার প্রান্তরে পৌঁছায়। হুর ইবনে ইয়াযিদের বাহিনী পথ রোধ করে।':"The Imam's caravan reaches the plains of Karbala. Hurr ibn Yazid's forces block their path."},
-        {id:'s3', icon:'💧', date:l==='bn'?'৭ মহররম':'7 Muharram', color:'#ef4444', titleBn:l==='bn'?'পানি সরবরাহ বন্ধ':'Water Supply Cut Off', descBn:l==='bn'?'ফোরাত নদীর পানি সম্পূর্ণ বন্ধ করা হয়। ৭২ সঙ্গী ও শিশুরা পিপাসায় কষ্ট পেতে থাকে।':'Access to the Euphrates river is completely blocked. The 72 companions and children suffer from thirst.'},
-        {id:'s4', icon:'🌙', date:l==='bn'?'৯ মহররম (তাসুআ)':'9 Muharram (Tasua)', color:'#8b5cf6', titleBn:l==='bn'?'তাসুআ — শেষ রাত':'Tasua — The Last Night', descBn:l==='bn'?'ইমাম সঙ্গীদের মুক্ত করে দেন। রাতভর ইবাদত, নামাজ ও কুরআন তিলাওয়াত।':'The Imam releases his companions from obligation. The night is spent in worship, prayer, and recitation of the Quran.'},
-        {id:'s5', icon:'⚔️', date:l==='bn'?'১০ মহররম (আশুরা)':'10 Muharram (Ashura)', color:'#dc2626', titleBn:l==='bn'?'🔴 আশুরা — কারবালার মহাশাহাদাত':'🔴 Ashura — The Great Martyrdom of Karbala', descBn:l==='bn'?'৭২ জন বনাম ৩০,০০০ সৈন্য। একে একে সব সঙ্গী শহীদ হন। ইমাম হোসাইন (আ.) আসর নামাজের পর শাহাদাত বরণ করেন।':'72 against 30,000 soldiers. All companions are martyred one by one. Imam Husayn (AS) is martyred after the Asr prayer.'},
-        {id:'s6', icon:'⛓️', date:l==='bn'?'১১ মহররম':'11 Muharram', color:'#6b7280', titleBn:l==='bn'?'বন্দী কাফেলা কুফার পথে':'Captive Caravan Towards Kufa', descBn:l==='bn'?'হযরত যয়নাব (আ.) সহ মহিলা ও শিশুদের বন্দী করে কুফায় নেওয়া হয়।':'Lady Zaynab (AS) and the women and children are taken captive towards Kufa.'},
+        {id:'s1', icon:'🚶', date:l==='bn'?'১ মুহাররম':'1 Muharram', color:'#3b82f6', titleBn:l==='bn'?'ইমাম হোসাইন (আ.) মদিনা থেকে যাত্রা শুরু':'Imam Husayn (AS) Departs Madinah', descBn:l==='bn'?'ইয়াজিদের বায়াত প্রত্যাখ্যান করে পরিবার ও সঙ্গীদের নিয়ে মদিনা ত্যাগ করেন।':'Refusing to pledge allegiance to Yazid, he left Madinah with his family and companions.'},
+        {id:'s2', icon:'🏜️', date:l==='bn'?'৩ মুহাররম':'3 Muharram', color:'#f59e0b', titleBn:l==='bn'?'কারবালায় পৌঁছানো':'Arrival at Karbala', descBn:l==='bn'?'ইমামের কাফেলা কারবালার প্রান্তরে পৌঁছায়। হুর ইবনে ইয়াযিদের বাহিনী পথ রোধ করে।':"The Imam\'s caravan reaches the plains of Karbala. Hurr ibn Yazid's forces block their path."},
+        {id:'s3', icon:'💧', date:l==='bn'?'৭ মুহাররম':'7 Muharram', color:'#ef4444', titleBn:l==='bn'?'পানি সরবরাহ বন্ধ':'Water Supply Cut Off', descBn:l==='bn'?'ফোরাত নদীর পানি সম্পূর্ণ বন্ধ করা হয়। ৭২ সঙ্গী ও শিশুরা পিপাসায় কষ্ট পেতে থাকে।':'Access to the Euphrates river is completely blocked. The 72 companions and children suffer from thirst.'},
+        {id:'s4', icon:'🌙', date:l==='bn'?'৯ মুহাররম (তাসুআ)':'9 Muharram (Tasua)', color:'#8b5cf6', titleBn:l==='bn'?'তাসুআ — শেষ রাত':'Tasua — The Last Night', descBn:l==='bn'?'ইমাম সঙ্গীদের মুক্ত করে দেন। রাতভর ইবাদত, নামাজ ও কুরআন তিলাওয়াত।':'The Imam releases his companions from obligation. The night is spent in worship, prayer, and recitation of the Quran.'},
+        {id:'s5', icon:'⚔️', date:l==='bn'?'১০ মুহাররম (আশুরা)':'10 Muharram (Ashura)', color:'#dc2626', titleBn:l==='bn'?'🔴 আশুরা — কারবালার মহাশাহাদাত':'🔴 Ashura — The Great Martyrdom of Karbala', descBn:l==='bn'?'৭২ জন বনাম ৩০,০০০ সৈন্য। একে একে সব সঙ্গী শহীদ হন। ইমাম হোসাইন (আ.) আসর নামাজের পর শাহাদাত বরণ করেন।':'72 against 30,000 soldiers. All companions are martyred one by one. Imam Husayn (AS) is martyred after the Asr prayer.'},
+        {id:'s6', icon:'⛓️', date:l==='bn'?'১১ মুহাররম':'11 Muharram', color:'#6b7280', titleBn:l==='bn'?'বন্দী কাফেলা কুফার পথে':'Captive Caravan Towards Kufa', descBn:l==='bn'?'হযরত যয়নাব (আ.) সহ মহিলা ও শিশুদের বন্দী করে কুফায় নেওয়া হয়।':'Lady Zaynab (AS) and the women and children are taken captive towards Kufa.'},
         {id:'s7', icon:'🗣️', date:l==='bn'?'সফর মাস':'Month of Safar', color:'#059669', titleBn:l==='bn'?'যয়নাব (আ.)-এর ঐতিহাসিক ভাষণ':"Zaynab (AS)'s Historic Speech", descBn:l==='bn'?'যয়নাব (আ.) ইয়াজিদের দরবারে ঐতিহাসিক ভাষণ দেন। কারবালার বার্তা বিশ্বে ছড়িয়ে দেন।':"Zaynab (AS) delivers her historic speech in Yazid's court, spreading the message of Karbala to the world."},
     ];
     const allTimeline = [...staticTimeline, ...state.muharramEvents];
 
     const majalis = [
-        {icon:'🕌', time:l==='bn'?'১–১০ মহররম':'1–10 Muharram', titleBn:l==='bn'?'মজলিস':'Majlis', descBn:l==='bn'?'শোকসভা যেখানে বক্তা কারবালার ঘটনা বর্ণনা করেন।':'A mourning gathering where a speaker narrates the events of Karbala.'},
-        {icon:'🕯️', time:l==='bn'?'১০ মহররম রাত':'Night of 10 Muharram', titleBn:l==='bn'?'শাম-এ-গরিবান':'Sham-e-Ghariban', descBn:l==='bn'?'আশুরার রাতে মোমবাতি জ্বালিয়ে ইমামের শিবিরে আগুনের স্মরণ।':"Candles are lit on the night of Ashura to commemorate the burning of the Imam's camp."},
+        {icon:'🕌', time:l==='bn'?'১–১০ মুহাররম':'1–10 Muharram', titleBn:l==='bn'?'মজলিস':'Majlis', descBn:l==='bn'?'শোকসভা যেখানে বক্তা কারবালার ঘটনা বর্ণনা করেন।':'A mourning gathering where a speaker narrates the events of Karbala.'},
+        {icon:'🕯️', time:l==='bn'?'১০ মুহাররম রাত':'Night of 10 Muharram', titleBn:l==='bn'?'শাম-এ-গরিবান':'Sham-e-Ghariban', descBn:l==='bn'?'আশুরার রাতে মোমবাতি জ্বালিয়ে ইমামের শিবিরে আগুনের স্মরণ।':"Candles are lit on the night of Ashura to commemorate the burning of the Imam\'s camp."},
         {icon:'🌿', time:l==='bn'?'২০ সফর':'20 Safar', titleBn:l==='bn'?'চেহলুম / আরবাঈন':'Chehlum / Arbaeen', descBn:l==='bn'?'শাহাদাতের ৪০তম দিন। যয়নাব ও সুরবীরা এই দিনে কারবালায় ফিরে আসেন।':'The 40th day after the martyrdom. Zaynab and the survivors returned to Karbala on this day.'},
     ];
 
@@ -4988,7 +5145,7 @@ function renderMuharramPage() {
 
         <div class="relative overflow-hidden rounded-3xl text-center" style="background:linear-gradient(135deg,#1a0000,#3b0000,#1a0000);padding:2.5rem 2rem;box-shadow:0 8px 40px rgba(220,38,38,.35)">
             <div style="font-size:2.5rem;margin-bottom:.5rem">🌙⚔️🌙</div>
-            <h2 style="font-size:2rem;font-weight:900;color:#f87171;margin-bottom:.25rem">${l==='bn'?'মহররম ও আশুরা':'Muharram & Ashura'}</h2>
+            <h2 style="font-size:2rem;font-weight:900;color:#f87171;margin-bottom:.25rem">${l==='bn'?'মুহাররম ও আশুরা':'Muharram & Ashura'}</h2>
             <p class="arabic-text" dir="rtl" style="color:#fca5a5;font-size:1.4rem">يَا أَبَا عَبْدِ اللَّهِ السَّلَامُ عَلَيْكَ</p>
         </div>
 
@@ -4996,12 +5153,12 @@ function renderMuharramPage() {
             <p class="text-sm font-bold mb-3" style="color:#dc2626">${l==='bn'?'🕐 আশুরা কাউন্টডাউন':'🕐 Ashura Countdown'}</p>
             ${cdHtml}
             <p class="text-sm mt-2 ${d?'text-gray-400':'text-gray-600'}">📅 ${ashuraDateStr}</p>
-            <p class="text-xs mt-1 ${d?'text-gray-500':'text-gray-500'}">${l==='bn'?`১০ মহররম ${toBengaliDigits(hijriYear)} হিজরি`:`10 Muharram ${hijriYear} AH`}</p>
+            <p class="text-xs mt-1 ${d?'text-gray-500':'text-gray-500'}">${l==='bn'?`১০ মুহাররম ${toBengaliDigits(hijriYear)} হিজরি`:`10 Muharram ${hijriYear} AH`}</p>
         </div>
 
         <div>
             <div class="flex gap-2 flex-wrap mb-5">
-                ${[[`tl`, l==='bn'?'📜 কারবালার ঘটনা':'📜 Events of Karbala'],[`mj`, l==='bn'?'🕌 মজলিস ও আমল':'🕌 Majlis & Practices'],[`zr`, l==='bn'?'🤲 বিশেষ যিয়ারত':'🤲 Special Ziyarat']].map(([id,label],i)=>`
+                ${[[`tl`, l==='bn'?'📜 কারবালার ঘটনা':'📜 Events of Karbala'],[`sh`, l==='bn'?'🩸 ৭২ শহীদ':'🩸 72 Martyrs'],[`mj`, l==='bn'?'🕌 মজলিস ও আমল':'🕌 Majlis & Practices'],[`zr`, l==='bn'?'🤲 বিশেষ যিয়ারত':'🤲 Special Ziyarat']].map(([id,label],i)=>`
                 <button onclick="document.querySelectorAll('.mhp').forEach(p=>p.style.display='none');document.getElementById('mhp-${id}').style.display='block';document.querySelectorAll('.mhtb').forEach(b=>{b.style.background='';b.style.color=''});this.style.background='#dc2626';this.style.color='white'"
                     class="mhtb px-4 py-2 rounded-xl font-semibold text-sm border focus:outline-none ${d?'border-gray-700 text-gray-300':'border-gray-300 text-gray-600'}"
                     style="${i===0?'background:#dc2626;color:white':''}">${label}</button>`).join('')}
@@ -5046,10 +5203,146 @@ function renderMuharramPage() {
                     <p class="text-sm ${d?'text-gray-300':'text-gray-700'} leading-relaxed">${m.descBn}</p>
                 </div>`).join('')}
                 <div class="${d?'bg-red-950 border-red-900':'bg-red-50 border-red-200'} border rounded-2xl p-5">
-                    <h4 class="font-bold mb-3" style="color:#dc2626">${l==='bn'?'📌 মহররমের বিশেষ আমল':'📌 Special Practices of Muharram'}</h4>
+                    <h4 class="font-bold mb-3" style="color:#dc2626">${l==='bn'?'📌 মুহাররমের বিশেষ আমল':'📌 Special Practices of Muharram'}</h4>
                     <ul class="space-y-1.5 text-sm ${d?'text-gray-300':'text-gray-700'}">
-                        ${(l==='bn'?['যিয়ারত আশুরা পাঠ (১–১০ মহররম)','ইমাম হোসাইনের জন্য শোক পালন','কারবালার ঘটনা পরিবারে আলোচনা','দোয়ায়ে তাওয়াসসুল পাঠ','মজলিসে অংশগ্রহণ','আশুরার দিন খাবার সীমিত রাখা']:['Recite Ziyarat Ashura (1–10 Muharram)','Mourn for Imam Husayn','Discuss the events of Karbala with family','Recite Dua Tawassul','Attend Majlis gatherings','Limit food on the day of Ashura']).map(a=>`<li>✅ ${a}</li>`).join('')}
+                        ${(l==='bn'?['যিয়ারত আশুরা পাঠ (১–১০ মুহাররম)','ইমাম হোসাইনের জন্য শোক পালন','কারবালার ঘটনা পরিবারে আলোচনা','দোয়ায়ে তাওয়াসসুল পাঠ','মজলিসে অংশগ্রহণ','আশুরার দিন খাবার সীমিত রাখা']:['Recite Ziyarat Ashura (1–10 Muharram)','Mourn for Imam Husayn','Discuss the events of Karbala with family','Recite Dua Tawassul','Attend Majlis gatherings','Limit food on the day of Ashura']).map(a=>`<li>✅ ${a}</li>`).join('')}
                     </ul>
+                </div>
+            </div>
+
+            <!-- ─── ৭২ শহীদ ─── -->
+            <div id="mhp-sh" class="mhp space-y-5" style="display:none">
+                <h3 class="text-xl font-bold">${l==='bn'?'🩸 কারবালার ৭২ শহীদ':'🩸 72 Martyrs of Karbala'}</h3>
+                <div class="${d?'bg-red-950 border-red-900':'bg-red-50 border-red-200'} border rounded-2xl p-4 text-center">
+                    <p class="arabic-text text-xl mb-1" dir="rtl" style="color:${d?'#fca5a5':'#991b1b'}">السَّلَامُ عَلَيْكُمْ يَا شُهَدَاءَ كَرْبَلَاء</p>
+                    <p class="text-sm ${d?'text-gray-300':'text-gray-700'}">${l==='bn'?'হে কারবালার শহীদগণ, আপনাদের প্রতি শান্তি বর্ষিত হোক':'Peace be upon you, O martyrs of Karbala'}</p>
+                </div>
+
+                <!-- বনি হাশিম শহীদ -->
+                <div class="rounded-2xl overflow-hidden border ${d?'border-red-900':'border-red-200'}">
+                    <div style="background:linear-gradient(135deg,#7f1d1d,#991b1b);padding:12px 18px" class="flex items-center gap-3">
+                        <span style="font-size:1.4rem">👑</span>
+                        <div>
+                            <div class="font-bold text-white">${l==='bn'?'বনি হাশিম — আহলে বাইত ও পরিবার':'Bani Hashim — Ahlul Bayt & Family'}</div>
+                            <div class="text-xs text-red-200">${l==='bn'?'১৮ জন শহীদ':'18 Martyrs'}</div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="grid grid-cols-1 gap-2">
+                        ${[
+                            {n:l==='bn'?'১. ইমাম হোসাইন ইবনে আলী (আ.)':'1. Imam Husayn ibn Ali (AS)', a:'الحسين بن علي', t:l==='bn'?'সাইয়্যিদুশ শুহাদা, ইমাম':'Sayyid al-Shuhada, Imam'},
+                            {n:l==='bn'?'২. আলী আকবর ইবনে হোসাইন (আ.)':'2. Ali Akbar ibn Husayn (AS)', a:'علي الأكبر', t:l==='bn'?'ইমামের পুত্র, যৌবনের শহীদ':'Son of Imam, martyr of youth'},
+                            {n:l==='bn'?'৩. আলী আসগর ইবনে হোসাইন (আ.)':'3. Ali Asghar ibn Husayn (AS)', a:'علي الأصغر', t:l==='bn'?'৬ মাসের শিশু শহীদ':'6-month infant martyr'},
+                            {n:l==='bn'?'৪. আবু আব্দুল্লাহ আল-কাসিম ইবনে হাসান (আ.)':'4. al-Qasim ibn Hasan (AS)', a:'القاسم بن الحسن', t:l==='bn'?'ইমাম হাসানের পুত্র':'Son of Imam Hasan'},
+                            {n:l==='bn'?'৫. আব্বাস ইবনে আলী (আ.)':'5. Abbas ibn Ali (AS)', a:'العباس بن علي', t:l==='bn'?'আলমদার, পতাকাবাহী':'Standard-bearer, Alamdar'},
+                            {n:l==='bn'?'৬. আব্দুল্লাহ ইবনে আলী':'6. Abdullah ibn Ali', a:'عبد الله بن علي', t:l==='bn'?'আমিরুল মুমিনীনের পুত্র':'Son of Amir al-Muminin'},
+                            {n:l==='bn'?'৭. জাফর ইবনে আলী':'7. Jafar ibn Ali', a:'جعفر بن علي', t:l==='bn'?'আমিরুল মুমিনীনের পুত্র':'Son of Amir al-Muminin'},
+                            {n:l==='bn'?'৮. উসমান ইবনে আলী':'8. Uthman ibn Ali', a:'عثمان بن علي', t:l==='bn'?'আমিরুল মুমিনীনের পুত্র':'Son of Amir al-Muminin'},
+                            {n:l==='bn'?'৯. মুহাম্মদ ইবনে আলী (আবু বকর)':'9. Muhammad ibn Ali (Abu Bakr)', a:'محمد بن علي', t:l==='bn'?'আমিরুল মুমিনীনের পুত্র':'Son of Amir al-Muminin'},
+                            {n:l==='bn'?'১০. আব্দুল্লাহ ইবনে হাসান':'10. Abdullah ibn Hasan', a:'عبد الله بن الحسن', t:l==='bn'?'ইমাম হাসানের পুত্র':'Son of Imam Hasan'},
+                            {n:l==='bn'?'১১. আওন ইবনে আব্দুল্লাহ ইবনে জাফর':'11. Awn ibn Abdullah ibn Jafar', a:'عون بن عبد الله بن جعفر', t:l==='bn'?'হযরত যয়নাবের পুত্র':'Son of Lady Zaynab'},
+                            {n:l==='bn'?'১২. মুহাম্মদ ইবনে আব্দুল্লাহ ইবনে জাফর':'12. Muhammad ibn Abdullah ibn Jafar', a:'محمد بن عبد الله بن جعفر', t:l==='bn'?'হযরত যয়নাবের পুত্র':'Son of Lady Zaynab'},
+                            {n:l==='bn'?'১৩. আব্দুল্লাহ ইবনে মুসলিম ইবনে আকিল':'13. Abdullah ibn Muslim ibn Aqil', a:'عبد الله بن مسلم بن عقيل', t:l==='bn'?'মুসলিম ইবনে আকিলের পুত্র':'Son of Muslim ibn Aqil'},
+                            {n:l==='bn'?'১৪. মুহাম্মদ ইবনে মুসলিম ইবনে আকিল':'14. Muhammad ibn Muslim ibn Aqil', a:'محمد بن مسلم بن عقيل', t:l==='bn'?'মুসলিম ইবনে আকিলের পুত্র':'Son of Muslim ibn Aqil'},
+                            {n:l==='bn'?'১৫. জাফর ইবনে মুহাম্মদ ইবনে আকিল':'15. Jafar ibn Muhammad ibn Aqil', a:'جعفر بن محمد بن عقيل', t:l==='bn'?'বনি আকিলের শহীদ':'Martyr of Bani Aqil'},
+                            {n:l==='bn'?'১৬. আব্দুর রহমান ইবনে আকিল':'16. Abd al-Rahman ibn Aqil', a:'عبد الرحمن بن عقيل', t:l==='bn'?'বনি আকিলের শহীদ':'Martyr of Bani Aqil'},
+                            {n:l==='bn'?'১৭. মুহাম্মদ ইবনে আবি সাঈদ ইবনে আকিল':'17. Muhammad ibn Abi Said ibn Aqil', a:'محمد بن أبي سعيد بن عقيل', t:l==='bn'?'বনি আকিলের শহীদ':'Martyr of Bani Aqil'},
+                            {n:l==='bn'?'১৮. আব্দুল্লাহ ইবনে আকিল':'18. Abdullah ibn Aqil', a:'عبد الله بن عقيل', t:l==='bn'?'বনি আকিলের শহীদ':'Martyr of Bani Aqil'},
+                        ].map(m=>`
+                        <div class="${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl px-4 py-2.5 flex items-start gap-3">
+                            <span style="color:#dc2626;font-size:1rem;flex-shrink:0;margin-top:2px">🌹</span>
+                            <div class="flex-1 min-w-0">
+                                <div class="font-semibold text-sm">${m.n}</div>
+                                <div class="arabic-text text-xs mt-0.5" dir="rtl" style="color:${d?'#fca5a5':'#991b1b'}">${m.a}</div>
+                                <div class="text-xs ${d?'text-gray-400':'text-gray-500'} mt-0.5">${m.t}</div>
+                            </div>
+                        </div>`).join('')}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- অন্যান্য সঙ্গী শহীদ -->
+                <div class="rounded-2xl overflow-hidden border ${d?'border-gray-700':'border-gray-200'}">
+                    <div style="background:linear-gradient(135deg,#374151,#4b5563);padding:12px 18px" class="flex items-center gap-3">
+                        <span style="font-size:1.4rem">⚔️</span>
+                        <div>
+                            <div class="font-bold text-white">${l==='bn'?'বিশ্বস্ত সঙ্গীগণ':'Faithful Companions'}</div>
+                            <div class="text-xs text-gray-300">${l==='bn'?'৫৪ জন শহীদ':'54 Martyrs'}</div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="grid grid-cols-1 gap-2">
+                        ${[
+                            {n:l==='bn'?'১৯. হাবিব ইবনে মাযাহির আল-আসাদি':'19. Habib ibn Mazahir al-Asadi', a:'حبيب بن مظاهر الأسدي', t:l==='bn'?'ইমামের বিশ্বস্ত প্রবীণ সঙ্গী':'Trusted senior companion of the Imam'},
+                            {n:l==='bn'?'২০. মুসলিম ইবনে আওসাজা আল-আসাদি':'20. Muslim ibn Awsaja al-Asadi', a:'مسلم بن عوسجة الأسدي', t:l==='bn'?'প্রথম সারির শহীদ':'First to fall in battle'},
+                            {n:l==='bn'?'২১. হুর ইবনে ইয়াযিদ আর-রিয়াহি':'21. Hurr ibn Yazid al-Riyahi', a:'الحر بن يزيد الرياحي', t:l==='bn'?'তওবা করে ইমামের পক্ষে শহীদ':'Repented and martyred for the Imam'},
+                            {n:l==='bn'?'২২. যুহাইর ইবনে কাইন আল-বাজালি':'22. Zuhayr ibn Qayn al-Bajali', a:'زهير بن القين البجلي', t:l==='bn'?'পথে ইমামের সঙ্গী হন':'Joined the Imam en route'},
+                            {n:l==='bn'?'২৩. বুরাইর ইবনে হুযাইর আল-হামদানি':'23. Burayr ibn Khudayr al-Hamdani', a:'بريرة بن خضير الهمداني', t:l==='bn'?'কুরআনের বিশেষজ্ঞ':'Quranic scholar'},
+                            {n:l==='bn'?'২৪. নাফি ইবনে হিলাল আল-জামালি':'24. Nafi ibn Hilal al-Jamali', a:'نافع بن هلال الجملي', t:l==='bn'?'বীর তীরন্দাজ':'Brave archer'},
+                            {n:l==='bn'?'২৫. আনাস ইবনে কাহিল আল-আসাদি':'25. Anas ibn Kahil al-Asadi', a:'أنس بن كاهل الأسدي', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'২৬. কাইস ইবনে মুসাহহার আস-সাইদাউয়ি':'26. Qays ibn Musahhar al-Saydawi', a:'قيس بن مسهر الصيداوي', t:l==='bn'?'ইমামের দূত, কুফায় শহীদ':'Imam\'s messenger, martyred in Kufa'},
+                            {n:l==='bn'?'২৭. আব্বাদ ইবনে মুহাজির আল-জুহানি':'27. Abbad ibn Muhajir al-Juhani', a:'عباد بن المهاجر الجهني', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'২৮. আব্দুল্লাহ ইবনে উমাইর আল-কালবি':'28. Abdullah ibn Umayr al-Kalbi', a:'عبد الله بن عمير الكلبي', t:l==='bn'?'স্ত্রীসহ কারবালায় আসেন':'Came to Karbala with his wife'},
+                            {n:l==='bn'?'২৯. আমর ইবনে খালিদ আস-সাইদাউয়ি':'29. Amr ibn Khalid al-Saydawi', a:'عمرو بن خالد الصيداوي', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৩০. সাদ মাওলা আমর ইবনে খালিদ':'30. Sad, mawla of Amr ibn Khalid', a:'سعد مولى عمرو بن خالد', t:l==='bn'?'আমরের মুক্তিপ্রাপ্ত দাস':'Freed slave of Amr'},
+                            {n:l==='bn'?'৩১. জানাদাহ ইবনে কাব আল-আনসারি':'31. Jundab ibn Kab al-Ansari', a:'جندب بن كعب الأنصاري', t:l==='bn'?'আনসারদের শহীদ':'Martyr from the Ansar'},
+                            {n:l==='bn'?'৩২. আমর ইবনে কারাযাহ আল-আনসারি':'32. Amr ibn Qarazah al-Ansari', a:'عمرو بن قرظة الأنصاري', t:l==='bn'?'আনসারদের শহীদ':'Martyr from the Ansar'},
+                            {n:l==='bn'?'৩৩. হানযালা ইবনে সাদ আশ-শাবামি':'33. Hanzala ibn Sad al-Shabami', a:'حنظلة بن سعد الشبامي', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৩৪. আব্দুর রহমান ইবনে আব্দুল্লাহ আল-আরহাবি':'34. Abd al-Rahman ibn Abdillah al-Arhabi', a:'عبد الرحمن بن عبد الله الأرحبي', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৩৫. আমর ইবনে জুনাদাহ আল-আনসারি':'35. Amr ibn Junadah al-Ansari', a:'عمرو بن جنادة الأنصاري', t:l==='bn'?'বালক শহীদ, পিতার শাহাদাতের পর':'Young martyr after his father\'s death'},
+                            {n:l==='bn'?'৩৬. সাওয়ার ইবনে আবি উমাইর আন-নাহমি':'36. Sawwar ibn Abi Umayr al-Nahmi', a:'سوار بن أبي عمير النهمي', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৩৭. আমর ইবনে আব্দুল্লাহ আল-জুনদুয়ি':'37. Amr ibn Abdillah al-Jundui', a:'عمرو بن عبد الله الجندعي', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৩৮. আবু সামামাহ আমর ইবনে আব্দুল্লাহ আস-সাইদাউয়ি':'38. Abu Samamah Amr al-Saydawi', a:'أبو ثمامة عمرو الصائدي', t:l==='bn'?'আশুরার দিন জোহরের নামাজের স্মরণ করিয়ে দেন':'Reminded the Imam of Dhuhr prayer on Ashura'},
+                            {n:l==='bn'?'৩৯. সাইফ ইবনে হারিস ইবনে সুরাই':'39. Sayf ibn Harith ibn Sari', a:'سيف بن الحارث بن سريع', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৪০. মালিক ইবনে আব্দুল্লাহ ইবনে সুরাই':'40. Malik ibn Abdillah ibn Sari', a:'مالك بن عبد الله بن سريع', t:l==='bn'?'সাইফের ভাই':'Brother of Sayf'},
+                            {n:l==='bn'?'৪১. মুজম্মা ইবনে আব্দুল্লাহ আল-আইযি':'41. Mujammi ibn Abdillah al-Aydhi', a:'مجمع بن عبد الله العائذي', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৪২. নুআম ইবনে আজলান আল-আনসারি':'42. Nuaym ibn Ajlan al-Ansari', a:'نعيم بن عجلان الأنصاري', t:l==='bn'?'আনসারদের শহীদ':'Martyr from the Ansar'},
+                            {n:l==='bn'?'৪৩. ইয়াযিদ ইবনে মাঘফাল আল-জুফি':'43. Yazid ibn Mughfal al-Jufi', a:'يزيد بن مغفل الجعفي', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৪৪. আব্দুল্লাহ ইবনে বাশর আল-খাসআমি':'44. Abdullah ibn Bashir al-Khathami', a:'عبد الله بن بشير الخثعمي', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৪৫. হাজ্জাজ ইবনে যায়িদ আস-সালামানি':'45. Hajjaj ibn Zayd al-Salamani', a:'الحجاج بن زيد السلامي', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৪৬. কাসিম ইবনে হাবিব আল-আযদি':'46. Qasim ibn Habib al-Azdi', a:'القاسم بن حبيب الأزدي', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৪৭. আদায় ইবনে আমিম আল-খাসআমি':'47. Uday ibn Amim al-Khathami', a:'عدي بن عميم الخثعمي', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৪৮. আমর ইবনে মুতা ইবনে আবি রাহম':'48. Amr ibn Mutah ibn Abi Rahm', a:'عمرو بن مطاع بن أبي رحم', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৪৯. মুসলিম ইবনে কাসিম আল-আনসারি':'49. Muslim ibn Kaysir al-Ansari', a:'مسلم بن كثير الأنصاري', t:l==='bn'?'আনসারদের শহীদ':'Martyr from the Ansar'},
+                            {n:l==='bn'?'৫০. যিয়াদ ইবনে আরিব আস-সাহমি':'50. Ziyad ibn Arib al-Sahmi', a:'زياد بن عريب الساهمي', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৫১. ইয়াযিদ ইবনে যিয়াদ আল-মাশরাকি':'51. Yazid ibn Ziyad al-Mashraki', a:'يزيد بن زياد المشرقي', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৫২. সালমান ইবনে মুযারাব আল-বাজালি':'52. Salman ibn Muzarib al-Bajali', a:'سلمان بن مضارب البجلي', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৫৩. আমর ইবনে খালিদ আল-আযদি':'53. Amr ibn Khalid al-Azdi', a:'عمرو بن خالد الأزدي', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৫৪. জারগামাহ ইবনে মালিক আত-তাগলিবি':'54. Jargamah ibn Malik al-Taghlabi', a:'جرجمة بن مالك التغلبي', t:l==='bn'?'খ্রিস্টান থেকে ইসলাম গ্রহণ করে শহীদ':'Converted from Christianity, then martyred'},
+                            {n:l==='bn'?'৫৫. কাহিল ইবনে আমর আশ-শায়বানি':'55. Kahil ibn Amr al-Shaybani', a:'كاهل بن عمرو الشيباني', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৫৬. আসলাম মাওলা ইমাম হোসাইন (আ.)':'56. Aslam, mawla of Imam Husayn (AS)', a:'أسلم مولى الحسين', t:l==='bn'?'ইমামের বিশ্বস্ত সেবক':'Faithful servant of the Imam'},
+                            {n:l==='bn'?'৫৭. কারিম ইবনে আব্দুল্লাহ আল-গিফারি':'57. Karim ibn Abdillah al-Ghifari', a:'كريم بن عبد الله الغفاري', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৫৮. ওয়াদ্ধাহ মাওলা আমর ইবনে খালিদ':'58. Waddah, mawla of Amr ibn Khalid', a:'وضاح مولى عمرو بن خالد', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৫৯. মানিয়া মাওলা বনি দারিম':'59. Mania, mawla of Bani Darim', a:'مانع مولى بني دارم', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৬০. সুলাইমান মাওলা ইমাম হোসাইন (আ.)':'60. Sulayman, mawla of Imam Husayn (AS)', a:'سليمان مولى الحسين', t:l==='bn'?'ইমামের বিশ্বস্ত সেবক':'Faithful servant of the Imam'},
+                            {n:l==='bn'?'৬১. কাসিম ইবনে সা\'দ আল-মাযহাজি':'61. Qasim ibn Sa\'d al-Madhaji', a:'قاسم بن سعد المذحجي', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৬২. আব্দুল্লাহ মাওলা ইমাম হোসাইন (আ.)':'62. Abdullah, mawla of Imam Husayn (AS)', a:'عبد الله مولى الحسين', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৬৩. সা\'দ মাওলা আলী ইবনে আবি তালিব':'63. Sad, mawla of Ali ibn Abi Talib', a:'سعد مولى علي بن أبي طالب', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৬৪. ইমাম আলী ইবনে হোসাইন আল-আকবর (যয়নুল আবিদিন) — অসুস্থ ছিলেন, শহীদ হননি':'64. Note: Imam Zayn al-Abidin was ill, not martyred', a:'زين العابدين', t:l==='bn'?'৪র্থ ইমাম — বন্দী হয়েছিলেন':'4th Imam — taken captive'},
+                            {n:l==='bn'?'৬৫. জাওন মাওলা আবি যার আল-গিফারি':'65. Jawn, mawla of Abi Dhar al-Ghifari', a:'جون مولى أبي ذر الغفاري', t:l==='bn'?'বৃদ্ধ বিশ্বস্ত সেবক':'Elderly faithful servant'},
+                            {n:l==='bn'?'৬৬. আনাস ইবনে হারিস আল-কাহিলি':'66. Anas ibn Harith al-Kahili', a:'أنس بن الحارث الكاهلي', t:l==='bn'?'রাসূল (সা.)-এর সাহাবি':'Companion of the Prophet (PBUH)'},
+                            {n:l==='bn'?'৬৭. আব্দুল্লাহ ইবনে ইয়াকতার আল-পিনাহানি':'67. Abdullah ibn Yaqtar al-Pinahani', a:'عبد الله بن يقطر', t:l==='bn'?'ইমামের দুধভাই':'Foster brother of the Imam'},
+                            {n:l==='bn'?'৬৮. হাশিম ইবনে উতবা আল-মিরকাল':'68. Hashim ibn Utba al-Mirqal (nephew)', a:'هاشم بن عتبة المرقال', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৬৯. আবু আব্দুল্লাহ আয-যুহাইর আল-মাযহাজি':'69. Abu Abdillah al-Zuhayr al-Madhaji', a:'الزهير المذحجي', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৭০. সাইফ ইবনে মালিক আল-নামিরি':'70. Sayf ibn Malik al-Namiri', a:'سيف بن مالك النمري', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৭১. বাশির ইবনে আমর আল-হাযরামি':'71. Bashir ibn Amr al-Hadrami', a:'بشير بن عمرو الحضرمي', t:l==='bn'?'বীর সঙ্গী':'Brave companion'},
+                            {n:l==='bn'?'৭২. শাবিব মাওলা আল-হারিস আল-জাবালি':'72. Shabib, mawla al-Harith al-Jabali', a:'شبيب مولى الحارث الجبلي', t:l==='bn'?'শেষ শহীদদের একজন':'Among the last to be martyred'},
+                        ].map(m=>`
+                        <div class="${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl px-4 py-2.5 flex items-start gap-3">
+                            <span style="color:#dc2626;font-size:1rem;flex-shrink:0;margin-top:2px">🩸</span>
+                            <div class="flex-1 min-w-0">
+                                <div class="font-semibold text-sm">${m.n}</div>
+                                <div class="arabic-text text-xs mt-0.5" dir="rtl" style="color:${d?'#fca5a5':'#991b1b'}">${m.a}</div>
+                                <div class="text-xs ${d?'text-gray-400':'text-gray-500'} mt-0.5">${m.t}</div>
+                            </div>
+                        </div>`).join('')}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="${d?'bg-red-950 border-red-900':'bg-red-50 border-red-200'} border rounded-2xl p-4 text-center">
+                    <p class="font-bold mb-1" style="color:#dc2626">${l==='bn'?'اَللَّهُمَّ صَلِّ عَلَى الْحُسَيْنِ وَعَلَى آلِ الْحُسَيْن':'اَللَّهُمَّ صَلِّ عَلَى الْحُسَيْنِ وَعَلَى آلِ الْحُسَيْن'}</p>
+                    <p class="text-xs ${d?'text-gray-300':'text-gray-700'}">${l==='bn'?'হে আল্লাহ! হোসাইন ও তাঁর পরিবারের উপর দরুদ পাঠাও':'O Allah, send blessings upon Husayn and the family of Husayn'}</p>
                 </div>
             </div>
 
@@ -5064,7 +5357,7 @@ function renderMuharramPage() {
                 <div class="${d?'bg-gray-800 border-green-900':'bg-green-50 border-green-200'} border rounded-2xl p-6">
                     <h4 class="font-bold mb-2" style="color:#059669">${l==='bn'?'দোয়ায়ে তাওয়াসসুল':'Dua Tawassul'}</h4>
                     <p class="text-sm ${d?'text-gray-300':'text-gray-700'}">${l==='bn'?'ইমাম হোসাইন (আ.) ও আহলে বাইতের মাধ্যমে আল্লাহর কাছে তাওয়াসসুল করা মুস্তাহাব।':'Seeking intercession (tawassul) to Allah through Imam Husayn (AS) and the Ahlul Bayt is recommended.'}</p>
-                    <button data-action="changePage" data-param="dua" class="mt-3 text-sm font-bold px-4 py-2 rounded-xl" style="background:#05966918;color:#059669">${l==='bn'?'🤲 দোয়া পেজে যান →':'🤲 Go to Dua Page →'}</button>
+                    <button data-action="changePage" data-param="home" class="mt-3 text-sm font-bold px-4 py-2 rounded-xl" style="background:#05966918;color:#059669">${l==='bn'?'🏠 হোমে যান →':'🏠 Go to Home →'}</button>
                 </div>
             </div>
         </div>
@@ -5072,54 +5365,143 @@ function renderMuharramPage() {
 }
 
 // ============================================================================
-// শিয়া বিশেষ দিনসমূহ পেজ — CRUD সহ
+// বিশেষ দিনসমূহ পেজ — CRUD সহ
 // ============================================================================
 function renderShiaDaysPage() {
     const d = state.darkMode, l = state.language;
 
     const staticDays = [
+        // ── ঈদ ও আনন্দময় দিন (হিজরি মাস অনুযায়ী) ──
+
+        // — মুহাররম —
+        {id:'eid13', icon:'🎊', color:'#dc2626', type:'eid', hijriDate:l==='bn'?'১ মুহাররম':'1 Muharram', titleBn:l==='bn'?'ইসলামি নববর্ষ — হিজরি নববর্ষ':'Islamic New Year — Hijri New Year', arabicTitle:'رأس السنة الهجرية', descBn:l==='bn'?'মুহাররমের ১ তারিখ হিজরি ক্যালেন্ডারের নববর্ষ। ৬২২ খ্রিষ্টাব্দে রাসূলুল্লাহ (সা.)-এর মক্কা থেকে মদিনায় হিজরতের স্মৃতিতে এই ক্যালেন্ডার প্রবর্তিত হয়। নববর্ষে দোয়া ও ইবাদতের বিশেষ গুরুত্ব রয়েছে।':'1 Muharram is the new year of the Hijri calendar. This calendar was established in memory of the Prophet\'s (PBUH) migration from Mecca to Medina in 622 CE. Dua and worship carry special importance on the new year.', amaal:l==='bn'?'দোয়া, ইস্তিগফার, তওবা, নতুন বছরের সংকল্প, সালাওয়াত':'Dua, Istighfar, repentance, new year resolutions, Salawat', importance:l==='bn'?'হিজরি নববর্ষ — ইসলামের ঐতিহাসিক হিজরতের স্মৃতি':'Hijri New Year — memory of the historic migration of Islam'},
+        {id:'ex3', icon:'🌑', color:'#1e3a8a', type:'eid', hijriDate:l==='bn'?'৯ মুহাররম':'9 Muharram', titleBn:l==='bn'?'তাসুআ — আশুরার আগের দিন':'Tasu\'a — Day Before Ashura', arabicTitle:'تاسوعاء', descBn:l==='bn'?'৯ মুহাররম তাসুআ নামে পরিচিত। ৬১ হিজরিতে এই দিনে ইমাম হোসাইন (আ.)-এর শিবিরে ইয়াযিদের বাহিনী চারদিক থেকে ঘিরে ফেলে। হযরত আব্বাস (আ.)-এর নামে উৎসর্গিত। এই দিনে মজলিস ও শোকসভা অনুষ্ঠিত হয়।':'9 Muharram is known as Tasu\'a. On this day in 61 AH, Yazid\'s forces surrounded Imam Husayn\'s camp on all sides. The day is dedicated to Hazrat Abbas (AS). Majlis and mourning gatherings are held on this day.', amaal:l==='bn'?'মজলিস, শোক পালন, যিয়ারত হযরত আব্বাস, আশুরার প্রস্তুতি':'Majlis, mourning, Ziyarat of Hazrat Abbas, preparation for Ashura', importance:l==='bn'?'আশুরার পূর্বদিন — আব্বাস ইবনে আলীর নামে উৎসর্গিত':'Day before Ashura — dedicated to Abbas ibn Ali'},
+
+        // — রবিউল আউয়াল —
+        {id:'eid9', icon:'🌿', color:'#065f46', type:'eid', hijriDate:l==='bn'?'১১ রবিউল আউয়াল':'11 Rabi al-Awwal', titleBn:l==='bn'?'ইমাম আলী রেযা (আ.) জন্মদিন':'Birthday of Imam Ali al-Ridha (AS)', arabicTitle:'مولد علي بن موسى الرضا', descBn:l==='bn'?'১১ রবিউল আউয়াল, ১৪৮ হিজরি — ইমাম রেযা (আ.) মদিনায় জন্মগ্রহণ করেন। অষ্টম ইমাম। মামুনের দরবারে ওলি আহদ (উত্তরাধিকারী) মনোনীত হয়েছিলেন। মাশহাদে তাঁর পবিত্র রওজা শরীফ।':'11 Rabi al-Awwal, 148 AH — Imam Ridha (AS) was born in Medina. The Eighth Imam. He was designated as Wali Ahd (Crown Prince) at Mamun\'s court. His holy shrine is in Mashhad.', amaal:l==='bn'?'আনন্দ, সালাওয়াত, যিয়ারত ইমাম রেযা, দান':'Celebration, Salawat, Ziyarat of Imam Ridha, charity', importance:l==='bn'?'অষ্টম ইমামের জন্মদিন — আর-রেযা, আল্লাহর সন্তুষ্টিপ্রাপ্ত':'Birthday of the 8th Imam — al-Ridha, the Divinely Pleased'},
+        {id:'eid8', icon:'☀️', color:'#b45309', type:'eid', hijriDate:l==='bn'?'১৭ রবিউল আউয়াল':'17 Rabi al-Awwal', titleBn:l==='bn'?'মিলাদুন্নবী (সা.) — রাসূলের জন্মদিন':'Mawlid al-Nabi — Birthday of the Prophet (SAW)', arabicTitle:'مولد النبي محمد صلى الله عليه وآله', descBn:l==='bn'?'১৭ রবিউল আউয়াল, ৫৭০ খ্রিষ্টাব্দ (শিয়া মত) — রাসূলুল্লাহ মুহাম্মদ (সা.) মক্কায় জন্মগ্রহণ করেন। তিনি সর্বকালের সর্বশ্রেষ্ঠ মানুষ এবং রহমতুল্লিল আলামিন — সমগ্র সৃষ্টির জন্য রহমত।':'17 Rabi al-Awwal, 570 CE (Shia view) — The Prophet Muhammad (SAW) was born in Mecca. He is the greatest human of all time and Rahmat al-lil Alamin — a mercy for all creation.', amaal:l==='bn'?'আনন্দ, সালাওয়াত, মিলাদ মজলিস, দান, কুরআন তিলাওয়াত, সীরাত আলোচনা':'Celebration, Salawat, Mawlid gatherings, charity, Quran recitation, Seerah discussion', importance:l==='bn'?'সর্বশ্রেষ্ঠ নবীর জন্মদিন — ইমাম সাদিকেরও জন্মদিন (শিয়া মতে একই তারিখ)':'Birthday of the greatest Prophet — also birthday of Imam Sadiq (same date per Shia tradition)'},
+
+        // — রবিউস সানি —
+        {id:'eid20', icon:'🌟', color:'#065f46', type:'eid', hijriDate:l==='bn'?'৭ রবিউস সানি':'7 Rabi al-Thani', titleBn:l==='bn'?'ইমাম হাসান আসকারি (আ.) জন্মদিন (বিকল্প মত)':'Birthday of Imam Hasan al-Askari (AS) — Alt. Date', arabicTitle:'مولد الحسن العسكري', descBn:l==='bn'?'কিছু হাদিস গ্রন্থ অনুযায়ী ইমাম আসকারি (আ.)-এর জন্মদিন ৮ রবিউস সানি, আবার কিছুতে ৭ বা ১০ রবিউস সানি উল্লেখ আছে। একাদশ ইমামের জন্মদিনে সালাওয়াত ও ইবাদত করা হয়।':'According to some hadith collections, Imam Askari\'s birthday is 8 Rabi al-Thani; others mention 7 or 10. On the birthday of the Eleventh Imam, Salawat and worship are performed.', amaal:l==='bn'?'সালাওয়াত, যিয়ারত, ইবাদত, দান':'Salawat, Ziyarat, worship, charity', importance:l==='bn'?'একাদশ ইমামের জন্মদিন উদযাপন':'Celebration of the 11th Imam\'s birthday'},
+        {id:'eid12', icon:'🌼', color:'#0e7490', type:'eid', hijriDate:l==='bn'?'৮ রবিউস সানি':'8 Rabi al-Thani', titleBn:l==='bn'?'ইমাম হাসান আসকারি (আ.) জন্মদিন':'Birthday of Imam Hasan al-Askari (AS)', arabicTitle:'مولد الحسن بن علي العسكري', descBn:l==='bn'?'৮ রবিউস সানি, ২৩২ হিজরি — ইমাম আসকারি (আ.) মদিনায় জন্মগ্রহণ করেন। একাদশ ইমাম। সামারায় আসকার মহল্লায় বসবাসের কারণে "আসকারি" উপাধি। দ্বাদশ ইমাম মাহদির পিতা।':'8 Rabi al-Thani, 232 AH — Imam Askari (AS) was born in Medina. The Eleventh Imam. The title "Askari" comes from living in the Askar district of Samarra. Father of the Twelfth Imam Mahdi.', amaal:l==='bn'?'আনন্দ, সালাওয়াত, যিয়ারত ইমাম আসকারি, দান':'Celebration, Salawat, Ziyarat of Imam Askari, charity', importance:l==='bn'?'একাদশ ইমামের জন্মদিন — ইমাম মাহদির পিতা':'Birthday of the 11th Imam — father of Imam Mahdi'},
+
+        // — জামাদিউস সানি —
+        {id:'st5', icon:'🌹', color:'#be185d', type:'eid', hijriDate:l==='bn'?'২০ জামাদিউস সানি':'20 Jumada al-Thani', titleBn:l==='bn'?'হযরত ফাতেমা যাহরা (আ.) জন্মদিন':'Birthday of Lady Fatima al-Zahra (AS)', arabicTitle:'مولد فاطمة الزهراء', descBn:l==='bn'?'"ফাতেমা আমার হৃদয়ের একটুকরো" — রাসূলুল্লাহ (সা.)। ইসলামের শ্রেষ্ঠ নারী।':'"Fatima is a piece of my heart" — Prophet (PBUH). The greatest woman in Islam.', amaal:l==='bn'?'মহিলাদের সম্মান, দান, দোয়া':'Honouring women, charity, dua', importance:l==='bn'?'ইরানে মহিলা দিবস হিসেবে পালিত':'Celebrated as Women\'s Day in Iran'},
+
+        // — রজব —
+        {id:'eid11', icon:'🌱', color:'#059669', type:'eid', hijriDate:l==='bn'?'২ রজব':'2 Rajab', titleBn:l==='bn'?'ইমাম আলী হাদি (আ.) জন্মদিন':'Birthday of Imam Ali al-Hadi (AS)', arabicTitle:'مولد علي بن محمد الهادي', descBn:l==='bn'?'২ রজব, ২১২ হিজরি — ইমাম হাদি (আ.) মদিনার নিকটবর্তী সুরইয়ায় জন্মগ্রহণ করেন। দশম ইমাম। আন-নাকি ও আল-হাদি (পথপ্রদর্শক) নামে পরিচিত। সামারায় দীর্ঘ গৃহবন্দিত্বে থেকেও উম্মাহকে পথ দেখিয়েছেন।':'2 Rajab, 212 AH — Imam Hadi (AS) was born in Suraya near Medina. The Tenth Imam. Known as al-Naqi (the Pure) and al-Hadi (the Guide). He guided the Ummah even through long house arrest in Samarra.', amaal:l==='bn'?'আনন্দ, সালাওয়াত, যিয়ারত ইমাম হাদি, দান':'Celebration, Salawat, Ziyarat of Imam Hadi, charity', importance:l==='bn'?'দশম ইমামের জন্মদিন — আন-নাকি, আল-হাদি':'Birthday of the 10th Imam — al-Naqi, al-Hadi'},
+        {id:'eid19', icon:'👶', color:'#0369a1', type:'eid', hijriDate:l==='bn'?'৫ রজব':'5 Rajab', titleBn:l==='bn'?'ইমাম আলী নাকি (হাদি) (আ.) জন্মদিন':'Birthday of Imam Ali al-Naqi al-Hadi (AS)', arabicTitle:'مولد علي بن محمد الهادي النقي', descBn:l==='bn'?'৫ রজব, ২১২ হিজরি (কিছু মতে ২ রজব) — ইমাম হাদি (আ.) জন্মগ্রহণ করেন। মদিনার নিকট সুরইয়া গ্রামে জন্ম। শিশু বয়সে ইমামতের দায়িত্ব পান এবং সামারায় গৃহবন্দি অবস্থায় শিয়া মুসলমানদের নেতৃত্ব দেন।':'5 Rajab, 212 AH (some say 2 Rajab) — Imam Hadi (AS) was born in the village of Suraya near Medina. He assumed Imamate in childhood and led the Shia Muslims while under house arrest in Samarra.', amaal:l==='bn'?'আনন্দ, সালাওয়াত, যিয়ারত ইমাম হাদি, দান':'Celebration, Salawat, Ziyarat of Imam Hadi, charity', importance:l==='bn'?'দশম ইমামের জন্মদিন — আল-হাদি, আন-নাকি':'Birthday of the 10th Imam — al-Hadi, al-Naqi'},
+        {id:'eid10', icon:'💫', color:'#7c3aed', type:'eid', hijriDate:l==='bn'?'১০ রজব':'10 Rajab', titleBn:l==='bn'?'ইমাম মুহাম্মদ জওয়াদ (আ.) জন্মদিন':'Birthday of Imam Muhammad al-Jawad (AS)', arabicTitle:'مولد محمد بن علي الجواد', descBn:l==='bn'?'১০ রজব, ১৯৫ হিজরি — ইমাম জওয়াদ (আ.) মদিনায় জন্মগ্রহণ করেন। নবম ইমাম। মাত্র ৯ বছর বয়সে ইমামতের দায়িত্ব পান। আত-তাকি ও আল-জওয়াদ (দানশীল) নামে পরিচিত।':'10 Rajab, 195 AH — Imam Jawad (AS) was born in Medina. The Ninth Imam. He assumed Imamate at only 9 years of age. Known as al-Taqi (the Pious) and al-Jawad (the Generous).', amaal:l==='bn'?'আনন্দ, দান, যিয়ারত ইমাম জওয়াদ, সালাওয়াত':'Celebration, charity, Ziyarat of Imam Jawad, Salawat', importance:l==='bn'?'নবম ইমামের জন্মদিন — সর্বকনিষ্ঠ বয়সে ইমামতপ্রাপ্ত':'Birthday of the 9th Imam — youngest to assume Imamate'},
+        {id:'st4', icon:'🦁', color:'#059669', type:'eid', hijriDate:l==='bn'?'১৩ রজব':'13 Rajab', titleBn:l==='bn'?'ইমাম আলী (আ.) জন্মদিন':'Birthday of Imam Ali (AS)', arabicTitle:'مولد علي بن أبي طالب', descBn:l==='bn'?'১৩ রজব — কাবাঘরের ভেতরে ইমাম আলী (আ.)-এর জন্ম।':'13 Rajab — Imam Ali (AS) was born inside the Kaaba.', amaal:l==='bn'?'আনন্দ, দান-সদকা, নামাজ, যিয়ারত':'Celebration, charity, prayer, ziyarat', importance:l==='bn'?'একমাত্র ব্যক্তি যিনি কাবার ভেতরে জন্মগ্রহণ করেছেছেন':'The only person ever born inside the Kaaba'},
+        {id:'eid15', icon:'✨', color:'#4f46e5', type:'eid', hijriDate:l==='bn'?'২৭ রজব':'27 Rajab', titleBn:l==='bn'?'ঈদে মাবআস — নবীর নবুওয়াত প্রাপ্তির দিন':'Eid al-Mab\'ath — Day of the Prophet\'s Mission', arabicTitle:'عيد المبعث النبوي', descBn:l==='bn'?'২৭ রজব, ৬১০ খ্রিষ্টাব্দ — হেরা গুহায় রাসূলুল্লাহ (সা.) প্রথম ওহি লাভ করেন। জিবরাইল (আ.) সূরা আলাকের প্রথম আয়াতগুলো নিয়ে আসেন। এই দিনটি শিয়া ইসলামে ঈদ হিসেবে পালিত হয়।':'27 Rajab, 610 CE — The Prophet (PBUH) received the first revelation in the Cave of Hira. Jibrail (AS) brought the first verses of Surah al-Alaq. This day is celebrated as an Eid in Shia Islam.', amaal:l==='bn'?'রোজা, গোসল, ১২ রাকাত নামাজ, দোয়ায়ে মাবআস, সালাওয়াত':'Fasting, Ghusl, 12 Rakat prayer, Dua al-Mab\'ath, Salawat', importance:l==='bn'?'নবুওয়াতের সূচনা — প্রথম ওহির দিন — শিয়া ইসলামের পাঁচ ঈদের একটি':'Beginning of Prophethood — day of first revelation — one of the five Eids of Shia Islam'},
+
+        // — শাবান —
+        {id:'st6', icon:'🌸', color:'#059669', type:'eid', hijriDate:l==='bn'?'৩ শাবান':'3 Shaban', titleBn:l==='bn'?'ইমাম হোসাইন (আ.) জন্মদিন':'Birthday of Imam Husayn (AS)', arabicTitle:'مولد الحسين بن علي', descBn:l==='bn'?'৩ শাবান, ৪ হিজরি — ইমাম হোসাইন (আ.) মদিনায় জন্মগ্রহণ করেন। রাসূলুল্লাহ (সা.) বলেছেন: "হোসাইন আমার থেকে, আমি হোসাইন থেকে।" কারবালার মহানায়ক, সাইয়্যিদুশ শুহাদা।':'3 Shaban, 4 AH — Imam Husayn (AS) was born in Medina. The Prophet (PBUH) said: "Husayn is from me, and I am from Husayn." The hero of Karbala, Master of Martyrs.', amaal:l==='bn'?'আনন্দ, দান, যিয়ারত ইমাম হোসাইন, সালাওয়াত':'Celebration, charity, Ziyarat of Imam Husayn, Salawat', importance:l==='bn'?'সাইয়্যিদুশ শুহাদার জন্মদিন — তৃতীয় ইমামের শুভাগমন':'Birthday of the Master of Martyrs — arrival of the 3rd Imam'},
+        {id:'eid18', icon:'🌺', color:'#9d174d', type:'eid', hijriDate:l==='bn'?'৪ শাবান':'4 Shaban', titleBn:l==='bn'?'হযরত আলী আকবার (আ.) জন্মদিন':'Birthday of Hazrat Ali Akbar (AS)', arabicTitle:'مولد علي الأكبر بن الحسين', descBn:l==='bn'?'৪ শাবান — হযরত আলী আকবার (আ.) ইমাম হোসাইন (আ.)-এর পুত্র এবং কারবালার বীর শহীদ। তিনি রাসূলুল্লাহ (সা.)-এর চেহারা ও কণ্ঠস্বরে সবচেয়ে সদৃশ ছিলেন। ইরানে এই দিনটি "যুব দিবস" হিসেবে পালিত হয়।':'4 Shaban — Hazrat Ali Akbar (AS) was the son of Imam Husayn (AS) and a heroic martyr of Karbala. He most closely resembled the Prophet (PBUH) in face and voice. In Iran, this day is celebrated as Youth Day.', amaal:l==='bn'?'আনন্দ, তরুণদের সম্মান, দান, যিয়ারত, সালাওয়াত':'Celebration, honouring youth, charity, Ziyarat, Salawat', importance:l==='bn'?'হযরত আলী আকবারের জন্মদিন — ইরানে যুব দিবস':'Birthday of Hazrat Ali Akbar — Youth Day in Iran'},
+        {id:'eid7', icon:'🌟', color:'#0369a1', type:'eid', hijriDate:l==='bn'?'৫ শাবান':'5 Shaban', titleBn:l==='bn'?'হযরত আব্বাস ইবনে আলী (আ.) জন্মদিন':'Birthday of Hazrat Abbas ibn Ali (AS)', arabicTitle:'مولد العباس بن علي', descBn:l==='bn'?'৫ শাবান, ২৬ হিজরি — হযরত আব্বাস (আ.) মদিনায় জন্মগ্রহণ করেন। কারবালার পতাকাবাহী, ইমাম হোসাইনের ভাই ও বিশ্বস্ত সেনাপতি। "বাবুল হাওয়াইজ" নামে পরিচিত — হাজতমন্দদের দরজা।':'5 Shaban, 26 AH — Hazrat Abbas (AS) was born in Medina. Standard-bearer of Karbala, brother and loyal commander of Imam Husayn. Known as "Bab al-Hawaij" — the Gate for those in need.', amaal:l==='bn'?'আনন্দ, যিয়ারত আবুল ফযল আব্বাস, দোয়া, দান':'Celebration, Ziyarat of Abu al-Fadl al-Abbas, dua, charity', importance:l==='bn'?'কারবালার পতাকাবাহী হযরত আব্বাসের জন্মদিন':'Birthday of the standard-bearer of Karbala, Hazrat Abbas'},
+        {id:'ex4', icon:'🔮', color:'#4f46e5', type:'eid', hijriDate:l==='bn'?'২৬০ হি. (১৫ শাবান, ২৬০ হি.)':'260 AH (15 Shaban, 260 AH)', titleBn:l==='bn'?'গায়বতে সুগরা — ছোট অনুপস্থিতির সূচনা':'Start of Minor Occultation of Imam Mahdi', arabicTitle:'بداية الغيبة الصغرى', descBn:l==='bn'?'২৬০ হিজরিতে ইমাম হাসান আসকারি (আ.)-এর শাহাদাতের পর ইমাম মাহদি (আ.) গায়বতে চলে যান। প্রথমে গায়বতে সুগরা (ছোট অনুপস্থিতি, ৬৯ বছর) শুরু হয়, যেখানে চার জন নায়েবের মাধ্যমে যোগাযোগ রাখা হত।':'After the martyrdom of Imam Hasan al-Askari (AS) in 260 AH, Imam Mahdi (AS) went into occultation. The Minor Occultation (Ghayba al-Sughra, 69 years) began first, where contact was maintained through four deputies.', amaal:l==='bn'?'দোয়ায়ে আহদ, ইমামের জন্য দোয়া, তাড়াতাড়ি আসার প্রার্থনা':'Dua Ahd, dua for the Imam, prayers for his swift return', importance:l==='bn'?'ইমাম মাহদির গায়বতের সূচনা — উম্মাহর জন্য পরীক্ষার সময়':'Beginning of Imam Mahdi\'s occultation — a time of trial for the Ummah'},
+        {id:'st3', icon:'🌙', color:'#059669', type:'eid', hijriDate:l==='bn'?'১৫ শাবান':'15 Shaban', titleBn:l==='bn'?'নিমে শাবান — ইমাম মাহদি (আ.) জন্মদিন':'Mid-Shaban — Birthday of Imam Mahdi (AS)', arabicTitle:'نيمه شعبان', descBn:l==='bn'?'১৫ শাবান, ২৫৫ হিজরি — ইমাম মাহদি (আ.) সামারায় জন্মগ্রহণ করেন। দ্বাদশ ইমাম আল্লাহর নির্দেশে গায়বতে আছেন।':'15 Shaban, 255 AH — Imam Mahdi (AS) was born in Samarra. The Twelfth Imam is in occultation by divine command.', amaal:l==='bn'?'দোয়ায়ে নুদবা, দোয়ায়ে আহদ, সালাওয়াত, রোজা':'Dua Nudbah, Dua Ahd, Salawat, Fasting', importance:l==='bn'?'ইমামে যামানার জন্মদিন':'Birthday of the Imam of Our Time'},
+
+        // — শাওয়াল —
+        {id:'eid17', icon:'🌙', color:'#059669', type:'eid', hijriDate:l==='bn'?'১ শাওয়াল':'1 Shawwal', titleBn:l==='bn'?'ঈদুল ফিতর — রোজা শেষের ঈদ':'Eid al-Fitr — Festival of Breaking the Fast', arabicTitle:'عيد الفطر', descBn:l==='bn'?'১ শাওয়াল — রমজানের এক মাস রোজার পর এই ঈদ আসে। আল্লাহ তাঁর বান্দাদের সিয়াম পালনের পুরস্কার দেন এই দিনে। ফিতরানা আদায় ও নামাজ পড়া ওয়াজিব।':'1 Shawwal — This Eid comes after one month of fasting in Ramadan. Allah rewards His servants for their fasting on this day. Paying Fitrana and performing the prayer are obligatory.', amaal:l==='bn'?'ঈদের নামাজ, ফিতরানা আদায়, দান, পরিবারের সাথে আনন্দ, মুমিনদের অভিনন্দন':'Eid prayer, paying Fitrana, charity, celebration with family, congratulating believers', importance:l==='bn'?'রমজানের পুরস্কারের দিন — আল্লাহ সিয়াম পালনকারীদের ক্ষমা করেন':'Day of reward for Ramadan — Allah forgives those who fasted'},
+
+        // — যিলকদ —
+        {id:'eid14', icon:'🌙', color:'#0369a1', type:'eid', hijriDate:l==='bn'?'২৫ যিলকদ':'25 Dhu al-Qadah', titleBn:l==='bn'?'ঈদে দাহউল আরদ — পৃথিবী বিস্তারের দিন':'Eid Dahw al-Ard — Day of Earth\'s Spreading', arabicTitle:'عيد دحو الأرض', descBn:l==='bn'?'২৫ যিলকদ — হাদিস অনুযায়ী এই দিনে আল্লাহ পৃথিবীকে পানির নিচ থেকে বিস্তার করেছেন, কাবাকে পৃথিবীর কেন্দ্র বানিয়েছেন। এই দিনে রোজা রাখলে ৭০ বছরের রোজার সওয়াব পাওয়া যায় বলে হাদিসে এসেছে।':'25 Dhu al-Qadah — According to hadith, on this day Allah spread the earth from beneath the water and made the Kaaba the center of the earth. Hadith states that fasting on this day earns the reward of 70 years of fasting.', amaal:l==='bn'?'রোজা, গোসল, দোয়ায়ে দাহউল আরদ, ২ রাকাত বিশেষ নামাজ':'Fasting, Ghusl, Dua of Dahw al-Ard, 2 Rakat special prayer', importance:l==='bn'?'পৃথিবী সৃষ্টির বিশেষ দিন — ৭০ বছরের রোজার সওয়াবের দিন':'Special day of earth\'s creation — reward of 70 years of fasting'},
+
+        // — জিলহজ —
+        {id:'ex1', icon:'🏔️', color:'#b45309', type:'eid', hijriDate:l==='bn'?'৯ জিলহজ':'9 Dhu al-Hijjah', titleBn:l==='bn'?'ঈদে আরাফা — আরাফার দিন':'Day of Arafah', arabicTitle:'يوم عرفة', descBn:l==='bn'?'৯ জিলহজ হজের সবচেয়ে গুরুত্বপূর্ণ দিন। হাজীরা আরাফার ময়দানে অবস্থান করেন এবং দোয়া করেন। ইমাম হোসাইন (আ.)-এর বিখ্যাত দোয়ায়ে আরাফা এই দিনে পাঠ করা হয়। এই দিনে রোজা রাখলে দুই বছরের গোনাহ মাফ হয় বলে হাদিসে এসেছে।':'9 Dhul Hijjah is the most important day of Hajj. Pilgrims stand on the plain of Arafah and make dua. The famous Dua Arafah of Imam Husayn (AS) is recited on this day. Hadith states that fasting on this day expiates sins of two years.', amaal:l==='bn'?'দোয়ায়ে আরাফা (ইমাম হোসাইন), রোজা, ইস্তিগফার, সালাওয়াত':'Dua Arafah (Imam Husayn), Fasting, Istighfar, Salawat', importance:l==='bn'?'হজের সর্বোচ্চ দিন — দোয়া কবুল ও গোনাহ মাফের দিন':'The peak day of Hajj — day of accepted duas and forgiveness of sins'},
+        {id:'eid16', icon:'🎉', color:'#be185d', type:'eid', hijriDate:l==='bn'?'১০ যিলহজ':'10 Dhul Hijjah', titleBn:l==='bn'?'ঈদুল আযহা — কুরবানির ঈদ':'Eid al-Adha — Festival of Sacrifice', arabicTitle:'عيد الأضحى', descBn:l==='bn'?'১০ যিলহজ — হযরত ইব্রাহিম (আ.)-এর পুত্র ইসমাইলকে কুরবানির স্মৃতিতে এই ঈদ পালিত হয়। হাজীরা মিনায় কুরবানি দেন। সারা বিশ্বের মুসলমানরা পশু কুরবানি দেন।':'10 Dhul Hijjah — This Eid commemorates the sacrifice of Prophet Ibrahim\'s (AS) son Ismail. Pilgrims offer sacrifice in Mina. Muslims around the world offer animal sacrifice.', amaal:l==='bn'?'নামাজ, কুরবানি, দান, পরিবারের সাথে আনন্দ':'Prayer, sacrifice, charity, celebration with family', importance:l==='bn'?'ইব্রাহিমের ত্যাগের স্মৃতি — হজের চূড়ান্ত দিন':'Memory of Ibrahim\'s sacrifice — culminating day of Hajj'},
         {id:'st1', icon:'👑', color:'#059669', type:'eid', hijriDate:l==='bn'?'১৮ জিলহজ':'18 Dhul Hijjah', titleBn:l==='bn'?'ঈদে গাদির খুম':'Eid al-Ghadeer Khumm', arabicTitle:'عيد الغدير', descBn:l==='bn'?'১০ম হিজরিতে বিদায় হজ থেকে ফেরার পথে গাদির খুমে রাসূলুল্লাহ (সা.) আল্লাহর নির্দেশে ইমাম আলী (আ.)-কে উম্মাহর নেতা ঘোষণা করেন।':'On returning from the Farewell Hajj in 10 AH, the Prophet (PBUH) declared Imam Ali (AS) as the leader of the Ummah at Ghadir Khumm by divine command.', amaal:l==='bn'?'রোজা, গোসল, নতুন পোশাক, মুমিনদের অভিনন্দন, দোয়ায়ে নুদবা পাঠ':'Fasting, Ghusl, new clothes, congratulating believers, reciting Dua Nudbah', importance:l==='bn'?'শিয়া ইসলামের সর্বোচ্চ উৎসব':'The greatest celebration of Shia Islam'},
         {id:'st2', icon:'✨', color:'#7c3aed', type:'eid', hijriDate:l==='bn'?'২৪ জিলহজ':'24 Dhul Hijjah', titleBn:l==='bn'?'ঈদে মুবাহিলা':'Eid al-Mubahala', arabicTitle:'عيد المباهلة', descBn:l==='bn'?'৯ম হিজরিতে নাজরানের খ্রিস্টানদের সাথে মুবাহিলায় রাসূলুল্লাহ (সা.) ইমাম আলী, ফাতেমা, হাসান ও হোসাইন (আ.)-কে নিলেন। খ্রিস্টানরা পিছিয়ে যায়।':'In 9 AH, for the Mubahala with the Christians of Najran, the Prophet brought Imam Ali, Fatima, Hasan, and Husayn (AS). The Christians withdrew.', amaal:l==='bn'?'রোজা, গোসল, ২ রাকাত নামাজ':'Fasting, Ghusl, 2 Rakat prayer', importance:l==='bn'?'আহলে বাইতের শ্রেষ্ঠত্বের কুরআনি প্রমাণ':'Quranic proof of the excellence of the Ahlul Bayt'},
-        {id:'st3', icon:'🌙', color:'#059669', type:'eid', hijriDate:l==='bn'?'১৫ শাবান':'15 Shaban', titleBn:l==='bn'?'নিমে শাবান — ইমাম মাহদি (আ.) জন্মদিন':'Mid-Shaban — Birthday of Imam Mahdi (AS)', arabicTitle:'نيمه شعبان', descBn:l==='bn'?'১৫ শাবান, ২৫৫ হিজরি — ইমাম মাহদি (আ.) সামারায় জন্মগ্রহণ করেন। দ্বাদশ ইমাম আল্লাহর নির্দেশে গায়বতে আছেন।':'15 Shaban, 255 AH — Imam Mahdi (AS) was born in Samarra. The Twelfth Imam is in occultation by divine command.', amaal:l==='bn'?'দোয়ায়ে নুদবা, দোয়ায়ে আহদ, সালাওয়াত, রোজা':'Dua Nudbah, Dua Ahd, Salawat, Fasting', importance:l==='bn'?'ইমামে যামানার জন্মদিন':'Birthday of the Imam of Our Time'},
-        {id:'st4', icon:'🦁', color:'#059669', type:'eid', hijriDate:l==='bn'?'১৩ রজব':'13 Rajab', titleBn:l==='bn'?'ইমাম আলী (আ.) জন্মদিন':'Birthday of Imam Ali (AS)', arabicTitle:'مولد علي بن أبي طالب', descBn:l==='bn'?'১৩ রজব — কাবাঘরের ভেতরে ইমাম আলী (আ.)-এর জন্ম।':'13 Rajab — Imam Ali (AS) was born inside the Kaaba.', amaal:l==='bn'?'আনন্দ, দান-সদকা, নামাজ, যিয়ারত':'Celebration, charity, prayer, ziyarat', importance:l==='bn'?'একমাত্র ব্যক্তি যিনি কাবার ভেতরে জন্মগ্রহণ করেছেন':'The only person ever born inside the Kaaba'},
-        {id:'st5', icon:'🌹', color:'#be185d', type:'eid', hijriDate:l==='bn'?'২০ জামাদিউস সানি':'20 Jumada al-Thani', titleBn:l==='bn'?'হযরত ফাতেমা যাহরা (আ.) জন্মদিন':'Birthday of Lady Fatima al-Zahra (AS)', arabicTitle:'مولد فاطمة الزهراء', descBn:l==='bn'?'"ফাতেমা আমার হৃদয়ের একটুকরো" — রাসূলুল্লাহ (সা.)। ইসলামের শ্রেষ্ঠ নারী।':'"Fatima is a piece of my heart" — Prophet (PBUH). The greatest woman in Islam.', amaal:l==='bn'?'মহিলাদের সম্মান, দান, দোয়া':'Honouring women, charity, dua', importance:l==='bn'?'ইরানে মহিলা দিবস হিসেবে পালিত':'Celebrated as Women\'s Day in Iran'},
-        {id:'st6', icon:'🌸', color:'#059669', type:'eid', hijriDate:l==='bn'?'৩ শাবান':'3 Shaban', titleBn:l==='bn'?'ইমাম হোসাইন (আ.) জন্মদিন':'Birthday of Imam Husayn (AS)', arabicTitle:'مولد الحسين', descBn:l==='bn'?'"হোসাইন আমার থেকে, আমি হোসাইন থেকে।" — রাসূলুল্লাহ (সা.)।':'"Husayn is from me, and I am from Husayn." — Prophet (PBUH).', amaal:l==='bn'?'আনন্দ, দান, যিয়ারত ইমাম হোসাইন':'Celebration, charity, Ziyarat of Imam Husayn', importance:l==='bn'?'সাইয়্যিদুশ শুহাদার জন্মদিন':'Birthday of the Master of Martyrs'},
+
+        // — বিশেষ / নির্দিষ্ট তারিখ নেই —
+        {id:'ex2', icon:'🌿', color:'#059669', type:'eid', hijriDate:l==='bn'?'১ ফারভারদিন (২১ মার্চ)':'1 Farvardin (21 March)', titleBn:l==='bn'?'ঈদে নওরোজ — পার্সি নববর্ষ':'Eid Nowruz — Persian New Year', arabicTitle:'عيد النوروز', descBn:l==='bn'?'ইমাম সাদিক (আ.) বলেছেন: নওরোজ সেই দিন যেদিন আল্লাহ তাঁর বান্দাদের কাছ থেকে অঙ্গীকার নিয়েছিলেন। এই দিনে ইমাম আলী (আ.) কুফায় পৌঁছেছিলেন এবং তাঁকে স্বাগত জানানো হয়েছিল। শিয়া হাদিসে এই দিনটির বিশেষ মর্যাদা রয়েছে।':'Imam Sadiq (AS) said: Nowruz is the day when Allah took the covenant from His servants. On this day Imam Ali (AS) arrived in Kufa and was welcomed. This day holds special significance in Shia hadith.', amaal:l==='bn'?'গোসল, নতুন পোশাক, মিষ্টি বিতরণ, দোয়া, পরিবারের সাথে আনন্দ, সালাওয়াত':'Ghusl, new clothes, distributing sweets, dua, celebration with family, Salawat', importance:l==='bn'?'ইমাম সাদিকের হাদিসে উল্লিখিত বিশেষ দিন — পার্সি সংস্কৃতির নববর্ষ':'A special day mentioned in Imam Sadiq\'s hadith — Persian cultural New Year'},
+
+        // ── বিশেষ রাত (হিজরি মাস অনুযায়ী) ──
+
+        // — রবিউল আউয়াল —
+        {id:'sn6', icon:'🕌', color:'#065f46', type:'special', hijriDate:l==='bn'?'১৭ রবিউল আউয়াল':'17 Rabi al-Awwal', titleBn:l==='bn'?'শবে মওলুদুন্নবী — নবীর জন্মরাত':'Night of Mawlid al-Nabi — Eve of the Prophet\'s Birthday', arabicTitle:'ليلة مولد النبي محمد صلى الله عليه وآله', descBn:l==='bn'?'১৭ রবিউল আউয়ালের রাত — পরদিন রাসূলুল্লাহ (সা.) জন্মগ্রহণ করেন (শিয়া মত)। এই রাতে আরবের অগ্নিমন্দিরের আগুন নিভে যায়, কিসরার প্রাসাদে ফাটল দেখা দেয় এবং সামাওয়াহর হ্রদ শুকিয়ে যায় — মহানবীর আগমনের নিদর্শন।':'Night of 17 Rabi al-Awwal — the next day the Prophet (PBUH) was born (Shia view). On this night the fires of Persian fire temples went out, cracks appeared in the palace of Khusrow, and Lake Sawah dried up — signs of the great Prophet\'s arrival.', amaal:l==='bn'?'আনন্দ, মিলাদ মজলিস, সালাওয়াত, কুরআন তিলাওয়াত, দান, সীরাত আলোচনা':'Celebration, Mawlid gatherings, Salawat, Quran recitation, charity, Seerah discussion', importance:l==='bn'?'সর্বশ্রেষ্ঠ নবীর জন্মপূর্ব রাত — রহমতুল্লিল আলামিনের আগমনের রাত':'Eve of the greatest Prophet\'s birth — Night of the arrival of Mercy to the Worlds'},
+
+        // — রজব —
+        {id:'sn3', icon:'✨', color:'#059669', type:'special', hijriDate:l==='bn'?'১ রজব':'1 Rajab', titleBn:l==='bn'?'শবে রজব — রজবের প্রথম রাত':'Shab-e-Rajab — First Night of Rajab', arabicTitle:'ليلة أول رجب', descBn:l==='bn'?'রজব মাস আল্লাহর অন্যতম হারাম মাস। রজবের প্রথম রাত ইবাদতের জন্য বিশেষ মর্যাদাপূর্ণ। হাদিসে এসেছে এই রাতে দোয়া কবুল হয় এবং আল্লাহর রহমত বিশেষভাবে বর্ষিত হয়।':'Rajab is one of the sacred months of Allah. The first night of Rajab is especially significant for worship. Hadith states that duas are accepted on this night and Allah\'s mercy descends specially.', amaal:l==='bn'?'গোসল, নামাজ, দোয়ায়ে রজব, ইস্তিগফার, কুরআন তিলাওয়াত':'Ghusl, prayer, Dua of Rajab, Istighfar, Quran recitation', importance:l==='bn'?'রজবের প্রারম্ভের মর্যাদাপূর্ণ রাত — দোয়া কবুলের রাত':'The honoured opening night of Rajab — Night of accepted duas'},
+        {id:'sn4', icon:'🌟', color:'#b45309', type:'special', hijriDate:l==='bn'?'১৩ রজব':'13 Rajab', titleBn:l==='bn'?'শবে মওলুদে আলী — ইমাম আলীর জন্মরাত':'Night of Ali\'s Birth — Eve of Imam Ali\'s Birthday', arabicTitle:'ليلة مولد علي بن أبي طالب', descBn:l==='bn'?'১৩ রজবের রাত — পরদিন কাবার ভেতরে ইমাম আলী (আ.)-এর জন্ম হয়। এই রাতটি শিয়া মুসলমানদের কাছে আনন্দ ও ইবাদতের রাত। ইমাম আলী একমাত্র ব্যক্তি যিনি কাবার ভেতরে জন্মগ্রহণ করেছেন।':'Night of 13 Rajab — the next day Imam Ali (AS) was born inside the Kaaba. This night is one of joy and worship for Shia Muslims. Imam Ali is the only person ever born inside the Kaaba.', amaal:l==='bn'?'আনন্দ, সালাওয়াত, নামাজ, মজলিস, দান, যিয়ারত ইমাম আলী':'Celebration, Salawat, prayer, Majlis, charity, Ziyarat of Imam Ali', importance:l==='bn'?'আমিরুল মুমিনীনের জন্মপূর্ব রাত — কাবার আলোর রাত':'Eve of the Commander of the Faithful\'s birth — Night of light at the Kaaba'},
+        {id:'sn2', icon:'🕯️', color:'#0369a1', type:'special', hijriDate:l==='bn'?'২৭ রজব':'27 Rajab', titleBn:l==='bn'?'শবে মেরাজ — মিরাজের রাত':'Shab-e-Meraj — Night of Ascension', arabicTitle:'ليلة المعراج', descBn:l==='bn'?'২৭ রজব — রাসূলুল্লাহ (সা.) এই রাতে মক্কা থেকে জেরুজালেম (মসজিদুল আকসা) এবং সেখান থেকে সপ্ত আসমান ও সিদরাতুল মুন্তাহা পর্যন্ত মেরাজ করেন। পাঁচ ওয়াক্ত নামাজ এই রাতে ফরজ হয়।':'27 Rajab — On this night the Prophet (PBUH) ascended from Mecca to Jerusalem (Masjid al-Aqsa), then through the seven heavens to Sidrat al-Muntaha. The five daily prayers were made obligatory on this night.', amaal:l==='bn'?'রাতভর ইবাদত, নফল নামাজ, কুরআন তিলাওয়াত, দরুদ পাঠ, দোয়া':'All-night worship, Nafl prayers, Quran recitation, Salawat, Dua', importance:l==='bn'?'নামাজ ফরজ হওয়ার রাত — নবীর মেরাজের রাত':'Night the prayer was made obligatory — Night of the Prophet\'s Ascension'},
+
+        // — শাবান —
+        {id:'sn5', icon:'🌺', color:'#be185d', type:'special', hijriDate:l==='bn'?'৩ শাবান':'3 Shaban', titleBn:l==='bn'?'শবে মওলুদে হোসাইন — ইমাম হোসাইনের জন্মরাত':'Night of Husayn\'s Birth — Eve of Imam Husayn\'s Birthday', arabicTitle:'ليلة مولد الحسين بن علي', descBn:l==='bn'?'৩ শাবানের রাত — পরদিন ইমাম হোসাইন (আ.) জন্মগ্রহণ করেন। রাসূলুল্লাহ (সা.) বলেছেন: "হোসাইন আমার থেকে, আমি হোসাইন থেকে।" কারবালার মহানায়কের জন্মের পূর্ব রাত।':'Night of 3 Shaban — the next day Imam Husayn (AS) was born. The Prophet (PBUH) said: "Husayn is from me, and I am from Husayn." The eve before the birth of the hero of Karbala.', amaal:l==='bn'?'আনন্দ, সালাওয়াত, যিয়ারত ইমাম হোসাইন, নামাজ, দান':'Celebration, Salawat, Ziyarat of Imam Husayn, prayer, charity', importance:l==='bn'?'সাইয়্যিদুশ শুহাদার জন্মপূর্ব রাত':'Eve of the birth of the Master of Martyrs'},
+        {id:'sn1', icon:'🌙', color:'#7c3aed', type:'special', hijriDate:l==='bn'?'১৫ শাবান':'15 Shaban', titleBn:l==='bn'?'শবে নিমে শাবান (শবে বরাত)':'Shab-e-Nim-e-Shaban (Night of Mid-Shaban)', arabicTitle:'ليلة النصف من شعبان', descBn:l==='bn'?'১৫ শাবানের রাত শিয়া ইসলামে অত্যন্ত মর্যাদাপূর্ণ। এই রাতে ইমাম মাহদি (আ.) জন্মগ্রহণ করেন এবং হাদিস অনুযায়ী এটি বরাত ও মাগফিরাতের রাত। আল্লাহ এই রাতে বান্দাদের রিযিক ও তাকদির নির্ধারণ করেন।':'The night of 15 Shaban is highly significant in Shia Islam. Imam Mahdi (AS) was born on this night and according to hadith it is the night of fate and forgiveness. Allah determines the provisions and destiny of His servants on this night.', amaal:l==='bn'?'দোয়ায়ে কুমাইল, দোয়ায়ে নুদবা, দোয়ায়ে আহদ, সালাওয়াত, নফল নামাজ, ইস্তিগফার':'Dua Kumayl, Dua Nudbah, Dua Ahd, Salawat, Nafl prayer, Istighfar', importance:l==='bn'?'ইমাম মাহদির জন্মরাত — বরাত ও মাগফিরাতের রাত':'Night of Imam Mahdi\'s birth — Night of Fate and Forgiveness'},
+
+        // — রমজান —
+        {id:'sn7', icon:'💫', color:'#1e3a8a', type:'special', hijriDate:l==='bn'?'১ রমজান':'1 Ramadan', titleBn:l==='bn'?'শবে রমজান — রমজানের প্রথম রাত':'First Night of Ramadan', arabicTitle:'ليلة أول رمضان', descBn:l==='bn'?'রমজান মাসের প্রথম রাত ইবাদতের মাসের সূচনা। এই রাতে জান্নাতের দরজা খোলা হয়, জাহান্নামের দরজা বন্ধ করা হয় এবং শয়তানকে শৃঙ্খলিত করা হয়। হাদিসে এই রাতে বিশেষ দোয়া পাঠের নির্দেশনা আছে।':'The first night of Ramadan marks the beginning of the month of worship. On this night the gates of Paradise are opened, the gates of Hell are closed and Satan is chained. Hadith gives guidance on special duas to recite on this night.', amaal:l==='bn'?'দোয়ায়ে রমজান, নিয়্যত, তারাবিহ/তাহাজ্জুদ, কুরআন তিলাওয়াত শুরু, ইফতারির প্রস্তুতি':'Dua of Ramadan, Intention, Tarawih/Tahajjud, beginning Quran recitation, preparing for Iftar', importance:l==='bn'?'ইবাদতের মাসের সূচনা — জান্নাতের দরজা উন্মুক্তের রাত':'Beginning of the month of worship — Night the gates of Paradise open'},
         {id:'st7', icon:'⭐', color:'#b45309', type:'special', hijriDate:l==='bn'?'১৯, ২১, ২৩ রমজান':'19, 21, 23 Ramadan', titleBn:l==='bn'?'লাইলাতুল ক্বদর (তিন রাত)':'Laylat al-Qadr (Three Nights)', arabicTitle:'ليلة القدر', descBn:l==='bn'?'১৯ রমজান — ইমাম আলী (আ.) আঘাতপ্রাপ্ত। ২১ রমজান — ইমাম আলী শহীদ। ২৩ রমজান — সর্বোচ্চ সম্ভাব্য ক্বদরের রাত।':'19 Ramadan — Imam Ali (AS) is struck. 21 Ramadan — Imam Ali is martyred. 23 Ramadan — the most probable Night of Qadr.', amaal:l==='bn'?'রাতভর ইবাদত, কুরআন মাথায় রাখা, দোয়ায়ে জওশানে কাবির':'All-night worship, placing the Quran on the head, Dua Jawshan al-Kabir', importance:l==='bn'?'হাজার মাসের চেয়ে উত্তম':'Better than a thousand months'},
-        {id:'st8', icon:'🕊️', color:'#dc2626', type:'martyrdom', hijriDate:l==='bn'?'২১ রমজান':'21 Ramadan', titleBn:l==='bn'?'ইমাম আলী (আ.) শাহাদাত':'Martyrdom of Imam Ali (AS)', arabicTitle:'شهادة علي بن أبي طالب', descBn:l==='bn'?'২১ রমজান — ইমাম আলী (আ.) শহীদ হন। তিনি বলেছিলেন: "রমজান মাসে ক্বদরের রাতে শাহাদাত — কতই না সৌভাগ্য।"':'21 Ramadan — Imam Ali (AS) is martyred. He said: "To be martyred on the Night of Qadr in Ramadan — what great fortune."', amaal:l==='bn'?'শোক পালন, যিয়ারত ইমাম আলী, দোয়ায়ে কুমাইল':'Mourning, Ziyarat of Imam Ali, Dua Kumayl', importance:l==='bn'?'প্রথম ইমামের শাহাদাত ও ক্বদরের রাত':'Martyrdom of the First Imam and the Night of Qadr'},
-        {id:'st9', icon:'🌹', color:'#dc2626', type:'martyrdom', hijriDate:l==='bn'?'৩ জামাদিউস সানি':'3 Jumada al-Thani', titleBn:l==='bn'?'হযরত ফাতেমা যাহরা (আ.) শাহাদাত':'Martyrdom of Lady Fatima al-Zahra (AS)', arabicTitle:'شهادة فاطمة الزهراء', descBn:l==='bn'?'রাসূলুল্লাহ (সা.)-এর ওফাতের মাত্র ৭৫-৯৫ দিন পর শহীদ হন। তাঁর দাফনস্থান অজ্ঞাত।':'She was martyred only 75–95 days after the passing of the Prophet (PBUH). Her burial place remains unknown.', amaal:l==='bn'?'শোক পালন, ফাতেমার যিয়ারত':'Mourning, reciting Fatima\'s Ziyarat', importance:l==='bn'?'ইসলামের শ্রেষ্ঠ নারীর শাহাদাত':'Martyrdom of the greatest woman in Islam'},
-        {id:'st10',icon:'🔴', color:'#dc2626', type:'martyrdom', hijriDate:l==='bn'?'১০ মহররম':'10 Muharram', titleBn:l==='bn'?'আশুরা — ইমাম হোসাইন (আ.) শাহাদাত':'Ashura — Martyrdom of Imam Husayn (AS)', arabicTitle:'عاشوراء', descBn:l==='bn'?'৬১ হিজরিতে কারবালায় ইমাম হোসাইন (আ.) পরিবার ও ৭২ সঙ্গীসহ শহীদ হন।':'In 61 AH at Karbala, Imam Husayn (AS) was martyred along with his family and 72 companions.', amaal:l==='bn'?'মজলিস, যিয়ারত আশুরা, শোক পালন':'Majlis, Ziyarat Ashura, mourning', importance:l==='bn'?'ইতিহাসের সর্বশ্রেষ্ঠ শাহাদাত':'The greatest martyrdom in history'},
-    ];
+        {id:'sn8', icon:'🎇', color:'#dc2626', type:'special', hijriDate:l==='bn'?'২৩ রমজান':'23 Ramadan', titleBn:l==='bn'?'শবে ক্বদর — ২৩ রমজান (সর্বোচ্চ সম্ভাব্য)':'Laylat al-Qadr — 23rd Ramadan (Most Probable)', arabicTitle:'ليلة القدر ٢٣ رمضان', descBn:l==='bn'?'শিয়া হাদিসে ২৩ রমজানকে সবচেয়ে সম্ভাব্য লাইলাতুল ক্বদর বলা হয়েছে। এই রাতে কুরআন নাযিল হয়েছে এবং সকল বিষয়ের ফায়সালা হয়। ফেরেশতারা ও রূহ এই রাতে নাযিল হন।':'Shia hadith designates 23 Ramadan as the most probable Laylat al-Qadr. On this night the Quran was revealed and all matters are decided. The angels and the Spirit descend on this night.', amaal:l==='bn'?'রাতভর ইবাদত, কুরআন মাথায় রেখে দোয়া, দোয়ায়ে জওশানে কাবির, ইস্তিগফার, গোসল':'All-night worship, dua with Quran on head, Dua Jawshan al-Kabir, Istighfar, Ghusl', importance:l==='bn'?'হাজার মাসের চেয়ে উত্তম — তাকদির নির্ধারণের রাত':'Better than a thousand months — Night of destiny'},
+
+        // — জিলহজ —
+        {id:'sn9', icon:'🌙', color:'#065f46', type:'special', hijriDate:l==='bn'?'৯ জিলহজ (আরাফার রাত)':'9 Dhu al-Hijjah (Eve of Arafah)', titleBn:l==='bn'?'শবে আরাফা — আরাফার রাত':'Shab-e-Arafah — Night of Arafah', arabicTitle:'ليلة عرفة', descBn:l==='bn'?'আরাফার দিনের পূর্বরাত। হাজীরা মিনায় রাত কাটান এবং ফজরের পর আরাফার ময়দানে যান। এই রাতে ইবাদত ও দোয়ার বিশেষ ফজিলত রয়েছে। ইমাম হোসাইন (আ.) আরাফার দিনের বিখ্যাত দোয়া এই রাতেই রচনা করেছিলেন বলে কথিত।':'The eve before the Day of Arafah. Pilgrims spend the night in Mina and proceed to the plain of Arafah after Fajr. This night holds special merit for worship and dua. Imam Husayn\'s famous Dua of Arafah is associated with this time.', amaal:l==='bn'?'দোয়ায়ে আরাফা (ইমাম হোসাইন), ইস্তিগফার, নফল নামাজ, কুরআন তিলাওয়াত':'Dua Arafah (Imam Husayn), Istighfar, Nafl prayer, Quran recitation', importance:l==='bn'?'হজের সবচেয়ে গুরুত্বপূর্ণ দিনের পূর্বরাত — দোয়া কবুলের শ্রেষ্ঠ সময়':'Eve of the most important day of Hajj — best time for accepted duas'},
+
+        // — বিশেষ / নির্দিষ্ট তারিখ নেই —
+        {id:'sn10', icon:'⭐', color:'#1e3a8a', type:'special', hijriDate:l==='bn'?'প্রতি বৃহস্পতিবার রাত (শুক্রবার রাত)':'Every Thursday Night (Laylat al-Jumuah)', titleBn:l==='bn'?'শবে জুমা — জুমার রাত':'Shab-e-Jumah — Night of Friday', arabicTitle:'ليلة الجمعة', descBn:l==='bn'?'প্রতি সপ্তাহে বৃহস্পতিবার রাত (শবে জুমা) শিয়া ইসলামে বিশেষ ইবাদতের রাত। এই রাতে দোয়ায়ে কুমাইল পাঠ করা অত্যন্ত ফজিলতপূর্ণ। ইমাম আলী (আ.) হযরত কুমাইল ইবনে যিয়াদকে এই রাতে এই দোয়া শিখিয়েছিলেন।':'Every Thursday night (Shab-e-Jumah) is a special night of worship in Shia Islam. Reciting Dua Kumayl on this night carries immense merit. Imam Ali (AS) taught this dua to Kumayl ibn Ziyad on such a night.', amaal:l==='bn'?'দোয়ায়ে কুমাইল (সবচেয়ে গুরুত্বপূর্ণ), দোয়ায়ে নুদবা (শুক্রবার সকাল), যিয়ারত ইমাম, সালাওয়াত':'Dua Kumayl (most important), Dua Nudbah (Friday morning), Ziyarat of Imam, Salawat', importance:l==='bn'?'সাপ্তাহিক বিশেষ রাত — দোয়ায়ে কুমাইলের রাত':'Weekly special night — Night of Dua Kumayl'},
+
+        // ── শাহাদাত দিবস (হিজরি মাস অনুযায়ী) ──
+
+        // — মুহাররম —
+        {id:'sm3', icon:'🕊️', color:'#0369a1', type:'martyrdom', hijriDate:l==='bn'?'১ মুহাররম বা সফর, ১২২ হি.':'Muharram or Safar, 122 AH', titleBn:l==='bn'?'হযরত যায়দ ইবনে আলী শাহাদাত':'Martyrdom of Zayd ibn Ali', arabicTitle:'شهادة زيد بن علي', descBn:l==='bn'?'১২২ হিজরিতে যায়দ ইবনে আলী হিশাম বিন আব্দুল মালিকের বিরুদ্ধে কুফায় বিদ্রোহ করেন এবং শহীদ হন। ইমাম সাজ্জাদ (আ.)-এর পুত্র। তাঁর নামে যায়দি মাযহাব প্রতিষ্ঠিত হয়।':'In 122 AH, Zayd ibn Ali revolted in Kufa against Hisham ibn Abd al-Malik and was martyred. Son of Imam Sajjad (AS). The Zaydi school of thought is named after him.', amaal:l==='bn'?'শোক পালন, স্মরণ':'Mourning, remembrance', importance:l==='bn'?'ইমাম সাজ্জাদের পুত্রের শাহাদাত — যুলুমের বিরুদ্ধে সংগ্রাম':'Martyrdom of Imam Sajjad\'s son — struggle against oppression'},
+        {id:'st10',icon:'🔴', color:'#dc2626', type:'martyrdom', hijriDate:l==='bn'?'১০ মুহাররম':'10 Muharram', titleBn:l==='bn'?'আশুরা — ইমাম হোসাইন (আ.) শাহাদাত':'Ashura — Martyrdom of Imam Husayn (AS)', arabicTitle:'عاشوراء', descBn:l==='bn'?'৬১ হিজরিতে কারবালায় ইমাম হোসাইন (আ.) পরিবার ও ৭২ সঙ্গীসহ শহীদ হন।':'In 61 AH at Karbala, Imam Husayn (AS) was martyred along with his family and 72 companions.', amaal:l==='bn'?'মজলিস, যিয়ারত আশুরা, শোক পালন':'Majlis, Ziyarat Ashura, mourning', importance:l==='bn'?'ইতিহাসের সর্বশ্রেষ্ঠ শাহাদাত':'The greatest martyrdom in history'},
+        {id:'st13',icon:'🕊️', color:'#dc2626', type:'martyrdom', hijriDate:l==='bn'?'২৫ মুহাররম, ৯৫ হি.':'25 Muharram, 95 AH', titleBn:l==='bn'?'ইমাম সাজ্জাদ (আ.) শাহাদাত দিবস':'Martyrdom of Imam Sajjad (AS)', arabicTitle:'شهادة علي بن الحسين زين العابدين', descBn:l==='bn'?'৯৫ হিজরিতে ওয়ালিদ বিন আব্দুল মালিকের নির্দেশে বিষ প্রয়োগে শহীদ হন। কারবালার একমাত্র পুরুষ বেঁচে যাওয়া ইমাম। সাহিফায়ে সাজ্জাদিয়্যার রচয়িতা।':'In 95 AH, martyred by poison on the orders of Walid ibn Abd al-Malik. The only male survivor of Karbala. Author of Sahifa al-Sajjadiyya.', amaal:l==='bn'?'শোক পালন, সাহিফায়ে সাজ্জাদিয়্যা পাঠ':'Mourning, reciting Sahifa al-Sajjadiyya', importance:l==='bn'?'চতুর্থ ইমামের শাহাদাত — ইসলামে দোয়ার মহান শিক্ষক':'Martyrdom of the 4th Imam — the great teacher of dua in Islam'},
+
+        // — সফর —
+        {id:'st17',icon:'🕊️', color:'#dc2626', type:'martyrdom', hijriDate:l==='bn'?'১৭ সফর, ২০৩ হি.':'17 Safar, 203 AH', titleBn:l==='bn'?'ইমাম আলী রেযা (আ.) শাহাদাত দিবস':'Martyrdom of Imam Ali al-Ridha (AS)', arabicTitle:'شهادة علي بن موسى الرضا', descBn:l==='bn'?'২০৩ হিজরিতে মামুনুর রশিদের নির্দেশে আঙুরে বিষ প্রয়োগে শহীদ হন। ইরানের মাশহাদে তাঁর পবিত্র মাযার অবস্থিত।':'In 203 AH, martyred by poison in grapes on the orders of Mamun al-Rashid. His holy shrine is located in Mashhad, Iran.', amaal:l==='bn'?'শোক পালন, মাশহাদ যিয়ারত, যিয়ারতুর রেযা':'Mourning, Ziyarat in Mashhad, Ziyarat al-Ridha', importance:l==='bn'?'অষ্টম ইমামের শাহাদাত — আর-রেযা, পরিতুষ্ট':'Martyrdom of the 8th Imam — al-Ridha, the Contented'},
+        {id:'st11',icon:'🕊️', color:'#dc2626', type:'martyrdom', hijriDate:l==='bn'?'২৮ সফর, ১১ হি.':'28 Safar, 11 AH', titleBn:l==='bn'?'রাসূলুল্লাহ (সা.) শাহাদাত দিবস':'Martyrdom of Prophet Muhammad (SAW)', arabicTitle:'وفاة النبي محمد صلى الله عليه وآله', descBn:l==='bn'?'২৮ সফর ১১ হিজরিতে রাসূলুল্লাহ (সা.) মদিনায় শহীদ হন। বিষ প্রয়োগে শাহাদাত বরণ করেন বলে শিয়া মতে বিশ্বাস করা হয়। তাঁর ওফাতের পর আহলে বাইতের উপর জুলুম শুরু হয়।':'On 28 Safar 11 AH, the Prophet Muhammad (SAW) was martyred in Medina. Shia scholars hold that he was poisoned. After his passing, oppression against the Ahlul Bayt began.', amaal:l==='bn'?'শোক পালন, দরুদ পাঠ, যিয়ারতুন নবী':'Mourning, reciting Salawat, Ziyarat al-Nabi', importance:l==='bn'?'সর্বকালের সর্বশ্রেষ্ঠ নবীর বিদায়':'The passing of the greatest Prophet of all time'},
+        {id:'st12',icon:'🕊️', color:'#9d174d', type:'martyrdom', hijriDate:l==='bn'?'২৮ সফর, ৫০ হি.':'28 Safar, 50 AH', titleBn:l==='bn'?'ইমাম হাসান (আ.) শাহাদাত দিবস':'Martyrdom of Imam Hasan (AS)', arabicTitle:'شهادة الحسن بن علي', descBn:l==='bn'?'৫০ হিজরিতে ইমাম হাসান (আ.) মুয়াবিয়ার ষড়যন্ত্রে তাঁর স্ত্রী জুয়ায়রিয়ার দেওয়া বিষে শহীদ হন। মদিনায় তাঁকে জান্নাতুল বাকিতে দাফন করা হয়।':'In 50 AH, Imam Hasan (AS) was martyred by poison given by his wife Juayriyah at the instigation of Muawiyah. He was buried in Jannat al-Baqi in Medina.', amaal:l==='bn'?'শোক পালন, যিয়ারত ইমাম হাসান, দোয়া':'Mourning, Ziyarat of Imam Hasan, dua', importance:l==='bn'?'দ্বিতীয় ইমামের শাহাদাত — সন্ধি ও ত্যাগের প্রতীক':'Martyrdom of the 2nd Imam — symbol of patience and sacrifice'},
+
+        // — রবিউল আউয়াল —
+        {id:'st20',icon:'🕊️', color:'#dc2626', type:'martyrdom', hijriDate:l==='bn'?'৮ রবিউল আউয়াল, ২৬০ হি.':'8 Rabi al-Awwal, 260 AH', titleBn:l==='bn'?'ইমাম হাসান আসকারি (আ.) শাহাদাত দিবস':'Martyrdom of Imam Hasan al-Askari (AS)', arabicTitle:'شهادة الحسن بن علي العسكري', descBn:l==='bn'?'২৬০ হিজরিতে মুতামিদের নির্দেশে বিষ প্রয়োগে শহীদ হন। মাত্র ২৮ বছর বয়সে শহীদ হন। ইমাম মাহদি (আ.)-এর পিতা।':'In 260 AH, martyred by poison on the orders of al-Mutamid. Martyred at only 28 years of age. He is the father of Imam Mahdi (AS).', amaal:l==='bn'?'শোক পালন, সামারা যিয়ারত, যিয়ারত ইমাম আসকারি':'Mourning, Ziyarat in Samarra, Ziyarat of Imam Askari', importance:l==='bn'?'একাদশ ইমামের শাহাদাত — ইমাম মাহদির পিতা':'Martyrdom of the 11th Imam — father of Imam Mahdi'},
+
+        // — জামাদিউস সানি —
+        {id:'st9', icon:'🌹', color:'#dc2626', type:'martyrdom', hijriDate:l==='bn'?'৩ জামাদিউস সানি':'3 Jumada al-Thani', titleBn:l==='bn'?'হযরত ফাতেমা যাহরা (আ.) শাহাদাত':'Martyrdom of Lady Fatima al-Zahra (AS)', arabicTitle:'شهادة فاطمة الزهراء', descBn:l==='bn'?'রাসূলুল্লাহ (সা.)-এর ওফাতের মাত্র ৭৫-৯৫ দিন পর শহীদ হন।':'She was martyred only 75–95 days after the passing of the Prophet (PBUH).', amaal:l==='bn'?'শোক পালন, ফাতেমার যিয়ারত':'Mourning, reciting Fatima\'s Ziyarat', importance:l==='bn'?'ইসলামের শ্রেষ্ঠ নারীর শাহাদাত':'Martyrdom of the greatest woman in Islam'},
+
+        // — রজব —
+        {id:'st19',icon:'🕊️', color:'#dc2626', type:'martyrdom', hijriDate:l==='bn'?'৩ রজব, ২৫৪ হি.':'3 Rajab, 254 AH', titleBn:l==='bn'?'ইমাম আলী হাদি (আ.) শাহাদাত দিবস':'Martyrdom of Imam Ali al-Hadi (AS)', arabicTitle:'شهادة علي بن محمد الهادي', descBn:l==='bn'?'২৫৪ হিজরিতে মুতাযের নির্দেশে বিষ প্রয়োগে শহীদ হন। দীর্ঘ গৃহবন্দিত্বেও সামারা থেকে উম্মাহকে পথ দেখিয়েছেন।':'In 254 AH, martyred by poison on the orders of al-Mutazz. He guided the Ummah even through long house arrest in Samarra.', amaal:l==='bn'?'শোক পালন, সামারা যিয়ারত, যিয়ারত ইমাম হাদি':'Mourning, Ziyarat in Samarra, Ziyarat of Imam Hadi', importance:l==='bn'?'দশম ইমামের শাহাদাত — আন-নাকি, পবিত্র':'Martyrdom of the 10th Imam — al-Naqi, the Pure'},
+        {id:'st16',icon:'🕊️', color:'#dc2626', type:'martyrdom', hijriDate:l==='bn'?'২৫ রজব, ১৮৩ হি.':'25 Rajab, 183 AH', titleBn:l==='bn'?'ইমাম মুসা কাযিম (আ.) শাহাদাত দিবস':'Martyrdom of Imam Musa al-Kazim (AS)', arabicTitle:'شهادة موسى بن جعفر الكاظم', descBn:l==='bn'?'১৮৩ হিজরিতে হারুনুর রশিদের নির্দেশে বাগদাদের কারাগারে বিষ প্রয়োগে শহীদ হন। দীর্ঘ কারাবাসেও ইবাদতে মগ্ন থাকতেন।':'In 183 AH, martyred by poison in a Baghdad prison on the orders of Harun al-Rashid. He remained devoted to worship even through long imprisonment.', amaal:l==='bn'?'শোক পালন, যিয়ারত ইমাম কাযিম, কাযিমাইনে যিয়ারত':'Mourning, Ziyarat of Imam Kazim, visiting Kazimayn', importance:l==='bn'?'সপ্তম ইমামের শাহাদাত — আল-কাযিম, রাগ সংবরণকারী':'Martyrdom of the 7th Imam — al-Kazim, the Restrainer of Anger'},
+
+        // — রমজান —
+        {id:'st8', icon:'🕊️', color:'#dc2626', type:'martyrdom', hijriDate:l==='bn'?'২১ রমজান':'21 Ramadan', titleBn:l==='bn'?'ইমাম আলী (আ.) শাহাদাত':'Martyrdom of Imam Ali (AS)', arabicTitle:'شهادة علي بن أبي طالب', descBn:l==='bn'?'২১ রমজান — ইমাম আলী (আ.) শহীদ হন।':'21 Ramadan — Imam Ali (AS) is martyred.', amaal:l==='bn'?'শোক পালন, যিয়ারত ইমাম আলী, দোয়ায়ে কুমাইল':'Mourning, Ziyarat of Imam Ali, Dua Kumayl', importance:l==='bn'?'প্রথম ইমামের শাহাদাত ও ক্বদরের রাত':'Martyrdom of the First Imam and the Night of Qadr'},
+
+        // — শাওয়াল —
+        {id:'st15',icon:'🕊️', color:'#dc2626', type:'martyrdom', hijriDate:l==='bn'?'২৫ শাওয়াল, ১৪৮ হি.':'25 Shawwal, 148 AH', titleBn:l==='bn'?'ইমাম সাদিক (আ.) শাহাদাত দিবস':'Martyrdom of Imam Jafar al-Sadiq (AS)', arabicTitle:'شهادة جعفر بن محمد الصادق', descBn:l==='bn'?'১৪৮ হিজরিতে মনসুর দাওয়ানিকির নির্দেশে বিষ প্রয়োগে শহীদ হন। জাফরি মাযহাবের প্রতিষ্ঠাতা। তাঁর হাজারো ছাত্র ছিলেন।':'In 148 AH, martyred by poison on the orders of Mansur al-Dawaniqi. Founder of the Jafari school. He had thousands of students.', amaal:l==='bn'?'শোক পালন, যিয়ারত ইমাম সাদিক':'Mourning, Ziyarat of Imam Sadiq', importance:l==='bn'?'ষষ্ঠ ইমামের শাহাদাত — জাফরি মাযহাবের ইমাম':'Martyrdom of the 6th Imam — Founder of Jafari school'},
+
+        // — যিলকদ —
+        {id:'st18',icon:'🕊️', color:'#dc2626', type:'martyrdom', hijriDate:l==='bn'?'২৩ যিলকদ, ২২০ হি.':'23 Dhu al-Qadah, 220 AH', titleBn:l==='bn'?'ইমাম মুহাম্মদ জওয়াদ (আ.) শাহাদাত দিবস':'Martyrdom of Imam Muhammad al-Jawad (AS)', arabicTitle:'شهادة محمد بن علي الجواد', descBn:l==='bn'?'২২০ হিজরিতে মুতাসিমের নির্দেশে তাঁর স্ত্রী উম্মুল ফযলের দেওয়া বিষে শহীদ হন। মাত্র ৯ বছর বয়সে ইমামতের দায়িত্ব পেয়েছিলেন।':'In 220 AH, martyred by poison given by his wife Umm al-Fadl on the orders of al-Mutasim. He assumed Imamate at just 9 years of age.', amaal:l==='bn'?'শোক পালন, যিয়ারত ইমাম জওয়াদ, কাযিমাইনে যিয়ারত':'Mourning, Ziyarat of Imam Jawad, visiting Kazimayn', importance:l==='bn'?'নবম ইমামের শাহাদাত — আত-তাকি, পরহেজগার':'Martyrdom of the 9th Imam — al-Taqi, the Pious'},
+
+        // — জিলহজ —
+        {id:'st14',icon:'🕊️', color:'#dc2626', type:'martyrdom', hijriDate:l==='bn'?'৭ যিলহজ্ব, ১১৪ হি.':'7 Dhu al-Hijjah, 114 AH', titleBn:l==='bn'?'ইমাম বাকির (আ.) শাহাদাত দিবস':'Martyrdom of Imam Muhammad al-Baqir (AS)', arabicTitle:'شهادة محمد بن علي الباقر', descBn:l==='bn'?'১১৪ হিজরিতে হিশাম বিন আব্দুল মালিকের নির্দেশে বিষ প্রয়োগে শহীদ হন। ইমাম বাকির ইসলামি জ্ঞান ও ফিকহে যুগান্তকারী অবদান রাখেন।':'In 114 AH, martyred by poison on the orders of Hisham ibn Abd al-Malik. Imam Baqir made epoch-making contributions to Islamic knowledge and jurisprudence.', amaal:l==='bn'?'শোক পালন, ইলম অর্জন, যিয়ারত ইমাম বাকির':'Mourning, seeking knowledge, Ziyarat of Imam Baqir', importance:l==='bn'?'পঞ্চম ইমামের শাহাদাত — বাকিরুল উলুম':'Martyrdom of the 5th Imam — Splitter of Knowledge'},
+        {id:'sm1', icon:'🕊️', color:'#7c3aed', type:'martyrdom', hijriDate:l==='bn'?'৯ জিলহজ, ৬০ হি.':'9 Dhu al-Hijjah, 60 AH', titleBn:l==='bn'?'হযরত মুসলিম ইবনে আকিল শাহাদাত':'Martyrdom of Muslim ibn Aqil (AS)', arabicTitle:'شهادة مسلم بن عقيل', descBn:l==='bn'?'৬০ হিজরিতে ইমাম হোসাইনের দূত মুসলিম ইবনে আকিল কুফায় ইবনে যিয়াদের নির্দেশে শহীদ হন। তিনি ইমামের পক্ষে বাইয়াত নেওয়ার জন্য কুফায় গিয়েছিলেন। তাঁর সাথে হানি ইবনে উরওয়াও শহীদ হন।':'In 60 AH, Muslim ibn Aqil, the envoy of Imam Husayn, was martyred in Kufa on the orders of Ibn Ziyad. He had gone to Kufa to take pledges of allegiance on behalf of the Imam. Hani ibn Urwa was also martyred alongside him.', amaal:l==='bn'?'শোক পালন, মুসলিম ইবনে আকিলের যিয়ারত, কুফায় যিয়ারত':'Mourning, Ziyarat of Muslim ibn Aqil, visiting Kufa', importance:l==='bn'?'ইমামের বিশ্বস্ত দূতের শাহাদাত — কারবালার পটভূমি':'Martyrdom of the Imam\'s trusted envoy — prelude to Karbala'},
+        {id:'sm2', icon:'🕊️', color:'#7c3aed', type:'martyrdom', hijriDate:l==='bn'?'৯ জিলহজ, ৬০ হি.':'9 Dhu al-Hijjah, 60 AH', titleBn:l==='bn'?'হযরত হানি ইবনে উরওয়া শাহাদাত':'Martyrdom of Hani ibn Urwa', arabicTitle:'شهادة هاني بن عروة', descBn:l==='bn'?'৬০ হিজরিতে কুফার বিশিষ্ট নেতা হানি ইবনে উরওয়া মুসলিম ইবনে আকিলকে আশ্রয় দেওয়ার কারণে ইবনে যিয়াদের নির্দেশে শহীদ হন। শিয়াদের শ্রদ্ধেয় ব্যক্তিত্ব।':'In 60 AH, Hani ibn Urwa, a prominent leader of Kufa, was martyred on the orders of Ibn Ziyad for sheltering Muslim ibn Aqil. A revered figure among the Shia.', amaal:l==='bn'?'শোক পালন, যিয়ারত, কুফায় স্মরণ':'Mourning, Ziyarat, remembrance in Kufa', importance:l==='bn'?'কুফার বিশ্বস্ত সমর্থকের শাহাদাত':'Martyrdom of a loyal supporter in Kufa'},
+    ];;
     const allDays = [...staticDays, ...state.shiaSpecialDays];
 
-    const typeBg = { eid: d?'#052e16':'#ecfdf5', martyrdom: d?'#1a0000':'#fef2f2', special: d?'#1c1400':'#fffbeb' };
-    const typeColor = { eid:'#059669', martyrdom:'#dc2626', special:'#b45309' };
-    const typeLabel = {
-        eid: l==='bn'?'🎉 ঈদ/উৎসব':'🎉 Eid/Celebration',
-        martyrdom: l==='bn'?'🕊️ শাহাদাত':'🕊️ Martyrdom',
-        special: l==='bn'?'⭐ বিশেষ দিন':'⭐ Special Day'
-    };
     const isStatic = id => id && id.startsWith('st');
 
-    const cardHtml = items => items.map(item=>`
+    // ── Card HTML ────────────────────────────────────────────────────
+    const cardHtml = items => items.length===0
+        ? `<p class="text-sm ${d?'text-gray-500':'text-gray-400'} text-center py-6">${l==='bn'?'কোনো তথ্য নেই':'No entries yet'}</p>`
+        : items.map(item=>`
     <article class="${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-2xl overflow-hidden card-hover" style="border-top:3px solid ${item.color||'#059669'}">
         <div class="p-5">
             <div class="flex items-start gap-3 mb-3">
                 <span style="width:36px;height:36px;border-radius:10px;background:${item.color||'#059669'}18;display:inline-flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">${item.icon||'✨'}</span>
                 <div class="flex-1 min-w-0">
                     <div class="flex flex-wrap items-center gap-1.5 mb-1">
-                        <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:${typeBg[item.type]||typeBg.eid};color:${typeColor[item.type]||'#059669'}">${typeLabel[item.type]||typeLabel.eid}</span>
                         <span class="text-xs ${d?'text-gray-400':'text-gray-500'}">📅 ${sanitize(item.hijriDate||'')}</span>
                     </div>
                     <h3 class="font-bold text-base leading-snug">${sanitize(item.titleBn||'')}</h3>
-                    ${item.arabicTitle?`<p class="arabic-text text-right text-sm mt-0.5" dir="rtl" style="color:${d?'#9ca3af':'#9ca3af'}">${sanitize(item.arabicTitle)}</p>`:''}
+                    ${item.arabicTitle?`<p class="arabic-text text-right text-sm mt-0.5" dir="rtl" style="color:#9ca3af">${sanitize(item.arabicTitle)}</p>`:''}
                 </div>
                 ${state.isAdmin && !isStatic(item.id)?`
                 <div class="flex gap-1 flex-shrink-0">
                     <button data-action="openShiaDayEditor" data-param="${item.id}" class="text-xs px-2 py-1 rounded-lg ${d?'bg-gray-700 text-gray-300':'bg-gray-100 text-gray-600'} hover:opacity-80">✏️</button>
                     <button data-action="deleteShiaDay" data-param="${item.id}" class="text-xs px-2 py-1 rounded-lg bg-red-100 text-red-600 hover:bg-red-200">🗑️</button>
-                </div>`:
-                state.isAdmin && isStatic(item.id)?'':''
-                }
+                </div>`:''}
             </div>
             <p class="text-sm ${d?'text-gray-300':'text-gray-700'} leading-relaxed mb-3">${sanitize(item.descBn||'')}</p>
             ${item.amaal?`<div class="${d?'bg-gray-900 border-gray-700':'bg-emerald-50 border-emerald-100'} border rounded-xl p-3 mb-2">
@@ -5133,16 +5515,33 @@ function renderShiaDaysPage() {
         </div>
     </article>`).join('');
 
-    const eids      = allDays.filter(x=>x.type==='eid');
-    const specials  = allDays.filter(x=>x.type==='special');
-    const martyrdoms= allDays.filter(x=>x.type==='martyrdom');
+    const eids       = allDays.filter(x=>x.type==='eid');
+    const specials   = allDays.filter(x=>x.type==='special');
+    const martyrdoms = allDays.filter(x=>x.type==='martyrdom');
 
-    return `<div class="space-y-8 page-enter">
+    // ── Accordion folder builder ─────────────────────────────────────
+    const folder = (folderId, icon, gradient, label, count, colorAccent, items) => `
+    <div class="rounded-2xl overflow-hidden border ${d?'border-gray-700':'border-gray-200'} mb-4">
+        <button onclick="(function(){var c=document.getElementById('folder-${folderId}');var a=document.getElementById('arrow-${folderId}');var open=c.style.display==='none'||c.style.display==='';c.style.display=open?'block':'none';a.style.transform=open?'rotate(90deg)':'rotate(0deg)';})()" style="width:100%;display:flex;align-items:center;gap:14px;padding:16px 20px;background:${d?'rgba(255,255,255,.04)':'rgba(0,0,0,.02)'};cursor:pointer;border:none;text-align:left">
+            <span style="width:42px;height:42px;border-radius:12px;background:${gradient};display:inline-flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0">${icon}</span>
+            <div class="flex-1">
+                <div class="font-bold text-base ${d?'text-white':'text-gray-900'}">${label}</div>
+                <div class="text-xs ${d?'text-gray-400':'text-gray-500'} mt-0.5">${count} ${l==='bn'?'টি দিন':'entries'}</div>
+            </div>
+            <span id="arrow-${folderId}" style="font-size:1.1rem;color:${colorAccent};transition:transform .25s;display:inline-block">▶</span>
+        </button>
+        <div id="folder-${folderId}" style="display:none;padding:16px;background:${d?'rgba(255,255,255,.02)':'rgba(0,0,0,.01)'}">
+            <div class="grid md:grid-cols-2 gap-4">${cardHtml(items)}</div>
+        </div>
+    </div>`;
+
+    return `<div class="space-y-6 page-enter">
         <button data-action="changePage" data-param="home" class="flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm hover:scale-[1.02] transition-all" style="background:${d?'rgba(5,150,105,.15)':'rgba(5,150,105,.08)'};color:#059669">← ${l==='bn'?'হোমে ফিরুন':'Back to Home'}</button>
 
+        <!-- Hero -->
         <div class="relative overflow-hidden rounded-3xl text-center" style="background:linear-gradient(135deg,#064e3b,#065f46,#1e3a8a);padding:2rem;box-shadow:0 8px 32px rgba(5,150,105,.3)">
             <div style="font-size:2.5rem;margin-bottom:.5rem">✨🌙⭐</div>
-            <h2 style="font-size:1.8rem;font-weight:900;color:white">${l==='bn'?'শিয়া বিশেষ দিনসমূহ':'Shia Special Days'}</h2>
+            <h2 style="font-size:1.8rem;font-weight:900;color:white">${l==='bn'?'বিশেষ দিনসমূহ':'Special Days'}</h2>
             <p style="color:rgba(255,255,255,.8);font-size:.9rem;margin-top:.25rem">${l==='bn'?'ঈদে গাদির · মুবাহিলা · শবে ক্বদর · নিমে শাবান · ইমামদের জন্ম-শাহাদাত':'Eid al-Ghadeer · Mubahala · Laylat al-Qadr · Mid-Shaban · Imams\' Birth & Martyrdom'}</p>
         </div>
 
@@ -5151,30 +5550,11 @@ function renderShiaDaysPage() {
             <button data-action="openShiaDayEditor" class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white" style="background:linear-gradient(135deg,#059669,#065f46)">＋ ${l==='bn'?'নতুন বিশেষ দিন যোগ করুন':'Add New Special Day'}</button>
         </div>`:''}
 
-        <section>
-            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-                <span style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#059669,#065f46);display:inline-flex;align-items:center;justify-content:center">🎉</span>
-                ${l==='bn'?'ঈদ ও আনন্দময় দিন':'Eids & Celebrations'}
-            </h3>
-            <div class="grid md:grid-cols-2 gap-4">${cardHtml(eids)}</div>
-        </section>
-
-        <section>
-            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-                <span style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#b45309,#92400e);display:inline-flex;align-items:center;justify-content:center">⭐</span>
-                ${l==='bn'?'বিশেষ রাত':'Special Nights'}
-            </h3>
-            <div class="grid md:grid-cols-2 gap-4">${cardHtml(specials)}</div>
-        </section>
-
-        <section>
-            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-                <span style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#dc2626,#991b1b);display:inline-flex;align-items:center;justify-content:center">🕊️</span>
-                ${l==='bn'?'শাহাদাত দিবস':'Days of Martyrdom'}
-            </h3>
-            <div class="grid md:grid-cols-2 gap-4">${cardHtml(martyrdoms)}</div>
-        </section>
+        <!-- Folders -->
+        ${folder('eid',   '🎉', 'linear-gradient(135deg,#059669,#065f46)', l==='bn'?'ঈদ ও আনন্দময় দিন':'Eids & Celebrations', eids.length,      '#059669', eids)}
+        ${folder('night', '⭐', 'linear-gradient(135deg,#b45309,#92400e)', l==='bn'?'বিশেষ রাত':'Special Nights',          specials.length,   '#b45309', specials)}
+        ${folder('mart',  '🕊️', 'linear-gradient(135deg,#dc2626,#991b1b)', l==='bn'?'শাহাদাত দিবস':'Days of Martyrdom',     martyrdoms.length, '#dc2626', martyrdoms)}
     </div>`;
 }
 
-console.log('✅ ফিচার লোড: মুহাররম, শিয়া বিশেষ দিন CRUD সহ');
+console.log('✅ ফিচার লোড: মুহাররম, বিশেষ দিনসমূহ CRUD সহ');
