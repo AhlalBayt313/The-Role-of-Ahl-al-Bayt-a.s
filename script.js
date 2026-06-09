@@ -658,11 +658,8 @@ const blogPosts = [
     {id:6,date:'২০২৪-০৪-১৫',titleBn:'ইসলামি নৈতিকতা',titleEn:'Islamic Ethics',category:'আখলাক',readTime:'9 min',excerpt:'নৈতিক মূল্যবোধ',contentBn:'মূল্যবোধ:\n১. সত্যবাদিতা\n২. বিশ্বস্ততা\n৩. ন্যায়\n৪. দয়া\n৫. বিনয়',contentEn:'Values:\n1. Truth\n2. Trust\n3. Justice\n4. Mercy\n5. Humility'}
 ];
 
-const duas = [
-    {titleBn:'দোয়ায়ে কুমাইল',titleEn:'Dua Kumayl',arabic:'اللَّهُمَّ إِنِّي أَسْأَلُكَ بِرَحْمَتِكَ الَّتِي وَسِعَتْ كُلَّ شَيْءٍ',meaningBn:'হে আল্লাহ! আমি তোমার সেই রহমতের ওসিলায় চাই যা সবকিছু ঘিরে রেখেছে',meaningEn:'O Allah! I ask You through Your mercy which encompasses everything'},
-    {titleBn:'যিয়ারত আশুরা',titleEn:'Ziyarat Ashura',arabic:'السَّلَامُ عَلَيْكَ يَا أَبَا عَبْدِ اللَّهِ وَعَلَى الْأَرْوَاحِ الَّتِي حَلَّتْ بِفِنَائِكَ',meaningBn:'হে আবা আবদিল্লাহ! আপনার প্রতি শান্তি এবং যেসব আত্মা আপনার দরগায় অবস্থান করছে তাদের উপর',meaningEn:'Peace be upon you O Aba Abdillah, and upon the souls that gathered in your courtyard'},
-    {titleBn:'দোয়ায়ে তাওয়াসসুল',titleEn:'Dua Tawassul',arabic:'يَا اللَّهُ يَا رَبَّنَا بِحَقِّ مُحَمَّدٍ وَآلِ مُحَمَّدٍ',meaningBn:'হে আল্লাহ! হে আমাদের রব! মুহাম্মদ (সা.) ও তাঁর পরিবারের হক্বের ওসিলায়',meaningEn:'O Allah! O our Lord! Through the right of Muhammad and the family of Muhammad'}
-];
+
+
 
 const hijriMonthsBn = ['মুহাররম','সফর','রবিউল আউয়াল','রবিউস সানি','জামাদিউল আউয়াল','জামাদিউস সানি','রজব','শাবান','রমজান','শাওয়াল','জিলক্বদ','জিলহজ'];
 const hijriMonthsEn = ['Muharram','Safar','Rabi al-Awwal','Rabi al-Thani','Jumada al-Awwal','Jumada al-Thani','Rajab','Shaban','Ramadan','Shawwal','Dhu al-Qidah','Dhu al-Hijjah'];
@@ -1615,6 +1612,30 @@ function saveDuaItem() {
     if (state.duaEditorType==='ziyarat') {
         state.editingDua.occasion = get('dua-ed-occasion');
     }
+    // Parse verses JSON (আয়াত বাই আয়াত)
+    const versesRaw = get('dua-ed-verses');
+    if (versesRaw) {
+        try {
+            const parsed = JSON.parse(versesRaw);
+            if (Array.isArray(parsed) && parsed.every(v => v.ar && v.bn)) {
+                state.editingDua.verses = parsed;
+                const errEl = document.getElementById('dua-ed-verses-error');
+                if (errEl) errEl.classList.add('hidden');
+            } else {
+                const errEl = document.getElementById('dua-ed-verses-error');
+                if (errEl) errEl.classList.remove('hidden');
+                showToast(l==='bn'?'Verses JSON-এ প্রতিটিতে "ar" ও "bn" থাকতে হবে':'Each verse needs "ar" and "bn" keys','warning');
+                return;
+            }
+        } catch(e) {
+            const errEl = document.getElementById('dua-ed-verses-error');
+            if (errEl) errEl.classList.remove('hidden');
+            showToast(l==='bn'?'Verses JSON ফরম্যাট ভুল!':'Invalid verses JSON format!','warning');
+            return;
+        }
+    } else {
+        state.editingDua.verses = undefined;
+    }
     // Validate required fields
     if (!state.editingDua.titleBn) {
         showToast(l==='bn'?'শিরোনাম (বাংলা) আবশ্যক':'Bengali title is required','warning');
@@ -1966,7 +1987,7 @@ function setupEventListeners() {
                     saveState(); render(); break;
                 }
                 case 'readZiyarat': {
-                    const zitem=state.customZiyarat.find(x=>x.id===param);
+                    const zitem=state.customZiyarat.find(x=>x.id===param) || ziyarats.find(x=>x.titleEn===param||x.titleBn===param) || ziyarats[parseInt(param)];
                     if(zitem){state.currentZiyarat=zitem;state.previousPage=state.currentPage;state.currentPage='readZiyarat';render();window.scrollTo(0,0);}
                     break;
                 }
@@ -2335,7 +2356,7 @@ function renderUploadModal() {
 function renderHeader()
 {
     const d=state.darkMode; const l=state.language;
-    const mainPages=['home','imams','library','blog','tasbeeh'];
+    const mainPages=['home','imams','dua','library','blog','tasbeeh'];
     const morePages=['media','calendar','quiz','bookmarks','about','contact'];
     const bg=d?'rgba(17,24,39,0.92)':'rgba(255,255,255,0.88)';
     const border=d?'rgba(52,211,153,0.1)':'rgba(5,150,105,0.12)';
@@ -3027,7 +3048,7 @@ function renderDuaPage() {
     const d=state.darkMode; const l=state.language;
     const tab = state.duaTab || 'dua'; // 'dua' | 'ziyarat'
     const allDuas = [...state.customDuas, ...duas];
-    const allZiyarat = state.customZiyarat;
+    const allZiyarat = [...ziyarats, ...state.customZiyarat];
     return `
     <div class="space-y-6">
         <!-- Header -->
@@ -3123,7 +3144,7 @@ function renderDuaPage() {
                         ${z.transliteration ? `<p class="text-center text-xs italic ${d?'text-gray-400':'text-gray-500'} mb-2">${sanitize(z.transliteration)}</p>` : ''}
                         <p class="text-center text-sm ${d?'text-gray-300':'text-gray-600'} leading-relaxed">${sanitize(l==='bn'?z.meaningBn:z.meaningEn)}</p>
                     </div>
-                    <button data-action="readZiyarat" data-param="${z.id}" class="${d?'text-amber-400':'text-amber-700'} font-semibold hover:underline text-sm">${t('readMore')} →</button>
+                    <button data-action="readZiyarat" data-param="${z.id||i}" class="${d?'text-amber-400':'text-amber-700'} font-semibold hover:underline text-sm">${t('readMore')} →</button>
                 </article>`).join('')}
         </div>` : ''}
 
@@ -3462,34 +3483,168 @@ function renderReadDuaPage()
     const dua=state.currentDua; const d=state.darkMode; const l=state.language;
     if(!dua) return renderDuaPage();
     const isCustom=!!dua.id;
+    const hasVerses = Array.isArray(dua.verses) && dua.verses.length > 0;
+    const duaIndex = dua.id ? dua.id : duas.indexOf(dua);
+
+    // ── verse-by-verse reader (আয়াত বাই আয়াত) ──
+    const versesHtml = hasVerses ? dua.verses.map((v, i) => `
+        <div class="dua-verse-row fade-in" style="
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:0;
+            border-bottom:1px solid ${d?'rgba(255,255,255,.06)':'rgba(180,83,9,.08)'};
+            transition:background .2s;
+        "
+        onmouseenter="this.style.background='${d?'rgba(5,150,105,.07)':'rgba(5,150,105,.04)'}'"
+        onmouseleave="this.style.background='transparent'"
+        >
+            <!-- Arabic side (RTL) -->
+            <div style="
+                padding:1.4rem 1.6rem;
+                border-right:2px solid ${d?'rgba(180,83,9,.25)':'rgba(180,83,9,.15)'};
+                text-align:right;
+                direction:rtl;
+                position:relative;
+            ">
+                <span class="dua-verse-num" style="
+                    position:absolute;top:.7rem;left:.7rem;
+                    width:22px;height:22px;border-radius:50%;
+                    background:linear-gradient(135deg,#059669,#065f46);
+                    color:#fff;font-size:.6rem;font-weight:700;
+                    display:flex;align-items:center;justify-content:center;
+                    font-family:sans-serif;direction:ltr;
+                ">${i+1}</span>
+                <p class="arabic-text" lang="ar" style="
+                    font-size:1.45rem;
+                    line-height:2.2;
+                    color:${d?'#fde68a':'#92400e'};
+                    text-shadow:0 0 18px ${d?'rgba(253,230,138,.12)':'rgba(180,83,9,.08)'};
+                    margin:0;
+                ">${sanitize(v.ar)}</p>
+            </div>
+            <!-- Bengali side (LTR) -->
+            <div style="
+                padding:1.4rem 1.6rem;
+                display:flex;align-items:center;
+            ">
+                <p style="
+                    font-size:.95rem;
+                    line-height:1.85;
+                    color:${d?'#d1fae5':'#065f46'};
+                    margin:0;
+                    font-weight:500;
+                ">${sanitize(v.bn)}</p>
+            </div>
+        </div>`).join('') : '';
+
+    // ── single-block fallback (no verses, just arabic + meaning) ──
+    const fallbackHtml = `
+        <div class="rounded-2xl p-6 mb-4" style="background:${d?'linear-gradient(135deg,rgba(5,150,105,.1),rgba(180,83,9,.06))':'linear-gradient(135deg,#fef9e7,#ecfdf5)'};border:1px solid ${d?'rgba(180,83,9,.18)':'rgba(180,83,9,.12)'}">
+            <p class="arabic-text text-center" dir="rtl" lang="ar" style="font-size:1.9rem;line-height:2.5;color:${d?'#fde68a':'#92400e'}">${sanitize(dua.arabic)}</p>
+        </div>
+        ${dua.transliteration?`<div class="${d?'bg-gray-900/60':'bg-gray-50'} rounded-2xl p-5 mb-4" style="border-left:3px solid #7c3aed"><p class="italic text-sm leading-relaxed ${d?'text-gray-300':'text-gray-600'}">${sanitize(dua.transliteration)}</p></div>`:''}
+        <div class="${d?'bg-gray-900/60':'bg-emerald-50/60'} rounded-2xl p-5 mb-4" style="border-left:3px solid #059669">
+            <p class="text-base leading-relaxed ${d?'text-gray-200':'text-gray-700'}">${sanitize(dua.meaningBn)}</p>
+        </div>
+        ${dua.meaningEn?`<div class="${d?'bg-gray-900/60':'bg-blue-50/60'} rounded-2xl p-5 mb-4" style="border-left:3px solid #0369a1"><p class="text-base leading-relaxed ${d?'text-gray-300':'text-gray-700'}">${sanitize(dua.meaningEn)}</p></div>`:''}
+        ${dua.fullTextBn?`<div class="${d?'bg-gray-900/60':'bg-amber-50/60'} rounded-2xl p-5" style="border-left:3px solid #b45309"><p class="text-base leading-relaxed whitespace-pre-line ${d?'text-gray-300':'text-gray-700'}">${sanitize(dua.fullTextBn)}</p></div>`:''}
+    `;
+
     return `
-    <div class="max-w-3xl mx-auto page-enter">
-        <button data-action="changePage" data-param="${state.previousPage||'home'}" class="flex items-center gap-2 mb-6 px-4 py-2 rounded-xl font-semibold text-sm hover:scale-[1.02] transition-all" style="background:rgba(180,83,9,.1);color:#b45309">← ${l==='bn'?'দোয়ায় ফিরুন':'Back to Duas'}</button>
-        <article class="card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border" style="box-shadow:var(--shadow-lg)">
-            <div style="height:4px;background:linear-gradient(90deg,#059669,#b45309,#059669);border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
-            <div class="p-7 md:p-10">
-                <div class="flex justify-between items-start gap-4 mb-7 flex-wrap">
+    <div class="max-w-4xl mx-auto page-enter">
+
+        <!-- Back button -->
+        <button data-action="changePage" data-param="${state.previousPage||'dua'}"
+            class="flex items-center gap-2 mb-6 px-4 py-2 rounded-xl font-semibold text-sm hover:scale-[1.02] transition-all"
+            style="background:rgba(180,83,9,.1);color:#b45309">
+            ← ${l==='bn'?'দোয়ায় ফিরুন':'Back to Duas'}
+        </button>
+
+        <article style="border-radius:var(--r-xl,1rem);overflow:hidden;box-shadow:var(--shadow-lg);border:1px solid ${d?'rgba(255,255,255,.07)':'rgba(180,83,9,.12)'}">
+
+            <!-- Gradient top bar -->
+            <div style="height:5px;background:linear-gradient(90deg,#059669,#fbbf24,#b45309,#fbbf24,#059669);background-size:300%;animation:gradMove 4s linear infinite"></div>
+
+            <!-- Header card -->
+            <div style="background:${d?'linear-gradient(135deg,#1a2e24,#1c2a1c)':'linear-gradient(135deg,#fef9f0,#f0fdf4)'};padding:2rem 2rem 1.5rem">
+                <div class="flex justify-between items-start gap-4 flex-wrap">
                     <div class="flex-1">
                         <div class="flex items-center gap-2 mb-3 flex-wrap">
-                            <span class="text-xs px-3 py-1.5 rounded-full font-bold" style="background:rgba(5,150,105,.14);color:#059669;border:1px solid rgba(5,150,105,.22)">🤲 ${l==='bn'?'দোয়া':'Dua'}</span>
+                            <span class="text-xs px-3 py-1.5 rounded-full font-bold" style="background:rgba(5,150,105,.15);color:#059669;border:1px solid rgba(5,150,105,.3)">🤲 ${l==='bn'?'দোয়া':'Dua'}</span>
                             ${isCustom?`<span class="${d?'gold-badge-dark':'gold-badge'}">${l==='bn'?'কাস্টম':'Custom'}</span>`:''}
-                            ${dua.source?`<span class="text-xs ${d?'text-gray-500':'text-gray-400'}">📚 ${sanitize(dua.source)}</span>`:''}
+                            ${hasVerses?`<span class="text-xs px-2 py-1 rounded-full font-semibold" style="background:rgba(251,191,36,.15);color:#b45309;border:1px solid rgba(251,191,36,.3)">${dua.verses.length} ${l==='bn'?'পঙক্তি':'verses'}</span>`:''}
                         </div>
-                        <h1 class="text-2xl md:text-3xl font-black leading-tight">${sanitize(l==='bn'?dua.titleBn:dua.titleEn)}</h1>
+                        <h1 class="text-2xl md:text-3xl font-black leading-tight mb-1">${sanitize(l==='bn'?dua.titleBn:dua.titleEn)}</h1>
+                        ${dua.source?`<p class="text-sm mt-2" style="color:${d?'#6ee7b7':'#047857'}">📚 ${sanitize(dua.source)}</p>`:''}
                     </div>
-                    <button data-action="shareDua" data-param="${dua.id?dua.id:duas.indexOf(dua)}" class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold flex-shrink-0 hover:scale-105 transition-all" style="background:rgba(5,150,105,.1);color:#059669;border:1px solid rgba(5,150,105,.18)">🔗 ${l==='bn'?'শেয়ার':'Share'}</button>
+                    <button data-action="shareDua" data-param="${duaIndex}"
+                        class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold flex-shrink-0 hover:scale-105 transition-all"
+                        style="background:rgba(5,150,105,.1);color:#059669;border:1px solid rgba(5,150,105,.2)">
+                        🔗 ${l==='bn'?'শেয়ার':'Share'}
+                    </button>
                 </div>
-                <div class="rounded-2xl p-7 mb-5 relative overflow-hidden" style="background:${d?'linear-gradient(135deg,rgba(5,150,105,.1),rgba(180,83,9,.06))':'linear-gradient(135deg,#fef9e7,#ecfdf5)'};border:1px solid ${d?'rgba(180,83,9,.18)':'rgba(180,83,9,.12)'}">
-                    <h2 class="text-xs font-bold text-center mb-5 tracking-widest uppercase" style="color:${d?'#34d399':'#059669'}">${l==='bn'?'আরবি পাঠ':'Arabic Text'}</h2>
-                    <p class="arabic-text text-center" dir="rtl" lang="ar" style="font-size:2rem;line-height:2.6;text-shadow:0 0 24px rgba(180,83,9,.12)">${sanitize(dua.arabic)}</p>
-                </div>
-                ${dua.transliteration?`<div class="${d?'bg-gray-900/60':'bg-gray-50'} rounded-2xl p-5 mb-5" style="border-left:3px solid #7c3aed"><h2 class="text-xs font-bold mb-3 tracking-widest uppercase" style="color:#7c3aed">${l==='bn'?'উচ্চারণ':'Transliteration'}</h2><p class="italic text-base leading-relaxed ${d?'text-gray-300':'text-gray-700'}">${sanitize(dua.transliteration)}</p></div>`:''}
-                <div class="${d?'bg-gray-900/60':'bg-emerald-50/60'} rounded-2xl p-5 mb-5" style="border-left:3px solid #059669"><h2 class="text-xs font-bold mb-3 tracking-widest uppercase" style="color:#059669">${l==='bn'?'বাংলা অর্থ':'Bengali Meaning'}</h2><p class="text-base leading-relaxed ${d?'text-gray-300':'text-gray-700'}">${sanitize(dua.meaningBn)}</p></div>
-                ${dua.meaningEn?`<div class="${d?'bg-gray-900/60':'bg-blue-50/60'} rounded-2xl p-5 mb-5" style="border-left:3px solid #0369a1"><h2 class="text-xs font-bold mb-3 tracking-widest uppercase" style="color:#0369a1">${l==='bn'?'ইংরেজি অর্থ':'English Meaning'}</h2><p class="text-base leading-relaxed ${d?'text-gray-300':'text-gray-700'}">${sanitize(dua.meaningEn)}</p></div>`:''}
-                ${dua.fullTextBn?`<div class="${d?'bg-gray-900/60':'bg-amber-50/60'} rounded-2xl p-5" style="border-left:3px solid #b45309"><h2 class="text-xs font-bold mb-3 tracking-widest uppercase" style="color:#b45309">${l==='bn'?'বিস্তারিত পাঠ':'Full Text'}</h2><p class="text-base leading-relaxed whitespace-pre-line ${d?'text-gray-300':'text-gray-700'}">${sanitize(dua.fullTextBn)}</p></div>`:''}
             </div>
+
+            ${hasVerses ? `
+            <!-- Column headers -->
+            <div style="
+                display:grid;grid-template-columns:1fr 1fr;
+                background:${d?'rgba(5,150,105,.12)':'rgba(5,150,105,.07)'};
+                border-bottom:2px solid ${d?'rgba(5,150,105,.25)':'rgba(5,150,105,.15)'};
+                padding:.6rem 1.6rem;gap:0;
+            ">
+                <div style="text-align:right;direction:rtl">
+                    <span class="text-xs font-black tracking-widest uppercase" style="color:${d?'#34d399':'#059669'}">العربية • আরবি পাঠ</span>
+                </div>
+                <div>
+                    <span class="text-xs font-black tracking-widest uppercase" style="color:${d?'#34d399':'#059669'}">বাংলা অনুবাদ</span>
+                </div>
+            </div>
+
+            <!-- Verses -->
+            <div style="background:${d?'#111a14':'#fffbf5'}">
+                ${versesHtml}
+            </div>
+
+            <!-- Footer note -->
+            <div style="padding:1.2rem 1.6rem;background:${d?'rgba(5,150,105,.06)':'rgba(5,150,105,.04)'};border-top:1px solid ${d?'rgba(255,255,255,.05)':'rgba(180,83,9,.08)'}">
+                <p class="text-xs text-center" style="color:${d?'#6b7280':'#9ca3af'}">
+                    ${l==='bn'?'মোট '+dua.verses.length+' পঙক্তি — আরবি ও বাংলা অনুবাদ সহ':'Total '+dua.verses.length+' verses with Arabic & Bengali translation'}
+                    ${dua.source?' • '+sanitize(dua.source):''}
+                </p>
+            </div>
+
+            ` : `
+            <!-- Fallback: no verses -->
+            <div style="padding:2rem;background:${d?'#111a14':'#fffbf5'}">
+                ${fallbackHtml}
+            </div>
+            `}
+
         </article>
-    </div>`;
+
+        <!-- Extra fields if exists (fullTextBn) for verse-mode too -->
+        ${hasVerses && dua.fullTextBn ? `
+        <div class="mt-5 rounded-2xl p-5" style="background:${d?'rgba(180,83,9,.08)':'rgba(254,243,199,.6)'};border:1px solid ${d?'rgba(180,83,9,.18)':'rgba(180,83,9,.12)'}">
+            <h2 class="text-xs font-black mb-3 tracking-widest uppercase" style="color:#b45309">${l==='bn'?'বিস্তারিত পাঠ':'Full Text'}</h2>
+            <p class="text-base leading-relaxed whitespace-pre-line ${d?'text-gray-300':'text-gray-700'}">${sanitize(dua.fullTextBn)}</p>
+        </div>` : ''}
+
+        ${hasVerses && dua.meaningEn ? `
+        <div class="mt-4 rounded-2xl p-5" style="background:${d?'rgba(3,105,161,.08)':'rgba(239,246,255,.6)'};border:1px solid ${d?'rgba(56,189,248,.15)':'rgba(186,230,253,.5)'}">
+            <h2 class="text-xs font-black mb-3 tracking-widest uppercase" style="color:#0369a1">${l==='bn'?'ইংরেজি সারসংক্ষেপ':'English Summary'}</h2>
+            <p class="text-base leading-relaxed ${d?'text-gray-300':'text-gray-700'}">${sanitize(dua.meaningEn)}</p>
+        </div>` : ''}
+
+    </div>
+
+    <style>
+    @keyframes gradMove{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+    @media(max-width:640px){
+        .dua-verse-row{grid-template-columns:1fr!important}
+        .dua-verse-row>div:first-child{border-right:none!important;border-bottom:1px solid rgba(180,83,9,.12)}
+    }
+    </style>`;
 }
 
 // ============================================================================
@@ -4607,6 +4762,21 @@ function renderDuaEditorModal() {
                         placeholder="${l==='bn'?'যেমন: আশুরা, প্রতি জুমা...':'e.g. Ashura, Every Friday...'}"
                         class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-amber-500" />
                 </div>` : ''}
+
+                <!-- Verses (আয়াত বাই আয়াত) -->
+                <div>
+                    <label class="block mb-1.5 text-sm font-semibold">
+                        📖 ${l==='bn'?'আয়াত বাই আয়াত (JSON, ঐচ্ছিক)':'Verse-by-Verse (JSON, optional)'}
+                    </label>
+                    <p class="text-xs mb-2 ${d?'text-gray-400':'text-gray-500'}">
+                        ${l==='bn'?'প্রতিটি পঙক্তির আরবি + বাংলা অনুবাদ। ফরম্যাট: [{"ar":"আরবি","bn":"বাংলা অর্থ"},...]':'Each line Arabic + Bengali. Format: [{"ar":"Arabic","bn":"Bengali meaning"},...]'}
+                    </p>
+                    <textarea id="dua-ed-verses"
+                        placeholder='[{"ar":"اللَّهُمَّ","bn":"হে আল্লাহ!"},{"ar":"إِنِّي","bn":"নিশ্চয়ই আমি"}]'
+                        spellcheck="false"
+                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full h-32 focus:outline-none focus:ring-2 focus:ring-${accentColor}-500 font-mono text-xs">${item.verses ? sanitize(JSON.stringify(item.verses, null, 2)) : ''}</textarea>
+                    <div id="dua-ed-verses-error" class="text-xs text-red-500 mt-1 hidden">${l==='bn'?'JSON ফরম্যাট ঠিক নেই! উদাহরণ: [{"ar":"...","bn":"..."}]':'Invalid JSON! Example: [{"ar":"...","bn":"..."}]'}</div>
+                </div>
             </div>
 
             <!-- Footer -->
@@ -4626,40 +4796,179 @@ function renderDuaEditorModal() {
 function renderReadZiyaratPage() {
     const z=state.currentZiyarat; const d=state.darkMode; const l=state.language;
     if(!z) return renderDuaPage();
-    return `
-    <div class="max-w-3xl mx-auto">
-        <button data-action="changePage" data-param="${state.previousPage||'home'}" class="${d?'text-amber-400':'text-amber-700'} mb-6 hover:underline flex items-center gap-2">← ${l==='bn'?'ফিরে যান':'Back'}</button>
-        <article class="${d?'bg-gray-800':'bg-white'} border rounded-2xl p-8" style="border-top:3px solid #B45309">
-            <div class="flex items-center gap-3 mb-6 flex-wrap">
-                <span class="${d?'gold-badge-dark':'gold-badge'}">☪️ ${l==='bn'?'যিয়ারত':'Ziyarat'}</span>
-                ${z.occasion ? `<span class="text-sm ${d?'text-amber-400':'text-amber-700'} font-medium">📅 ${sanitize(z.occasion)}</span>` : ''}
-            </div>
-            <h1 class="text-3xl font-bold mb-2">${sanitize(l==='bn'?z.titleBn:z.titleEn)}</h1>
-            ${z.source ? `<p class="text-sm ${d?'text-gray-400':'text-gray-500'} mb-6">${sanitize(z.source)}</p>` : '<div class="mb-6"></div>'}
+    const hasVerses = Array.isArray(z.verses) && z.verses.length > 0;
 
-            <div class="${d?'bg-gray-900 border-gray-700':'bg-amber-50 border-amber-200'} border rounded-xl p-8 mb-6">
-                <h2 class="text-sm font-bold text-center mb-4 ${d?'text-amber-400':'text-amber-700'}">${l==='bn'?'আরবি পাঠ':'Arabic Text'}</h2>
-                <p class="arabic-text text-center leading-loose" dir="rtl" lang="ar" style="font-size:1.8rem;line-height:2.5">${sanitize(z.arabic)}</p>
+    const versesHtml = hasVerses ? z.verses.map((v, i) => {
+        const isRepeat = !!v.repeat100;
+        const label = v.repeatLabel || (l==='bn'?'১০০ বার পড়তে হবে':'Read 100 times');
+        if(isRepeat) {
+            // Special full-width block for 100-time sections
+            return `
+            <div class="dua-verse-row fade-in" style="
+                border-bottom:2px solid ${d?'rgba(180,83,9,.35)':'rgba(180,83,9,.2)'};
+                background:${d?'rgba(180,83,9,.09)':'rgba(254,243,199,.6)'};
+                transition:background .2s;
+            "
+            onmouseenter="this.style.background='${d?'rgba(180,83,9,.16)':'rgba(253,230,138,.55)'}'"
+            onmouseleave="this.style.background='${d?'rgba(180,83,9,.09)':'rgba(254,243,199,.6)'}'">
+                <!-- Repeat-100 badge bar -->
+                <div style="
+                    display:flex;align-items:center;gap:.6rem;
+                    padding:.6rem 1.4rem;
+                    border-bottom:1px solid ${d?'rgba(180,83,9,.2)':'rgba(180,83,9,.12)'};
+                    background:${d?'rgba(180,83,9,.15)':'rgba(251,191,36,.18)'};
+                ">
+                    <span style="
+                        font-size:.7rem;font-weight:800;letter-spacing:.06em;
+                        background:linear-gradient(135deg,#b45309,#d97706);
+                        color:#fff;padding:.25rem .75rem;border-radius:999px;
+                        white-space:nowrap;
+                    ">🔁 ${sanitize(label)}</span>
+                    <span style="font-size:.72rem;color:${d?'#fbbf24':'#92400e'};font-weight:600;">
+                        ${l==='bn'?'(নিচের পাঠটি ১০০ বার পড়তে হবে)':'(Recite the text below 100 times)'}
+                    </span>
+                </div>
+                <!-- Two-column content -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+                    <div style="
+                        padding:1.4rem 1.6rem;
+                        border-right:2px solid ${d?'rgba(180,83,9,.3)':'rgba(180,83,9,.18)'};
+                        text-align:right;direction:rtl;position:relative;
+                    ">
+                        <span style="
+                            position:absolute;top:.7rem;left:.7rem;
+                            width:22px;height:22px;border-radius:50%;
+                            background:linear-gradient(135deg,#b45309,#d97706);
+                            color:#fff;font-size:.6rem;font-weight:700;
+                            display:flex;align-items:center;justify-content:center;
+                            font-family:sans-serif;direction:ltr;
+                        ">${i+1}</span>
+                        <p class="arabic-text" lang="ar" style="
+                            font-size:1.45rem;line-height:2.2;
+                            color:${d?'#fde68a':'#92400e'};
+                            text-shadow:0 0 18px ${d?'rgba(253,230,138,.15)':'rgba(180,83,9,.1)'};
+                            margin:0;white-space:pre-line;
+                        ">${sanitize(v.ar)}</p>
+                    </div>
+                    <div style="padding:1.4rem 1.6rem;display:flex;align-items:center;">
+                        <p style="
+                            font-size:.95rem;line-height:1.85;
+                            color:${d?'#fde68a':'#92400e'};
+                            margin:0;font-weight:500;white-space:pre-line;
+                        ">${sanitize(v.bn)}</p>
+                    </div>
+                </div>
+            </div>`;
+        }
+        // Normal verse row
+        return `
+        <div class="dua-verse-row fade-in" style="
+            display:grid;grid-template-columns:1fr 1fr;gap:0;
+            border-bottom:1px solid ${d?'rgba(255,255,255,.06)':'rgba(180,83,9,.08)'};
+            transition:background .2s;
+        "
+        onmouseenter="this.style.background='${d?'rgba(5,150,105,.07)':'rgba(5,150,105,.04)'}'"
+        onmouseleave="this.style.background='transparent'">
+            <div style="
+                padding:1.4rem 1.6rem;
+                border-right:2px solid ${d?'rgba(180,83,9,.25)':'rgba(180,83,9,.15)'};
+                text-align:right;direction:rtl;position:relative;
+            ">
+                <span style="
+                    position:absolute;top:.7rem;left:.7rem;
+                    width:22px;height:22px;border-radius:50%;
+                    background:linear-gradient(135deg,#059669,#065f46);
+                    color:#fff;font-size:.6rem;font-weight:700;
+                    display:flex;align-items:center;justify-content:center;
+                    font-family:sans-serif;direction:ltr;
+                ">${i+1}</span>
+                <p class="arabic-text" lang="ar" style="
+                    font-size:1.45rem;line-height:2.2;
+                    color:${d?'#fde68a':'#92400e'};
+                    text-shadow:0 0 18px ${d?'rgba(253,230,138,.12)':'rgba(180,83,9,.08)'};
+                    margin:0;
+                ">${sanitize(v.ar)}</p>
             </div>
-            ${z.transliteration ? `
-            <div class="${d?'bg-gray-900':'bg-gray-50'} rounded-xl p-6 mb-6">
-                <h2 class="text-sm font-bold mb-3 ${d?'text-gray-300':'text-gray-600'}">${l==='bn'?'উচ্চারণ':'Transliteration'}</h2>
-                <p class="italic text-base leading-relaxed">${sanitize(z.transliteration)}</p>
-            </div>` : ''}
-            <div class="${d?'bg-gray-900':'bg-gray-50'} rounded-xl p-6 mb-6">
-                <h2 class="text-sm font-bold mb-3 ${d?'text-amber-400':'text-amber-700'}">${l==='bn'?'বাংলা অর্থ':'Bengali Meaning'}</h2>
-                <p class="text-base leading-relaxed">${sanitize(z.meaningBn)}</p>
+            <div style="padding:1.4rem 1.6rem;display:flex;align-items:center;">
+                <p style="
+                    font-size:.95rem;line-height:1.85;
+                    color:${d?'#d1fae5':'#065f46'};
+                    margin:0;font-weight:500;
+                ">${sanitize(v.bn)}</p>
             </div>
-            ${z.meaningEn ? `
-            <div class="${d?'bg-gray-900':'bg-gray-50'} rounded-xl p-6 mb-6">
-                <h2 class="text-sm font-bold mb-3 ${d?'text-amber-400':'text-amber-700'}">${l==='bn'?'ইংরেজি অর্থ':'English Meaning'}</h2>
-                <p class="text-base leading-relaxed">${sanitize(z.meaningEn)}</p>
-            </div>` : ''}
-            ${z.fullTextBn ? `
-            <div class="${d?'bg-gray-900':'bg-gray-50'} rounded-xl p-6">
-                <h2 class="text-sm font-bold mb-3 ${d?'text-green-400':'text-green-700'}">${l==='bn'?'বিস্তারিত পাঠ':'Full Text'}</h2>
-                <p class="text-base leading-relaxed whitespace-pre-line">${sanitize(z.fullTextBn)}</p>
-            </div>` : ''}
+        </div>`;
+    }).join('') : '';
+
+    const fallbackHtml = `
+        <div class="rounded-2xl p-6 mb-4" style="background:${d?'linear-gradient(135deg,rgba(180,83,9,.1),rgba(5,150,105,.06))':'linear-gradient(135deg,#fef9e7,#ecfdf5)'};border:1px solid ${d?'rgba(180,83,9,.18)':'rgba(180,83,9,.12)'}">
+            <p class="arabic-text text-center" dir="rtl" lang="ar" style="font-size:1.9rem;line-height:2.5;color:${d?'#fde68a':'#92400e'}">${sanitize(z.arabic)}</p>
+        </div>
+        <div class="${d?'bg-gray-900/60':'bg-amber-50/60'} rounded-2xl p-5 mb-4" style="border-left:3px solid #b45309">
+            <p class="text-base leading-relaxed ${d?'text-gray-200':'text-gray-700'}">${sanitize(z.meaningBn)}</p>
+        </div>
+    `;
+
+    return `
+    <div class="max-w-4xl mx-auto page-enter">
+
+        <button data-action="changePage" data-param="${state.previousPage||'dua'}"
+            class="flex items-center gap-2 mb-6 px-4 py-2 rounded-xl font-semibold text-sm hover:scale-[1.02] transition-all"
+            style="background:rgba(180,83,9,.1);color:#b45309">
+            ← ${l==='bn'?'যিয়ারতে ফিরুন':'Back to Ziyarat'}
+        </button>
+
+        <article style="border-radius:var(--r-xl,1rem);overflow:hidden;box-shadow:var(--shadow-lg);border:1px solid ${d?'rgba(255,255,255,.07)':'rgba(180,83,9,.12)'}">
+
+            <!-- Gradient top bar -->
+            <div style="height:5px;background:linear-gradient(90deg,#b45309,#fbbf24,#059669,#fbbf24,#b45309);background-size:300%;animation:gradMove 4s linear infinite"></div>
+
+            <!-- Header -->
+            <div style="background:${d?'linear-gradient(135deg,#1c1a0e,#1a2219)':'linear-gradient(135deg,#fffbea,#f0fdf4)'};padding:2rem 2rem 1.5rem">
+                <div class="flex justify-between items-start gap-4 flex-wrap">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-3 flex-wrap">
+                            <span class="text-xs px-3 py-1.5 rounded-full font-bold" style="background:rgba(180,83,9,.15);color:#b45309;border:1px solid rgba(180,83,9,.3)">☪️ ${l==='bn'?'যিয়ারত':'Ziyarat'}</span>
+                            ${z.occasion?`<span class="text-xs px-2 py-1 rounded-full font-semibold" style="background:rgba(251,191,36,.15);color:#92400e;border:1px solid rgba(251,191,36,.3)">📅 ${sanitize(z.occasion)}</span>`:''}
+                            ${hasVerses?`<span class="text-xs px-2 py-1 rounded-full font-semibold" style="background:rgba(5,150,105,.12);color:#065f46;border:1px solid rgba(5,150,105,.25)">${z.verses.length} ${l==='bn'?'পঙক্তি':'verses'}</span>`:''}
+                        </div>
+                        <h1 class="text-2xl md:text-3xl font-black leading-tight mb-1">${sanitize(l==='bn'?z.titleBn:z.titleEn)}</h1>
+                        ${z.source?`<p class="text-sm mt-2" style="color:${d?'#fbbf24':'#b45309'}">📚 ${sanitize(z.source)}</p>`:''}
+                    </div>
+                </div>
+            </div>
+
+            ${hasVerses ? `
+            <!-- Column headers -->
+            <div style="
+                display:grid;grid-template-columns:1fr 1fr;
+                background:${d?'rgba(180,83,9,.12)':'rgba(180,83,9,.07)'};
+                border-bottom:2px solid ${d?'rgba(180,83,9,.25)':'rgba(180,83,9,.15)'};
+                padding:.6rem 1.6rem;gap:0;
+            ">
+                <div style="text-align:right;direction:rtl">
+                    <span class="text-xs font-black tracking-widest uppercase" style="color:${d?'#fbbf24':'#b45309'}">العربية • আরবি পাঠ</span>
+                </div>
+                <div>
+                    <span class="text-xs font-black tracking-widest uppercase" style="color:${d?'#fbbf24':'#b45309'}">বাংলা অনুবাদ</span>
+                </div>
+            </div>
+
+            <div style="background:${d?'#130f00':'#fffdf5'}">
+                ${versesHtml}
+            </div>
+
+            <div style="padding:1.2rem 1.6rem;background:${d?'rgba(180,83,9,.06)':'rgba(180,83,9,.04)'};border-top:1px solid ${d?'rgba(255,255,255,.05)':'rgba(180,83,9,.08)'}">
+                <p class="text-xs text-center" style="color:${d?'#6b7280':'#9ca3af'}">
+                    ${l==='bn'?'মোট '+z.verses.length+' পঙক্তি — আরবি ও বাংলা অনুবাদ সহ':'Total '+z.verses.length+' verses with Arabic & Bengali translation'}
+                    ${z.source?' • '+sanitize(z.source):''}
+                </p>
+            </div>
+
+            ` : `
+            <div style="padding:2rem;background:${d?'#130f00':'#fffdf5'}">
+                ${fallbackHtml}
+            </div>`}
+
         </article>
     </div>`;
 }
@@ -4675,7 +4984,7 @@ function renderMobileBottomNav() {
         {page:'home',icon:'🏠',label:l==='bn'?'হোম':'Home'},
         {page:'imams',icon:'👑',label:l==='bn'?'ইমাম':'Imams'},
         {page:'library',icon:'📕',label:l==='bn'?'পিডিএফ':'Library'},
-        {page:'tasbeeh',icon:'📿',label:l==='bn'?'তাসবিহ':'Tasbeeh'},
+        {page:'dua',icon:'🤲',label:l==='bn'?'দোয়া':'Duas'},
         {page:'blog',icon:'📖',label:l==='bn'?'ব্লগ':'Blog'},
     ];
     nav.style.background=d?'rgba(17,24,39,0.96)':'rgba(255,255,255,0.96)';
@@ -4694,7 +5003,7 @@ function renderMobileBottomNav() {
 // ============================================================================
 function renderMainContent() {
     const pages={
-        home:renderHomePage, blog:renderBlogPage, library:renderLibraryPage,
+        home:renderHomePage, blog:renderBlogPage, dua:renderDuaPage, library:renderLibraryPage,
         media:renderMediaPage, calendar:renderCalendarPage,
         contact:renderContactPage, about:renderAboutPage, bookmarks:renderBookmarksPage,
         readPost:renderReadPostPage, readDua:renderReadDuaPage, viewer:renderViewerPage,

@@ -647,3 +647,14 @@
         /* ══ UPGRADE: Asmaul Husna page ══ */
         @keyframes nameReveal { from{opacity:0;transform:scale(.9)} to{opacity:1;transform:scale(1)} }
         .asma-revealed { animation:nameReveal .35s ease-out; }
+        /* ══ DUA READER: আয়াত বাই আয়াত দুই-কলাম লেআউট ══ */
+        .dua-verse-row { transition: background .18s ease; }
+        .dua-verse-row:last-child { border-bottom: none !important; }
+        .dua-verse-row p.arabic-text { font-family: 'Amiri','Traditional Arabic',serif; font-size: 1.45rem; line-height: 2.2; }
+        .dua-verse-num { font-family: sans-serif; font-size: .6rem; font-weight: 700; }
+        @keyframes gradMove { 0%{background-position:0% 50%} 100%{background-position:300% 50%} }
+        /* মোবাইলে একক কলাম */
+        @media (max-width: 640px) {
+            .dua-verse-row { grid-template-columns: 1fr !important; }
+            .dua-verse-row > div:first-child { border-right: none !important; border-bottom: 1px solid rgba(180,83,9,.12); }
+        }
