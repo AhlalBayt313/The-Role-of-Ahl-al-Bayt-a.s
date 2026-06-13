@@ -360,6 +360,7 @@
         .imam-num{
             width:30px;height:30px;border-radius:50%;
             display:flex;align-items:center;justify-content:center;
+            background:linear-gradient(135deg,#059669,#047857);
             color:white;font-size:.72rem;font-weight:800;
             position:absolute;top:14px;right:14px;
             box-shadow:0 2px 8px rgba(5,150,105,.4);
@@ -522,11 +523,13 @@
         .hero-arabic-sub{font-family:'Amiri',serif;font-size:1.1rem;color:#c9a227;direction:rtl;margin-bottom:6px;letter-spacing:1px}
         .hero-divider-dots{display:flex;align-items:center;justify-content:center;gap:8px;margin:10px 0 18px}
         .hero-divider-dot{width:5px;height:5px;border-radius:50%;background:#c9a227;opacity:.55}
+        .hero-luxury-light .hero-divider-dot{background:#b45309;opacity:.6}
         .hero-divider-dot-mid{width:8px;height:8px;opacity:1}
         .hero-stats-row{display:flex;gap:16px;justify-content:center;margin-top:26px;padding-top:20px;border-top:1px solid rgba(5,150,105,.12);flex-wrap:wrap}
         .hero-stat-item{text-align:center;min-width:64px}
         .hero-stat-num{font-size:1.15rem;font-weight:800;color:#059669;display:block;line-height:1}
         .hero-stat-label{font-size:.6rem;color:rgba(2,44,34,.5);margin-top:3px;letter-spacing:.3px}
+        .hero-luxury .hero-stat-label{color:rgba(255,255,255,.6)}
 
         /* ── Footer luxury ── */
         .footer-luxury{background:linear-gradient(180deg,#022c22 0%,#011a14 60%,#0f172a 100%);position:relative;overflow:hidden}
@@ -570,10 +573,13 @@
                 repeating-linear-gradient(45deg,  rgba(5,150,105,.045) 0px, rgba(5,150,105,.045) 1px, transparent 0px, transparent 22px),
                 repeating-linear-gradient(-45deg, rgba(5,150,105,.045) 0px, rgba(5,150,105,.045) 1px, transparent 0px, transparent 22px);
         }
-        /* Dark mode page background — targets bg-gray-950 which script.js adds */
+        /* Dark mode page background — সব possible selector দিয়ে mobile override নিশ্চিত */
         .bg-gray-950.islamic-pattern-bg,
         .dark .islamic-pattern-bg,
-        [data-theme="dark"] .islamic-pattern-bg {
+        [data-theme="dark"] .islamic-pattern-bg,
+        html[data-theme="dark"] .islamic-pattern-bg,
+        html[data-theme="dark"] body.islamic-pattern-bg,
+        body.bg-gray-950.islamic-pattern-bg {
             background-color: #061410 !important;
             background-image:
                 radial-gradient(ellipse at 20% 20%, rgba(5,150,105,.14) 0%, transparent 55%),
@@ -582,6 +588,21 @@
                 radial-gradient(ellipse at 20% 80%, rgba(201,162,39,.07) 0%, transparent 45%),
                 repeating-linear-gradient(45deg,  rgba(52,211,153,.05) 0px, rgba(52,211,153,.05) 1px, transparent 0px, transparent 22px),
                 repeating-linear-gradient(-45deg, rgba(52,211,153,.05) 0px, rgba(52,211,153,.05) 1px, transparent 0px, transparent 22px) !important;
+        }
+
+        /* ── Mobile dark mode — system dark mode কে block করো যখন user light চায় ── */
+        @media (prefers-color-scheme: dark) {
+            html[data-theme="light"] body,
+            html[data-theme="light"] body.islamic-pattern-bg {
+                background-color: #f0fdf8 !important;
+                color: #111827 !important;
+            }
+            html[data-theme="light"] .islamic-pattern-bg {
+                background-color: #f0fdf8 !important;
+            }
+            html[data-theme="light"] header {
+                background-color: initial !important;
+            }
         }
         .islamic-geo-overlay {
             position:absolute;inset:0;pointer-events:none;
@@ -652,9 +673,104 @@
         .dua-verse-row:last-child { border-bottom: none !important; }
         .dua-verse-row p.arabic-text { font-family: 'Amiri','Traditional Arabic',serif; font-size: 1.45rem; line-height: 2.2; }
         .dua-verse-num { font-family: sans-serif; font-size: .6rem; font-weight: 700; }
-        @keyframes gradMove { 0%{background-position:0% 50%} 100%{background-position:300% 50%} }
-        /* মোবাইলে একক কলাম */
+        /* ── মোবাইলে একক কলাম */
         @media (max-width: 640px) {
             .dua-verse-row { grid-template-columns: 1fr !important; }
             .dua-verse-row > div:first-child { border-right: none !important; border-bottom: 1px solid rgba(180,83,9,.12); }
         }
+
+/* ================================================================
+   MOBILE DARK MODE FIX
+   html[data-theme] selector — script.js এর render() থেকে set হয়
+   ================================================================ */
+
+/* ── DARK MODE ── */
+html[data-theme="dark"] body {
+    background-color: #061410 !important;
+    color: #f9fafb !important;
+}
+html[data-theme="dark"] header {
+    background-color: rgba(6,20,16,.95) !important;
+    border-bottom-color: rgba(255,255,255,.06) !important;
+}
+html[data-theme="dark"] #mobile-bottom-nav {
+    background: rgba(6,20,16,.97) !important;
+    border-top-color: rgba(255,255,255,.08) !important;
+}
+html[data-theme="dark"] .mobile-menu {
+    background: rgba(6,20,16,.98) !important;
+}
+/* card backgrounds */
+html[data-theme="dark"] .bg-white {
+    background-color: #1f2937 !important;
+    color: #f9fafb !important;
+}
+html[data-theme="dark"] .bg-gray-50 {
+    background-color: #111827 !important;
+}
+/* imam card */
+html[data-theme="dark"] .imam-card-luxury {
+    background-color: #1e2d26 !important;
+    color: #f9fafb !important;
+}
+html[data-theme="dark"] .imam-card-back {
+    color: #e5e7eb !important;
+}
+/* borders */
+html[data-theme="dark"] .border-gray-100 {
+    border-color: rgba(255,255,255,.08) !important;
+}
+html[data-theme="dark"] .border-gray-200 {
+    border-color: rgba(255,255,255,.1) !important;
+}
+/* text colors */
+html[data-theme="dark"] .text-gray-900 {
+    color: #f9fafb !important;
+}
+html[data-theme="dark"] .text-gray-700 {
+    color: #d1d5db !important;
+}
+html[data-theme="dark"] .text-gray-600 {
+    color: #9ca3af !important;
+}
+html[data-theme="dark"] .text-gray-500 {
+    color: #6b7280 !important;
+}
+
+/* ── LIGHT MODE (system dark override block) ── */
+@media (prefers-color-scheme: dark) {
+    html[data-theme="light"] body {
+        background-color: #f0fdf8 !important;
+        color: #111827 !important;
+    }
+    html[data-theme="light"] .bg-white {
+        background-color: #ffffff !important;
+        color: #111827 !important;
+    }
+    html[data-theme="light"] .bg-gray-50 {
+        background-color: #f9fafb !important;
+    }
+    html[data-theme="light"] .text-gray-900 {
+        color: #111827 !important;
+    }
+    html[data-theme="light"] .text-gray-700 {
+        color: #374151 !important;
+    }
+    html[data-theme="light"] header {
+        background-color: rgba(255,255,255,.92) !important;
+    }
+    html[data-theme="light"] #mobile-bottom-nav {
+        background: rgba(255,255,255,.97) !important;
+        border-top-color: rgba(0,0,0,.08) !important;
+    }
+    html[data-theme="light"] .mobile-menu {
+        background: rgba(255,255,255,.98) !important;
+    }
+    html[data-theme="light"] .imam-card-luxury {
+        background-color: #ffffff !important;
+        color: #111827 !important;
+    }
+    html[data-theme="light"] .islamic-pattern-bg {
+        background-color: #f0fdf8 !important;
+    }
+}
