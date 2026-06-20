@@ -5,6 +5,7 @@ const duas = [
   {
     titleBn:'দোয়ায়ে কুমাইল',
     titleEn:'Dua Kumayl',
+    category:'night',
     arabic:'اللَّهُمَّ إِنِّي أَسْأَلُكَ بِرَحْمَتِكَ الَّتِي وَسِعَتْ كُلَّ شَيْءٍ',
     meaningBn:'হে আল্লাহ! আমি তোমার সেই রহমতের ওসিলায় চাই যা সবকিছু ঘিরে রেখেছে',
     meaningEn:'O Allah! I ask You through Your mercy which encompasses everything',
@@ -166,6 +167,7 @@ const duas = [
   {
     titleBn:'দোয়ায়ে তাওয়াসসুল',
     titleEn:'Dua Tawassul',
+    category:'night',
     arabic:'اللَّهُمَّ إِنِّي أَسْأَلُكَ وَأَتَوَجَّهُ إِلَيْكَ بِنَبِيِّكَ',
     meaningBn:'হে আল্লাহ! আমি তোমার কাছে চাই এবং তোমার নবীর মাধ্যমে তোমার দিকে মুখ করি',
     meaningEn:'O Allah! I ask You and turn towards You through Your Prophet',
@@ -242,6 +244,7 @@ const duas = [
   {
     titleBn:'দোয়ায়ে মাশলুল',
     titleEn:'Dua Mashlool',
+    category:'distress',
     arabic:'اللَّهُمَّ إِنِّي أَسْأَلُكَ بِاسْمِكَ الَّذِي وَضَعْتَهُ عَلَى السَّمَاءِ',
     meaningBn:'হে আল্লাহ! আমি তোমার সেই নামের ওসিলায় চাই যা তুমি আকাশে রেখেছ',
     meaningEn:'O Allah! I ask You by Your name which You placed upon the heavens',
@@ -420,6 +423,7 @@ const duas = [
   {
     titleBn:'দোয়ায়ে নুদবা',
     titleEn:'Dua al-Nudbah',
+    category:'morning',
     arabic:'اللَّهُمَّ لَكَ الْحَمْدُ عَلَى مَا جَرَى بِهِ قَضَاؤُكَ',
     meaningBn:'হে আল্লাহ! তোমার সমস্ত ফয়সালার উপর তোমারই প্রশংসা',
     meaningEn:'O Allah! All praise is Yours for whatever Your decree has brought about',
@@ -655,6 +659,7 @@ const duas = [
   {
     titleBn:'দোয়ায়ে আহদ',
     titleEn:'Dua al-Ahd',
+    category:'morning',
     arabic:'اللَّهُمَّ رَبَّ النُّورِ الْعَظِيمِ وَرَبَّ الْكُرْسِيِّ الرَّفِيعِ',
     meaningBn:'হে আল্লাহ! মহান নূরের রব এবং উচ্চ কুরসির রব',
     meaningEn:'O Allah! Lord of the great light and Lord of the elevated Throne',
@@ -717,6 +722,7 @@ const duas = [
   {
     titleBn:'দোয়ায়ে ফারাজ',
     titleEn:'Dua al-Faraj',
+    category:'distress',
     arabic:'اللَّهُمَّ عَظُمَ الْبَلَاءُ وَبَرِحَ الْخَفَاءُ',
     meaningBn:'হে আল্লাহ! বিপদ বিশাল হয়ে গেছে এবং গোপন বিষয় প্রকাশ পেয়ে গেছে',
     meaningEn:'O Allah! The tribulation is great and the hidden has been revealed',
@@ -757,6 +763,7 @@ const duas = [
   {
     titleBn:'দোয়ায়ে জওশন কবীর',
     titleEn:'Dua Jawshan al-Kabir',
+    category:'night',
     arabic:'اللَّهُمَّ إِنِّي أَسْأَلُكَ بِاسْمِكَ يَا اللَّهُ يَا رَحْمَنُ',
     meaningBn:'হে আল্লাহ! আমি তোমার নামের ওসিলায় চাই — হে আল্লাহ! হে রহমান!',
     meaningEn:'O Allah! I ask You by Your name — O Allah! O Rahman!',
@@ -1784,6 +1791,7 @@ const ziyarats = [
   {
     titleBn:'যিয়ারত আশুরা',
     titleEn:'Ziyarat Ashura',
+    category:'general',
     arabic:'السَّلَامُ عَلَيْكَ يَا أَبَا عَبْدِ اللَّهِ',
     meaningBn:'আপনার প্রতি শান্তি হোক হে আবা আবদিল্লাহ',
     meaningEn:'Peace be upon you O Aba Abdillah',
@@ -2049,6 +2057,7 @@ const ziyarats = [
   {
     titleBn:'যিয়ারত আমিনুল্লাহ',
     titleEn:'Ziyarat Amin Allah',
+    category:'general',
     arabic:'اَلسَّلَامُ عَلَيْكَ يَا أَمِينَ اللَّهِ فِي أَرْضِهِ',
     meaningBn:'আপনার প্রতি শান্তি হোক, হে আল্লাহর যমিনে তাঁর আমানতদার',
     meaningEn:'Peace be upon you, O trusted one of Allah on His earth',
@@ -2107,6 +2116,7 @@ const ziyarats = [
   {
     titleBn:'যিয়ারত ওয়ারিস',
     titleEn:'Ziyarat Warith',
+    category:'general',
     arabic:'السَّلَامُ عَلَيْكَ يَا وَارِثَ آدَمَ صَفِيِّ اللَّهِ',
     meaningBn:'আপনার প্রতি শান্তি হোক, হে আদম আল্লাহর মনোনীতের উত্তরাধিকারী',
     meaningEn:'Peace be upon you, O inheritor of Adam, the chosen of Allah',
@@ -2145,6 +2155,7 @@ const ziyarats = [
   {
     titleBn:'যিয়ারত আরবাঈন',
     titleEn:'Ziyarat Arbaeen',
+    category:'general',
     arabic:'السَّلَامُ عَلَى وَلِيِّ اللَّهِ وَحَبِيبِهِ',
     meaningBn:'শান্তি হোক আল্লাহর অলী ও তাঁর প্রিয়জনের উপর',
     meaningEn:'Peace be upon the beloved of Allah and His close friend',
@@ -2190,6 +2201,7 @@ const ziyarats = [
   {
     titleBn:'যিয়ারত আলে ইয়াসিন',
     titleEn:'Ziyarat Aal Yasin',
+    category:'general',
     arabic:'سَلَامٌ عَلَى آلِ يَاسِينَ',
     meaningBn:'শান্তি বর্ষিত হোক আলে ইয়াসিনের উপর',
     meaningEn:'Peace be upon the family of Yasin',
@@ -2279,6 +2291,7 @@ const ziyarats = [
   {
     titleBn:'যিয়ারত নাহিয়া মুকাদ্দাসা',
     titleEn:'Ziyarat Nahiya Muqaddasa',
+    category:'general',
     arabic:'السَّلَامُ عَلَى مُحَمَّدٍ الْمُصْطَفَى',
     meaningBn:'শান্তি হোক মুহাম্মদ মুস্তাফার উপর',
     meaningEn:'Peace be upon Muhammad al-Mustafa',

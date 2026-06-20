@@ -17,7 +17,7 @@ window.storageUploadWithProgress = function(folder, file, onProgress = () => {})
         let resourceType = 'raw';
         if (mime.startsWith('image/')) resourceType = 'image';
         else if (mime.startsWith('video/')) resourceType = 'video';
-        else if (mime.startsWith('audio/')) resourceType = 'video'; // audio uses video resource type
+        else if (mime.startsWith('audio/')) resourceType = 'audio'; // ✅ FIXED: was 'video', now 'audio'
 
         const formData = new FormData();
         formData.append("file", file);
@@ -54,6 +54,59 @@ window.storageUploadWithProgress = function(folder, file, onProgress = () => {})
 };
 
 console.log("✅ Cloudinary সফলভাবে যুক্ত হয়েছে — Cloud:", CLOUDINARY_CLOUD_NAME);
+
+// ============================================================================
+// HELPER FUNCTIONS — Vibration & Colors
+// ============================================================================
+
+/**
+ * Trigger vibration feedback for tasbeeh counter
+ */
+function vibrateTaskeeh(type = 'tap') {
+    if (!navigator.vibrate && !navigator.webkitVibrate && 
+        !navigator.mozVibrate && !navigator.msVibrate) {
+        return;
+    }
+    const vibrate = navigator.vibrate || navigator.webkitVibrate || 
+                    navigator.mozVibrate || navigator.msVibrate;
+    const patterns = {
+        'tap': 15,
+        'reach': [10, 20, 15],
+        'reset': 25,
+        'error': [5, 15, 5]
+    };
+    vibrate.call(navigator, patterns[type] || 15);
+}
+
+/**
+ * Get color scheme for dua category
+ */
+function getCategoryColor(cat) {
+    const colors = {
+        'morning': { main: '#0ea5e9', light: 'rgba(14,165,233,.12)' },
+        'night': { main: '#8b5cf6', light: 'rgba(139,92,246,.12)' },
+        'hardship': { main: '#ef4444', light: 'rgba(239,68,68,.12)' },
+        'gratitude': { main: '#10b981', light: 'rgba(16,185,129,.12)' },
+        'general': { main: '#f59e0b', light: 'rgba(245,158,11,.12)' }
+    };
+    return colors[cat] || colors['general'];
+}
+
+// ============================================================================
+// FALLBACK FUNCTIONS — যদি blog.js লোড না হয়
+// ============================================================================
+if (typeof renderBlogEditorModal !== 'function') {
+    window.renderBlogEditorModal = () => '';
+}
+if (typeof renderBlogPage !== 'function') {
+    window.renderBlogPage = () => '<div class="text-center py-8">Blog module is loading...</div>';
+}
+if (typeof openBlogEditor !== 'function') {
+    window.openBlogEditor = () => console.warn('Blog module not loaded yet');
+}
+if (typeof saveBlogPost !== 'function') {
+    window.saveBlogPost = () => console.warn('Blog module not loaded yet');
+}
 
 // ============================================================================
 // INDEXED DB — large file storage
@@ -116,7 +169,7 @@ const ADMIN_PASS_HASH = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809
 
 async function hashPassword(pass) {
     const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pass));
-    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 // ============================================================================
@@ -131,6 +184,8 @@ const state = {
     bookmarks: [],
     currentPost: null,
     currentDua: null,
+    duaCategory: 'all',  // NEW: Category filter for duas
+    duaTab: 'dua',  // NEW: Track dua/ziyarat tab
     showUploadModal: false,
     uploadType: null,
     uploadProgress: 0,
@@ -181,6 +236,7 @@ const state = {
     showBlogEditor: false,
     editingPost: null,
     customPosts: [],
+    blogFilter: '',            // '' = সব; category bn name = filter
     // custom dua / ziyarat editor
     showDuaEditor: false,
     editingDua: null,
@@ -192,8 +248,9 @@ const state = {
     // library tab
     libraryTab: '',
     currentZiyarat: null,
-    // hadith of day index
+    // hadith / ayah index (for next/prev browsing)
     hadithIndex: 0,
+    ayahIndex: -1, // -1 = date-based auto; 0+ = manual browse
     customHadiths: [],
     customAyahs: [],
     nahjulBalagha: [],
@@ -533,19 +590,27 @@ const dailyAyahs = [
 ];
 function getDailyAyah() {
     const pool = (state.customAyahs && state.customAyahs.length > 0) ? state.customAyahs : dailyAyahs;
+    // Manual browse mode (Next/Prev বোতামে ক্লিক করলে)
+    if (state.ayahIndex >= 0) return pool[state.ayahIndex % pool.length];
     // Date-based daily rotation: প্রতিদিন স্বয়ংক্রিয়ভাবে নতুন আয়াত
     const now = new Date();
     const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
-    const idx = dayOfYear % pool.length;
-    return pool[idx];
+    return pool[dayOfYear % pool.length];
+}
+function getAyahPoolSize() {
+    return ((state.customAyahs && state.customAyahs.length > 0) ? state.customAyahs : dailyAyahs).length;
+}
+function getHadithPoolSize() {
+    return ((state.customHadiths && state.customHadiths.length > 0) ? state.customHadiths : hadiths).length;
 }
 function getDailyHadith() {
     const pool = (state.customHadiths && state.customHadiths.length > 0) ? state.customHadiths : hadiths;
+    // Manual browse mode (Next/Prev বোতামে ক্লিক করলে)
+    if (state.hadithIndex > 0) return pool[state.hadithIndex % pool.length];
     // Date-based daily rotation: প্রতিদিন স্বয়ংক্রিয়ভাবে নতুন হাদিস
     const now = new Date();
     const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
-    const idx = dayOfYear % pool.length;
-    return pool[idx];
+    return pool[dayOfYear % pool.length];
 }
 
 // ============================================================================
@@ -655,14 +720,7 @@ const asmaulHusna = [
 // ============================================================================
 // STATIC DATA
 // ============================================================================
-const blogPosts = [
-    {id:1,date:'২০২৪-০১-১৫',titleBn:'রমজান মাসের ফজিলত ও আমল',titleEn:'Virtues of Ramadan',category:'রমজান',readTime:'8 min',excerpt:'রমজান মাসের বিশেষ ফজিলত এবং করণীয় আমল',contentBn:'রমজান মাস ইসলামের পাঁচটি স্তম্ভের একটি। এই মাসে রোজা রাখা ফরজ।\n\nফজিলত:\n১. কুরআন নাজিল\n২. লাইলাতুল কদর\n৩. জান্নাতের দরজা খোলা\n৪. শয়তান শৃঙ্খলিত\n\nআমল:\n১. সাহরি\n২. ইফতার\n৩. কুরআন তিলাওয়াত\n৪. তারাবীহ\n৫. দান-সদকা',contentEn:'Ramadan is a pillar of Islam. Fasting is obligatory.\n\nVirtues:\n1. Quran revealed\n2. Laylatul Qadr\n3. Paradise gates open\n4. Satan chained\n\nPractices:\n1. Suhoor\n2. Iftar\n3. Quran recitation\n4. Taraweeh\n5. Charity'},
-    {id:2,date:'২০২৪-০২-১০',titleBn:'ইমাম হোসাইন (আ.)',titleEn:'Imam Hussain (AS)',category:'আহলে বাইত',readTime:'12 min',excerpt:'ইমাম হোসাইন (আ.) এর জীবনী',contentBn:'ইমাম হুসাইন রাসূলের নাতি।\n\nকারবালা:\n৬১ হিজরিতে ইয়াজিদের বিরুদ্ধে। ৭২ জন সঙ্গী নিয়ে শাহাদাত।\n\nশিক্ষা:\nসত্য ও ন্যায়ের জন্য দাঁড়ানো।',contentEn:'Imam Hussain is the Prophet\'s grandson.\n\nKarbala:\n61 AH against Yazid. Martyred with 72 companions.\n\nLesson:\nStanding for truth.'},
-    {id:3,date:'২০২৪-০৩-০৫',titleBn:'দোয়ায়ে কুমাইল',titleEn:'Dua Kumayl',category:'দোয়া',readTime:'6 min',excerpt:'দোয়ায়ে কুমাইলের ফজিলত',contentBn:'ইমাম আলী (আ.) এর শিক্ষা।\n\nসময়:\nবৃহস্পতিবার রাত।\n\nফজিলত:\n১. গুনাহ মাফ\n২. রহমত\n৩. আধ্যাত্মিক উন্নতি',contentEn:'Taught by Imam Ali.\n\nTime:\nThursday nights.\n\nBenefits:\n1. Forgiveness\n2. Mercy\n3. Spiritual growth'},
-    {id:4,date:'২০২৪-০৩-২০',titleBn:'সূরা ফাতিহা',titleEn:'Surah Fatiha',category:'কুরআন',readTime:'10 min',excerpt:'সূরা ফাতিহার তাফসীর',contentBn:'নামাজের অপরিহার্য অংশ।\n\nআয়াত:\n১. বিসমিল্লাহ\n২. আলহামদুলিল্লাহ\n৩. রহমান রহিম\n৪. সিরাতাল মুস্তাকিম',contentEn:'Essential in prayer.\n\nVerses:\n1. Bismillah\n2. Alhamdulillah\n3. Rahman Rahim\n4. Straight path'},
-    {id:5,date:'২০২৪-০৪-০১',titleBn:'নামাজের গুরুত্ব',titleEn:'Importance of Salah',category:'ইবাদত',readTime:'7 min',excerpt:'নামাজের গুরুত্ব',contentBn:'দ্বিতীয় স্তম্ভ।\n\nগুরুত্ব:\n১. ঈমানের পার্থক্য\n২. মুমিনের মিরাজ\n৩. পাপ মোচন',contentEn:'Second pillar.\n\nImportance:\n1. Faith difference\n2. Believer\'s ascension\n3. Sin removal'},
-    {id:6,date:'২০২৪-০৪-১৫',titleBn:'ইসলামি নৈতিকতা',titleEn:'Islamic Ethics',category:'আখলাক',readTime:'9 min',excerpt:'নৈতিক মূল্যবোধ',contentBn:'মূল্যবোধ:\n১. সত্যবাদিতা\n২. বিশ্বস্ততা\n৩. ন্যায়\n৪. দয়া\n৫. বিনয়',contentEn:'Values:\n1. Truth\n2. Trust\n3. Justice\n4. Mercy\n5. Humility'}
-];
+// ✓ blogPosts moved to blog.js
 
 
 
@@ -899,9 +957,8 @@ function sanitize(text) { return typeof text==='string'?escapeHtml(text):''; }
 // ============================================================================
 const translations = {
     bn:{
-        home:'প্রধান পাতা', about:'আমাদের সম্পর্কে', blog:'ইসলামিক ব্লগ',
         calendar:'ইসলামিক ক্যালেন্ডার', library:'পিডিএফ লাইব্রেরি',
-        media:'মিডিয়া', dua:'দোয়া ও যিয়ারত', contact:'যোগাযোগ',
+        media:'মিডিয়া', dua:'দোয়া ও যিয়ারত', contact:'যোগাযোগ', blog:'ইসলামিক ব্লগ', home:'প্রধান পাতা',
         latestPosts:'সর্বশেষ পোস্ট', featuredBooks:'বৈশিষ্ট্যযুক্ত বই',
         readMore:'আরও পড়ুন', download:'ডাউনলোড', read:'পড়ুন',
         search:'অনুসন্ধান', pages:'পৃষ্ঠা', viewAll:'সব দেখুন',
@@ -910,15 +967,14 @@ const translations = {
         todayVerse:'আজকের আয়াত', menu:'মেনু', darkMode:'ডার্ক মোড',
         lightMode:'লাইট মোড', loading:'লোড হচ্ছে...', error:'ত্রুটি',
         bookmarks:'বুকমার্ক', admin:'অ্যাডমিন', images:'ছবি', videos:'ভিডিও', audios:'অডিও',
-        imams:'ইমাম ও মাসুমিন (আ.)', tasbeeh:'তাসবিহ কাউন্টার', quiz:'ইসলামিক কুইজ', asmaul:'আসমাউল হুসনা', qibla:'কিবলা নির্দেশক',
+        imams:'ইমাম ও মাসুমিন (আ.)', tasbeeh:'তাসবিহ কাউন্টার', quiz:'ইসলামিক কুইজ', asmaul:'আসমাউল হুসনা', qibla:'কিবলা নির্দেশক', familyTree:'বংশধারা',
         searchPage:'সার্চ', analytics:'পরিসংখ্যান', hadithOfDay:'আজকের হাদিস',
         newPost:'নতুন পোস্ট', editPost:'পোস্ট সম্পাদনা', deletePost:'মুছুন',
         savePost:'সংরক্ষণ করুন', cancel:'বাতিল', title:'শিরোনাম', content:'বিষয়বস্তু',
         notifyPrayer:'নামাজের রিমাইন্ডার', enableNotify:'নোটিফিকেশন চালু করুন'
     },
     en:{
-        home:'Home', about:'About', blog:'Blog', calendar:'Calendar',
-        library:'Library', media:'Media', dua:'Dua', contact:'Contact',
+        library:'Library', media:'Media', dua:'Dua', contact:'Contact', blog:'Islamic Blog', home:'Home',
         latestPosts:'Latest Posts', featuredBooks:'Featured Books',
         readMore:'Read More', download:'Download', read:'Read',
         search:'Search', pages:'pages', viewAll:'View All',
@@ -927,7 +983,7 @@ const translations = {
         todayVerse:"Today's Verse", menu:'Menu', darkMode:'Dark Mode',
         lightMode:'Light Mode', loading:'Loading...', error:'Error',
         bookmarks:'Bookmarks', admin:'Admin', images:'Images', videos:'Videos', audios:'Audios',
-        imams:'Imams & Masumeen (AS)', tasbeeh:'Tasbeeh Counter', quiz:'Islamic Quiz', asmaul:'Asmaul Husna', qibla:'Qibla Finder',
+        imams:'Imams & Masumeen (AS)', tasbeeh:'Tasbeeh Counter', quiz:'Islamic Quiz', asmaul:'Asmaul Husna', qibla:'Qibla Finder', familyTree:'Family Tree',
         searchPage:'Search', analytics:'Analytics', hadithOfDay:"Today's Hadith",
         newPost:'New Post', editPost:'Edit Post', deletePost:'Delete',
         savePost:'Save Post', cancel:'Cancel', title:'Title', content:'Content',
@@ -989,6 +1045,34 @@ function getUserLocation() {
             {timeout:10000}
         );
     } else fetchPrayerTimes(null, null, 'Dhaka');
+}
+
+// ── Manual GPS request from the prayer widget button ──
+function requestGPSPrayerTimes() {
+    const l = state.language;
+    if (!navigator.geolocation) {
+        showToast(l==='bn'?'❌ আপনার ডিভাইসে GPS সাপোর্ট নেই':'❌ GPS not supported on this device', 'error');
+        return;
+    }
+    state.prayerTimesLoading = true;
+    render();
+    navigator.geolocation.getCurrentPosition(
+        pos => {
+            state.userLocation = {latitude:pos.coords.latitude, longitude:pos.coords.longitude};
+            saveState();
+            fetchPrayerTimes(state.userLocation.latitude, state.userLocation.longitude);
+            showToast(l==='bn'?'✅ সঠিক GPS অবস্থান পাওয়া গেছে':'✅ Precise GPS location found', 'success');
+        },
+        err => {
+            state.prayerTimesLoading = false;
+            const msg = err.code === 1
+                ? (l==='bn'?'⚠️ লোকেশন পারমিশন দরকার — ব্রাউজার সেটিংস চেক করুন':'⚠️ Location permission needed — check browser settings')
+                : (l==='bn'?'❌ লোকেশন পাওয়া যায়নি':'❌ Could not get location');
+            showToast(msg, 'error');
+            render();
+        },
+        {timeout:10000, enableHighAccuracy:true}
+    );
 }
 
 // ============================================================================
@@ -1055,7 +1139,7 @@ async function handleFileUpload(e) {
     const maxSize = state.uploadType === 'video' ? 500 : 100; // MB
     if (file.size > maxSize * 1024 * 1024) {
         showToast(state.language==='bn'
-            ? `ফাইল ${maxSize}MB এর বেশি হতে পারবে না`
+            ? `ফাইল ${maxSize}MB এর বেশি হতে পারে না`
             : `File must be under ${maxSize}MB`, 'warning');
         return;
     }
@@ -1201,6 +1285,69 @@ async function deleteFile(id, listKey) {
 }
 
 // ============================================================================
+// MEDIA INDEX SYNC (Cloudinary) — keeps image/video/audio lists in sync
+// across devices/browsers. Was previously called but never defined, which
+// caused an uncaught ReferenceError on every page load (init() crashed at
+// fetchMediaFromCloud()). Both functions below are fully self-contained and
+// never throw — any failure (offline, first run with no cloud index yet,
+// etc.) is caught and logged instead of crashing the app.
+// ============================================================================
+const MEDIA_INDEX_PUBLIC_ID = 'ahlbayt/media-index';
+
+/** Upload the current image/video/audio lists as a JSON index to Cloudinary */
+async function syncMediaToCloud() {
+    try {
+        const payload = JSON.stringify({
+            imageList: state.imageList || [],
+            videoList: state.videoList || [],
+            audioList: state.audioList || [],
+            updatedAt: Date.now()
+        });
+        const dataUri = 'data:application/json;base64,' + btoa(unescape(encodeURIComponent(payload)));
+
+        const formData = new FormData();
+        formData.append('file', dataUri);
+        formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+        formData.append('public_id', MEDIA_INDEX_PUBLIC_ID);
+
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/raw/upload`, {
+            method: 'POST',
+            body: formData
+        });
+        if (!res.ok) throw new Error('Cloudinary raw upload failed: ' + res.status);
+        const data = await res.json();
+        console.log('[Media] index synced to cloud ✓', data.secure_url);
+        return data.secure_url;
+    } catch (e) {
+        console.warn('[Media] syncMediaToCloud failed (will retry on next change):', e);
+    }
+}
+
+/** Load the media index from Cloudinary (cross-device) on app start */
+async function fetchMediaFromCloud() {
+    try {
+        const url = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/raw/upload/${MEDIA_INDEX_PUBLIC_ID}.json?_=${Date.now()}`;
+        const res = await fetch(url);
+        if (!res.ok) {
+            console.log('[Media] no cloud index yet — keeping local data');
+            return;
+        }
+        const data = await res.json();
+        let changed = false;
+        if (Array.isArray(data.imageList)) { state.imageList = data.imageList; changed = true; }
+        if (Array.isArray(data.videoList)) { state.videoList = data.videoList; changed = true; }
+        if (Array.isArray(data.audioList)) { state.audioList = data.audioList; changed = true; }
+        if (changed) {
+            saveState();
+            if (state.currentPage === 'media') render();
+            console.log('[Media] index loaded from cloud ✓');
+        }
+    } catch (e) {
+        console.warn('[Media] fetchMediaFromCloud failed (offline?):', e);
+    }
+}
+
+// ============================================================================
 // STATE ACTIONS
 // ============================================================================
 function toggleDarkMode() { state.darkMode=!state.darkMode; saveState(); render(); }
@@ -1249,7 +1396,7 @@ function shareContent(title, text, url) {
 }
 function sharePost(post, l) {
     const title = l==='bn'?post.titleBn:post.titleEn;
-    const text = post.excerpt || (l==='bn'?post.contentBn:post.contentEn).substring(0,100)+'...';
+    const text = post.excerpt || ((l==='bn'?post.contentBn:post.contentEn) || '').substring(0,100)+'...';
     shareContent('📖 '+title, text, '');
 }
 function shareHadith(hadith, l) {
@@ -1258,7 +1405,7 @@ function shareHadith(hadith, l) {
 }
 function shareDua(dua, l) {
     const title = l==='bn'?dua.titleBn:dua.titleEn;
-    const text = dua.arabic + '\n' + (l==='bn'?dua.meaningBn:dua.meaningEn);
+    const text = (dua.arabic||'') + '\n' + (l==='bn'?dua.meaningBn||'':dua.meaningEn||'');
     shareContent('🤲 '+title, text, '');
 }
 function shareImamQuote(im, l) {
@@ -1270,13 +1417,34 @@ function changePage(page) {
     state.previousPage=state.currentPage; state.currentPage=page;
     state.menuOpen=false; state.currentPost=null; state.currentDua=null;
     state.currentZiyarat=null; state.viewerItem=null; state.viewerData=null;
-    // Reset library to folder grid when navigating to library
     if (page==='library') state.libraryTab='';
-    // analytics tracking
     state.pageViews[page] = (state.pageViews[page]||0) + 1;
     saveState();
-    render();
-    window.scrollTo(0,0);
+    // ── Smooth fade page transition ──
+    const main = document.querySelector('main');
+    if (main) {
+        main.style.transition = 'opacity .16s ease, transform .16s ease';
+        main.style.opacity = '0';
+        main.style.transform = 'translateY(8px)';
+        setTimeout(() => {
+            render();
+            window.scrollTo({top:0, behavior:'instant'});
+            const newMain = document.querySelector('main');
+            if (newMain) {
+                newMain.style.transition = 'none';
+                newMain.style.opacity = '0';
+                newMain.style.transform = 'translateY(12px)';
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    newMain.style.transition = 'opacity .28s ease, transform .28s ease';
+                    newMain.style.opacity = '1';
+                    newMain.style.transform = 'translateY(0)';
+                }));
+            }
+        }, 160);
+    } else {
+        render();
+        window.scrollTo(0,0);
+    }
 }
 
 // ============================================================================
@@ -1284,6 +1452,7 @@ function changePage(page) {
 // ============================================================================
 function tasbeehTap() {
     state.tasbeehCount++;
+    vibrateTaskeeh('tap');  // NEW: Vibration feedback on tap
     // Ripple effect
     const btn=document.getElementById('tasbeeh-main-btn');
     if(btn){
@@ -1303,6 +1472,7 @@ function tasbeehTap() {
         }
     }
     if (state.tasbeehCount >= state.tasbeehTarget) {
+        vibrateTaskeeh('reach');  // NEW: Special vibration when goal reached
         state.tasbeehHistory.unshift({
             label: state.tasbeehLabel, count: state.tasbeehCount,
             date: localDate(), target: state.tasbeehTarget
@@ -1327,7 +1497,7 @@ function tasbeehTap() {
     if(pPct) pPct.textContent = Math.round(pct*100)+'%';
     saveState();
 }
-function tasbeehReset() { state.tasbeehCount=0; saveState(); render(); }
+function tasbeehReset() { state.tasbeehCount=0; vibrateTaskeeh('reset'); saveState(); render(); }
 function tasbeehSetLabel(idx) {
     const lbl = tasbeehLabels[idx];
     if (!lbl) return;
@@ -1371,7 +1541,7 @@ function doSearch(query) {
     const q = query.toLowerCase();
     const results = [];
     // search blog posts
-    const allPosts = [...blogPosts, ...state.customPosts];
+    const allPosts = [...(typeof blogPosts!=='undefined'?blogPosts:[]), ...state.customPosts];
     allPosts.forEach(p=>{
         const hit = p.titleBn?.toLowerCase().includes(q) || p.titleEn?.toLowerCase().includes(q) || p.excerpt?.toLowerCase().includes(q);
         if(hit) results.push({type:'post',item:p});
@@ -1463,127 +1633,7 @@ function schedulePrayerNotifications() {
 }
 
 // ============================================================================
-// ADMIN BLOG EDITOR ACTIONS
-// ============================================================================
-function openBlogEditor(post=null) {
-    if (!state.isAdmin) return;
-    state.editingPost = post ? {...post} : {id:'custom_'+Date.now(),date:localDate(),titleBn:'',titleEn:'',category:'',readTime:'5 min',excerpt:'',contentBn:'',contentEn:''};
-    state.showBlogEditor = true;
-    render();
-}
-function closeBlogEditor() { state.showBlogEditor=false; state.editingPost=null; render(); }
-// ── Blog → Cloudinary sync ───────────────────────────────────────────────────
-// ── Media index → Cloudinary ─────────────────────────────────────────────────
-async function syncMediaToCloud() {
-    try {
-        const _cn = window.CLOUDINARY_CLOUD_NAME || "ahlalbayt";
-        const _pr = window.CLOUDINARY_UPLOAD_PRESET || "ahlalbayt_upload";
-        const index = {
-            pdfList:   state.pdfList,
-            imageList: state.imageList,
-            videoList: state.videoList,
-            audioList: state.audioList,
-        };
-        const blob = new Blob([JSON.stringify(index)], { type:'application/json' });
-        const file = new File([blob], 'media_index.json', { type:'application/json' });
-        const fd = new FormData();
-        fd.append('file', file);
-        fd.append('upload_preset', _pr);
-        fd.append('folder', 'library');
-        fd.append('resource_type', 'raw');
-        fd.append('use_filename', 'true');
-        fd.append('unique_filename', 'false');
-        const res = await fetch(`https://api.cloudinary.com/v1_1/${_cn}/raw/upload`, { method:'POST', body:fd });
-        if (!res.ok) throw new Error(await res.text());
-        const data = await res.json();
-        console.log('[Media] index synced →', data.secure_url);
-    } catch(e) { console.error('[Media] sync error:', e); throw e; }
-}
-
-async function fetchMediaFromCloud() {
-    try {
-        const _cn = window.CLOUDINARY_CLOUD_NAME || "ahlalbayt";
-        const url = `https://res.cloudinary.com/${_cn}/raw/upload/library/media_index.json?cb=${Date.now()}`;
-        const res = await fetch(url);
-        if (!res.ok) return;
-        const data = await res.json();
-        if (data.pdfList)   state.pdfList   = data.pdfList;
-        if (data.imageList) state.imageList = data.imageList;
-        if (data.videoList) state.videoList = data.videoList;
-        if (data.audioList) state.audioList = data.audioList;
-        saveState(); render();
-        console.log('[Media] loaded from Cloudinary');
-    } catch(e) { console.warn('[Media] fetch error:', e.message); }
-}
-
-async function syncBlogToCloud(posts) {
-    try {
-        const blob = new Blob([JSON.stringify(posts)], { type:'application/json' });
-        const file = new File([blob], 'posts_index.json', { type:'application/json' });
-        const fd = new FormData();
-        fd.append('file', file);
-        fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-        fd.append('folder', 'blog');
-        fd.append('resource_type', 'raw');
-        fd.append('use_filename', 'true');
-        fd.append('unique_filename', 'false');
-        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/raw/upload`, { method:'POST', body:fd });
-        if (!res.ok) throw new Error(await res.text());
-        const data = await res.json();
-        console.log('[Blog] Synced →', data.secure_url);
-    } catch(e) { console.error('[Blog] sync error:', e); throw e; }
-}
-
-async function fetchBlogFromCloud() {
-    try {
-        const _cn = window.CLOUDINARY_CLOUD_NAME || "ahlalbayt";
-        const url = `https://res.cloudinary.com/${_cn}/raw/upload/blog/posts_index.json?cb=${Date.now()}`;
-        const res = await fetch(url);
-        if (!res.ok) return;
-        const posts = await res.json();
-        if (Array.isArray(posts) && posts.length) { state.customPosts = posts; saveState(); render(); }
-    } catch(e) { console.warn('[Blog] fetch error:', e.message); }
-}
-
-async function saveBlogPost() {
-    if (!state.editingPost) return;
-    const g = id => { const el=document.getElementById(id); return el?el.value:''; };
-    if(g('blog-editor-titleBn')) state.editingPost.titleBn = g('blog-editor-titleBn');
-    if(g('blog-editor-titleEn')) state.editingPost.titleEn = g('blog-editor-titleEn');
-    if(g('blog-editor-category')) state.editingPost.category = g('blog-editor-category');
-    if(g('blog-editor-readTime')) state.editingPost.readTime = g('blog-editor-readTime');
-    if(g('blog-editor-excerpt')) state.editingPost.excerpt = g('blog-editor-excerpt');
-    if(g('blog-editor-contentBn')) state.editingPost.contentBn = g('blog-editor-contentBn');
-    if(g('blog-editor-contentEn')) state.editingPost.contentEn = g('blog-editor-contentEn');
-    if (!state.editingPost.titleBn) {
-        showToast(state.language==='bn'?'বাংলা শিরোনাম দিন':'Please enter Bengali title','warning');
-        return;
-    }
-    const idx = state.customPosts.findIndex(p=>p.id===state.editingPost.id);
-    if (idx>-1) state.customPosts[idx]=state.editingPost;
-    else state.customPosts.unshift(state.editingPost);
-    saveState(); closeBlogEditor();
-    showToast(state.language==='bn'?'পোস্ট সংরক্ষিত হচ্ছে...':'Saving post...','info');
-    try {
-        await syncBlogToCloud(state.customPosts);
-        showToast(state.language==='bn'?'পোস্ট Cloudinary-তে সেভ হয়েছে ✨':'Post saved to Cloudinary ✨','success');
-    } catch(e) {
-        showToast(state.language==='bn'?'Cloudinary sync ব্যর্থ — locally সেভ হয়েছে':'Cloudinary sync failed — saved locally','warning');
-    }
-}
-
-async function deleteCustomPost(id) {
-    if (!state.isAdmin) return;
-    if (!confirm(state.language==='bn'?'পোস্টটি মুছবেন?':'Delete this post?')) return;
-    state.customPosts = state.customPosts.filter(p=>p.id!==id);
-    saveState(); render();
-    try {
-        await syncBlogToCloud(state.customPosts);
-        showToast(state.language==='bn'?'পোস্ট মুছে ফেলা হয়েছে ✓':'Post deleted ✓','success');
-    } catch(e) {
-        showToast(state.language==='bn'?'Cloudinary sync ব্যর্থ':'Cloudinary sync failed','warning');
-    }
-}
+// ✓ Blog editor functions moved to blog.js
 
 // ── DUA / ZIYARAT EDITOR ──────────────────────────────────────────────────
 function openDuaEditor(item=null, type='dua') {
@@ -1705,7 +1755,7 @@ function toggleBookmark(id, type) {
 function isBookmarked(id,type){ return state.bookmarks.includes(`${type}-${String(id)}`); }
 function readPost(id) {
     state.previousPage=state.currentPage;
-    const allPosts = [...blogPosts, ...state.customPosts];
+    const allPosts = [...(typeof blogPosts!=='undefined'?blogPosts:[]), ...state.customPosts];
     state.currentPost=allPosts.find(p=>String(p.id)===String(id));
     if(!state.currentPost) return;
     state.currentPage='readPost'; render(); window.scrollTo(0,0);
@@ -1717,8 +1767,9 @@ function readDua(index) {
         const id = index.slice(1);
         state.currentDua = state.customDuas.find(x=>x.id===id);
     } else {
-        state.currentDua = duas[parseInt(index)];
+        state.currentDua = duas && duas[parseInt(index)];
     }
+    if (!state.currentDua) return; // ✅ FIXED: Early return if not found
     state.currentPage='readDua'; render(); window.scrollTo(0,0);
 }
 
@@ -1839,7 +1890,9 @@ function setupEventListeners() {
                 case 'cycleFontSize': cycleFontSize(); break;
                 case 'setFontSize': setFontSize(param); break;
                 case 'toggleTimeline': state.showTimeline=!state.showTimeline; render(); break;
-                case 'sharePost': { const allP=[...blogPosts,...state.customPosts]; const p=allP.find(x=>String(x.id)===String(param)); if(p) sharePost(p,state.language); break; }
+                case 'setDuaTab': state.duaTab=param; render(); break;  // NEW: Set dua/ziyarat tab
+                case 'setDuaCategory': state.duaCategory=param; render(); break;  // NEW: Set dua category filter
+                case 'sharePost': { const allP=[...(typeof blogPosts!=='undefined'?blogPosts:[]),...state.customPosts]; const p=allP.find(x=>String(x.id)===String(param)); if(p) sharePost(p,state.language); break; }
                 case 'shareHadith': shareHadith(getDailyHadith(),state.language); break;
                 case 'shareDua': {
                     const allDuas2=[...duas,...state.customDuas];
@@ -1877,6 +1930,56 @@ function setupEventListeners() {
                     const pw=document.getElementById('admin-pw-input');
                     if(pw) tryAdminLogin(pw.value); break;
                 }
+                // AYAH NAVIGATION & SHARE
+                case 'ayahNext': {
+                    const pool = getAyahPoolSize();
+                    const now = new Date();
+                    const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+                    const current = state.ayahIndex >= 0 ? state.ayahIndex : dayOfYear % pool;
+                    state.ayahIndex = (current + 1) % pool;
+                    render(); break;
+                }
+                case 'ayahPrev': {
+                    const pool = getAyahPoolSize();
+                    const now = new Date();
+                    const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+                    const current = state.ayahIndex >= 0 ? state.ayahIndex : dayOfYear % pool;
+                    state.ayahIndex = (current - 1 + pool) % pool;
+                    render(); break;
+                }
+                case 'shareAyah': {
+                    const ay = getDailyAyah();
+                    const l = state.language;
+                    const text = (ay.arabic || '') + '\n\n' + (l==='bn' ? (ay.meaningBn||ay.meaningEn||'') : (ay.meaningEn||ay.meaningBn||'')) + '\n— ' + (l==='bn' ? (ay.ref||ay.refEn||'') : (ay.refEn||ay.ref||''));
+                    if (navigator.share) { navigator.share({ title: l==='bn'?'আজকের আয়াত':'Today\'s Verse', text }); }
+                    else { navigator.clipboard && navigator.clipboard.writeText(text).then(()=>alert(l==='bn'?'কপি হয়েছে!':'Copied!')); }
+                    break;
+                }
+                // HADITH NAVIGATION & SHARE
+                case 'hadithNext': {
+                    const pool = getHadithPoolSize();
+                    const now = new Date();
+                    const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+                    const current = state.hadithIndex > 0 ? state.hadithIndex : dayOfYear % pool;
+                    state.hadithIndex = (current + 1) % pool;
+                    render(); break;
+                }
+                case 'hadithPrev': {
+                    const pool = getHadithPoolSize();
+                    const now = new Date();
+                    const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+                    const current = state.hadithIndex > 0 ? state.hadithIndex : dayOfYear % pool;
+                    state.hadithIndex = (current - 1 + pool) % pool;
+                    render(); break;
+                }
+                case 'shareHadith': {
+                    const h = getDailyHadith();
+                    const l = state.language;
+                    const text = '"' + (l==='bn' ? (h.textBn||h.textEn||'') : (h.textEn||h.textBn||'')) + '"\n— ' + (l==='bn' ? (h.sourceBn||h.sourceEn||'') : (h.sourceEn||h.sourceBn||''));
+                    if (navigator.share) { navigator.share({ title: l==='bn'?'হাদিস':'Hadith', text }); }
+                    else { navigator.clipboard && navigator.clipboard.writeText(text).then(()=>alert(l==='bn'?'কপি হয়েছে!':'Copied!')); }
+                    break;
+                }
                 // TASBEEH
                 case 'tasbeehTap': tasbeehTap(); break;
                 case 'tasbeehReset': tasbeehReset(); break;
@@ -1904,6 +2007,7 @@ function setupEventListeners() {
                 case 'closeBlogEditor': closeBlogEditor(); break;
                 case 'saveBlogPost': saveBlogPost(); break;
                 case 'deleteCustomPost': deleteCustomPost(param); break;
+                case 'setBlogFilter': state.blogFilter=param; render(); break;
                 // DUA / ZIYARAT
                 case 'setDuaTab': state.duaTab=param; render(); break;
                 case 'setLibraryTab': state.libraryTab=param; render(); break;
@@ -2169,6 +2273,76 @@ function renderHijriBanner(d, l) {
         + '</div>';
 }
 
+// ============================================================================
+// ARABIC TEXT-TO-SPEECH ENGINE
+// ============================================================================
+const tts = {
+    _speaking: false,
+    _utterance: null,
+
+    speak(text, lang='ar-SA', onEnd=null) {
+        if (!('speechSynthesis' in window)) {
+            showToast(state.language==='bn'?'❌ আপনার ব্রাউজারে TTS সাপোর্ট নেই':'❌ TTS not supported', 'error');
+            return;
+        }
+        window.speechSynthesis.cancel();
+        const utt = new SpeechSynthesisUtterance(text);
+        utt.lang = lang;
+        utt.rate = 0.82;
+        utt.pitch = 1;
+        utt.volume = 1;
+        // Try to pick an Arabic voice
+        const voices = window.speechSynthesis.getVoices();
+        const arabicVoice = voices.find(v => v.lang.startsWith('ar'));
+        if (arabicVoice) utt.voice = arabicVoice;
+        utt.onstart = () => { tts._speaking = true; tts._updateBtn(true); };
+        utt.onend = () => { tts._speaking = false; tts._updateBtn(false); if (onEnd) onEnd(); };
+        utt.onerror = () => { tts._speaking = false; tts._updateBtn(false); };
+        this._utterance = utt;
+        window.speechSynthesis.speak(utt);
+    },
+
+    stop() {
+        window.speechSynthesis.cancel();
+        tts._speaking = false;
+        tts._updateBtn(false);
+    },
+
+    toggle(text, lang='ar-SA') {
+        if (tts._speaking) { tts.stop(); }
+        else { tts.speak(text, lang); }
+    },
+
+    _updateBtn(playing) {
+        document.querySelectorAll('.tts-play-btn').forEach(btn => {
+            const icon = btn.querySelector('.tts-icon');
+            if (icon) icon.textContent = playing ? '⏹' : '▶';
+            btn.title = playing
+                ? (state.language==='bn'?'থামান':'Stop')
+                : (state.language==='bn'?'আরবি শুনুন':'Play Arabic');
+        });
+    }
+};
+
+// Voices load asynchronously in some browsers
+if ('speechSynthesis' in window) {
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+
+function renderTTSBtn(arabicText, d) {
+    if (!arabicText) return '';
+    const escaped = arabicText.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    return `<button class="tts-play-btn" onclick="tts.toggle('${escaped}')"
+        title="${state.language==='bn'?'আরবি শুনুন':'Play Arabic'}"
+        style="display:inline-flex;align-items:center;gap:5px;font-size:.7rem;font-weight:600;
+               padding:4px 10px;border-radius:20px;border:1px solid ${d?'rgba(201,162,39,.3)':'rgba(180,83,9,.25)'};
+               background:${d?'rgba(201,162,39,.08)':'rgba(180,83,9,.06)'};
+               color:${d?'#fcd34d':'#92400e'};cursor:pointer;transition:all .2s">
+        <span class="tts-icon">▶</span>
+        <span>${state.language==='bn'?'শুনুন':'Listen'}</span>
+    </button>`;
+}
+
 function renderDailyAyahInner(d, l) {
     const ay = getDailyAyah();
     if (!ay) return '';
@@ -2176,7 +2350,10 @@ function renderDailyAyahInner(d, l) {
     const meaning = l==='bn' ? (ay.meaningBn||ay.meaningEn||'') : (ay.meaningEn||ay.meaningBn||'');
     const ref = l==='bn' ? (ay.ref||ay.refEn||'') : (ay.refEn||ay.ref||'');
     return '<div class="' + (d?'bg-black/20':'bg-white/70') + ' rounded-2xl p-4 mb-3">'
-        + '<p class="arabic-text arabic-reveal text-center mb-2" dir="rtl" style="font-size:1.4rem;line-height:2;color:' + (d?'#c9a227':'#92400e') + '">' + arabic + '</p>'
+        + '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px">'
+        + '<p class="arabic-text arabic-reveal text-center flex-1 mb-0" dir="rtl" style="font-size:1.4rem;line-height:2;color:' + (d?'#c9a227':'#92400e') + '">' + arabic + '</p>'
+        + (arabic ? renderTTSBtn(arabic, d) : '')
+        + '</div>'
         + '<p class="text-xs text-center ' + (d?'text-gray-300':'text-gray-700') + ' leading-relaxed italic">' + meaning + '</p>'
         + '</div>'
         + (ref ? '<p class="text-xs font-bold text-center" style="color:' + (d?'#6ee7b7':'#059669') + '">' + ref + '</p>' : '');
@@ -2370,7 +2547,7 @@ function renderHeader()
 {
     const d=state.darkMode; const l=state.language;
     const mainPages=['home','imams','dua','library','blog','tasbeeh'];
-    const morePages=['media','calendar','quiz','bookmarks','about','contact'];
+    const morePages=['media','calendar','quiz','familyTree','bookmarks','about','contact'];
     const bg=d?'rgba(17,24,39,0.92)':'rgba(255,255,255,0.88)';
     const border=d?'rgba(52,211,153,0.1)':'rgba(5,150,105,0.12)';
     return `
@@ -2378,8 +2555,8 @@ function renderHeader()
         <div class="max-w-7xl mx-auto px-4 py-3">
             <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-3">
-                    <button data-action="toggleMenu" class="md:hidden p-2 rounded-xl focus:outline-none transition-all hover:scale-110" style="background:${d?'rgba(255,255,255,.07)':'rgba(0,0,0,.05)'}">
-                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="1" y1="4" x2="17" y2="4"/><line x1="1" y1="9" x2="17" y2="9"/><line x1="1" y1="14" x2="17" y2="14"/></svg>
+                    <button data-action="toggleMenu" class="md:hidden p-2 rounded-xl focus:outline-none transition-all hover:scale-110 hamburger-btn" style="background:${d?'rgba(255,255,255,.07)':'rgba(0,0,0,.05)'}">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="transition:transform .3s ease"><line x1="1" y1="4" x2="17" y2="4" style="transition:all .3s ease;transform-origin:9px 4px"/><line x1="1" y1="9" x2="17" y2="9" style="transition:opacity .3s ease"/><line x1="1" y1="14" x2="17" y2="14" style="transition:all .3s ease;transform-origin:9px 14px"/></svg>
                     </button>
                     <button data-action="changePage" data-param="home" class="flex items-center gap-2.5 focus:outline-none group">
                         <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#059669,#065f46);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(5,150,105,.4);transition:transform var(--t-spring)" class="group-hover:scale-110">
@@ -2440,10 +2617,10 @@ function renderHeader()
 function renderMobileMenu()
 {
     const d=state.darkMode; const l=state.language;
-    const allPages=['home','blog','dua','imams','library','media','calendar','tasbeeh','quiz','bookmarks','about','contact','searchPage','analytics'];
-    const icons={home:'🏠',blog:'📝',imams:'👑',dua:'🤲',library:'📚',media:'🎬',calendar:'📅',tasbeeh:'📿',quiz:'🧠',bookmarks:'🔖',about:'ℹ️',contact:'📞',searchPage:'🔍',analytics:'📊'};
+    const allPages=['home','blog','dua','imams','familyTree','library','media','calendar','tasbeeh','quiz','bookmarks','about','contact','searchPage','analytics'];
+    const icons={home:'🏠',blog:'📝',imams:'👑',familyTree:'🌳',dua:'🤲',library:'📚',media:'🎬',calendar:'📅',tasbeeh:'📿',quiz:'🧠',bookmarks:'🔖',about:'ℹ️',contact:'📞',searchPage:'🔍',analytics:'📊'};
     return `
-    <div id="mobile-menu-backdrop" class="${state.menuOpen?'block':'hidden'} fixed inset-0 z-40" style="background:rgba(0,0,0,.55);backdrop-filter:blur(4px)" data-action="toggleMenu"></div>
+    <div id="mobile-menu-backdrop" class="fixed inset-0 z-40 ${state.menuOpen?'show':'hidden'}" style="background:rgba(0,0,0,.55);backdrop-filter:blur(4px)" data-action="toggleMenu"></div>
     <div class="mobile-menu ${state.menuOpen?'open':''} fixed top-0 left-0 bottom-0 z-50 w-72 overflow-y-auto"
         style="background:${d?'rgba(17,24,39,.98)':'rgba(255,255,255,.98)'};backdrop-filter:blur(20px);box-shadow:8px 0 40px rgba(0,0,0,.2);border-right:1px solid ${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)'}">
         <div class="flex items-center justify-between p-5 pb-4" style="border-bottom:1px solid ${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)'}">
@@ -2486,24 +2663,56 @@ function renderFooter()
     <footer class="footer-luxury mt-16">
         <!-- Mosque Silhouette SVG -->
         <div style="width:100%;overflow:hidden;line-height:0;opacity:.18;margin-bottom:-2px">
-            <svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:80px">
-                <!-- Main dome -->
-                <path d="M580 80 Q600 10 620 80Z" fill="#059669"/>
-                <rect x="575" y="80" width="50" height="40" fill="#059669"/>
-                <!-- Left minaret -->
-                <rect x="480" y="40" width="18" height="80" fill="#059669"/>
-                <path d="M480 40 Q489 10 498 40Z" fill="#c9a227"/>
-                <!-- Right minaret -->
-                <rect x="702" y="40" width="18" height="80" fill="#059669"/>
-                <path d="M702 40 Q711 10 720 40Z" fill="#c9a227"/>
-                <!-- Side domes -->
-                <path d="M510 80 Q530 45 550 80Z" fill="#047857"/>
-                <path d="M650 80 Q670 45 690 80Z" fill="#047857"/>
-                <!-- Ground line -->
-                <rect x="400" y="118" width="400" height="4" fill="#065f46"/>
-                <!-- Stars and crescent -->
-                <circle cx="600" cy="25" r="4" fill="#c9a227"/>
-                <path d="M585 25 C585 15 595 8 608 12 C600 8 592 15 592 25 Z" fill="#c9a227"/>
+            <svg viewBox="0 0 1200 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100px">
+                <!-- Ground platform -->
+                <rect x="150" y="118" width="900" height="12" rx="2" fill="#065f46" opacity=".7"/>
+                <!-- Steps -->
+                <rect x="430" y="110" width="340" height="8" rx="2" fill="#059669" opacity=".5"/>
+                <rect x="460" y="104" width="280" height="6" rx="2" fill="#059669" opacity=".4"/>
+                <!-- Main body wall -->
+                <rect x="320" y="60" width="560" height="58" rx="0" fill="#047857" opacity=".6"/>
+                <!-- Arched windows on main wall -->
+                <path d="M380 118 L380 80 Q395 65 410 80 L410 118Z" fill="#022c22" opacity=".5"/>
+                <path d="M450 118 L450 80 Q465 65 480 80 L480 118Z" fill="#022c22" opacity=".5"/>
+                <path d="M720 118 L720 80 Q735 65 750 80 L750 118Z" fill="#022c22" opacity=".5"/>
+                <path d="M790 118 L790 80 Q805 65 820 80 L820 118Z" fill="#022c22" opacity=".5"/>
+                <!-- Central gate arch -->
+                <path d="M540 118 L540 70 Q600 42 660 70 L660 118Z" fill="#022c22" opacity=".6"/>
+                <!-- Main large dome -->
+                <path d="M510 60 Q600 5 690 60Z" fill="#059669" opacity=".9"/>
+                <!-- Dome lantern top -->
+                <rect x="594" y="5" width="12" height="18" rx="3" fill="#c9a227" opacity=".9"/>
+                <circle cx="600" cy="4" r="5" fill="#c9a227" opacity=".95"/>
+                <!-- Left medium dome -->
+                <path d="M350 60 Q410 28 470 60Z" fill="#047857" opacity=".75"/>
+                <rect x="407" y="28" width="7" height="12" rx="2" fill="#b45309" opacity=".8"/>
+                <!-- Right medium dome -->
+                <path d="M730 60 Q790 28 850 60Z" fill="#047857" opacity=".75"/>
+                <rect x="787" y="28" width="7" height="12" rx="2" fill="#b45309" opacity=".8"/>
+                <!-- Left tall minaret -->
+                <rect x="218" y="20" width="24" height="98" rx="3" fill="#065f46" opacity=".85"/>
+                <rect x="215" y="52" width="30" height="5" rx="2" fill="#059669" opacity=".6"/>
+                <rect x="215" y="72" width="30" height="5" rx="2" fill="#059669" opacity=".6"/>
+                <path d="M218 20 Q230 2 242 20Z" fill="#c9a227" opacity=".9"/>
+                <circle cx="230" cy="1" r="4" fill="#c9a227" opacity=".95"/>
+                <!-- Left inner minaret -->
+                <rect x="300" y="38" width="18" height="80" rx="2" fill="#059669" opacity=".7"/>
+                <rect x="298" y="62" width="22" height="4" rx="1" fill="#047857" opacity=".6"/>
+                <path d="M300 38 Q309 20 318 38Z" fill="#b45309" opacity=".85"/>
+                <!-- Right inner minaret -->
+                <rect x="882" y="38" width="18" height="80" rx="2" fill="#059669" opacity=".7"/>
+                <rect x="880" y="62" width="22" height="4" rx="1" fill="#047857" opacity=".6"/>
+                <path d="M882 38 Q891 20 900 38Z" fill="#b45309" opacity=".85"/>
+                <!-- Right tall minaret -->
+                <rect x="958" y="20" width="24" height="98" rx="3" fill="#065f46" opacity=".85"/>
+                <rect x="955" y="52" width="30" height="5" rx="2" fill="#059669" opacity=".6"/>
+                <rect x="955" y="72" width="30" height="5" rx="2" fill="#059669" opacity=".6"/>
+                <path d="M958 20 Q970 2 982 20Z" fill="#c9a227" opacity=".9"/>
+                <circle cx="970" cy="1" r="4" fill="#c9a227" opacity=".95"/>
+                <!-- Stars -->
+                <circle cx="150" cy="40" r="2" fill="#fcd34d" opacity=".7"/>
+                <circle cx="1050" cy="35" r="2" fill="#fcd34d" opacity=".7"/>
+                <circle cx="600" cy="50" r="1.5" fill="#fef3c7" opacity=".6"/>
             </svg>
         </div>
         <div style="width:100%;height:28px;overflow:hidden;opacity:.25"><svg width="100%" height="28" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><defs><pattern id="fp" x="0" y="0" width="56" height="28" patternUnits="userSpaceOnUse"><path d="M0 14 L14 0 L28 14 L42 0 L56 14 L42 28 L28 14 L14 28Z" fill="none" stroke="#B45309" stroke-width="1"/><circle cx="28" cy="14" r="3" fill="#059669" opacity=".8"/></pattern></defs><rect width="100%" height="28" fill="url(#fp)"/></svg></div>
@@ -2564,12 +2773,21 @@ function renderPrayerWidget()
     const activePrayer=getActive();
     const nextPrayerInfo=getNextPrayerInfo();
     const nextPrayer=nextPrayerInfo?nextPrayerInfo.key:null;
+    const hasGPS = !!state.userLocation;
     return `
     <div class="card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border" style="box-shadow:var(--shadow-md)">
         <div class="gold-top-bar" style="border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
         <div class="p-5">
-            <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <h3 class="font-bold text-base flex items-center gap-2"><span style="width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#059669,#065f46);display:flex;align-items:center;justify-content:center;font-size:.85rem;box-shadow:0 3px 10px rgba(5,150,105,.4)">🕌</span>${t('prayerTimes')}</h3>
+                <button onclick="requestGPSPrayerTimes()" title="${l==='bn'?'GPS দিয়ে সঠিক সময় আনুন':'Get accurate GPS time'}"
+                    style="display:flex;align-items:center;gap:4px;font-size:.68rem;font-weight:600;padding:4px 9px;border-radius:20px;
+                           background:${hasGPS?(d?'rgba(5,150,105,.15)':'rgba(5,150,105,.1)'):(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)')};
+                           color:${hasGPS?'#059669':(d?'#9ca3af':'#6b7280')};border:1px solid ${hasGPS?'rgba(5,150,105,.25)':(d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)')};
+                           cursor:pointer;transition:all .2s">
+                    <span style="width:6px;height:6px;border-radius:50%;background:${hasGPS?'#10b981':'#9ca3af'};${hasGPS?'animation:gpsPulseDot 2s ease-in-out infinite':''}"></span>
+                    📍 ${hasGPS?(l==='bn'?'GPS সক্রিয়':'GPS Live'):(l==='bn'?'আমার লোকেশন':'My Location')}
+                </button>
             </div>
             ${state.prayerTimesLoading?`<div class="space-y-2">${[1,2,3,4,5].map(()=>`<div class="flex justify-between items-center px-3 py-2.5 rounded-xl ${d?'bg-gray-900':'bg-gray-50'}"><div class="${d?'skeleton-dark':'skeleton'}" style="width:55px;height:12px"></div><div class="${d?'skeleton-dark':'skeleton'}" style="width:60px;height:12px"></div></div>`).join('')}</div>`:
             state.prayerTimesError?`<p class="text-center text-red-500 py-4 text-sm">${sanitize(state.prayerTimesError)}</p>`:
@@ -2582,7 +2800,10 @@ function renderPrayerWidget()
                         <span class="font-bold text-sm ${isActive?(d?'text-emerald-300':'text-emerald-600'):''}">${sanitize(v)}</span>
                     </div>`;
                 }).join('')}
-            </div>`}
+            </div>
+            <p class="text-center text-xs mt-3 ${d?'text-gray-500':'text-gray-400'}">
+                ${hasGPS?`📍 ${state.userLocation.latitude.toFixed(2)}°, ${state.userLocation.longitude.toFixed(2)}° ${l==='bn'?'থেকে সঠিক সময়':'precise time'}`:`${l==='bn'?'ঢাকার আনুমানিক সময় — সঠিক সময়ের জন্য GPS চালু করুন':'Approximate Dhaka time — enable GPS for precision'}`}
+            </p>`}
         </div>
     </div>`;
 }
@@ -2612,30 +2833,29 @@ function renderHomePage()
     <div class="${d?'hero-luxury':'hero-luxury-light'} px-6 rounded-3xl mb-12 relative page-enter" style="min-height:420px;display:flex;align-items:center;justify-content:center;padding-top:52px;padding-bottom:52px;color:${d?'white':'inherit'}">
         <div class="hero-geo-bg"></div>
         <div class="islamic-geo-overlay"></div>
-        ${d?`<div class="hero-orb hero-orb-1"></div><div class="hero-orb hero-orb-2"></div>`:''}
-        ${d?Array.from({length:10},(_,i)=>`<div class="hero-particle" style="width:${4+i%3*2}px;height:${4+i%3*2}px;left:${8+i*9}%;bottom:-8px;background:${i%3===0?'rgba(180,83,9,.8)':i%3===1?'rgba(5,150,105,.6)':'rgba(255,255,255,.4)'};animation-duration:${8+i*1.3}s;animation-delay:${i*.7}s;--drift:${(i%2===0?1:-1)*30}px"></div>`).join(''):''}
+        ${d?`<div class="hero-orb hero-orb-1"></div><div class="hero-orb hero-orb-2"></div><div class="hero-orb hero-orb-3"></div>`:''}
+        ${d?Array.from({length:14},(_,i)=>`<div class="hero-particle" style="width:${3+i%4*2}px;height:${3+i%4*2}px;left:${5+i*7}%;bottom:-8px;background:${i%4===0?'rgba(180,83,9,.9)':i%4===1?'rgba(5,150,105,.7)':i%4===2?'rgba(255,255,255,.5)':'rgba(201,162,39,.6)'};animation-duration:${7+i*1.1}s;animation-delay:${i*.6}s;--drift:${(i%2===0?1:-1)*35}px"></div>`).join(''):''}
         ${!d?`<div class="hero-ornament hero-ornament-tl"></div><div class="hero-ornament hero-ornament-tl2"></div><div class="hero-ornament hero-ornament-br"></div><div class="hero-ornament hero-ornament-br2"></div><div class="hero-float-dot" style="width:7px;height:7px;background:rgba(180,83,9,.45);top:18%;left:12%;animation-duration:4s"></div><div class="hero-float-dot" style="width:5px;height:5px;background:rgba(5,150,105,.45);top:65%;left:8%;animation-duration:5.5s;animation-delay:.8s"></div><div class="hero-float-dot" style="width:6px;height:6px;background:rgba(180,83,9,.35);top:22%;right:10%;animation-duration:6s;animation-delay:.3s"></div><div class="hero-float-dot" style="width:4px;height:4px;background:rgba(5,150,105,.55);top:68%;right:14%;animation-duration:4.5s;animation-delay:1.2s"></div><div class="hero-float-dot" style="width:9px;height:9px;background:rgba(201,162,39,.3);top:40%;left:5%;animation-duration:7s;animation-delay:.5s"></div>`:''}
         <div style="position:relative;z-index:2;text-align:center;max-width:680px;margin:0 auto">
-            ${!d?`<div class="hero-bismillah-pill"><div class="hero-bismillah-line"></div><p class="arabic-text" dir="rtl" style="font-size:1.4rem;margin:0;color:#78350f">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p><div class="hero-bismillah-line hero-bismillah-line-r"></div></div>`:
-            `<div style="display:inline-flex;align-items:center;gap:10px;padding:10px 24px;border-radius:50px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(8px);margin-bottom:1.5rem"><p class="arabic-text" dir="rtl" style="font-size:1.4rem;margin:0;text-shadow:0 0 30px rgba(180,83,9,.5)">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p></div>`}
-            ${!d?`<div class="hero-crescent-badge">☽</div><p class="hero-arabic-sub">آلُ بَيْتِ النَّبِيِّ ﷺ</p>`:''}
+            <div class="hero-bismillah-pill"><div class="hero-bismillah-line"></div><p class="arabic-text" dir="rtl" style="font-size:1.4rem;margin:0;color:${d?'#f59e0b':'#78350f'}">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p><div class="hero-bismillah-line hero-bismillah-line-r"></div></div>
+            <div class="hero-crescent-badge">☽</div><p class="hero-arabic-sub">آلُ بَيْتِ النَّبِيِّ ﷺ</p>
             <h2 style="font-size:clamp(2.2rem,6vw,3.4rem);font-weight:900;line-height:1.1;margin-bottom:.5rem;${d?'text-shadow:0 4px 20px rgba(0,0,0,.25)':''};color:${d?'#fff':'#022c22'};font-family:'Amiri',serif">${l==='bn'?'আহলে বাইত (আ.)':'Ahl al-Bayt (a.s)'}</h2>
-            ${!d?`<div class="hero-divider-dots"><span class="hero-divider-dot"></span><span class="hero-divider-dot hero-divider-dot-mid"></span><span class="hero-divider-dot"></span></div>`:''}
+            <div class="hero-divider-dots"><span class="hero-divider-dot"></span><span class="hero-divider-dot hero-divider-dot-mid"></span><span class="hero-divider-dot"></span></div>
             <p style="font-size:clamp(.9rem,2.5vw,1.05rem);margin-bottom:2rem;line-height:1.7;color:${d?'rgba(255,255,255,.8)':'rgba(2,44,34,.6)'};max-width:480px;margin-left:auto;margin-right:auto">${l==='bn'?'কুরআন, হাদিস ও পবিত্র ইমামদের শিক্ষায় আলোকিত হোন':'Enlighten yourself with Quran, Hadith & Holy Imams\' teachings'}</p>
             <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
                 <button data-action="changePage" data-param="imams" class="btn-primary" style="background:${d?'rgba(255,255,255,.12)':'rgba(255,255,255,.7)'};color:${d?'white':'#022c22'};padding:13px 28px;border-radius:50px;font-weight:700;border:1.5px solid ${d?'rgba(255,255,255,.3)':'rgba(5,150,105,.3)'};cursor:pointer;backdrop-filter:blur(8px);display:flex;align-items:center;gap:7px;font-size:.93rem;transition:transform .2s,background .2s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">👑 ${l==='bn'?'ইমামগণ':'The Imams'}</button>
-                <button data-action="changePage" data-param="blog" class="btn-primary" style="background:rgba(5,150,105,.12);color:${d?'#6ee7b7':'#065f46'};padding:13px 28px;border-radius:50px;font-weight:700;border:1.5px solid rgba(5,150,105,.28);cursor:pointer;backdrop-filter:blur(8px);display:flex;align-items:center;gap:7px;font-size:.93rem;transition:transform .2s,background .2s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">📖 ${l==='bn'?'ব্লগ':'Blog'}</button>
+                <button data-action="changePage" data-param="blog" class="btn-primary" style="background:rgba(5,150,105,.12);color:${d?'#6ee7b7':'#065f46'};padding:13px 28px;border-radius:50px;font-weight:700;border:1.5px solid rgba(5,150,105,.28);cursor:pointer;backdrop-filter:blur(8px);display:flex;align-items:center;gap:7px;font-size:.93rem;transition:transform .2s,background .2s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">📖 ${t('blog')}</button>
             </div>
-            ${!d?`<div class="hero-stats-row">
+            <div class="hero-stats-row">
 <div class="hero-stat-item"><span class="hero-stat-num">${l==='bn'?'১':'1'}</span><div class="hero-stat-label">${l==='bn'?'আল্লাহ':'Allah'}</div></div>
 <div class="hero-stat-item"><span class="hero-stat-num">${l==='bn'?'১২৪,৩১৩':'124,313'}</span><div class="hero-stat-label">${l==='bn'?'নবী-রাসূলের সংখ্যা':'Prophets & Messengers'}</div></div>
 <div class="hero-stat-item"><span class="hero-stat-num">${l==='bn'?'১৪':'14'}</span><div class="hero-stat-label">${l==='bn'?'ইমাম ও মাসুমিন':'Imams & Masumeen'}</div></div>
 <div class="hero-stat-item"><span class="hero-stat-num">${l==='bn'?'৯৯':'99'}</span><div class="hero-stat-label">${l==='bn'?'আসমাউল হুসনা':'Names of Allah'}</div></div>
-</div>`:''}
+</div>
         </div>
     </div>
     <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-14">
-        ${[['📖',l==='bn'?'ব্লগ':'Blog',l==='bn'?'ইসলামিক লেখা':'Islamic writings','blog','#059669','rgba(5,150,105,.1)','rgba(5,150,105,.25)',l==='bn'?'ব্লগ':'Blog'],['📚',l==='bn'?'লাইব্রেরি':'Library',l==='bn'?'ইসলামিক বই':'Islamic books','library','#0369a1','rgba(3,105,161,.1)','rgba(3,105,161,.25)',l==='bn'?'লাইব্রেরি':'Library'],['📿',l==='bn'?'তাসবিহ':'Tasbeeh',l==='bn'?'ডিজিটাল তাসবিহ':'Digital tasbeeh','tasbeeh','#059669','rgba(5,150,105,.1)','rgba(5,150,105,.25)',l==='bn'?'তাসবিহ':'Tasbeeh'],['🧠',l==='bn'?'কুইজ':'Quiz',l==='bn'?'জ্ঞান পরীক্ষা':'Test knowledge','quiz','#dc2626','rgba(220,38,38,.1)','rgba(220,38,38,.25)',l==='bn'?'কুইজ':'Quiz'],['☀️',l==='bn'?'৯৯ নাম':'99 Names',l==='bn'?'আসমাউল হুসনা':'Names of Allah','asmaul','#b45309','rgba(180,83,9,.1)','rgba(180,83,9,.25)',l==='bn'?'৯৯ নাম':'Names'],['🧭',l==='bn'?'কিবলা':'Qibla',l==='bn'?'কিবলার দিক':'Qibla direction','qibla','#0d9488','rgba(13,148,136,.1)','rgba(13,148,136,.25)',l==='bn'?'কিবলা':'Qibla']].map(([icon,title,desc,page,color,bg,faint,badge],fi)=>`
+        ${[['📖',t('blog'),l==='bn'?'ইসলামিক লেখা':'Islamic writings','blog','#059669','rgba(5,150,105,.1)','rgba(5,150,105,.25)',t('blog')],['📚',l==='bn'?'লাইব্রেরি':'Library',l==='bn'?'ইসলামিক বই':'Islamic books','library','#0369a1','rgba(3,105,161,.1)','rgba(3,105,161,.25)',l==='bn'?'লাইব্রেরি':'Library'],['📿',l==='bn'?'তাসবিহ':'Tasbeeh',l==='bn'?'ডিজিটাল তাসবিহ':'Digital tasbeeh','tasbeeh','#059669','rgba(5,150,105,.1)','rgba(5,150,105,.25)',l==='bn'?'তাসবিহ':'Tasbeeh'],['🧠',l==='bn'?'কুইজ':'Quiz',l==='bn'?'জ্ঞান পরীক্ষা':'Test knowledge','quiz','#dc2626','rgba(220,38,38,.1)','rgba(220,38,38,.25)',l==='bn'?'কুইজ':'Quiz'],['☀️',l==='bn'?'৯৯ নাম':'99 Names',l==='bn'?'আসমাউল হুসনা':'Names of Allah','asmaul','#b45309','rgba(180,83,9,.1)','rgba(180,83,9,.25)',l==='bn'?'৯৯ নাম':'Names'],['🧭',l==='bn'?'কিবলা':'Qibla',l==='bn'?'কিবলার দিক':'Qibla direction','qibla','#0d9488','rgba(13,148,136,.1)','rgba(13,148,136,.25)',l==='bn'?'কিবলা':'Qibla'],['🌳',l==='bn'?'বংশধারা':'Family Tree',l==='bn'?'আহলুল বাইত বংশতালিকা':'Ahl al-Bayt lineage','familyTree','#065f46','rgba(6,95,70,.1)','rgba(6,95,70,.25)',l==='bn'?'বংশধারা':'Family Tree'],['🤲',l==='bn'?'দোয়া ও যিয়ারত':'Dua & Ziyarat',l==='bn'?'ইসলামিক দোয়া সংকলন':'Islamic supplications','dua','#7c3aed','rgba(124,58,237,.1)','rgba(124,58,237,.25)',l==='bn'?'দোয়া':'Dua']].map(([icon,title,desc,page,color,bg,faint,badge],fi)=>`
             <button data-action="changePage" data-param="${page}" class="feature-card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border text-left w-full p-5 reveal reveal-delay-${fi%4+1}" style="box-shadow:var(--shadow-sm);--fc-accent:${color};--fc-accent-bg:${bg};--fc-accent-faint:${faint}">
                 <span class="feature-card-badge">${badge}</span>
                 <div class="feature-card-content">
@@ -2674,37 +2894,28 @@ function renderHomePage()
         </div>
     </div>
 
-    <div class="grid md:grid-cols-3 gap-8 mt-2">
-        <div class="md:col-span-2 space-y-8">
-            <div>
-                <div class="section-heading"><h3 class="section-title">${t('latestPosts')}</h3><button data-action="changePage" data-param="blog" class="text-xs font-bold px-3 py-1.5 rounded-full hover:scale-105 transition-all" style="background:rgba(5,150,105,.1);color:#059669">${t('viewAll')} →</button></div>
-                <div class="grid gap-4">
-                    ${blogPosts.slice(0,3).map((post,idx)=>{const ac=['#059669','#7c3aed','#b45309'][idx%3];return`
-                    <article class="blog-card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border reveal reveal-delay-${idx+1}" style="box-shadow:var(--shadow-sm)">
-                        <div style="height:3px;background:linear-gradient(90deg,${ac},${['#7c3aed','#b45309','#059669'][idx%3]});border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
-                        <div class="p-5">
-                            <div class="flex items-center gap-2 mb-3 flex-wrap"><span class="text-xs px-2.5 py-1 rounded-full font-bold" style="background:${ac}14;color:${ac}">${sanitize(post.category)}</span><span class="text-xs ${d?'text-gray-400':'text-gray-400'}">⏱ ${sanitize(post.readTime)}</span></div>
-                            <h4 class="text-lg font-bold mb-2 leading-snug">${sanitize(l==='bn'?post.titleBn:post.titleEn)}</h4>
-                            <p class="text-sm ${d?'text-gray-400':'text-gray-500'} mb-4 leading-relaxed">${sanitize(post.excerpt)}</p>
-                            <div class="flex items-center gap-3">
-                                <button data-action="readPost" data-param="${post.id}" class="btn-primary text-sm font-bold px-4 py-2 rounded-xl" style="background:${ac}14;color:${ac}">${t('readMore')} →</button>
-                                <button data-action="toggleBookmark" data-param="${post.id}" data-param2="post" class="ml-auto text-lg hover:scale-125 transition-all">${isBookmarked(post.id,'post')?'🔖':'🤍'}</button>
-                            </div>
-                        </div>
-                    </article>`;}).join('')}
-                </div>
-            </div>
-        </div>
-        <div class="space-y-5">
+    <div class="space-y-5 mt-2">
             ${renderPrayerWidget()}
             <div class="card-luxury ${d?'bg-gradient-to-br from-purple-950 to-blue-950 border-purple-900':'bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200'} border p-5" style="box-shadow:var(--shadow-md)">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-sm font-bold flex items-center gap-2"><span>📜</span>${t('hadithOfDay')}</h3>
-                    ${state.isAdmin?`<button data-action="openHadithEditor" class="${d?'bg-purple-800 text-purple-200':'bg-purple-100 text-purple-700'} text-xs px-3 py-1 rounded-lg font-semibold hover:opacity-80">✏️ ${l==='bn'?'এডিট':'Edit'}</button>`:''}
+                    <div class="flex items-center gap-2">
+                        ${state.isAdmin?`<button data-action="openHadithEditor" class="${d?'bg-purple-800 text-purple-200':'bg-purple-100 text-purple-700'} text-xs px-3 py-1 rounded-lg font-semibold hover:opacity-80">✏️ ${l==='bn'?'এডিট':'Edit'}</button>`:''}
+                    </div>
                 </div>
                 <div class="${d?'bg-black/20':'bg-white/60'} rounded-2xl p-4">
                     <p class="text-sm leading-relaxed mb-3 italic">"${sanitize(l==='bn'?getDailyHadith().textBn:getDailyHadith().textEn)}"</p>
                     <p class="text-xs font-bold" style="${d?'color:#fbbf24':'color:#92400e'}">— ${sanitize(l==='bn'?getDailyHadith().sourceBn:getDailyHadith().sourceEn)}</p>
+                </div>
+                <div class="flex items-center justify-between mt-3 gap-2">
+                    <div class="flex gap-1">
+                        <button data-action="hadithPrev" class="${d?'bg-purple-900 text-purple-200 hover:bg-purple-800':'bg-purple-100 text-purple-700 hover:bg-purple-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors" title="${l==='bn'?'আগেরটা':'Previous'}">‹ ${l==='bn'?'আগে':'Prev'}</button>
+                        <button data-action="hadithNext" class="${d?'bg-purple-900 text-purple-200 hover:bg-purple-800':'bg-purple-100 text-purple-700 hover:bg-purple-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors" title="${l==='bn'?'পরেরটা':'Next'}">${l==='bn'?'পরে':'Next'} ›</button>
+                    </div>
+                    <button data-action="shareHadith" class="${d?'bg-emerald-900 text-emerald-200 hover:bg-emerald-800':'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors flex items-center gap-1">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                        ${l==='bn'?'শেয়ার':'Share'}
+                    </button>
                 </div>
             </div>
             <!-- Daily Ayah Widget -->
@@ -2717,6 +2928,16 @@ function renderHomePage()
                     ${state.isAdmin?`<button data-action="openAyahEditor" class="${d?'bg-amber-900 text-amber-200':'bg-amber-100 text-amber-700'} text-xs px-3 py-1 rounded-lg font-semibold hover:opacity-80">✏️ ${l==='bn'?'এডিট':'Edit'}</button>`:''}
                 </div>
                 ${renderDailyAyahInner(d,l)}
+                <div class="flex items-center justify-between mt-3 gap-2">
+                    <div class="flex gap-1">
+                        <button data-action="ayahPrev" class="${d?'bg-amber-900 text-amber-200 hover:bg-amber-800':'bg-amber-100 text-amber-700 hover:bg-amber-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors">‹ ${l==='bn'?'আগে':'Prev'}</button>
+                        <button data-action="ayahNext" class="${d?'bg-amber-900 text-amber-200 hover:bg-amber-800':'bg-amber-100 text-amber-700 hover:bg-amber-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors">${l==='bn'?'পরে':'Next'} ›</button>
+                    </div>
+                    <button data-action="shareAyah" class="${d?'bg-emerald-900 text-emerald-200 hover:bg-emerald-800':'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors flex items-center gap-1">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                        ${l==='bn'?'শেয়ার':'Share'}
+                    </button>
+                </div>
             </div>
             <div class="card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border p-5" style="box-shadow:var(--shadow-sm)">
                 <h3 class="text-sm font-bold mb-4">${l==='bn'?'আমাদের অনুসরণ করুন':'Follow Us'}</h3>
@@ -2732,7 +2953,6 @@ function renderHomePage()
                     </a>`).join('')}
                 </div>
             </div>
-        </div>
     </div>`;
 }
 
@@ -2888,7 +3108,7 @@ function renderMediaCard(item, type, listKey, d, l) {
         <div class="flex gap-2">
             <button data-action="openViewer" data-param="${item.id}" data-vtype="${type}" data-listkey="${listKey}"
                 class="${d?'bg-blue-900 text-blue-300':'bg-blue-600 text-white'} flex-1 py-2 rounded-lg text-xs font-semibold hover:opacity-90"
-            >👁 ${l==='bn'?(type==='image'?'দেখুন':type==='video'?'দেখুন':'শুনুন'):(type==='audio'?'Play':'View')}</button>
+            >👁 ${l==='bn'?(type==='audio'?'শুনুন':'দেখুন'):(type==='audio'?'Play':'View')}</button>
             <button data-action="downloadFile" data-param="${item.id}" data-name="${sanitize(item.name)}"
                 class="${d?'bg-green-900 text-green-300':'bg-green-600 text-white'} flex-1 py-2 rounded-lg text-xs font-semibold hover:opacity-90"
             >⬇ ${l==='bn'?'ডাউনলোড':'Download'}</button>
@@ -3001,67 +3221,21 @@ function renderViewerContent(type, data, item, d, l) {
 // ============================================================================
 // PAGE: BLOG
 // ============================================================================
-function renderBlogPage()
-{
-    const d=state.darkMode; const l=state.language;
-    const allPosts=[...state.customPosts,...blogPosts];
-    const ac=['#059669','#7c3aed','#b45309','#0369a1','#be185d','#dc2626'];
-    const featured=allPosts[0]; const rest=allPosts.slice(1);
-    return `
-    <div class="space-y-10 page-enter">
-        <div class="flex flex-wrap justify-between items-end gap-4">
-            <div><h2 class="text-3xl font-black" style="background:linear-gradient(135deg,#059669,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">📝 ${t('blog')}</h2><p class="text-sm ${d?'text-gray-400':'text-gray-500'} mt-1">${l==='bn'?'ইসলামিক জ্ঞান ও অন্তর্দৃষ্টি':'Islamic knowledge & insights'}</p></div>
-            ${state.isAdmin?`<button data-action="openBlogEditor" class="btn-primary px-5 py-2.5 rounded-2xl font-bold text-sm text-white flex items-center gap-2" style="background:linear-gradient(135deg,#059669,#065f46);box-shadow:0 4px 16px rgba(5,150,105,.4)">+ ${t('newPost')}</button>`:''}
-        </div>
-        ${featured?`
-        <article class="blog-card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border reveal" style="box-shadow:var(--shadow-lg)">
-            <div style="height:4px;background:linear-gradient(90deg,#059669,#7c3aed,#b45309);border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
-            <div class="p-7 md:p-8">
-                <div class="flex flex-wrap items-center gap-3 mb-4">
-                    <span class="text-xs px-3 py-1.5 rounded-full font-bold" style="background:rgba(5,150,105,.15);color:#059669;border:1px solid rgba(5,150,105,.25)">⭐ ${l==='bn'?'ফিচার্ড':'Featured'}</span>
-                    <span class="text-xs px-3 py-1.5 rounded-full font-semibold" style="background:rgba(124,58,237,.12);color:#7c3aed">${sanitize(featured.category||'')}</span>
-                    <span class="text-xs ${d?'text-gray-400':'text-gray-400'}">⏱ ${sanitize(featured.readTime||'')}</span>
-                </div>
-                <h3 class="text-2xl md:text-3xl font-black mb-3 leading-snug">${sanitize(l==='bn'?featured.titleBn:featured.titleEn)}</h3>
-                <p class="text-sm md:text-base ${d?'text-gray-400':'text-gray-600'} mb-6 leading-relaxed">${sanitize(featured.excerpt||'')}</p>
-                <div class="flex items-center gap-3 flex-wrap">
-                    <button data-action="readPost" data-param="${featured.id}" class="btn-primary px-6 py-2.5 rounded-2xl font-bold text-sm text-white flex items-center gap-2" style="background:linear-gradient(135deg,#059669,#065f46);box-shadow:0 6px 20px rgba(5,150,105,.4)">${t('readMore')} →</button>
-                    <button data-action="toggleBookmark" data-param="${featured.id}" data-param2="post" class="ml-auto text-xl hover:scale-125 transition-all">${isBookmarked(featured.id,'post')?'🔖':'🤍'}</button>
-                    ${state.isAdmin&&String(featured.id).startsWith('custom_')?`<button data-action="openBlogEditorEdit" data-param="${featured.id}" class="text-blue-400 text-sm p-1.5">✏️</button><button data-action="deleteCustomPost" data-param="${featured.id}" class="text-red-400 text-sm p-1.5">🗑</button>`:''}
-                </div>
-            </div>
-        </article>`:''}
-        ${rest.length?`
-        <div>
-            <div class="section-heading"><h3 class="section-title">${l==='bn'?'সকল লেখা':'All Posts'}</h3></div>
-            <div class="grid md:grid-cols-2 gap-5">
-                ${rest.map((post,idx)=>{const a=ac[idx%ac.length];const d2=(idx%4)+1;return`
-                <article class="blog-card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border reveal reveal-delay-${d2}" style="box-shadow:var(--shadow-sm)">
-                    <div style="height:3px;background:linear-gradient(90deg,${a},${ac[(idx+2)%ac.length]});border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
-                    <div class="p-5">
-                        <div class="flex items-center gap-2 mb-3 flex-wrap"><span class="text-xs px-2.5 py-1 rounded-full font-bold" style="background:${a}14;color:${a}">${sanitize(post.category||'')}</span><span class="text-xs ${d?'text-gray-500':'text-gray-400'}">⏱ ${sanitize(post.readTime||'')}</span>${String(post.id).startsWith('custom_')?`<span class="text-xs px-2 py-0.5 rounded-full ${d?'bg-blue-900/60 text-blue-300':'bg-blue-50 text-blue-600'} font-semibold">${l==='bn'?'কাস্টম':'Custom'}</span>`:''}</div>
-                        <h3 class="text-lg font-bold mb-2 leading-snug line-clamp-2">${sanitize(l==='bn'?post.titleBn:post.titleEn)}</h3>
-                        <p class="text-sm ${d?'text-gray-400':'text-gray-500'} mb-4 leading-relaxed line-clamp-3">${sanitize(post.excerpt||'')}</p>
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <button data-action="readPost" data-param="${post.id}" class="text-sm font-bold px-4 py-2 rounded-xl hover:scale-[1.03] transition-all" style="background:${a}14;color:${a};border:1px solid ${a}20">${t('readMore')} →</button>
-                            <button data-action="toggleBookmark" data-param="${post.id}" data-param2="post" class="ml-auto text-lg hover:scale-125 transition-all">${isBookmarked(post.id,'post')?'🔖':'🤍'}</button>
-                            ${state.isAdmin&&String(post.id).startsWith('custom_')?`<button data-action="openBlogEditorEdit" data-param="${post.id}" class="text-blue-400 text-sm p-1">✏️</button><button data-action="deleteCustomPost" data-param="${post.id}" class="text-red-400 text-sm p-1">🗑</button>`:''}
-                        </div>
-                    </div>
-                </article>`}).join('')}
-            </div>
-        </div>`:'' }
-    </div>`;
-}
+// ✓ renderBlogPage moved to blog.js
 
 // ============================================================================
 // PAGE: DUA
 // ============================================================================
 function renderDuaPage() {
     const d=state.darkMode; const l=state.language;
-    const tab = state.duaTab || 'dua'; // 'dua' | 'ziyarat'
+    const tab = state.duaTab || 'dua';
+    const selectedCategory = state.duaCategory || 'all';
     const allDuas = [...state.customDuas, ...duas];
     const allZiyarat = [...ziyarats, ...state.customZiyarat];
+    
+    const filteredDuas = selectedCategory === 'all' 
+        ? allDuas 
+        : allDuas.filter(dua => dua.category === selectedCategory);
     return `
     <div class="space-y-6">
         <!-- Header -->
@@ -3086,15 +3260,48 @@ function renderDuaPage() {
             </button>
         </div>
 
+        <!-- CATEGORY FILTER - Only show on Dua tab -->
+        ${tab==='dua' ? `
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:8px">
+            <div style="display:flex;gap:8px;width:max-content;padding:2px 1px;flex-wrap:nowrap">
+                <button data-action="setDuaCategory" data-param="all" 
+                    class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap"
+                    style="${selectedCategory==='all'?'background:rgba(5,150,105,.2);color:#059669;border:1.5px solid rgba(5,150,105,.35)':'border:1.5px solid '+(d?'rgba(255,255,255,.12)':'rgba(0,0,0,.1)')+';color:'+(d?'#9ca3af':'#6b7280')+';background:transparent'}">
+                    ${l==='bn'?'সকল দোয়া':'All Duas'}
+                </button>
+                <button data-action="setDuaCategory" data-param="morning"
+                    class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap"
+                    style="${selectedCategory==='morning'?'background:rgba(14,165,233,.2);color:#0ea5e9;border:1.5px solid rgba(14,165,233,.35)':'border:1.5px solid '+(d?'rgba(255,255,255,.12)':'rgba(0,0,0,.1)')+';color:'+(d?'#9ca3af':'#6b7280')+';background:transparent'}">
+                    🌅 ${l==='bn'?'সকাল':'Morning'}
+                </button>
+                <button data-action="setDuaCategory" data-param="night"
+                    class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap"
+                    style="${selectedCategory==='night'?'background:rgba(139,92,246,.2);color:#8b5cf6;border:1.5px solid rgba(139,92,246,.35)':'border:1.5px solid '+(d?'rgba(255,255,255,.12)':'rgba(0,0,0,.1)')+';color:'+(d?'#9ca3af':'#6b7280')+';background:transparent'}">
+                    🌙 ${l==='bn'?'রাত':'Night'}
+                </button>
+                <button data-action="setDuaCategory" data-param="hardship"
+                    class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap"
+                    style="${selectedCategory==='hardship'?'background:rgba(239,68,68,.2);color:#ef4444;border:1.5px solid rgba(239,68,68,.35)':'border:1.5px solid '+(d?'rgba(255,255,255,.12)':'rgba(0,0,0,.1)')+';color:'+(d?'#9ca3af':'#6b7280')+';background:transparent'}">
+                    ⚠️ ${l==='bn'?'বিপদে':'Hardship'}
+                </button>
+                <button data-action="setDuaCategory" data-param="gratitude"
+                    class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap"
+                    style="${selectedCategory==='gratitude'?'background:rgba(16,185,129,.2);color:#10b981;border:1.5px solid rgba(16,185,129,.35)':'border:1.5px solid '+(d?'rgba(255,255,255,.12)':'rgba(0,0,0,.1)')+';color:'+(d?'#9ca3af':'#6b7280')+';background:transparent'}">
+                    🙏 ${l==='bn'?'কৃতজ্ঞতা':'Gratitude'}
+                </button>
+            </div>
+        </div>
+        ` : ''}
+
         <!-- DUA TAB -->
         ${tab==='dua' ? `
         <div class="space-y-5">
-            ${allDuas.length===0 ? `
+            ${filteredDuas.length===0 ? `
             <div class="text-center py-16 ${d?'text-gray-500':'text-gray-400'}">
                 <div class="text-5xl mb-3">🤲</div>
                 <p>${l==='bn'?'কোনো দোয়া নেই':'No duas yet'}</p>
             </div>` :
-            allDuas.map((dua,i)=>{
+            filteredDuas.map((dua,i)=>{
                 const isCustom = !!dua.id;
                 const idx = isCustom ? i : (i - state.customDuas.length);
                 return `
@@ -3294,7 +3501,8 @@ function renderCalendarPage() {
 
                     const dotColor = isAshura ? '#dc2626' : isMartyr ? '#f87171' : isBirth ? '#059669' : isEid ? '#059669' : '#f59e0b';
 
-                    return `<div style="background:${cellBg};min-height:72px;padding:3px 4px;position:relative;display:flex;flex-direction:column;justify-content:space-between;align-items:stretch" role="gridcell"
+                    return `<div class="${isTodayGreg?'calendar-today-cell':''}" style="background:${cellBg};min-height:72px;padding:3px 4px;position:relative;display:flex;flex-direction:column;justify-content:space-between;align-items:stretch;cursor:${ev?'pointer':'default'};transition:all .2s ease" role="gridcell" 
+                        ${ev?`onclick="showCalendarEventPopover({month:${month},day:${day},year:${year},event:${JSON.stringify(ev).replace(/"/g,'&quot;')},language:'${l}'});event.stopPropagation()" onmouseover="this.style.boxShadow='inset 0 0 8px rgba(5,150,105,.2)'" onmouseout="this.style.boxShadow=''"`:''}
                         title="${gDay} ${gregMonthsEnFull[gMon]} ${gYear} | ${bnGregDay} ${bnGregMon} | ${bnHijriDay} ${bnHijriMon} ${toBengaliDigits(year)} হিজরি${ev?' | '+(l==='bn'?ev.bn:ev.en):''}">
 
                         <!-- TOP: English Gregorian (big) — 1st -->
@@ -3370,6 +3578,62 @@ function renderCalendarPage() {
 }
 
 // ============================================================================
+// CALENDAR EVENT POPOVER
+// ============================================================================
+function showCalendarEventPopover(opts) {
+    const {month,day,year,event,language} = opts;
+    const l = language || state.language;
+    const d = state.darkMode;
+    
+    // Event details mapping
+    const getEventDetails = (ev) => {
+        const titles = {bn:{birth:'🌸 জন্মদিন',martyrdom:'⚔️ শাহাদাত দিবস',ashura:'🔴 আশুরা',eid:'🎊 ঈদ',special:'✨ বিশেষ দিন',mixed:'📅 মিশ্র দিবস'},en:{birth:'🌸 Birthday',martyrdom:'⚔️ Martyrdom',ashura:'🔴 Ashura',eid:'🎊 Eid',special:'✨ Special',mixed:'📅 Mixed'}};
+        return {title:titles[l]?.[ev.type]||'📅 Event',desc:l==='bn'?ev.bn:ev.en};
+    };
+    
+    const {title,desc} = getEventDetails(event);
+    const greg = hijriToGregorian(day,month,year);
+    const gregStr = `${greg.getDate()} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][greg.getMonth()]} ${greg.getFullYear()}`;
+    const hijriStr = `${day} ${(l==='bn'?hijriMonthsBn:hijriMonthsEn)[month-1]} ${year} AH`;
+    
+    // Create popover
+    const popover = document.createElement('div');
+    popover.id = 'calendar-event-popover';
+    popover.style.cssText = `position:fixed;z-index:9999;top:50%;left:50%;transform:translate(-50%,-50%);background:${d?'#1f2937':'#ffffff'};border:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.1)'};border-radius:16px;padding:24px;max-width:360px;box-shadow:${d?'0 20px 60px rgba(0,0,0,.4)':'0 20px 60px rgba(0,0,0,.15)'};backdrop-filter:blur(12px);`;
+    
+    popover.innerHTML = `
+        <div style="text-align:center;margin-bottom:16px">
+            <h3 style="margin:0 0 8px 0;font-size:1.25rem;font-weight:700;color:${d?'#f3f4f6':'#111827'}">${title}</h3>
+            <p style="margin:0;font-size:.85rem;color:${d?'#d1d5db':'#6b7280'}">${desc}</p>
+        </div>
+        
+        <div style="background:${d?'rgba(255,255,255,.05)':'rgba(0,0,0,.02)'};border-radius:12px;padding:12px;margin:12px 0;font-size:.85rem;color:${d?'#e5e7eb':'#374151'}">
+            <div style="margin-bottom:6px"><strong>📅 Gregorian:</strong> ${gregStr}</div>
+            <div><strong>☪️ Hijri:</strong> ${hijriStr}</div>
+        </div>
+        
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.1)'};text-align:center">
+            <button onclick="document.getElementById('calendar-event-popover').remove()" style="padding:8px 16px;border-radius:8px;border:none;background:${d?'rgba(5,150,105,.2)':'rgba(5,150,105,.1)'};color:#059669;font-weight:600;cursor:pointer;transition:all .2s" onmouseover="this.style.background='${d?'rgba(5,150,105,.3)':'rgba(5,150,105,.15)'}'" onmouseout="this.style.background='${d?'rgba(5,150,105,.2)':'rgba(5,150,105,.1)'}'">${l==='bn'?'বন্ধ করুন':'Close'}</button>
+        </div>
+    `;
+    
+    // Remove existing popover
+    const existing = document.getElementById('calendar-event-popover');
+    if(existing) existing.remove();
+    
+    // Add popover and close on backdrop click
+    document.body.appendChild(popover);
+    setTimeout(() => {
+        document.addEventListener('click', function closePopover(e) {
+            if(e.target === popover || !popover.contains(e.target)) {
+                popover.remove();
+                document.removeEventListener('click', closePopover);
+            }
+        });
+    }, 100);
+}
+
+// ============================================================================
 // PAGE: CONTACT
 // ============================================================================
 function renderContactPage() {
@@ -3430,7 +3694,7 @@ function renderAboutPage() {
 // ============================================================================
 function renderBookmarksPage() {
     const d=state.darkMode; const l=state.language;
-    const allPosts=[...blogPosts,...state.customPosts];
+    const allPosts=[...(typeof blogPosts!=='undefined'?blogPosts:[]),...state.customPosts];
     const bkPosts=allPosts.filter(p=>state.bookmarks.includes('post-'+p.id));
     return `
     <div class="space-y-8">
@@ -3464,10 +3728,10 @@ function renderReadPostPage()
     const post=state.currentPost; const d=state.darkMode; const l=state.language;
     if(!post) return renderBlogPage();
     const ac=['#059669','#7c3aed','#b45309','#0369a1','#be185d','#dc2626'];
-    const idx2=blogPosts.indexOf(post); const a=ac[idx2>=0?idx2%ac.length:0];
+    const idx2=(typeof blogPosts!=='undefined'?blogPosts:[]).indexOf(post); const a=ac[idx2>=0?idx2%ac.length:0];
     return `
     <div class="max-w-3xl mx-auto page-enter">
-        <button data-action="changePage" data-param="${state.previousPage||'blog'}" class="flex items-center gap-2 mb-6 px-4 py-2 rounded-xl font-semibold text-sm hover:scale-[1.02] transition-all" style="background:${a}12;color:${a}">← ${l==='bn'?'ব্লগে ফিরুন':'Back to Blog'}</button>
+        <button data-action="changePage" data-param="${state.previousPage||'blog'}" class="flex items-center gap-2 mb-6 px-4 py-2 rounded-xl font-semibold text-sm hover:scale-[1.02] transition-all" style="background:${a}12;color:${a}">← ${l==='bn'?`${t('blog')}-এ ফিরুন`:`Back to ${t('blog')}`}</button>
         <article class="card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border" style="box-shadow:var(--shadow-lg)">
             <div style="height:4px;background:linear-gradient(90deg,${a},#7c3aed,${a});border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
             <div class="p-7 md:p-10">
@@ -3527,6 +3791,15 @@ function renderReadDuaPage()
                     display:flex;align-items:center;justify-content:center;
                     font-family:sans-serif;direction:ltr;
                 ">${i+1}</span>
+                <button class="tts-play-btn" onclick="event.stopPropagation();tts.toggle('${(v.ar||'').replace(/'/g,"\\'").replace(/"/g,'&quot;')}')"
+                    title="${l==='bn'?'শুনুন':'Listen'}"
+                    style="position:absolute;top:.6rem;right:.6rem;width:22px;height:22px;border-radius:50%;
+                           display:flex;align-items:center;justify-content:center;font-size:.65rem;
+                           background:${d?'rgba(201,162,39,.15)':'rgba(180,83,9,.1)'};
+                           color:${d?'#fcd34d':'#92400e'};border:1px solid ${d?'rgba(201,162,39,.3)':'rgba(180,83,9,.2)'};
+                           cursor:pointer;direction:ltr">
+                    <span class="tts-icon">▶</span>
+                </button>
                 <p class="arabic-text" lang="ar" style="
                     font-size:1.45rem;
                     line-height:2.2;
@@ -3590,11 +3863,27 @@ function renderReadDuaPage()
                         <h1 class="text-2xl md:text-3xl font-black leading-tight mb-1">${sanitize(l==='bn'?dua.titleBn:dua.titleEn)}</h1>
                         ${dua.source?`<p class="text-sm mt-2" style="color:${d?'#6ee7b7':'#047857'}">📚 ${sanitize(dua.source)}</p>`:''}
                     </div>
-                    <button data-action="shareDua" data-param="${duaIndex}"
-                        class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold flex-shrink-0 hover:scale-105 transition-all"
-                        style="background:rgba(5,150,105,.1);color:#059669;border:1px solid rgba(5,150,105,.2)">
-                        🔗 ${l==='bn'?'শেয়ার':'Share'}
-                    </button>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        ${(() => {
+                            const fullArabic = hasVerses
+                                ? dua.verses.map(v=>v.ar).join(' ۝ ')
+                                : (dua.arabic || '');
+                            if (!fullArabic) return '';
+                            const escaped = fullArabic.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+                            return `<button class="tts-play-btn" onclick="tts.toggle('${escaped}')"
+                                title="${l==='bn'?'পুরো দোয়া শুনুন':'Listen to full dua'}"
+                                style="display:flex;align-items:center;gap:6px;padding:.6rem 1rem;border-radius:.75rem;
+                                       font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s;
+                                       background:rgba(180,83,9,.1);color:#b45309;border:1px solid rgba(180,83,9,.2)">
+                                <span class="tts-icon">▶</span> ${l==='bn'?'শুনুন':'Listen'}
+                            </button>`;
+                        })()}
+                        <button data-action="shareDua" data-param="${duaIndex}"
+                            class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold hover:scale-105 transition-all"
+                            style="background:rgba(5,150,105,.1);color:#059669;border:1px solid rgba(5,150,105,.2)">
+                            🔗 ${l==='bn'?'শেয়ার':'Share'}
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -3673,50 +3962,61 @@ function renderImamsPage()
     const renderCard = (im, idx, acList, ac2List, conicList) => {
         const ac=acList[idx%acList.length];const ac2=ac2List[idx%ac2List.length];const conic=conicList[idx%conicList.length];
         const quoteText=sanitize(l==='bn'?im.quoteBn:im.quoteEn);
+        const quotePreview = quoteText.length > 50 ? quoteText.substring(0, 50) + '...' : quoteText;
         const flipId=`imam-flip-${im.id}`;
+        // Avatar-এ শুধু প্রথম শব্দ/লকব — দীর্ঘ আরবি নাম overflow এড়াতে
+        const avatarArabic = im.arabicName ? im.arabicName.split(' ')[0] : (im.icon||'✦');
+        // বিশেষ ring style — হুসাইন (আ.) ও মাহদি (আ.)
+        const isHussain = im.id === 3;
+        const isMahdi   = im.id === 12;
+        let outerRing = '';
+        if (isHussain) {
+            // Crimson double-ring — কারবালার শাহীদ
+            outerRing = `<div style="position:absolute;inset:-7px;border-radius:50%;border:2px solid #b91c1c;z-index:0;opacity:.75"></div>
+                         <div style="position:absolute;inset:-11px;border-radius:50%;border:1.5px solid #dc2626;z-index:0;opacity:.45"></div>`;
+        } else if (isMahdi) {
+            // Dashed ring — গায়বত/occultation
+            outerRing = `<div style="position:absolute;inset:-8px;border-radius:50%;border:2.5px dashed #6366f1;z-index:0;opacity:.65;animation:avatarRotate 18s linear infinite reverse"></div>`;
+        }
         return `
         <div class="imam-flip-wrapper" style="height:100%;position:relative">
-            <!-- FRONT -->
+            <!-- FRONT: Simplified hierarchy -->
             <div class="imam-card-luxury imam-card-front border text-center p-6"
                  id="${flipId}-front"
                  style="display:flex;flex-direction:column;background:${d?'#1e2d26':'#ffffff'};border-color:${d?'rgba(52,211,153,.18)':'#e8e2db'};box-shadow:var(--shadow-sm);height:100%;border-radius:var(--r-lg)"
                  onmouseenter="imamCardParticles(this,'${ac}')">
                 <div class="imam-top-bar" style="background:linear-gradient(90deg,${ac},${ac}bb,#c9a227,${ac2},${ac});background-size:300% 100%"></div>
                 ${typeof im.id==='number'?`<div class="imam-num" style="background:linear-gradient(135deg,#c9a227,#92400e)">${im.id}</div>`:''}
-                <button onclick="imamFlip('${flipId}')" title="${l==='bn'?'উক্তি দেখুন':'See quote'}"
-                    style="position:absolute;top:14px;left:14px;width:26px;height:26px;border-radius:50%;background:${ac}22;border:1px solid ${ac}40;color:${ac};font-size:.65rem;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:5;transition:transform .3s"
-                    onmouseover="this.style.transform='rotate(180deg)'" onmouseout="this.style.transform='rotate(0deg)'">↺</button>
-                <div style="position:relative;display:flex;justify-content:center;margin-bottom:1rem">
-                    <div class="imam-avatar-inner-wrap" style="width:74px;height:74px;border-radius:50%;position:relative">
-                        <div class="imam-avatar-rotate" style="position:absolute;inset:-3px;border-radius:50%;background:${conic};animation:avatarRotate 8s linear infinite;z-index:0"></div>
-                        <div style="position:absolute;inset:0;border-radius:50%;background:${d?'#1e2d26':'#ffffff'};z-index:1;display:flex;align-items:center;justify-content:center;font-family:'Amiri',serif;font-size:1rem;font-weight:700;color:${ac};border:2px solid ${d?'rgba(52,211,153,.15)':'rgba(255,255,255,.9)'}">${im.arabicName.split(' ')[0]||im.icon}</div>
+                
+                <!-- LAYER 1: PRIMARY — Avatar + Name -->
+                <div style="position:relative;display:flex;justify-content:center;margin-bottom:1.2rem;margin-top:.5rem">
+                    <div class="imam-avatar-inner-wrap" style="width:84px;height:84px;border-radius:50%;position:relative">
+                        ${outerRing}
+                        <div class="imam-avatar-rotate" style="position:absolute;inset:-3px;border-radius:50%;background:${conic};animation:avatarRotate 8s linear infinite;z-index:1"></div>
+                        <div style="position:absolute;inset:0;border-radius:50%;background:${d?'#1e2d26':'#ffffff'};z-index:2;display:flex;align-items:center;justify-content:center;font-family:'Amiri',serif;font-size:1.55rem;font-weight:700;color:${ac};border:2.5px solid ${d?'rgba(52,211,153,.2)':'rgba(5,150,105,.15)'};text-align:center;padding:4px;line-height:1.1">${avatarArabic}</div>
                     </div>
                 </div>
-                <h3 class="text-base font-bold mb-1 leading-snug">${sanitize(l==='bn'?im.nameBn:im.nameEn)}</h3>
-                <p class="mb-2" style="font-family:'Amiri',serif;font-size:1rem"><span class="imam-arabic-shimmer">${sanitize(im.arabicName)}</span></p>
-                <div style="display:flex;justify-content:center;margin-bottom:.75rem">
-                    <span class="imam-epithet-badge text-xs font-bold px-3 py-1 rounded-full" style="background:${ac}18;color:${ac};border:1px solid ${ac}30;display:inline-block">${sanitize(l==='bn'?im.epithetBn:im.epithetEn)}</span>
+                <h3 class="text-xl font-black mb-0.5 leading-snug">${sanitize(l==='bn'?im.nameBn:im.nameEn)}</h3>
+                <p class="mb-2.5" style="font-family:'Amiri',serif;font-size:0.95rem;opacity:.8"><span class="imam-arabic-shimmer">${sanitize(im.arabicName)}</span></p>
+                
+                <!-- LAYER 2: SECONDARY — Epithet badge -->
+                <div style="display:flex;justify-content:center;margin-bottom:1.5rem">
+                    <span class="imam-epithet-badge text-xs font-bold px-3 py-1.5 rounded-full" style="background:${ac}22;color:${ac};border:1.5px solid ${ac}40;display:inline-block">${sanitize(l==='bn'?im.epithetBn:im.epithetEn)}</span>
                 </div>
-                <p class="text-xs ${d?'text-gray-400':'text-gray-500'} mb-4 leading-relaxed line-clamp-2">${sanitize(l==='bn'?im.descBn:im.descEn)}</p>
-                <div class="grid grid-cols-2 gap-2 text-xs mb-4">
-                    <div class="rounded-xl p-2.5" style="background:${ac}12;border:1px solid ${ac}22">
-                        <p class="font-bold mb-0.5" style="color:${ac}">🌙 ${l==='bn'?'জন্ম':'Birth'}</p>
-                        <p class="${d?'text-gray-300':'text-gray-700'} leading-snug">${sanitize(l==='bn'?im.birthBn:im.birthEn)}</p>
-                    </div>
-                    <div class="${d?'bg-red-950/40 border-red-900':'bg-red-50 border-red-100'} rounded-xl p-2.5 border">
-                        <p class="${d?'text-red-400':'text-red-600'} font-bold mb-0.5">⚔️ ${l==='bn'?'শাহাদাত/ওফাত':'Martyrdom'}</p>
-                        <p class="${d?'text-gray-300':'text-gray-700'} leading-snug">${sanitize(l==='bn'?im.martyrdomBn:im.martyrdomEn)}</p>
-                    </div>
+                
+                <!-- LAYER 3: TERTIARY — Quote preview (3 line-clamp) -->
+                <div class="rounded-lg p-2.5 mb-3.5 text-left" style="border-left:3px solid ${ac};background:${ac}08;flex:1;display:flex;align-items:flex-start">
+                    <p class="text-xs italic ${d?'text-gray-400':'text-gray-600'} leading-normal imam-quote-text" style="margin:0;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical">"${quoteText}"</p>
                 </div>
-                <div class="imam-quote-wrap rounded-xl p-3 mb-4 text-left" style="border-left:3px solid ${ac};background:${ac}0a;flex:1">
-                    <p class="imam-quote-text text-xs italic ${d?'text-gray-300':'text-gray-700'} leading-relaxed" data-quote="${quoteText}">"${quoteText}"</p>
-                </div>
+                
+                <!-- ACTION BUTTONS -->
                 <div class="flex gap-2">
-                    <button data-action="viewImam" data-param="${im.id}" class="imam-detail-btn flex-1 py-2 rounded-xl text-xs font-bold transition-all" style="background:linear-gradient(135deg,${ac},${ac2});color:white;box-shadow:0 3px 10px ${ac}45">${l==='bn'?'বিস্তারিত':'Details'} →</button>
-                    <button data-action="shareImamQuote" data-param="${im.id}" class="px-3 py-2 rounded-xl text-xs font-bold hover:scale-110 transition-all" style="background:${ac}15;color:${ac};border:1px solid ${ac}30">🔗</button>
+                    <button data-action="viewImam" data-param="${im.id}" class="imam-detail-btn flex-1 py-2.5 rounded-xl text-xs font-bold transition-all" style="background:linear-gradient(135deg,${ac},${ac2});color:white;box-shadow:0 3px 10px ${ac}45">${l==='bn'?'বিস্তারিত':'Details'} →</button>
+                    <button data-action="shareImamQuote" data-param="${im.id}" class="px-3 py-2.5 rounded-xl text-xs font-bold hover:scale-110 transition-all" style="background:${ac}15;color:${ac};border:1.5px solid ${ac}30;display:flex;align-items:center;justify-content:center" title="${l==='bn'?'শেয়ার করুন':'Share'}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
                 </div>
             </div><!-- /front -->
-            <!-- BACK -->
+            
+            <!-- BACK: Quote card (unchanged) -->
             <div class="imam-card-back" id="${flipId}-back"
                  style="display:none;position:absolute;inset:0;background:linear-gradient(145deg,${ac2},${d?'#0a1a0e':'#022c22'});color:white;border:1px solid ${ac}40;box-shadow:var(--shadow-lg);border-radius:var(--r-lg)">
                 <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,${ac}25 0%,transparent 70%);pointer-events:none;border-radius:var(--r-lg)"></div>
@@ -3736,23 +4036,40 @@ function renderImamsPage()
     const MACS2 = ['#78350f','#881337'];
     const MCONIC= ['conic-gradient(from 0deg,#c9a227,#fde68a,#b45309,#fbbf24,#c9a227)','conic-gradient(from 0deg,#be185d,#fda4af,#9f1239,#fb7185,#be185d)'];
 
+    // ── jump chip labels (বাংলা/ইংরেজি সংক্ষিপ্ত নাম) ──────────────────
+    const CHIP_BN=['আলী','হাসান','হোসাইন','সাজ্জাদ','বাকির','সাদিক','কাযিম','রেজা','জওয়াদ','হাদি','আসকারি','মাহদি'];
+    const CHIP_EN=['Ali','Hasan','Husayn','Sajjad','Baqir','Sadiq','Kazim','Ridha','Jawad','Hadi','Askari','Mahdi'];
+    const chips=(l==='bn'?CHIP_BN:CHIP_EN).map((name,i)=>`
+        <button onclick="(function(){const el=document.getElementById('imam-anchor-${i+1}');if(el){el.scrollIntoView({behavior:'smooth',block:'center'})}})()"
+            style="flex-shrink:0;padding:5px 13px;border-radius:50px;font-size:.72rem;font-weight:700;border:1.5px solid ${ACS[i%12]}50;color:${ACS[i%12]};background:${ACS[i%12]}12;cursor:pointer;white-space:nowrap;transition:all .18s"
+            onmouseover="this.style.background='${ACS[i%12]}28'" onmouseout="this.style.background='${ACS[i%12]}12'">${i+1}. ${name}</button>`).join('');
+
     return `
     <div class="space-y-8 page-enter">
-        <div class="flex flex-wrap justify-between items-center gap-4">
+        <!-- ══ Header — timeline বাটন subtle outline ══ -->
+        <div class="flex flex-wrap justify-between items-center gap-3">
             <div><h2 class="text-3xl font-black" style="background:linear-gradient(135deg,#059669,#b45309);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">👑 ${t('imams')}</h2><p class="text-sm ${d?'text-gray-400':'text-gray-500'} mt-1">${l==='bn'?'পবিত্র ইমাম ও মাসুমিনদের জীবনী':'Lives of the Holy Imams & Masumeen'}</p></div>
-            <button data-action="toggleTimeline" class="btn-primary px-5 py-2.5 rounded-2xl font-bold text-sm flex items-center gap-2" style="${state.showTimeline?'background:linear-gradient(135deg,#059669,#065f46);color:white;box-shadow:0 4px 16px rgba(5,150,105,.4)':(d?'background:rgba(255,255,255,.08);color:#9ca3af':'background:rgba(0,0,0,.06);color:#6b7280')}">📅 ${l==='bn'?'টাইমলাইন':'Timeline'} ${state.showTimeline?'✓':''}</button>
+            <button data-action="toggleTimeline" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all" style="${state.showTimeline?'background:rgba(5,150,105,.12);color:#059669;border:1.5px solid rgba(5,150,105,.35)':'border:1.5px solid '+(d?'rgba(255,255,255,.12)':'rgba(0,0,0,.1)')+';color:'+(d?'#6b7280':'#9ca3af')+';background:transparent'}">📅 ${l==='bn'?'টাইমলাইন':'Timeline'}${state.showTimeline?' ✓':''}</button>
         </div>
         ${state.showTimeline?renderImamTimeline(d,l):''}
 
-        <!-- ══ মাসুমিন সেকশন ══ -->
+        <!-- ══ Jump nav chips — মোবাইলে scroll সহজ করতে ══ -->
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:4px">
+            <div style="display:flex;gap:7px;width:max-content;padding:2px 1px">
+                ${chips}
+            </div>
+        </div>
+
+        <!-- ══ মাসুমিন সেকশন — featured / সামান্য বড় ══ -->
         <div>
             <div class="flex items-center gap-3 mb-4">
                 <div style="width:4px;height:28px;background:linear-gradient(180deg,#c9a227,#b45309);border-radius:2px"></div>
                 <h3 class="text-xl font-black ${d?'text-white':'text-gray-900'}">${l==='bn'?'নবী ও মাসুমিন (আ.)':'Prophet & Masumeen (AS)'}</h3>
                 <span class="text-xs font-bold px-2.5 py-1 rounded-full" style="background:rgba(201,162,39,.15);color:#c9a227;border:1px solid rgba(201,162,39,.3)">২ জন</span>
             </div>
-            <div class="grid sm:grid-cols-2 gap-5 items-stretch">
-                ${masumeen.map((im,idx)=>renderCard(im,idx,MACS,MACS2,MCONIC)).join('')}
+            <!-- gap-5 ও border-radius একই রেখে min-height দিয়ে featured feel -->
+            <div class="grid sm:grid-cols-2 gap-5 items-stretch" style="--card-min:320px">
+                ${masumeen.map((im,idx)=>`<div style="min-height:var(--card-min,280px)">${renderCard(im,idx,MACS,MACS2,MCONIC)}</div>`).join('')}
             </div>
         </div>
 
@@ -3764,7 +4081,7 @@ function renderImamsPage()
                 <span class="text-xs font-bold px-2.5 py-1 rounded-full" style="background:rgba(5,150,105,.12);color:#059669;border:1px solid rgba(5,150,105,.25)">১২ জন</span>
             </div>
             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
-                ${imams.map((im,idx)=>renderCard(im,idx,ACS,ACS2,CONIC)).join('')}
+                ${imams.map((im,idx)=>`<div id="imam-anchor-${im.id}">${renderCard(im,idx,ACS,ACS2,CONIC)}</div>`).join('')}
             </div>
         </div>
     </div>`;
@@ -3845,8 +4162,10 @@ function renderImamDetailPage()
                 <div style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,${ac},${ac2});display:flex;align-items:center;justify-content:center;color:white;font-size:${typeof im.id==='number'?'.75rem':'1rem'};font-weight:800;box-shadow:0 3px 10px ${ac}50">${typeof im.id==='number'?im.id:im.icon}</div>
                 <div style="position:relative;display:flex;justify-content:center;margin-bottom:1.2rem">
                     <div style="width:96px;height:96px;border-radius:50%;position:relative">
-                        <div style="position:absolute;inset:-4px;border-radius:50%;background:${conic2};animation:avatarRotate 7s linear infinite;z-index:0"></div>
-                        <div style="position:absolute;inset:0;border-radius:50%;background:${d?'#1f2937':'white'};z-index:1;display:flex;align-items:center;justify-content:center;font-family:'Amiri',serif;font-size:2rem;font-weight:700;color:${ac2}">${im.arabicName.split(' ')[0]||im.icon}</div>
+                        ${im.id===3?`<div style="position:absolute;inset:-8px;border-radius:50%;border:2px solid #b91c1c;z-index:0;opacity:.75"></div><div style="position:absolute;inset:-13px;border-radius:50%;border:1.5px solid #dc2626;z-index:0;opacity:.4"></div>`:''}
+                        ${im.id===12?`<div style="position:absolute;inset:-9px;border-radius:50%;border:2.5px dashed #6366f1;z-index:0;opacity:.65;animation:avatarRotate 18s linear infinite reverse"></div>`:''}
+                        <div style="position:absolute;inset:-4px;border-radius:50%;background:${conic2};animation:avatarRotate 7s linear infinite;z-index:1"></div>
+                        <div style="position:absolute;inset:0;border-radius:50%;background:${d?'#1f2937':'white'};z-index:2;display:flex;align-items:center;justify-content:center;font-family:'Amiri',serif;font-size:2rem;font-weight:700;color:${ac2}">${im.arabicName.split(' ')[0]||im.icon}</div>
                     </div>
                 </div>
                 <h1 class="text-2xl md:text-3xl font-black mb-2">${sanitize(l==='bn'?im.nameBn:im.nameEn)}</h1>
@@ -3855,8 +4174,8 @@ function renderImamDetailPage()
             </div>
             <div class="p-6 pt-2">
                 <div class="grid grid-cols-2 gap-3 mb-5">
-                    <div class="rounded-2xl p-4" style="background:${ac}0f;border:1px solid ${ac}1a"><p class="font-bold text-xs mb-1.5" style="color:${ac}">🌙 ${l==='bn'?'জন্ম':'Birth'}</p><p class="font-semibold text-sm">${sanitize(l==='bn'?im.birthBn:im.birthEn)}</p></div>
-                    <div class="${d?'bg-red-950/40 border-red-800':'bg-red-50 border-red-100'} rounded-2xl p-4 border"><p class="${d?'text-red-400':'text-red-600'} font-bold text-xs mb-1.5">⚔️ ${l==='bn'?'শাহাদাত':'Martyrdom'}</p><p class="font-semibold text-sm">${sanitize(l==='bn'?im.martyrdomBn:im.martyrdomEn)}</p></div>
+                    <div class="rounded-2xl p-4" style="background:${d?'rgba(255,255,255,.05)':'rgba(0,0,0,.03)'};border:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}"><p class="font-bold text-xs mb-1.5" style="color:${ac}">🌙 ${l==='bn'?'জন্ম':'Birth'}</p><p class="font-semibold text-sm">${sanitize(l==='bn'?im.birthBn:im.birthEn)}</p></div>
+                    <div class="rounded-2xl p-4" style="background:${d?'rgba(255,255,255,.05)':'rgba(0,0,0,.03)'};border:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}"><p class="font-bold text-xs mb-1.5" style="color:${ac}">⚔️ ${l==='bn'?'শাহাদাত':'Martyrdom'}</p><p class="font-semibold text-sm">${sanitize(l==='bn'?im.martyrdomBn:im.martyrdomEn)}</p></div>
                 </div>
                 <div class="${d?'bg-gray-900':'bg-gray-50'} rounded-2xl p-5 mb-5"><h3 class="font-bold mb-3 text-sm">📝 ${l==='bn'?'পরিচিতি':'About'}</h3><p class="${d?'text-gray-300':'text-gray-700'} leading-relaxed text-sm">${sanitize(l==='bn'?im.descBn:im.descEn)}</p></div>
                 <div class="rounded-2xl p-5" style="background:linear-gradient(135deg,${ac}0d,${ac2}07);border-left:4px solid ${ac}">
@@ -4019,64 +4338,108 @@ function renderSearchPage() {
         if(!escaped) return safe;
         return safe.replace(new RegExp(escaped,'gi'), m=>`<mark>${m}</mark>`);
     }
+    // Real-time suggestions from content titles
+    function getSuggestions(query) {
+        if (!query || query.length < 2) return [];
+        const q2 = query.toLowerCase();
+        const sugg = [];
+        const allPosts = [...(typeof blogPosts!=='undefined'?blogPosts:[]), ...(state.customPosts||[])];
+        allPosts.forEach(p => { if((p.titleBn||'').toLowerCase().includes(q2)||(p.titleEn||'').toLowerCase().includes(q2)) sugg.push({label:l==='bn'?(p.titleBn||p.titleEn):(p.titleEn||p.titleBn), icon:'📝'}); });
+        if(typeof duas!=='undefined') duas.forEach(dua => { if((dua.titleBn||'').toLowerCase().includes(q2)||(dua.titleEn||'').toLowerCase().includes(q2)) sugg.push({label:l==='bn'?(dua.titleBn||dua.titleEn):(dua.titleEn||dua.titleBn), icon:'🤲'}); });
+        if(typeof imams!=='undefined') imams.forEach(im => { if((im.nameBn||'').toLowerCase().includes(q2)||(im.nameEn||'').toLowerCase().includes(q2)) sugg.push({label:l==='bn'?(im.nameBn||im.nameEn):(im.nameEn||im.nameBn), icon:'👑'}); });
+        if(typeof hadiths!=='undefined') hadiths.forEach(h => { const txt=(l==='bn'?h.textBn:h.textEn)||''; if(txt.toLowerCase().includes(q2)) sugg.push({label:txt.slice(0,55)+'…', icon:'📜'}); });
+        return sugg.slice(0,6);
+    }
+    const suggestions = getSuggestions(q);
     return `
-    <div class="space-y-8">
-        <h2 class="text-3xl font-bold">🔍 ${t('searchPage')}</h2>
-        <div class="${d?'bg-gray-800':'bg-white'} border rounded-2xl p-6">
-            <div class="flex gap-3">
-                <input id="search-input" type="search" value="${sanitize(q)}"
-                    placeholder="${l==='bn'?'ব্লগ, দোয়া, হাদিস, যিয়ারত, ইমাম, পিডিএফ খুঁজুন...':'Search posts, duas, hadiths, ziyarat, imams, PDFs...'}"
-                    class="${d?'bg-gray-900 border-gray-700 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 flex-1 focus:outline-none focus:ring-2 focus:ring-green-500 text-base"
-                    autofocus />
+    <div class="space-y-6 page-slide-in">
+        <div>
+            <h2 class="text-3xl font-black mb-1" style="background:linear-gradient(135deg,#059669,#c9a227);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">🔍 ${t('searchPage')}</h2>
+            <p class="text-sm ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?'ব্লগ, দোয়া, হাদিস, ইমাম, পিডিএফ — সব এক জায়গায়':'Blog, Duas, Hadiths, Imams, PDFs — all in one place'}</p>
+        </div>
+        <div class="${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-2xl p-5 relative" style="box-shadow:var(--shadow-md)">
+            <div class="flex gap-3 items-center">
+                <div class="relative flex-1">
+                    <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:1.1rem;pointer-events:none">🔍</span>
+                    <input id="search-input" type="search" value="${sanitize(q)}"
+                        placeholder="${l==='bn'?'ব্লগ, দোয়া, হাদিস, ইমাম, পিডিএফ খুঁজুন...':'Search posts, duas, hadiths, imams, PDFs...'}"
+                        class="${d?'bg-gray-900 border-gray-600 text-white placeholder-gray-500':'bg-gray-50 border-gray-200 text-gray-900'} border rounded-xl pl-10 pr-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base transition-all"
+                        oninput="doSearch(this.value)"
+                        autofocus />
+                </div>
+                ${q?`<button onclick="doSearch('');document.getElementById('search-input').value=''" class="${d?'bg-gray-700 text-gray-300':'bg-gray-100 text-gray-600'} px-3 py-3 rounded-xl text-sm font-medium hover:opacity-80 flex-shrink-0">✕</button>`:''}
             </div>
+            ${q && q.length>=2 && suggestions.length>0?`
+            <div class="mt-3">
+                <p class="text-xs ${d?'text-gray-500':'text-gray-400'} mb-2 px-1">${l==='bn'?'পরামর্শ:':'Suggestions:'}</p>
+                <div class="flex flex-wrap gap-2">
+                    ${suggestions.map(s=>`
+                        <button onclick="doSearch(${JSON.stringify(s.label.replace(/…$/,''))});document.getElementById('search-input').value=${JSON.stringify(s.label.replace(/…$/,''))}"
+                            class="${d?'bg-gray-700 hover:bg-gray-600 text-gray-200 border-gray-600':'bg-gray-100 hover:bg-emerald-50 text-gray-700 border-gray-200'} text-xs px-3 py-1.5 rounded-lg border hover:border-emerald-400 transition-all text-left max-w-xs truncate">
+                            ${s.icon} ${sanitize(s.label)}
+                        </button>`).join('')}
+                </div>
+            </div>`:''}
         </div>
         ${q?`
-        <p class="text-sm ${d?'text-gray-400':'text-gray-500'}">${results.length} ${l==='bn'?'টি ফলাফল পাওয়া গেছে':'results found'} "${sanitize(q)}" ${l==='bn'?'এর জন্য':'for'}</p>
+        <div class="flex items-center justify-between flex-wrap gap-2">
+            <p class="text-sm ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?`"${sanitize(q)}" — ${results.length}টি ফলাফল`:`"${sanitize(q)}" — ${results.length} result${results.length!==1?'s':''}`}</p>
+            ${results.length>0?`<div class="flex gap-1 flex-wrap">
+                ${[['সব/All',null],['📝',`post`],['🤲','dua'],['👑','imam'],['📜','hadith'],['📄','pdf']].map(([label,type])=>{
+                    const count = type?results.filter(r=>r.type===type).length:results.length;
+                    if(count===0&&type) return '';
+                    const dispLabel = l==='bn'?label.split('/')[0]:label.split('/').pop();
+                    return `<button onclick="window._sf='${type||''}';document.querySelectorAll('.search-result-item').forEach(el=>el.style.display=(!window._sf||el.dataset.type===window._sf)?'':'none')"
+                        class="${d?'bg-gray-700 text-gray-300 hover:bg-gray-600':'bg-gray-100 text-gray-600 hover:bg-gray-200'} text-xs px-2.5 py-1 rounded-lg font-medium transition-colors">${dispLabel} ${count}</button>`;
+                }).join('')}
+            </div>`:''}
+        </div>
         ${results.length===0?`
-            <div class="text-center py-16 ${d?'text-gray-500':'text-gray-400'}">
+            <div class="text-center py-16">
                 <div class="text-6xl mb-4">🔍</div>
-                <p>${l==='bn'?'কোনো ফলাফল পাওয়া যায়নি':'No results found'}</p>
+                <p class="font-semibold ${d?'text-gray-400':'text-gray-500'} text-lg">${l==='bn'?'কোনো ফলাফল পাওয়া যায়নি':'No results found'}</p>
+                <p class="text-sm ${d?'text-gray-500':'text-gray-400'} mt-2">${l==='bn'?'অন্য কীওয়ার্ড দিয়ে চেষ্টা করুন':'Try a different keyword'}</p>
             </div>`:
-        `<div class="space-y-4">
+        `<div class="space-y-3">
             ${results.map(r=>{
                 if (r.type==='post') return `
-                    <div class="${d?'bg-gray-800':'bg-white'} border rounded-xl p-5 fade-in">
-                        <span class="text-xs px-2 py-0.5 rounded ${d?'bg-blue-900 text-blue-300':'bg-blue-100 text-blue-600'} mb-2 inline-block">${l==='bn'?'ব্লগ':'Blog'}</span>
-                        <h3 class="font-bold text-lg mb-1">${hl(l==='bn'?r.item.titleBn:r.item.titleEn)}</h3>
-                        <p class="text-sm ${d?'text-gray-400':'text-gray-600'} mb-3">${hl(r.item.excerpt||'')}</p>
-                        <button data-action="readPost" data-param="${r.item.id}" class="${d?'text-green-400':'text-green-600'} text-sm font-medium hover:underline">${t('readMore')} →</button>
+                    <div class="search-result-item ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl p-5 fade-in" data-type="post" style="box-shadow:var(--shadow-sm)">
+                        <span class="text-xs px-2 py-0.5 rounded-lg ${d?'bg-blue-900 text-blue-300':'bg-blue-100 text-blue-600'} mb-2 inline-block font-medium">📝 ${t('blog')}</span>
+                        <h3 class="font-bold text-base mb-1 leading-snug">${hl(l==='bn'?r.item.titleBn:r.item.titleEn)}</h3>
+                        <p class="text-sm ${d?'text-gray-400':'text-gray-600'} line-clamp-2">${hl(r.item.excerpt||'')}</p>
+                        <button data-action="readPost" data-param="${r.item.id}" class="${d?'text-emerald-400':'text-emerald-600'} text-sm font-bold mt-3 hover:underline">${t('readMore')} →</button>
                     </div>`;
                 if (r.type==='dua') return `
-                    <div class="${d?'bg-gray-800':'bg-white'} border rounded-xl p-5 fade-in">
-                        <span class="text-xs px-2 py-0.5 rounded ${d?'bg-purple-900 text-purple-300':'bg-purple-100 text-purple-600'} mb-2 inline-block">${l==='bn'?'দোয়া':'Dua'}</span>
-                        <h3 class="font-bold text-lg mb-1">${hl(l==='bn'?r.item.titleBn:r.item.titleEn)}</h3>
-                        <p class="text-sm ${d?'text-gray-400':'text-gray-600'} mb-3">${hl(l==='bn'?r.item.meaningBn:r.item.meaningEn)}</p>
-                        <button data-action="readDua" data-param="${r.index}" class="${d?'text-green-400':'text-green-600'} text-sm font-medium hover:underline">${t('readMore')} →</button>
+                    <div class="search-result-item ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl p-5 fade-in" data-type="dua" style="box-shadow:var(--shadow-sm)">
+                        <span class="text-xs px-2 py-0.5 rounded-lg ${d?'bg-purple-900 text-purple-300':'bg-purple-100 text-purple-600'} mb-2 inline-block font-medium">🤲 ${l==='bn'?'দোয়া':'Dua'}</span>
+                        <h3 class="font-bold text-base mb-1">${hl(l==='bn'?r.item.titleBn:r.item.titleEn)}</h3>
+                        <p class="text-sm ${d?'text-gray-400':'text-gray-600'} line-clamp-2">${hl(l==='bn'?r.item.meaningBn:r.item.meaningEn)}</p>
+                        <button data-action="readDua" data-param="${r.index}" class="${d?'text-purple-400':'text-purple-600'} text-sm font-bold mt-3 hover:underline">${t('readMore')} →</button>
                     </div>`;
                 if (r.type==='imam') return `
-                    <div class="${d?'bg-gray-800':'bg-white'} border rounded-xl p-5 fade-in">
-                        <span class="text-xs px-2 py-0.5 rounded ${d?'bg-green-900 text-green-300':'bg-green-100 text-green-600'} mb-2 inline-block">${l==='bn'?'ইমাম':'Imam'}</span>
-                        <h3 class="font-bold text-lg mb-1">${r.item.icon} ${hl(l==='bn'?r.item.nameBn:r.item.nameEn)}</h3>
-                        <p class="text-sm ${d?'text-gray-400':'text-gray-600'} mb-3">${hl(l==='bn'?r.item.descBn:r.item.descEn)}</p>
-                        <button data-action="viewImam" data-param="${r.item.id}" class="${d?'text-green-400':'text-green-600'} text-sm font-medium hover:underline">${l==='bn'?'বিস্তারিত':'Details'} →</button>
+                    <div class="search-result-item ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl p-5 fade-in" data-type="imam" style="box-shadow:var(--shadow-sm)">
+                        <span class="text-xs px-2 py-0.5 rounded-lg ${d?'bg-green-900 text-green-300':'bg-green-100 text-green-600'} mb-2 inline-block font-medium">👑 ${l==='bn'?'ইমাম':'Imam'}</span>
+                        <h3 class="font-bold text-base mb-1">${r.item.icon||''} ${hl(l==='bn'?r.item.nameBn:r.item.nameEn)}</h3>
+                        <p class="text-sm ${d?'text-gray-400':'text-gray-600'} line-clamp-2">${hl(l==='bn'?r.item.descBn:r.item.descEn)}</p>
+                        <button data-action="viewImam" data-param="${r.item.id}" class="${d?'text-emerald-400':'text-emerald-600'} text-sm font-bold mt-3 hover:underline">${l==='bn'?'বিস্তারিত →':'Details →'}</button>
                     </div>`;
                 if (r.type==='pdf') return `
-                    <div class="${d?'bg-gray-800':'bg-white'} border rounded-xl p-5 fade-in">
-                        <span class="text-xs px-2 py-0.5 rounded ${d?'bg-amber-900 text-amber-300':'bg-amber-100 text-amber-700'} mb-2 inline-block">${l==='bn'?'পিডিএফ':'PDF'}</span>
-                        <h3 class="font-bold text-lg">${hl(r.item.name)}</h3>
-                        <p class="text-xs ${d?'text-gray-500':'text-gray-400'} mt-1">${sanitize(r.item.sizeFmt)}</p>
+                    <div class="search-result-item ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl p-5 fade-in" data-type="pdf" style="box-shadow:var(--shadow-sm)">
+                        <span class="text-xs px-2 py-0.5 rounded-lg ${d?'bg-amber-900 text-amber-300':'bg-amber-100 text-amber-700'} mb-2 inline-block font-medium">📄 ${l==='bn'?'পিডিএফ':'PDF'}</span>
+                        <h3 class="font-bold text-base">${hl(r.item.name)}</h3>
+                        <p class="text-xs ${d?'text-gray-500':'text-gray-400'} mt-1">${sanitize(r.item.sizeFmt||'')}</p>
                     </div>`;
                 if (r.type==='hadith') return `
-                    <div class="${d?'bg-gray-800':'bg-white'} border rounded-xl p-5 fade-in">
-                        <span class="text-xs px-2 py-0.5 rounded ${d?'bg-teal-900 text-teal-300':'bg-teal-100 text-teal-700'} mb-2 inline-block">${l==='bn'?'হাদিস':'Hadith'}</span>
-                        <p class="text-sm ${d?'text-gray-300':'text-gray-700'} mb-2 leading-relaxed">${hl(l==='bn'?r.item.textBn:r.item.textEn)}</p>
-                        <p class="text-xs ${d?'text-gray-500':'text-gray-400'}">— ${sanitize(l==='bn'?r.item.sourceBn:r.item.sourceEn)}</p>
+                    <div class="search-result-item ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl p-5 fade-in" data-type="hadith" style="box-shadow:var(--shadow-sm)">
+                        <span class="text-xs px-2 py-0.5 rounded-lg ${d?'bg-teal-900 text-teal-300':'bg-teal-100 text-teal-700'} mb-2 inline-block font-medium">📜 ${l==='bn'?'হাদিস':'Hadith'}</span>
+                        <p class="text-sm ${d?'text-gray-300':'text-gray-700'} line-clamp-3 leading-relaxed">${hl(l==='bn'?r.item.textBn:r.item.textEn)}</p>
+                        <p class="text-xs ${d?'text-gray-500':'text-gray-400'} mt-2 font-medium">— ${sanitize(l==='bn'?r.item.sourceBn:r.item.sourceEn)}</p>
                     </div>`;
                 if (r.type==='ziyarat') return `
-                    <div class="${d?'bg-gray-800':'bg-white'} border rounded-xl p-5 fade-in">
-                        <span class="text-xs px-2 py-0.5 rounded ${d?'bg-amber-900 text-amber-300':'bg-amber-100 text-amber-700'} mb-2 inline-block">${l==='bn'?'যিয়ারত':'Ziyarat'}</span>
-                        <h3 class="font-bold text-lg mb-1">${hl(l==='bn'?r.item.titleBn:r.item.titleEn)}</h3>
-                        <button data-action="readZiyarat" data-param="${r.item.id}" class="${d?'text-amber-400':'text-amber-700'} text-sm font-medium hover:underline">${t('readMore')} →</button>
+                    <div class="search-result-item ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl p-5 fade-in" data-type="ziyarat" style="box-shadow:var(--shadow-sm)">
+                        <span class="text-xs px-2 py-0.5 rounded-lg ${d?'bg-amber-900 text-amber-300':'bg-amber-100 text-amber-700'} mb-2 inline-block font-medium">🕌 ${l==='bn'?'যিয়ারত':'Ziyarat'}</span>
+                        <h3 class="font-bold text-base mb-1">${hl(l==='bn'?r.item.titleBn:r.item.titleEn)}</h3>
+                        <button data-action="readZiyarat" data-param="${r.item.id}" class="${d?'text-amber-400':'text-amber-700'} text-sm font-bold mt-1 hover:underline">${t('readMore')} →</button>
                     </div>`;
                 return '';
             }).join('')}
@@ -4617,64 +4980,7 @@ function renderKnowledgeEditorModal() {
     </div>`;
 }
 
-function renderBlogEditorModal() {
-    if (!state.showBlogEditor || !state.editingPost) return '';
-    const d=state.darkMode; const l=state.language;
-    const p=state.editingPost;
-    const isNew=String(p.id).startsWith('custom_')&&!state.customPosts.find(cp=>cp.id===p.id);
-    return `
-    <div class="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4 overflow-y-auto">
-        <div class="${d?'bg-gray-800':'bg-white'} rounded-2xl p-8 w-full max-w-2xl shadow-2xl fade-in my-4">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold">${isNew?t('newPost'):t('editPost')}</h3>
-                <button data-action="closeBlogEditor" class="p-1 rounded hover:opacity-70">✕</button>
-            </div>
-            <div class="space-y-4">
-                <div>
-                    <label class="block mb-1.5 text-sm font-medium">${l==='bn'?'শিরোনাম (বাংলা)':'Title (Bengali)'}</label>
-                    <input id="blog-editor-titleBn" type="text" value="${sanitize(p.titleBn)}"
-                        class="${d?'bg-gray-900 border-gray-700 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-green-500" />
-                </div>
-                <div>
-                    <label class="block mb-1.5 text-sm font-medium">${l==='bn'?'শিরোনাম (ইংরেজি)':'Title (English)'}</label>
-                    <input id="blog-editor-titleEn" type="text" value="${sanitize(p.titleEn)}"
-                        class="${d?'bg-gray-900 border-gray-700 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-green-500" />
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block mb-1.5 text-sm font-medium">${l==='bn'?'ক্যাটাগরি':'Category'}</label>
-                        <input id="blog-editor-category" type="text" value="${sanitize(p.category)}"
-                            class="${d?'bg-gray-900 border-gray-700 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-green-500" />
-                    </div>
-                    <div>
-                        <label class="block mb-1.5 text-sm font-medium">${l==='bn'?'পড়ার সময়':'Read Time'}</label>
-                        <input id="blog-editor-readTime" type="text" value="${sanitize(p.readTime)}"
-                            class="${d?'bg-gray-900 border-gray-700 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-green-500" />
-                    </div>
-                </div>
-                <div>
-                    <label class="block mb-1.5 text-sm font-medium">${l==='bn'?'সারসংক্ষেপ':'Excerpt'}</label>
-                    <input id="blog-editor-excerpt" type="text" value="${sanitize(p.excerpt)}"
-                        class="${d?'bg-gray-900 border-gray-700 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-green-500" />
-                </div>
-                <div>
-                    <label class="block mb-1.5 text-sm font-medium">${l==='bn'?'বিষয়বস্তু (বাংলা)':'Content (Bengali)'}</label>
-                    <textarea id="blog-editor-contentBn"
-                        class="${d?'bg-gray-900 border-gray-700 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full h-32 focus:outline-none focus:ring-2 focus:ring-green-500">${p.contentBn?p.contentBn.replace(/</g,'&lt;').replace(/>/g,'&gt;'):''}</textarea>
-                </div>
-                <div>
-                    <label class="block mb-1.5 text-sm font-medium">${l==='bn'?'বিষয়বস্তু (ইংরেজি)':'Content (English)'}</label>
-                    <textarea id="blog-editor-contentEn"
-                        class="${d?'bg-gray-900 border-gray-700 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full h-32 focus:outline-none focus:ring-2 focus:ring-green-500">${p.contentEn?p.contentEn.replace(/</g,'&lt;').replace(/>/g,'&gt;'):''}</textarea>
-                </div>
-            </div>
-            <div class="flex gap-3 mt-6">
-                <button data-action="saveBlogPost" class="${d?'bg-green-700 hover:bg-green-600':'bg-green-600 hover:bg-green-700'} text-white flex-1 py-3 rounded-xl font-semibold">💾 ${t('savePost')}</button>
-                <button data-action="closeBlogEditor" class="${d?'bg-gray-700 hover:bg-gray-600':'bg-gray-200 hover:bg-gray-300'} px-6 py-3 rounded-xl font-semibold">${t('cancel')}</button>
-            </div>
-        </div>
-    </div>`;
-}
+// ✓ renderBlogEditorModal moved to blog.js
 
 // ============================================================================
 // DUA / ZIYARAT EDITOR MODAL
@@ -4988,29 +5294,37 @@ function renderMobileBottomNav() {
     const nav=document.getElementById('mobile-bottom-nav');
     if(!nav) return;
     const items=[
-        {page:'home',icon:'🏠',label:l==='bn'?'হোম':'Home'},
+        {page:'home',icon:'🏠',label:t('home')},
         {page:'imams',icon:'👑',label:l==='bn'?'ইমাম':'Imams'},
-        {page:'library',icon:'📕',label:l==='bn'?'পিডিএফ':'Library'},
+        {page:'familyTree',icon:'🌳',label:l==='bn'?'বংশধারা':'Family'},
         {page:'dua',icon:'🤲',label:l==='bn'?'দোয়া':'Duas'},
-        {page:'blog',icon:'📖',label:l==='bn'?'ব্লগ':'Blog'},
+        {page:'blog',icon:'📖',label:t('blog')},
     ];
-    nav.style.background=d?'rgba(17,24,39,0.96)':'rgba(255,255,255,0.96)';
-    nav.style.borderTopColor=d?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.08)';
-    nav.innerHTML=items.map(item=>`
-        <button class="bnav-btn ${state.currentPage===item.page?'active':''}"
-            style="color:${state.currentPage===item.page?'#059669':(d?'#9ca3af':'#6b7280')}"
-            onclick="changePage('${item.page}')">
-            <span class="bnav-icon">${item.icon}</span>
-            <span>${item.label}</span>
-        </button>`).join('');
+    nav.style.background=d?'rgba(6,20,16,.97)':'rgba(255,255,255,.97)';
+    nav.style.borderTopColor=d?'rgba(255,255,255,.08)':'rgba(0,0,0,.08)';
+    nav.innerHTML=items.map((item)=>{
+        const isActive = state.currentPage===item.page;
+        return `
+        <button class="bnav-btn ${isActive?'active':''}"
+            style="color:${isActive?'#059669':(d?'#9ca3af':'#6b7280')};position:relative"
+            onclick="changePage('${item.page}')"
+            title="${item.label}">
+            ${isActive?`<span style="position:absolute;top:6px;left:50%;transform:translateX(-50%);width:28px;height:3px;border-radius:3px;background:linear-gradient(90deg,#059669,#34d399);box-shadow:0 0 8px rgba(5,150,105,.5)"></span>`:''}
+            <span class="bnav-icon" style="margin-top:${isActive?'4px':'0'}">${item.icon}</span>
+            <span style="line-height:1.2;font-size:10px;font-weight:${isActive?'700':'500'}">${item.label}</span>
+        </button>`;
+    }).join('');
 }
+
 
 // ============================================================================
 // MAIN RENDER (updated)
 // ============================================================================
 function renderMainContent() {
     const pages={
-        home:renderHomePage, blog:renderBlogPage, dua:renderDuaPage, library:renderLibraryPage,
+        home:renderHomePage,
+        blog: typeof renderBlogPage === 'function' ? renderBlogPage : () => '<div class="text-center py-8">Blog loading...</div>',
+        dua:renderDuaPage, library:renderLibraryPage,
         media:renderMediaPage, calendar:renderCalendarPage,
         contact:renderContactPage, about:renderAboutPage, bookmarks:renderBookmarksPage,
         readPost:renderReadPostPage, readDua:renderReadDuaPage, viewer:renderViewerPage,
@@ -5021,6 +5335,7 @@ function renderMainContent() {
         asmaul:renderAsmaulHusnaPage, qibla:renderQiblaPage,
         muharram:renderMuharramPage,
         'shia-days':renderShiaDaysPage,
+        familyTree:renderFamilyTreePage,
     };
     return (pages[state.currentPage]||pages.home)();
 }
@@ -5042,7 +5357,10 @@ function render() {
         document.body.style.removeProperty('color');
     }
     document.body.className = (state.darkMode?'bg-gray-950 text-white':'bg-gray-50 text-gray-900') + ' fs-'+state.fontSize+' islamic-pattern-bg';
-    document.getElementById('app').innerHTML = `
+    
+    const appDiv = document.getElementById('app');
+
+    appDiv.innerHTML = `
         ${renderMobileMenu()}
         ${renderHeader()}
         <main class="max-w-7xl mx-auto px-4 py-8" role="main">
@@ -5051,14 +5369,18 @@ function render() {
         ${renderFooter()}
         ${renderUploadModal()}
         ${renderAdminLoginModal()}
-        ${renderBlogEditorModal()}
+        ${typeof renderBlogEditorModal === 'function' ? renderBlogEditorModal() : ''}
         ${renderDuaEditorModal()}
         ${renderHadithEditorModal()}
         ${renderKnowledgeEditorModal()}
         ${renderAyahEditorModal()}
         ${renderMuharramEditorModal()}
         ${renderShiaDayEditorModal()}
+        <button id="scroll-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" class="scroll-top-glass" title="${state.language==='bn'?'উপরে যান':'Scroll to Top'}" aria-label="Scroll to top">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10 16v-12m-4 4l4-4 4 4"/></svg>
+        </button>
     `;
+
     // load lazy images after render
     document.querySelectorAll('img[data-src-id]').forEach(img => {
         const id = img.getAttribute('data-src-id');
@@ -5078,56 +5400,159 @@ function render() {
 }
 
 // ============================================================================
-// PWA SERVICE WORKER (Inline)
+// PWA SERVICE WORKER (Inline) — UPGRADED
 // ============================================================================
+let _pwaInstallPrompt = null; // store beforeinstallprompt event
+
 function registerPWA() {
+    // ── 1. Install prompt listener ──
+    window.addEventListener('beforeinstallprompt', e => {
+        e.preventDefault();
+        _pwaInstallPrompt = e;
+        // Show install banner after 3s if not already installed
+        setTimeout(() => showPWAInstallBanner(), 3000);
+    });
+
+    // ── 2. Service Worker with full offline cache ──
     if (!('serviceWorker' in navigator)) return;
     const swCode = `
-const CACHE = 'ahlbayt-v1';
-const ASSETS = [self.location.href.replace('/sw-inline','')];
+const CACHE = 'ahlbayt-v3';
+const STATIC = ['./', './index.html', './style.css', './script.js', './blog.js', './duas-data.js', './family-tree-data.js'];
+const FONT_CACHE = 'ahlbayt-fonts-v1';
+
 self.addEventListener('install', e => {
-    e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(()=>self.skipWaiting()));
+    e.waitUntil(
+        caches.open(CACHE).then(c => {
+            return Promise.allSettled(STATIC.map(url => c.add(url).catch(()=>{})));
+        }).then(() => self.skipWaiting())
+    );
 });
+
 self.addEventListener('activate', e => {
-    e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));
+    e.waitUntil(
+        caches.keys().then(keys =>
+            Promise.all(keys.filter(k => k !== CACHE && k !== FONT_CACHE).map(k => caches.delete(k)))
+        ).then(() => self.clients.claim())
+    );
 });
+
 self.addEventListener('fetch', e => {
     if (e.request.method !== 'GET') return;
-    e.respondWith(caches.match(e.request).then(cached => {
-        const net = fetch(e.request).then(res => {
-            if (res && res.status === 200) {
-                const clone = res.clone();
-                caches.open(CACHE).then(c => c.put(e.request, clone));
-            }
-            return res;
-        }).catch(()=>cached);
-        return cached || net;
-    }));
+    const url = new URL(e.request.url);
+
+    // Google Fonts → cache-first
+    if (url.hostname.includes('fonts.g')) {
+        e.respondWith(caches.open(FONT_CACHE).then(c =>
+            c.match(e.request).then(hit => hit || fetch(e.request).then(res => {
+                c.put(e.request, res.clone()); return res;
+            }))
+        ));
+        return;
+    }
+
+    // AlAdhan prayer API → network-first, fallback to cache
+    if (url.hostname.includes('aladhan')) {
+        e.respondWith(
+            fetch(e.request).then(res => {
+                caches.open(CACHE).then(c => c.put(e.request, res.clone()));
+                return res;
+            }).catch(() => caches.match(e.request))
+        );
+        return;
+    }
+
+    // Everything else → stale-while-revalidate
+    e.respondWith(
+        caches.match(e.request).then(cached => {
+            const net = fetch(e.request).then(res => {
+                if (res && res.status === 200 && res.type !== 'opaque') {
+                    caches.open(CACHE).then(c => c.put(e.request, res.clone()));
+                }
+                return res;
+            }).catch(() => cached);
+            return cached || net;
+        })
+    );
+});
+
+// Background sync for offline actions
+self.addEventListener('message', e => {
+    if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
 });`;
     try {
         const blob = new Blob([swCode], {type:'application/javascript'});
         const swUrl = URL.createObjectURL(blob);
-        navigator.serviceWorker.register(swUrl, {scope:'./'}).then(reg=>{
-            console.log('SW registered:', reg.scope);
-        }).catch(e=>console.log('SW reg failed:',e));
-    } catch(e) { console.log('SW blob failed:',e); }
+        navigator.serviceWorker.register(swUrl, {scope:'./'})
+            .then(reg => {
+                console.log('SW registered:', reg.scope);
+                // Check for updates every 30 min
+                setInterval(() => reg.update(), 30 * 60 * 1000);
+            })
+            .catch(e => console.log('SW reg failed:', e));
+    } catch(e) { console.log('SW blob failed:', e); }
 
-    // Add dynamic manifest for PWA installability
+    // ── 3. Dynamic PWA Manifest ──
     try {
+        const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="%23065f46"/><text x="50" y="62" text-anchor="middle" font-size="52" fill="%23c9a227">☽</text><circle cx="75" cy="22" r="8" fill="white" opacity=".9"/></svg>`;
         const manifest = {
             name: 'আহলে বাইত (আ.)',
             short_name: 'আহলে বাইত',
             description: 'ইসলামিক জ্ঞান ও শিক্ষার জন্য আপনার বিশ্বস্ত উৎস',
             start_url: './',
             display: 'standalone',
-            background_color: '#059669',
+            orientation: 'portrait',
+            background_color: '#065f46',
             theme_color: '#059669',
-            icons: [{src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="%23059669"/><text x="20" y="27" text-anchor="middle" font-size="18" fill="white">☽</text></svg>',sizes:'any',type:'image/svg+xml'}]
+            lang: 'bn',
+            categories: ['education', 'lifestyle'],
+            icons: [
+                {src:`data:image/svg+xml,${iconSvg}`, sizes:'any', type:'image/svg+xml'},
+                {src:`data:image/svg+xml,${iconSvg}`, sizes:'192x192', type:'image/svg+xml', purpose:'maskable'}
+            ],
+            shortcuts: [
+                {name:'নামাজের সময়', short_name:'নামাজ', url:'./?page=home', icons:[{src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><text y="20" font-size="20">🕌</text></svg>',sizes:'24x24'}]},
+                {name:'দোয়া', short_name:'দোয়া', url:'./?page=dua', icons:[{src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><text y="20" font-size="20">🤲</text></svg>',sizes:'24x24'}]}
+            ]
         };
-        const mBlob = new Blob([JSON.stringify(manifest)],{type:'application/json'});
+        const mBlob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
         const mUrl = URL.createObjectURL(mBlob);
         document.getElementById('pwa-manifest').href = mUrl;
     } catch(e) {}
+}
+
+function showPWAInstallBanner() {
+    if (!_pwaInstallPrompt) return;
+    if (document.getElementById('pwa-install-banner')) return;
+    const l = state.language;
+    const d = state.darkMode;
+    const banner = document.createElement('div');
+    banner.id = 'pwa-install-banner';
+    banner.innerHTML = `
+        <div style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:9997;max-width:360px;width:calc(100% - 32px)">
+            <div style="background:${d?'linear-gradient(135deg,#065f46,#047857)':'linear-gradient(135deg,#059669,#065f46)'};border-radius:16px;padding:16px 18px;box-shadow:0 8px 32px rgba(5,150,105,.4);display:flex;align-items:center;gap:12px;border:1px solid rgba(255,255,255,.15)">
+                <div style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0">📲</div>
+                <div style="flex:1;min-width:0">
+                    <p style="color:white;font-weight:700;font-size:.85rem;margin-bottom:2px">${l==='bn'?'অ্যাপ হিসেবে ইনস্টল করুন':'Install as App'}</p>
+                    <p style="color:rgba(255,255,255,.75);font-size:.72rem">${l==='bn'?'অফলাইনেও ব্যবহার করুন':'Works offline too'}</p>
+                </div>
+                <div style="display:flex;gap:8px;flex-shrink:0">
+                    <button id="pwa-install-yes" style="background:white;color:#065f46;border:none;border-radius:8px;padding:7px 14px;font-size:.8rem;font-weight:700;cursor:pointer">${l==='bn'?'ইনস্টল':'Install'}</button>
+                    <button id="pwa-install-no" style="background:rgba(255,255,255,.15);color:white;border:none;border-radius:8px;padding:7px 10px;font-size:.85rem;cursor:pointer">✕</button>
+                </div>
+            </div>
+        </div>`;
+    document.body.appendChild(banner);
+    document.getElementById('pwa-install-yes').onclick = async () => {
+        if (_pwaInstallPrompt) {
+            _pwaInstallPrompt.prompt();
+            const { outcome } = await _pwaInstallPrompt.userChoice;
+            if (outcome === 'accepted') showToast(l==='bn'?'✅ অ্যাপ ইনস্টল হচ্ছে!':'✅ App installing!', 'success');
+            _pwaInstallPrompt = null;
+        }
+        banner.remove();
+    };
+    document.getElementById('pwa-install-no').onclick = () => banner.remove();
+    setTimeout(() => banner.remove(), 12000);
 }
 
 // ============================================================================
@@ -5218,6 +5643,12 @@ function init() {
     loadState();
     applyFontSize();
     registerPWA();
+    // ── PWA shortcut handling: ?page=xxx in URL opens that page directly ──
+    try {
+        const params = new URLSearchParams(window.location.search);
+        const pageParam = params.get('page');
+        if (pageParam) { state.currentPage = pageParam; }
+    } catch(e) {}
     // ── Dark mode CSS override — mobile browser CSS ও style.css কে override করে ──
     (function injectDarkModeCSS(){
         const style=document.createElement('style');
@@ -5275,8 +5706,8 @@ function init() {
         window.CLOUDINARY_CLOUD_NAME    = "ahlalbayt";
         window.CLOUDINARY_UPLOAD_PRESET = "ahlalbayt_upload";
     }
-    fetchBlogFromCloud();  // load blog posts from Cloudinary (cross-device)
-    fetchMediaFromCloud(); // load media index from Cloudinary (cross-device)
+    try { fetchBlogFromCloud(); } catch(e) { console.warn('[Blog] fetchBlogFromCloud failed:', e); }   // load blog posts from Cloudinary (cross-device)
+    try { fetchMediaFromCloud(); } catch(e) { console.warn('[Media] fetchMediaFromCloud failed:', e); } // load media index from Cloudinary (cross-device)
     setTimeout(hideSplash, 2600);
 }
 
@@ -5919,3 +6350,204 @@ function renderShiaDaysPage() {
 }
 
 console.log('✅ ফিচার লোড: মুহাররম, বিশেষ দিনসমূহ CRUD সহ');
+
+// ============ FAMILY TREE PAGE RENDERER ============
+
+function renderFamilyTreePage() {
+  const d = state.darkMode; const l = state.language;
+  const p = familyTreeDatabase.prophet;
+
+  // Populate the imams grid + wire up modal after the markup is inserted into the DOM
+  setTimeout(() => {
+    if (typeof initFamilyTree === 'function') {
+      initFamilyTree();
+    }
+  }, 0);
+
+  return `
+  <div class="space-y-6 page-enter">
+    <div>
+        <h2 class="text-3xl font-black" style="background:linear-gradient(135deg,#059669,#b45309);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">🌳 ${l==='bn'?'আহলুল বাইত বংশধারা':'Ahl al-Bayt Family Tree'}</h2>
+        <p class="text-sm ${d?'text-gray-400':'text-gray-500'} mt-1">${l==='bn'?'নবী মুহাম্মদ (সা) থেকে ১২ ইমাম পর্যন্ত':'From Prophet Muhammad (PBUH) to the 12 Imams'}</p>
+    </div>
+
+    <div class="family-tree-container">
+      <!-- Prophet Card -->
+      <div class="prophet-card" onclick="showPersonDetail('prophet')">
+        <div class="card-badge">${l==='bn'?'প্রথম জ্যোতি':'First Generation'}</div>
+        <div class="card-name">${p.arabicName}</div>
+        <div class="card-bengali">${l==='bn'?p.bengaliName:(p.englishAbbr||p.englishName)}</div>
+      </div>
+
+      <div class="hierarchy-divider"><div class="tree-stem"></div><div class="tree-node"></div><div class="tree-stem"></div></div>
+
+      <!-- Fatima Zahra: genealogical bridge -->
+      <div class="fatima-card" onclick="showPersonDetail('fatima')">
+        <div class="fatima-role">${l==='bn'?'সংযোগসূত্র · নবীর কন্যা':'The Bridge · Daughter of the Prophet'}</div>
+        <div class="fatima-arabic">${familyTreeDatabase.fatima.arabicName}</div>
+        <div class="fatima-bengali">${l==='bn'?familyTreeDatabase.fatima.bengaliName:(familyTreeDatabase.fatima.englishAbbr||familyTreeDatabase.fatima.englishName)}</div>
+      </div>
+
+      <div class="hierarchy-divider"><div class="tree-stem"></div><div class="tree-node"></div><div class="tree-stem"></div></div>
+
+      <!-- Founding generation: Ali, Hasan, Husain -->
+      <div class="tree-section-label">${l==='bn'?'প্রতিষ্ঠাতা প্রজন্ম':'Founding generation'}</div>
+      <div class="imams-grid founding-grid" id="founding-imams-container"></div>
+
+      <div class="tree-section-label">${l==='bn'?'ইমামতের ধারা — ৪র্থ থেকে ১১তম':'The lineage — 4th to 11th'}</div>
+      <div class="imams-grid lineage-grid" id="lineage-imams-container"></div>
+
+      <!-- 12th Imam: awaited -->
+      <div class="mahdi-wrap" id="mahdi-imam-container"></div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="person-detail-modal" class="modal hidden">
+      <div class="modal-backdrop" onclick="closePersonDetail()"></div>
+      <div class="modal-content">
+        <button class="modal-close" onclick="closePersonDetail()">✕</button>
+        <div id="modal-body"></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ============ FAMILY TREE FUNCTIONS ============
+
+// English ordinal helper (1 -> 1st, 2 -> 2nd, 3 -> 3rd, 4 -> 4th, ...)
+function ordinalEn(n) {
+  const s = ['th', 'st', 'nd', 'rd'];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+function renderFamilyTree() {
+  const foundingContainer = document.getElementById('founding-imams-container');
+  const lineageContainer = document.getElementById('lineage-imams-container');
+  const mahdiContainer = document.getElementById('mahdi-imam-container');
+  if (!foundingContainer || !lineageContainer || !mahdiContainer || !familyTreeDatabase) return;
+  const l = state.language;
+
+  const cardMarkup = (imam, tierClass) => {
+    const orderLabel = l === 'bn' ? `${imam.order} ইমাম` : `${ordinalEn(imam.id)} Imam`;
+    const nameLabel = l === 'bn' ? imam.bengaliName : `Imam ${imam.englishAbbr || imam.englishName}`;
+    return `
+    <button class="imam-card ${tierClass}" onclick="showPersonDetail('${imam.id}')">
+      <div class="imam-order">${orderLabel}</div>
+      <div class="imam-bengali">${nameLabel}</div>
+      <div class="imam-arabic">${imam.arabicName}</div>
+      ${tierClass === 'tier-mahdi' ? `<div class="mahdi-tag">${l==='bn'?'অপেক্ষিত · গায়বাতে কুবরা':'Awaited · in occultation'}</div>` : ''}
+    </button>
+  `;
+  };
+
+  const founding = familyTreeDatabase.imams.filter(i => i.id >= 1 && i.id <= 3);
+  const lineage = familyTreeDatabase.imams.filter(i => i.id >= 4 && i.id <= 11);
+  const mahdi = familyTreeDatabase.imams.find(i => i.id === 12);
+
+  foundingContainer.innerHTML = founding.map(imam => cardMarkup(imam, 'tier-founding')).join('');
+  lineageContainer.innerHTML = lineage.map(imam => cardMarkup(imam, 'tier-lineage')).join('');
+  mahdiContainer.innerHTML = mahdi ? cardMarkup(mahdi, 'tier-mahdi') : '';
+}
+
+function showPersonDetail(personId) {
+  const modal = document.getElementById('person-detail-modal');
+  const modalBody = document.getElementById('modal-body');
+  const l = state.language;
+  
+  let person;
+  if (personId === 'prophet') {
+    person = familyTreeDatabase.prophet;
+  } else if (personId === 'fatima') {
+    person = familyTreeDatabase.fatima;
+  } else {
+    person = familyTreeDatabase.imams.find(i => i.id === parseInt(personId));
+  }
+  
+  if (!person) return;
+  
+  const L = l === 'bn' ? {
+    birth:'জন্ম', death:'মৃত্যু', reign:'মেয়াদ', place:'স্থান',
+    parents:'পিতামাতা', spouse:'পত্নী', children:'সন্তান',
+    significance:'গুরুত্ব', causeOfDeath:'মৃত্যু কারণ', shrine:'মাজার',
+    knowledgeFields:'জ্ঞান ক্ষেত্র', students:'শিক্ষার্থী'
+  } : {
+    birth:'Birth', death:'Death', reign:'Imamate Period', place:'Place',
+    parents:'Parents', spouse:'Spouse', children:'Children',
+    significance:'Significance', causeOfDeath:'Cause of Death', shrine:'Shrine',
+    knowledgeFields:'Fields of Knowledge', students:'Students'
+  };
+  
+  const displayName = l === 'bn' ? person.bengaliName : (person.englishName || person.englishAbbr || person.bengaliName);
+  const avatarLabel = l === 'bn' ? (person.order || '✧') : (person.id ? person.id : '✧');
+  
+  const html = `
+    <div class="modal-header">
+      <div class="modal-avatar" style="background-color: ${person.color || '#3B82F6'}; color: ${person.textColor || '#FFFFFF'};">
+        ${avatarLabel}
+      </div>
+      <div class="modal-titles">
+        <h2>${displayName}</h2>
+        <p>${person.arabicName}</p>
+      </div>
+    </div>
+    
+    ${person.description ? `<p class="description-text">${person.description}</p>` : ''}
+    
+    <div class="info-grid">
+      ${person.birth ? `
+        <div class="info-box">
+          <div class="info-label">${L.birth}</div>
+          <div class="info-value">${person.birth}</div>
+        </div>
+      ` : ''}
+      ${person.death ? `
+        <div class="info-box">
+          <div class="info-label">${L.death}</div>
+          <div class="info-value">${person.death}</div>
+        </div>
+      ` : ''}
+      ${person.reignYears ? `
+        <div class="info-box">
+          <div class="info-label">${L.reign}</div>
+          <div class="info-value">${person.reignYears}</div>
+        </div>
+      ` : ''}
+      ${person.deathPlace ? `
+        <div class="info-box">
+          <div class="info-label">${L.place}</div>
+          <div class="info-value">${person.deathPlace}</div>
+        </div>
+      ` : ''}
+    </div>
+    
+    ${person.features ? `
+      <div class="features-list">
+        ${person.features.map(f => `<span class="feature-badge">${f}</span>`).join('')}
+      </div>
+    ` : ''}
+    
+    ${person.parents ? `<p class="description-text"><strong>${L.parents}:</strong> ${person.parents}</p>` : ''}
+    ${person.spouse ? `<p class="description-text"><strong>${L.spouse}:</strong> ${Array.isArray(person.spouse) ? person.spouse.join(', ') : person.spouse}</p>` : ''}
+    ${person.children ? `<p class="description-text"><strong>${L.children}:</strong> ${Array.isArray(person.children) ? person.children.join(', ') : person.children}</p>` : ''}
+    ${person.significance ? `<p class="description-text"><strong>${L.significance}:</strong> ${person.significance}</p>` : ''}
+    ${person.causeOfDeath ? `<p class="description-text"><strong>${L.causeOfDeath}:</strong> ${person.causeOfDeath}</p>` : ''}
+    ${person.shrine ? `<p class="description-text"><strong>${L.shrine}:</strong> ${person.shrine}</p>` : ''}
+    ${person.knowledgeFields ? `<p class="description-text"><strong>${L.knowledgeFields}:</strong> ${person.knowledgeFields}</p>` : ''}
+    ${person.students ? `<p class="description-text"><strong>${L.students}:</strong> ${person.students}</p>` : ''}
+  `;
+  
+  modalBody.innerHTML = html;
+  modal.classList.remove('hidden');
+}
+
+function closePersonDetail() {
+  const modal = document.getElementById('person-detail-modal');
+  modal.classList.add('hidden');
+}
+
+function initFamilyTree() {
+  renderFamilyTree();
+}
+
+console.log('✅ Family Tree Functions Loaded');
