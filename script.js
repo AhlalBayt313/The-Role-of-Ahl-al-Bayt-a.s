@@ -222,6 +222,7 @@ const state = {
     tasbeehTarget: 33,
     tasbeehLabel: 'সুবহানআল্লাহ',
     tasbeehHistory: [],
+    tasbeehSelected: 0,
     // quiz
     quizIndex: 0,
     quizScore: 0,
@@ -808,6 +809,7 @@ const KEYS = {
     TASBEEH_COUNT:'ahlbayt_tasbeeh_count',
     TASBEEH_LABEL:'ahlbayt_tasbeeh_label',
     TASBEEH_TARGET:'ahlbayt_tasbeeh_target',
+    TASBEEH_SELECTED:'ahlbayt_tasbeeh_selected',
     PRAYER_TIMES:'ahlbayt_prayer_times',
     CUSTOM_HADITHS:'ahlbayt_custom_hadiths',
     CUSTOM_AYAHS:'ahlbayt_custom_ayahs',
@@ -867,6 +869,7 @@ function loadState() {
         state.tasbeehCount  = lsGet(KEYS.TASBEEH_COUNT, 0);
         state.tasbeehLabel  = lsGet(KEYS.TASBEEH_LABEL, 'সুবহানআল্লাহ');
         state.tasbeehTarget = lsGet(KEYS.TASBEEH_TARGET, 33);
+        state.tasbeehSelected = lsGet(KEYS.TASBEEH_SELECTED, 0);
         const cachedPrayer = lsGet(KEYS.PRAYER_TIMES, null);
         if (cachedPrayer) state.prayerTimes = cachedPrayer;
         // clear cached prayer if it's from a different day so fresh fetch happens
@@ -910,6 +913,7 @@ function saveState() {
     lsSet(KEYS.TASBEEH_COUNT, state.tasbeehCount);
     lsSet(KEYS.TASBEEH_LABEL, state.tasbeehLabel);
     lsSet(KEYS.TASBEEH_TARGET, state.tasbeehTarget);
+    lsSet(KEYS.TASBEEH_SELECTED, state.tasbeehSelected);
     if (state.prayerTimes) lsSet(KEYS.PRAYER_TIMES, state.prayerTimes);
 }
 
@@ -937,9 +941,66 @@ function showToast(msg, type='success', duration=2800) {
 function setupScrollTop() {
     const btn = document.getElementById('scroll-top-btn');
     if (!btn) return;
+    let _stTicking = false;
     window.addEventListener('scroll', () => {
-        btn.classList.toggle('visible', window.scrollY > 300);
+        if (!_stTicking) {
+            requestAnimationFrame(() => {
+                btn.classList.toggle('visible', window.scrollY > 300);
+                _stTicking = false;
+            });
+            _stTicking = true;
+        }
     }, {passive:true});
+}
+
+// ── Header scroll shadow ──────────────────────────────────────────────────
+function setupHeaderScroll() {
+    const hdr = document.getElementById('main-header');
+    if (!hdr) return;
+    let _hsTicking = false;
+    const onScroll = () => {
+        if (!_hsTicking) {
+            requestAnimationFrame(() => {
+                hdr.classList.toggle('scrolled', window.scrollY > 10);
+                _hsTicking = false;
+            });
+            _hsTicking = true;
+        }
+    };
+    window.addEventListener('scroll', onScroll, {passive:true});
+    onScroll();
+}
+
+// ── Reading progress bar ──────────────────────────────────────────────────
+function setupReadingProgress() {
+    const bar = document.getElementById('reading-progress');
+    if (!bar) return;
+    let _rpTicking = false;
+    let _cachedDocH = document.documentElement.scrollHeight - window.innerHeight;
+    window.addEventListener('resize', () => {
+        _cachedDocH = document.documentElement.scrollHeight - window.innerHeight;
+    }, {passive:true});
+    window.addEventListener('scroll', () => {
+        if (!_rpTicking) {
+            requestAnimationFrame(() => {
+                bar.style.width = (_cachedDocH > 0 ? (window.scrollY / _cachedDocH * 100) : 0) + '%';
+                _rpTicking = false;
+            });
+            _rpTicking = true;
+        }
+    }, {passive:true});
+}
+
+// ── Scroll Reveal (IntersectionObserver) ────────────────────────────────
+function setupScrollReveal() {
+    const els = document.querySelectorAll('.reveal');
+    if (!els.length) return;
+    if (window._scrollRevealObs) window._scrollRevealObs.disconnect();
+    const obs = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    }, {threshold:.12, rootMargin:'0px 0px -40px 0px'});
+    els.forEach(el => obs.observe(el));
+    window._scrollRevealObs = obs;
 }
 
 // ============================================================================
@@ -1055,7 +1116,9 @@ function requestGPSPrayerTimes() {
         return;
     }
     state.prayerTimesLoading = true;
-    render();
+    // loading indicator সরাসরি update — full render() এড়ানো
+    const gpsBtn = document.getElementById('gps-prayer-btn');
+    if (gpsBtn) { gpsBtn.disabled = true; gpsBtn.style.opacity = '0.6'; }
     navigator.geolocation.getCurrentPosition(
         pos => {
             state.userLocation = {latitude:pos.coords.latitude, longitude:pos.coords.longitude};
@@ -1065,11 +1128,12 @@ function requestGPSPrayerTimes() {
         },
         err => {
             state.prayerTimesLoading = false;
+            const gpsBtn = document.getElementById('gps-prayer-btn');
+            if (gpsBtn) { gpsBtn.disabled = false; gpsBtn.style.opacity = ''; }
             const msg = err.code === 1
                 ? (l==='bn'?'⚠️ লোকেশন পারমিশন দরকার — ব্রাউজার সেটিংস চেক করুন':'⚠️ Location permission needed — check browser settings')
                 : (l==='bn'?'❌ লোকেশন পাওয়া যায়নি':'❌ Could not get location');
             showToast(msg, 'error');
-            render();
         },
         {timeout:10000, enableHighAccuracy:true}
     );
@@ -1350,7 +1414,15 @@ async function fetchMediaFromCloud() {
 // ============================================================================
 // STATE ACTIONS
 // ============================================================================
-function toggleDarkMode() { state.darkMode=!state.darkMode; saveState(); render(); }
+function toggleDarkMode() {
+    state.darkMode = !state.darkMode;
+    saveState();
+    renderDarkMode();
+    // Only update header icon + body class — no full DOM rebuild needed
+    const iconEl = document.getElementById('dark-mode-icon');
+    if (iconEl) iconEl.textContent = state.darkMode ? '☀️' : '🌙';
+    render(); // keep for now — header re-render picks up icon state
+}
 function toggleLanguage() {
     state.language=state.language==='bn'?'en':'bn';
     // Update tasbeeh label to match new language
@@ -1413,6 +1485,16 @@ function shareImamQuote(im, l) {
     const quote = l==='bn'?im.quoteBn:im.quoteEn;
     shareContent('💬 '+name, '"'+quote+'"', '');
 }
+// ── Imam anchor scroll with sticky-header offset ──────────────────────────
+function scrollToImamEl(el) {
+    if (!el) return;
+    const headerEl = document.querySelector('header');
+    const headerH = headerEl ? headerEl.offsetHeight : 64;
+    const rect = el.getBoundingClientRect();
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    window.scrollTo({ top: rect.top + scrollTop - headerH - 12, behavior: 'smooth' });
+}
+
 function changePage(page) {
     state.previousPage=state.currentPage; state.currentPage=page;
     state.menuOpen=false; state.currentPost=null; state.currentDua=null;
@@ -1452,28 +1534,29 @@ function changePage(page) {
 // ============================================================================
 function tasbeehTap() {
     state.tasbeehCount++;
-    vibrateTaskeeh('tap');  // NEW: Vibration feedback on tap
-    // Ripple effect
-    const btn=document.getElementById('tasbeeh-main-btn');
+    vibrateTaskeeh('tap');
+    // Ripple effect + in-place counter update
+    const btn=document.getElementById('tasbeeh-tap-btn');
     if(btn){
         const ripple=document.createElement('span');
         ripple.className='tasbeeh-ripple';
-        ripple.style.left='50%'; ripple.style.top='50%';
-        ripple.style.marginLeft='-30px'; ripple.style.marginTop='-30px';
+        ripple.style.cssText='position:absolute;left:50%;top:50%;width:60px;height:60px;margin-left:-30px;margin-top:-30px;border-radius:50%;background:rgba(255,255,255,.25);pointer-events:none;animation:ripple .7s ease-out forwards';
         btn.appendChild(ripple);
         setTimeout(()=>ripple.remove(),700);
-        // Update counter display in-place
-        const numEl=btn.querySelector('span:first-child');
+        // Update the count span inside the button (second span)
+        const spans = btn.querySelectorAll('span');
+        const numEl = spans[1]; // "ট্যাপ করুন" is spans[0], count is spans[1]
         if(numEl){
             numEl.style.transform='scale(1.25)';
             numEl.style.transition='transform .1s';
-            numEl.textContent=state.tasbeehCount;
+            numEl.textContent = state.language==='bn' ? toBengaliDigits(state.tasbeehCount) : state.tasbeehCount;
             setTimeout(()=>{numEl.style.transform='scale(1)';},120);
         }
     }
     if (state.tasbeehCount >= state.tasbeehTarget) {
-        vibrateTaskeeh('reach');  // NEW: Special vibration when goal reached
+        vibrateTaskeeh('reach');
         state.tasbeehHistory.unshift({
+            dhikrIdx: state.tasbeehSelected||0,
             label: state.tasbeehLabel, count: state.tasbeehCount,
             date: localDate(), target: state.tasbeehTarget
         });
@@ -1484,25 +1567,33 @@ function tasbeehTap() {
         showToast(state.language==='bn'?'মাশাআল্লাহ! তাসবিহ সম্পন্ন হয়েছে ✨':'MashaAllah! Tasbeeh complete ✨','success');
         return;
     }
-    // Update SVG ring and progress bar without full re-render
+    // Update SVG ring progress without full re-render
     const pct = Math.min(1, state.tasbeehCount / state.tasbeehTarget);
-    const R=88, C=2*Math.PI*R, OFF=C*(1-pct);
-    const ring = document.querySelector('.tasbeeh-progress-ring circle:last-child, svg circle[stroke="url(#tg)"]');
-    if(ring) ring.setAttribute('stroke-dashoffset', OFF.toFixed(1));
-    const pBar = document.querySelector('.tasbeeh-progress-inner');
-    if(pBar) pBar.style.width = Math.round(pct*100)+'%';
-    const pTxt = document.querySelector('.tasbeeh-progress-text');
-    if(pTxt) pTxt.textContent = `${state.tasbeehCount} / ${state.tasbeehTarget}`;
-    const pPct = document.querySelector('.tasbeeh-progress-pct');
-    if(pPct) pPct.textContent = Math.round(pct*100)+'%';
+    const circumference = 2*Math.PI*54;
+    const OFF = circumference*(1-pct);
+    const rings = document.querySelectorAll('svg circle');
+    if(rings.length >= 2) rings[rings.length-1].setAttribute('stroke-dashoffset', OFF.toFixed(1));
+    // Update rem counter in the SVG center
+    const rem = state.tasbeehCount % state.tasbeehTarget;
+    const centerSpan = document.querySelector('.tasbeeh-center-count');
+    if(centerSpan) centerSpan.textContent = state.language==='bn' ? toBengaliDigits(rem) : rem;
     saveState();
 }
 function tasbeehReset() { state.tasbeehCount=0; vibrateTaskeeh('reset'); saveState(); render(); }
 function tasbeehSetLabel(idx) {
-    const lbl = tasbeehLabels[idx];
-    if (!lbl) return;
-    state.tasbeehLabel = state.language==='bn'?lbl.bn:lbl.en;
-    state.tasbeehTarget = lbl.target;
+    const DHIKR=[
+        {bn:'সুবহানআল্লাহ',   en:'Subhanallah',    target:33},
+        {bn:'আলহামদুলিল্লাহ', en:'Alhamdulillah',  target:33},
+        {bn:'আল্লাহু আকবার',  en:'Allahu Akbar',   target:34},
+        {bn:'লা ইলাহা ইল্লাল্লাহ',en:'La ilaha illallah',target:100},
+        {bn:'দরুদে ইব্রাহিম', en:'Durood Ibrahim',  target:10},
+        {bn:'আস্তাগফিরুল্লাহ',en:'Astaghfirullah', target:70},
+    ];
+    const dk = DHIKR[idx];
+    if (!dk) return;
+    state.tasbeehSelected = idx;
+    state.tasbeehLabel = state.language==='bn' ? dk.bn : dk.en;
+    state.tasbeehTarget = dk.target;
     state.tasbeehCount = 0;
     saveState();
     render();
@@ -1984,6 +2075,27 @@ function setupEventListeners() {
                 case 'tasbeehTap': tasbeehTap(); break;
                 case 'tasbeehReset': tasbeehReset(); break;
                 case 'tasbeehSetLabel': tasbeehSetLabel(parseInt(param)); break;
+                case 'selectTasbeeh': tasbeehSetLabel(parseInt(param)); break;
+                case 'resetTasbeeh': tasbeehReset(); break;
+                case 'saveTasbeehHistory': {
+                    if (state.tasbeehCount > 0) {
+                        state.tasbeehHistory.unshift({
+                            dhikrIdx: state.tasbeehSelected||0,
+                            label: state.tasbeehLabel,
+                            count: state.tasbeehCount,
+                            date: localDate(),
+                            target: state.tasbeehTarget
+                        });
+                        if (state.tasbeehHistory.length > 20) state.tasbeehHistory.pop();
+                        state.tasbeehCount = 0;
+                        saveState();
+                        render();
+                        showToast(state.language==='bn'?'সেভ হয়েছে ✅':'Saved ✅','success');
+                    } else {
+                        showToast(state.language==='bn'?'কাউন্ট শূন্য, কিছু নেই সেভ করার':'Count is zero, nothing to save','error');
+                    }
+                    break;
+                }
                 // QUIZ
                 case 'quizAnswer': quizAnswer(parseInt(param)); break;
                 case 'quizRestart': quizRestart(); break;
@@ -2001,7 +2113,10 @@ function setupEventListeners() {
                 // BLOG EDITOR
                 case 'openBlogEditor': openBlogEditor(); break;
                 case 'openBlogEditorEdit': {
-                    const post=state.customPosts.find(p=>p.id===param);
+                    let post=state.customPosts.find(p=>p.id===param);
+                    if(!post && typeof blogPosts !== 'undefined') {
+                        post = blogPosts.find(p=>p.id===param);
+                    }
                     if(post) openBlogEditor(post); break;
                 }
                 case 'closeBlogEditor': closeBlogEditor(); break;
@@ -2018,23 +2133,23 @@ function setupEventListeners() {
                     state.editingKnowledgeIdx = -1;
                     state.showKnowledgeEditor = true;
                     render(); break;
-        case 'editKnowledgeItem':
-            if(!state.isAdmin) return;
-            {const dtype=btn.getAttribute('data-dtype'); const idx=parseInt(param);
-            const dataMap2={nahjul:'nahjulBalagha',sahifa:'sahifaSajjadiya',imamhadiths:'imamHadiths',specialdays:'specialDays'};
-            const arr=state[dataMap2[dtype]];
-            if(arr&&arr[idx]){state.knowledgeEditorType=dtype;state.editingKnowledgeItem={...arr[idx]};state.editingKnowledgeIdx=idx;state.showKnowledgeEditor=true;render();}}
-            break;
-        case 'deleteKnowledgeItem':
-            if(!state.isAdmin) return;
-            {const dtype=btn.getAttribute('data-dtype'); const idx=parseInt(param);
-            const dataMap3={nahjul:'nahjulBalagha',sahifa:'sahifaSajjadiya',imamhadiths:'imamHadiths',specialdays:'specialDays'};
-            const arrKey=dataMap3[dtype];
-            if(arrKey&&state[arrKey]){
-                if(confirm(state.language==='bn'?'মুছে ফেলবেন?':'Delete this item?')){
-                    state[arrKey].splice(idx,1);saveState();render();}}}
-            break;
-        case 'closeKnowledgeEditor':
+                case 'editKnowledgeItem':
+                    if(!state.isAdmin) return;
+                    {const dtype=btn.getAttribute('data-dtype'); const idx=parseInt(param);
+                    const dataMap2={nahjul:'nahjulBalagha',sahifa:'sahifaSajjadiya',imamhadiths:'imamHadiths',specialdays:'specialDays'};
+                    const arr=state[dataMap2[dtype]];
+                    if(arr&&arr[idx]){state.knowledgeEditorType=dtype;state.editingKnowledgeItem={...arr[idx]};state.editingKnowledgeIdx=idx;state.showKnowledgeEditor=true;render();}}
+                    break;
+                case 'deleteKnowledgeItem':
+                    if(!state.isAdmin) return;
+                    {const dtype=btn.getAttribute('data-dtype'); const idx=parseInt(param);
+                    const dataMap3={nahjul:'nahjulBalagha',sahifa:'sahifaSajjadiya',imamhadiths:'imamHadiths',specialdays:'specialDays'};
+                    const arrKey=dataMap3[dtype];
+                    if(arrKey&&state[arrKey]){
+                        if(confirm(state.language==='bn'?'মুছে ফেলবেন?':'Delete this item?')){
+                            state[arrKey].splice(idx,1);saveState();render();}}}
+                    break;
+                case 'closeKnowledgeEditor':
             state.showKnowledgeEditor=false;state.editingKnowledgeItem=null;render(); break;
         case 'openDuaEditor': openDuaEditor(null, param); break;
                 case 'editCustomDua': {
@@ -2176,14 +2291,6 @@ function setupEventListeners() {
     });
     document.addEventListener('change', e => {
         if(e.target.id==='fileUploadInput') handleFileUpload(e);
-        if(!state.editingPost) return;
-        if(e.target.id==='blog-editor-titleBn') state.editingPost.titleBn=e.target.value;
-        if(e.target.id==='blog-editor-titleEn') state.editingPost.titleEn=e.target.value;
-        if(e.target.id==='blog-editor-category') state.editingPost.category=e.target.value;
-        if(e.target.id==='blog-editor-readTime') state.editingPost.readTime=e.target.value;
-        if(e.target.id==='blog-editor-excerpt') state.editingPost.excerpt=e.target.value;
-        if(e.target.id==='blog-editor-contentBn') state.editingPost.contentBn=e.target.value;
-        if(e.target.id==='blog-editor-contentEn') state.editingPost.contentEn=e.target.value;
     });
     document.addEventListener('input', e => {
         if(e.target.id==='search-input') doSearch(e.target.value);
@@ -2365,11 +2472,20 @@ function renderDailyAyahInner(d, l) {
 function initReadingProgress() {
     const bar = document.getElementById('reading-progress');
     if (!bar) return;
+    let _irtTicking = false;
+    let _irtDocH = document.documentElement.scrollHeight - window.innerHeight;
+    window.addEventListener('resize', () => {
+        _irtDocH = document.documentElement.scrollHeight - window.innerHeight;
+    }, {passive:true});
     const updateProgress = () => {
-        const scrollTop = window.scrollY;
-        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
-        bar.style.width = pct + '%';
+        if (!_irtTicking) {
+            requestAnimationFrame(() => {
+                const pct = _irtDocH > 0 ? Math.min(100, (window.scrollY / _irtDocH) * 100) : 0;
+                bar.style.width = pct + '%';
+                _irtTicking = false;
+            });
+            _irtTicking = true;
+        }
     };
     window.removeEventListener('scroll', window._readingProgressFn);
     window._readingProgressFn = updateProgress;
@@ -2546,71 +2662,123 @@ function renderUploadModal() {
 function renderHeader()
 {
     const d=state.darkMode; const l=state.language;
-    const mainPages=['home','imams','dua','library','blog','tasbeeh'];
-    const morePages=['media','calendar','quiz','familyTree','bookmarks','about','contact'];
-    const bg=d?'rgba(17,24,39,0.92)':'rgba(255,255,255,0.88)';
-    const border=d?'rgba(52,211,153,0.1)':'rgba(5,150,105,0.12)';
+    const mainPages=['home','blog','library','dua','calendar'];
+    const morePages=['imams','tasbeeh','media','quiz','familyTree','bookmarks','about','contact'];
+    const bg   = d ? 'rgba(6,20,16,.95)'      : 'rgba(255,255,255,.90)';
+    const border = d ? 'rgba(52,211,153,.08)' : 'rgba(5,150,105,.10)';
+    const pageIcons={home:'🏠',imams:'👑',dua:'🤲',library:'📚',blog:'📝',tasbeeh:'📿',
+        media:'🎬',calendar:'📅',quiz:'🧠',familyTree:'🌳',bookmarks:'🔖',about:'ℹ️',contact:'📞'};
     return `
-    <header style="background:${bg};border-bottom:1px solid ${border};" class="sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto px-4 py-3">
+    <header style="background:${bg};border-bottom:1.5px solid ${border};" class="sticky top-0 z-30" id="main-header">
+        <div class="max-w-7xl mx-auto px-4" style="padding-top:10px;padding-bottom:10px">
             <div class="flex items-center justify-between gap-2">
+
+                <!-- LEFT: Hamburger + Logo -->
                 <div class="flex items-center gap-3">
-                    <button data-action="toggleMenu" class="md:hidden p-2 rounded-xl focus:outline-none transition-all hover:scale-110 hamburger-btn" style="background:${d?'rgba(255,255,255,.07)':'rgba(0,0,0,.05)'}">
-                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="transition:transform .3s ease"><line x1="1" y1="4" x2="17" y2="4" style="transition:all .3s ease;transform-origin:9px 4px"/><line x1="1" y1="9" x2="17" y2="9" style="transition:opacity .3s ease"/><line x1="1" y1="14" x2="17" y2="14" style="transition:all .3s ease;transform-origin:9px 14px"/></svg>
+                    <!-- Hamburger (mobile) -->
+                    <button data-action="toggleMenu" aria-label="মেনু"
+                        class="md:hidden focus:outline-none transition-all hover:scale-110"
+                        style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:${d?'rgba(255,255,255,.07)':'rgba(0,0,0,.05)'}">
+                        <svg width="18" height="14" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <line x1="0" y1="1" x2="18" y2="1"/>
+                            <line x1="3" y1="7" x2="18" y2="7"/>
+                            <line x1="6" y1="13" x2="18" y2="13"/>
+                        </svg>
                     </button>
-                    <button data-action="changePage" data-param="home" class="flex items-center gap-2.5 focus:outline-none group">
-                        <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#059669,#065f46);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(5,150,105,.4);transition:transform var(--t-spring)" class="group-hover:scale-110">
-                            <span style="font-family:'Amiri',serif;font-size:1.1rem;color:white">☽</span>
+
+                    <!-- Logo -->
+                    <button data-action="changePage" data-param="home"
+                        class="flex items-center gap-2.5 focus:outline-none group" aria-label="হোম">
+                        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#059669,#065f46);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 16px rgba(5,150,105,.45);transition:transform var(--t-spring),box-shadow var(--t-base)" class="group-hover:scale-110">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 3C8 3 4.5 6.5 4.5 11C4.5 15.5 8 19 12 19C10 16.5 9 14 9 11C9 7.5 10.5 4.5 14 3.5C13.4 3.2 12.7 3 12 3Z" fill="#fbbf24" opacity=".95"/>
+                                <circle cx="16" cy="6" r="2" fill="white" opacity=".9"/>
+                                <circle cx="13.5" cy="3" r="1.2" fill="#fde68a" opacity=".85"/>
+                            </svg>
                         </div>
                         <div class="hidden sm:block">
                             <div class="font-bold text-sm leading-tight" style="background:linear-gradient(135deg,#059669,#b45309);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${l==='bn'?'আহলে বাইত':'Ahl al-Bayt'}</div>
-                            <div class="text-xs leading-tight" style="color:${d?'#34d399':'#059669'}">${l==='bn'?'ইসলামিক জ্ঞান':'Islamic Knowledge'}</div>
+                            <div class="text-xs leading-tight" style="color:${d?'#34d399':'#059669'};opacity:.85">${l==='bn'?'ইসলামিক জ্ঞান':'Islamic Knowledge'}</div>
                         </div>
                     </button>
                 </div>
-                <nav class="hidden md:flex items-center gap-1">
+
+                <!-- CENTER: Desktop nav -->
+                <nav class="hidden md:flex items-center gap-0.5">
                     ${mainPages.map(page=>`
                     <button data-action="changePage" data-param="${page}"
-                        class="nav-pill px-3.5 py-2 rounded-xl text-sm font-medium focus:outline-none transition-all
-                        ${state.currentPage===page?(d?'bg-emerald-900/60 text-emerald-300':'bg-emerald-50 text-emerald-700'):(d?'text-gray-300 hover:text-white hover:bg-white/5':'text-gray-600 hover:text-gray-900 hover:bg-gray-50')}"
-                        ${state.currentPage===page?'style="font-weight:700"':''}
-                    >${t(page)}</button>`).join('')}
+                        class="nav-pill px-3.5 py-2 rounded-xl text-sm focus:outline-none transition-all
+                        ${state.currentPage===page
+                            ?(d?'bg-emerald-900/60 text-emerald-300 font-bold':'bg-emerald-50 text-emerald-700 font-bold')
+                            :(d?'text-gray-400 hover:text-white hover:bg-white/5 font-medium':'text-gray-600 hover:text-gray-900 hover:bg-gray-50 font-medium')}
+                        ${state.currentPage===page?'active':''}"
+                        style="${state.currentPage===page?'font-weight:700':''}"
+                    >${pageIcons[page]??''} ${t(page)}</button>`).join('')}
+
+                    <!-- More dropdown -->
                     <div class="relative" id="more-menu-wrap">
-                        <button onclick="document.getElementById('more-dropdown').classList.toggle('hidden')"
-                            class="px-3.5 py-2 rounded-xl text-sm font-medium flex items-center gap-1 focus:outline-none transition-all hover:bg-white/5"
+                        <button onclick="const dd=document.getElementById('more-dropdown');dd.classList.toggle('hidden')"
+                            class="px-3.5 py-2 rounded-xl text-sm font-medium flex items-center gap-1 focus:outline-none transition-all"
                             style="color:${d?'#9ca3af':'#6b7280'}">
-                            ${l==='bn'?'আরো':'More'} <span style="font-size:9px;opacity:.6">▾</span>
+                            ${l==='bn'?'আরো':'More'}
+                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 3.5l3 3 3-3"/></svg>
                         </button>
-                        <div id="more-dropdown" class="hidden absolute right-0 top-full mt-2 w-44 rounded-2xl shadow-2xl z-50 py-1.5 overflow-hidden"
-                            style="background:${d?'rgba(17,24,39,.97)':'rgba(255,255,255,.97)'};backdrop-filter:blur(20px);border:1px solid ${border}">
+                        <div id="more-dropdown" class="hidden absolute right-0 top-full mt-2 w-48 rounded-2xl shadow-2xl z-50 py-2 overflow-hidden"
+                            style="background:${d?'rgba(6,20,16,.97)':'rgba(255,255,255,.97)'};backdrop-filter:blur(24px);border:1px solid ${border}">
                             ${morePages.map(page=>`
                             <button data-action="changePage" data-param="${page}"
-                                class="flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm transition-colors
-                                ${state.currentPage===page?(d?'bg-emerald-900/50 text-emerald-300':'bg-emerald-50 text-emerald-700'):(d?'text-gray-300 hover:bg-white/5':'text-gray-700 hover:bg-gray-50')}"
-                            >${t(page)}</button>`).join('')}
+                                class="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm transition-all
+                                ${state.currentPage===page?(d?'bg-emerald-900/50 text-emerald-300 font-semibold':'bg-emerald-50 text-emerald-700 font-semibold'):(d?'text-gray-300 hover:bg-white/5':'text-gray-700 hover:bg-gray-50')}"
+                            ><span style="font-size:.95rem">${pageIcons[page]??'📄'}</span>${t(page)}</button>`).join('')}
                         </div>
                     </div>
                 </nav>
-                <div class="flex items-center gap-1.5">
-                    <button data-action="changePage" data-param="searchPage"
-                        class="p-2 rounded-xl focus:outline-none transition-all hover:scale-110"
-                        style="background:${d?'rgba(255,255,255,.07)':'rgba(0,0,0,.05)'};color:${d?'#9ca3af':'#6b7280'}">
-                        <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="9" r="6"/><path d="M13.5 13.5L18 18"/></svg>
+
+                <!-- RIGHT: Utility buttons -->
+                <div class="flex items-center gap-1">
+                    <!-- Search -->
+                    <button data-action="changePage" data-param="searchPage" aria-label="সার্চ"
+                        class="focus:outline-none transition-all hover:scale-110"
+                        style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:${d?'rgba(255,255,255,.07)':'rgba(0,0,0,.05)'};color:${d?'#9ca3af':'#6b7280'}">
+                        <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="9" cy="9" r="6"/><path d="M13.5 13.5L18 18"/></svg>
                     </button>
+
+                    <!-- Font size +/- -->
                     <div class="flex items-center gap-0.5 rounded-xl px-1 py-1" style="background:${d?'rgba(255,255,255,.07)':'rgba(0,0,0,.05)'}">
-                        <button data-action="setFontSize" data-param="${fontSizes[Math.max(0,fontSizes.indexOf(state.fontSize)-1)]}" class="w-6 h-6 rounded-lg flex items-center justify-center font-bold focus:outline-none hover:scale-110 transition-all" style="color:${d?'#9ca3af':'#6b7280'}">−</button>
+                        <button data-action="setFontSize" data-param="${fontSizes[Math.max(0,fontSizes.indexOf(state.fontSize)-1)]}"
+                            class="w-6 h-6 rounded-lg flex items-center justify-center font-bold focus:outline-none hover:scale-110 transition-all"
+                            style="color:${d?'#9ca3af':'#6b7280'}">−</button>
                         <span class="text-xs font-bold px-0.5 select-none" style="color:${d?'#6b7280':'#9ca3af'}">A</span>
-                        <button data-action="setFontSize" data-param="${fontSizes[Math.min(fontSizes.length-1,fontSizes.indexOf(state.fontSize)+1)]}" class="w-6 h-6 rounded-lg flex items-center justify-center font-bold focus:outline-none hover:scale-110 transition-all" style="color:${d?'#9ca3af':'#6b7280'}">+</button>
+                        <button data-action="setFontSize" data-param="${fontSizes[Math.min(fontSizes.length-1,fontSizes.indexOf(state.fontSize)+1)]}"
+                            class="w-6 h-6 rounded-lg flex items-center justify-center font-bold focus:outline-none hover:scale-110 transition-all"
+                            style="color:${d?'#9ca3af':'#6b7280'}">+</button>
                     </div>
+
+                    <!-- Admin -->
                     ${adminBtn()}
-                    <button data-action="toggleLanguage" class="px-2.5 py-2 rounded-xl text-xs font-bold focus:outline-none hover:scale-105 transition-all" style="background:${d?'rgba(255,255,255,.07)':'rgba(0,0,0,.05)'};color:${d?'#d1d5db':'#374151'}">${l==='bn'?'EN':'বাং'}</button>
-                    <button data-action="toggleDarkMode" class="p-2 rounded-xl focus:outline-none hover:scale-110 transition-all" style="background:${d?'rgba(255,255,255,.07)':'rgba(0,0,0,.05)'};color:${d?'#fbbf24':'#6b7280'}">${d?'☀️':'🌙'}</button>
+
+                    <!-- Language -->
+                    <button data-action="toggleLanguage"
+                        class="px-2.5 py-1.5 rounded-xl text-xs font-bold focus:outline-none hover:scale-105 transition-all"
+                        style="background:${d?'rgba(255,255,255,.07)':'rgba(0,0,0,.05)'};color:${d?'#d1d5db':'#374151'}">
+                        ${l==='bn'?'EN':'বাং'}
+                    </button>
+
+                    <!-- Dark mode -->
+                    <button data-action="toggleDarkMode" aria-label="থিম পরিবর্তন"
+                        class="focus:outline-none hover:scale-110 transition-all"
+                        style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:${d?'rgba(251,191,36,.12)':'rgba(0,0,0,.05)'}">
+                        ${d
+                            ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+                            : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>'
+                        }
+                    </button>
                 </div>
+
             </div>
         </div>
     </header>`;
 }
-
 // ============================================================================
 // MOBILE MENU
 // ============================================================================
@@ -2618,140 +2786,258 @@ function renderMobileMenu()
 {
     const d=state.darkMode; const l=state.language;
     const allPages=['home','blog','dua','imams','familyTree','library','media','calendar','tasbeeh','quiz','bookmarks','about','contact','searchPage','analytics'];
-    const icons={home:'🏠',blog:'📝',imams:'👑',familyTree:'🌳',dua:'🤲',library:'📚',media:'🎬',calendar:'📅',tasbeeh:'📿',quiz:'🧠',bookmarks:'🔖',about:'ℹ️',contact:'📞',searchPage:'🔍',analytics:'📊'};
+    const icons={home:'🏠',blog:'📝',imams:'👑',familyTree:'🌳',dua:'🤲',library:'📚',
+        media:'🎬',calendar:'📅',tasbeeh:'📿',quiz:'🧠',bookmarks:'🔖',
+        about:'ℹ️',contact:'📞',searchPage:'🔍',analytics:'📊'};
+    const border = d?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)';
     return `
-    <div id="mobile-menu-backdrop" class="fixed inset-0 z-40 ${state.menuOpen?'show':'hidden'}" style="background:rgba(0,0,0,.55);backdrop-filter:blur(4px)" data-action="toggleMenu"></div>
-    <div class="mobile-menu ${state.menuOpen?'open':''} fixed top-0 left-0 bottom-0 z-50 w-72 overflow-y-auto"
-        style="background:${d?'rgba(17,24,39,.98)':'rgba(255,255,255,.98)'};backdrop-filter:blur(20px);box-shadow:8px 0 40px rgba(0,0,0,.2);border-right:1px solid ${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)'}">
-        <div class="flex items-center justify-between p-5 pb-4" style="border-bottom:1px solid ${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)'}">
+    <!-- Backdrop -->
+    <div id="mobile-menu-backdrop"
+        class="fixed inset-0 z-40 ${state.menuOpen?'show':'hidden'}"
+        style="background:rgba(0,0,0,.6);backdrop-filter:blur(6px)"
+        data-action="toggleMenu"></div>
+
+    <!-- Drawer -->
+    <div class="mobile-menu ${state.menuOpen?'open':''} fixed top-0 left-0 bottom-0 z-50 w-72 overflow-y-auto flex flex-col"
+        style="background:${d?'rgba(6,18,14,.98)':'rgba(255,255,255,.98)'};backdrop-filter:blur(24px);box-shadow:12px 0 48px rgba(0,0,0,.25);border-right:1px solid ${border}">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between p-5" style="border-bottom:1px solid ${border};flex-shrink:0">
             <div class="flex items-center gap-3">
-                <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#059669,#065f46);display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(5,150,105,.4)"><span style="font-family:'Amiri',serif;font-size:1rem;color:white">☽</span></div>
-                <span class="font-bold">${l==='bn'?'আহলে বাইত':'Ahl al-Bayt'}</span>
+                <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#059669,#065f46);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(5,150,105,.4)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 3C8 3 4.5 6.5 4.5 11C4.5 15.5 8 19 12 19C10 16.5 9 14 9 11C9 7.5 10.5 4.5 14 3.5C13.4 3.2 12.7 3 12 3Z" fill="#fbbf24"/>
+                        <circle cx="16" cy="6" r="1.8" fill="white" opacity=".9"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="font-bold text-sm" style="background:linear-gradient(135deg,#059669,#b45309);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${l==='bn'?'আহলে বাইত':'Ahl al-Bayt'}</div>
+                    <div class="text-xs" style="color:${d?'#34d399':'#059669'};opacity:.8">${l==='bn'?'ইসলামিক জ্ঞান':'Islamic Knowledge'}</div>
+                </div>
             </div>
-            <button data-action="toggleMenu" class="w-8 h-8 rounded-xl flex items-center justify-center hover:scale-110 transition-all" style="background:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'}">✕</button>
+            <button data-action="toggleMenu" aria-label="বন্ধ"
+                style="width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'};color:${d?'#9ca3af':'#6b7280'}"
+                class="hover:scale-110 transition-all focus:outline-none">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                    <path d="M1 1l12 12M13 1L1 13"/>
+                </svg>
+            </button>
         </div>
-        <nav class="p-4 space-y-1">
-            ${allPages.map(page=>`
-            <button data-action="changePage" data-param="${page}"
-                class="flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-sm font-semibold transition-all hover:scale-[1.015] focus:outline-none text-left"
-                style="${state.currentPage===page
-                    ?'background:linear-gradient(135deg,rgba(5,150,105,.16),rgba(5,150,105,.07));color:#059669;border:1px solid rgba(5,150,105,.18)'
-                    :(d?'color:#d1d5db;border:1px solid transparent':'color:#374151;border:1px solid transparent')}">
-                <span style="width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;${state.currentPage===page?'background:rgba(5,150,105,.14)':'background:'+(d?'rgba(255,255,255,.05)':'rgba(0,0,0,.04)')}">
-                    ${icons[page]||'📄'}
-                </span>
-                ${t(page)}
-                ${state.currentPage===page?'<span style="margin-left:auto;color:#059669;font-size:.65rem">●</span>':''}
-            </button>`).join('')}
+
+        <!-- Nav items -->
+        <nav class="p-3 flex-1 space-y-1" style="overflow-y:auto">
+            ${allPages.map(page=>{
+                const active = state.currentPage===page;
+                return `
+                <button data-action="changePage" data-param="${page}"
+                    class="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-2xl text-sm transition-all focus:outline-none text-left"
+                    style="${active
+                        ? 'background:linear-gradient(135deg,rgba(5,150,105,.18),rgba(5,150,105,.08));color:#059669;border:1.5px solid rgba(5,150,105,.22);font-weight:700'
+                        : 'border:1.5px solid transparent;color:'+(d?'#d1d5db':'#374151')+';font-weight:500'}">
+                    <span style="width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;${active?'background:rgba(5,150,105,.16)':'background:'+(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.05)')}">
+                        ${icons[page]||'📄'}
+                    </span>
+                    <span class="flex-1">${t(page)}</span>
+                    ${active?'<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round"><path d="M2 6h8M6 2l4 4-4 4"/></svg>':''}
+                </button>`;
+            }).join('')}
         </nav>
-        <div class="p-4" style="border-top:1px solid ${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)'}">
-            <div class="flex gap-2">
-                <button data-action="toggleDarkMode" class="flex-1 py-2.5 rounded-2xl text-sm font-bold hover:scale-[1.02] transition-all" style="background:${d?'rgba(251,191,36,.1)':'rgba(0,0,0,.05)'};color:${d?'#fbbf24':'#6b7280'}">${d?'☀️ Light':'🌙 Dark'}</button>
-                <button data-action="toggleLanguage" class="flex-1 py-2.5 rounded-2xl text-sm font-bold hover:scale-[1.02] transition-all" style="background:${d?'rgba(255,255,255,.07)':'rgba(0,0,0,.05)'};color:${d?'#d1d5db':'#374151'}">${l==='bn'?'🌐 EN':'🌐 বাং'}</button>
+
+        <!-- Footer controls -->
+        <div class="p-4" style="border-top:1px solid ${border};flex-shrink:0">
+            <div class="grid grid-cols-2 gap-2">
+                <button data-action="toggleDarkMode"
+                    class="py-3 rounded-2xl text-sm font-bold hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+                    style="background:${d?'rgba(251,191,36,.12)':'rgba(0,0,0,.05)'};color:${d?'#fbbf24':'#6b7280'}">
+                    ${d
+                        ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2"/></svg> Light'
+                        : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg> Dark'
+                    }
+                </button>
+                <button data-action="toggleLanguage"
+                    class="py-3 rounded-2xl text-sm font-bold hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+                    style="background:${d?'rgba(5,150,105,.12)':'rgba(5,150,105,.08)'};color:${d?'#34d399':'#059669'}">
+                    🌐 ${l==='bn'?'English':'বাংলা'}
+                </button>
             </div>
         </div>
     </div>`;
 }
-
 // ============================================================================
 // FOOTER
 // ============================================================================
 function renderFooter()
 {
     const l=state.language;
+    const socialLinks=[
+        ['https://www.facebook.com/profile.php?id=100090495041094','#1877f2',l==='bn'?'ফেসবুক':'Facebook','<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>'],
+        ['https://www.instagram.com/ahl.al.bayt.a.s/','#e1306c',l==='bn'?'ইনস্টাগ্রাম':'Instagram','<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>'],
+        ['https://www.youtube.com/@Ahl_al-Bayt_a.s','#ff0000',l==='bn'?'ইউটিউব':'YouTube','<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>'],
+        ['https://x.com/Ahl_al_Bayt_a_s','#e7e9ea','X / Twitter','<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>'],
+    ];
+    const quickLinks=['home','blog','imams','dua','library','tasbeeh','quiz','asmaul','qibla','contact'];
     return `
-    <footer class="footer-luxury mt-16">
-        <!-- Mosque Silhouette SVG -->
-        <div style="width:100%;overflow:hidden;line-height:0;opacity:.18;margin-bottom:-2px">
-            <svg viewBox="0 0 1200 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100px">
-                <!-- Ground platform -->
-                <rect x="150" y="118" width="900" height="12" rx="2" fill="#065f46" opacity=".7"/>
-                <!-- Steps -->
-                <rect x="430" y="110" width="340" height="8" rx="2" fill="#059669" opacity=".5"/>
-                <rect x="460" y="104" width="280" height="6" rx="2" fill="#059669" opacity=".4"/>
-                <!-- Main body wall -->
-                <rect x="320" y="60" width="560" height="58" rx="0" fill="#047857" opacity=".6"/>
-                <!-- Arched windows on main wall -->
-                <path d="M380 118 L380 80 Q395 65 410 80 L410 118Z" fill="#022c22" opacity=".5"/>
-                <path d="M450 118 L450 80 Q465 65 480 80 L480 118Z" fill="#022c22" opacity=".5"/>
-                <path d="M720 118 L720 80 Q735 65 750 80 L750 118Z" fill="#022c22" opacity=".5"/>
-                <path d="M790 118 L790 80 Q805 65 820 80 L820 118Z" fill="#022c22" opacity=".5"/>
-                <!-- Central gate arch -->
-                <path d="M540 118 L540 70 Q600 42 660 70 L660 118Z" fill="#022c22" opacity=".6"/>
-                <!-- Main large dome -->
-                <path d="M510 60 Q600 5 690 60Z" fill="#059669" opacity=".9"/>
-                <!-- Dome lantern top -->
-                <rect x="594" y="5" width="12" height="18" rx="3" fill="#c9a227" opacity=".9"/>
-                <circle cx="600" cy="4" r="5" fill="#c9a227" opacity=".95"/>
-                <!-- Left medium dome -->
-                <path d="M350 60 Q410 28 470 60Z" fill="#047857" opacity=".75"/>
-                <rect x="407" y="28" width="7" height="12" rx="2" fill="#b45309" opacity=".8"/>
-                <!-- Right medium dome -->
-                <path d="M730 60 Q790 28 850 60Z" fill="#047857" opacity=".75"/>
-                <rect x="787" y="28" width="7" height="12" rx="2" fill="#b45309" opacity=".8"/>
-                <!-- Left tall minaret -->
-                <rect x="218" y="20" width="24" height="98" rx="3" fill="#065f46" opacity=".85"/>
-                <rect x="215" y="52" width="30" height="5" rx="2" fill="#059669" opacity=".6"/>
-                <rect x="215" y="72" width="30" height="5" rx="2" fill="#059669" opacity=".6"/>
-                <path d="M218 20 Q230 2 242 20Z" fill="#c9a227" opacity=".9"/>
-                <circle cx="230" cy="1" r="4" fill="#c9a227" opacity=".95"/>
-                <!-- Left inner minaret -->
-                <rect x="300" y="38" width="18" height="80" rx="2" fill="#059669" opacity=".7"/>
-                <rect x="298" y="62" width="22" height="4" rx="1" fill="#047857" opacity=".6"/>
-                <path d="M300 38 Q309 20 318 38Z" fill="#b45309" opacity=".85"/>
-                <!-- Right inner minaret -->
-                <rect x="882" y="38" width="18" height="80" rx="2" fill="#059669" opacity=".7"/>
-                <rect x="880" y="62" width="22" height="4" rx="1" fill="#047857" opacity=".6"/>
-                <path d="M882 38 Q891 20 900 38Z" fill="#b45309" opacity=".85"/>
-                <!-- Right tall minaret -->
-                <rect x="958" y="20" width="24" height="98" rx="3" fill="#065f46" opacity=".85"/>
-                <rect x="955" y="52" width="30" height="5" rx="2" fill="#059669" opacity=".6"/>
-                <rect x="955" y="72" width="30" height="5" rx="2" fill="#059669" opacity=".6"/>
-                <path d="M958 20 Q970 2 982 20Z" fill="#c9a227" opacity=".9"/>
-                <circle cx="970" cy="1" r="4" fill="#c9a227" opacity=".95"/>
-                <!-- Stars -->
-                <circle cx="150" cy="40" r="2" fill="#fcd34d" opacity=".7"/>
-                <circle cx="1050" cy="35" r="2" fill="#fcd34d" opacity=".7"/>
-                <circle cx="600" cy="50" r="1.5" fill="#fef3c7" opacity=".6"/>
+    <footer class="footer-luxury mt-16" style="position:relative;overflow:hidden">
+
+        <!-- Geo pattern overlay -->
+        <div style="position:absolute;inset:0;pointer-events:none;opacity:.06;background-image:repeating-linear-gradient(60deg,transparent,transparent 38px,rgba(5,150,105,1) 38px,rgba(5,150,105,1) 39px),repeating-linear-gradient(-60deg,transparent,transparent 38px,rgba(180,83,9,.8) 38px,rgba(180,83,9,.8) 39px)"></div>
+
+        <!-- Gold shimmer top border -->
+        <div style="height:2px;background:linear-gradient(90deg,transparent,#059669,#c9a227,#059669,transparent);background-size:200% 100%;animation:goldShimmer 3s linear infinite"></div>
+
+        <!-- Mosque silhouette -->
+        <div style="width:100%;overflow:hidden;line-height:0;opacity:.22;margin-bottom:-2px">
+            <svg viewBox="0 0 1200 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:110px">
+                <rect x="150" y="118" width="900" height="12" rx="2" fill="#065f46" opacity=".8"/>
+                <rect x="430" y="110" width="340" height="8" rx="2" fill="#059669" opacity=".6"/>
+                <rect x="460" y="104" width="280" height="6" rx="2" fill="#059669" opacity=".5"/>
+                <rect x="320" y="60" width="560" height="58" fill="#047857" opacity=".7"/>
+                <path d="M380 118 L380 80 Q395 65 410 80 L410 118Z" fill="#022c22" opacity=".6"/>
+                <path d="M450 118 L450 80 Q465 65 480 80 L480 118Z" fill="#022c22" opacity=".6"/>
+                <path d="M720 118 L720 80 Q735 65 750 80 L750 118Z" fill="#022c22" opacity=".6"/>
+                <path d="M790 118 L790 80 Q805 65 820 80 L820 118Z" fill="#022c22" opacity=".6"/>
+                <path d="M540 118 L540 70 Q600 42 660 70 L660 118Z" fill="#022c22" opacity=".7"/>
+                <path d="M510 60 Q600 5 690 60Z" fill="#059669" opacity=".95"/>
+                <rect x="594" y="5" width="12" height="18" rx="3" fill="#c9a227" opacity=".95"/>
+                <circle cx="600" cy="4" r="5.5" fill="#c9a227"/>
+                <path d="M350 60 Q410 28 470 60Z" fill="#047857" opacity=".8"/>
+                <rect x="407" y="28" width="7" height="12" rx="2" fill="#b45309" opacity=".9"/>
+                <path d="M730 60 Q790 28 850 60Z" fill="#047857" opacity=".8"/>
+                <rect x="787" y="28" width="7" height="12" rx="2" fill="#b45309" opacity=".9"/>
+                <rect x="218" y="20" width="24" height="98" rx="3" fill="#065f46" opacity=".9"/>
+                <rect x="215" y="52" width="30" height="5" rx="2" fill="#34d399" opacity=".5"/>
+                <rect x="215" y="72" width="30" height="5" rx="2" fill="#34d399" opacity=".5"/>
+                <path d="M218 20 Q230 2 242 20Z" fill="#c9a227"/>
+                <circle cx="230" cy="1" r="4.5" fill="#c9a227"/>
+                <rect x="300" y="38" width="18" height="80" rx="2" fill="#059669" opacity=".75"/>
+                <path d="M300 38 Q309 20 318 38Z" fill="#b45309" opacity=".9"/>
+                <rect x="882" y="38" width="18" height="80" rx="2" fill="#059669" opacity=".75"/>
+                <path d="M882 38 Q891 20 900 38Z" fill="#b45309" opacity=".9"/>
+                <rect x="958" y="20" width="24" height="98" rx="3" fill="#065f46" opacity=".9"/>
+                <rect x="955" y="52" width="30" height="5" rx="2" fill="#34d399" opacity=".5"/>
+                <rect x="955" y="72" width="30" height="5" rx="2" fill="#34d399" opacity=".5"/>
+                <path d="M958 20 Q970 2 982 20Z" fill="#c9a227"/>
+                <circle cx="970" cy="1" r="4.5" fill="#c9a227"/>
+                <circle cx="120" cy="38" r="2.5" fill="#fcd34d" opacity=".8"/>
+                <circle cx="1080" cy="30" r="2" fill="#fcd34d" opacity=".8"/>
+                <circle cx="600" cy="48" r="1.5" fill="#fef3c7" opacity=".7"/>
+                <circle cx="300" cy="20" r="1.5" fill="#fcd34d" opacity=".6"/>
+                <circle cx="900" cy="15" r="2" fill="#fcd34d" opacity=".6"/>
             </svg>
         </div>
-        <div style="width:100%;height:28px;overflow:hidden;opacity:.25"><svg width="100%" height="28" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><defs><pattern id="fp" x="0" y="0" width="56" height="28" patternUnits="userSpaceOnUse"><path d="M0 14 L14 0 L28 14 L42 0 L56 14 L42 28 L28 14 L14 28Z" fill="none" stroke="#B45309" stroke-width="1"/><circle cx="28" cy="14" r="3" fill="#059669" opacity=".8"/></pattern></defs><rect width="100%" height="28" fill="url(#fp)"/></svg></div>
-        <div class="max-w-7xl mx-auto px-4 pt-10 pb-8 relative z-10">
+
+        <!-- Islamic geometric divider -->
+        <div style="width:100%;height:24px;overflow:hidden;opacity:.18">
+            <svg width="100%" height="24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+                <defs><pattern id="fp2" x="0" y="0" width="48" height="24" patternUnits="userSpaceOnUse">
+                    <path d="M0 12 L12 0 L24 12 L36 0 L48 12 L36 24 L24 12 L12 24Z" fill="none" stroke="#B45309" stroke-width="1"/>
+                    <circle cx="24" cy="12" r="2.5" fill="#059669" opacity=".9"/>
+                </pattern></defs>
+                <rect width="100%" height="24" fill="url(#fp2)"/>
+            </svg>
+        </div>
+
+        <!-- Main content -->
+        <div class="max-w-7xl mx-auto px-4 pt-10 pb-8" style="position:relative;z-index:10">
             <div class="grid md:grid-cols-3 gap-10">
+
+                <!-- Brand column -->
                 <div>
-                    <div class="flex items-center gap-3 mb-4"><div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#059669,#065f46);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(5,150,105,.4)"><span style="font-family:'Amiri',serif;font-size:1.2rem;color:white">☽</span></div><h3 class="font-bold text-xl text-white">${l==='bn'?'আহলে বাইত (আ.)':'Ahl al-Bayt (a.s)'}</h3></div>
-                    <p class="text-gray-400 text-sm leading-relaxed mb-5">${l==='bn'?'ইসলামিক জ্ঞান ও শিক্ষার জন্য আপনার বিশ্বস্ত উৎস':'Your trusted source for Islamic knowledge and education'}</p>
-                    <div class="flex gap-3">
-                        ${[
-['https://www.facebook.com/profile.php?id=100090495041094','#1877f2','<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>'],
-['https://www.instagram.com/ahl.al.bayt.a.s/','#e1306c','<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>'],
-['https://www.youtube.com/@Ahl_al-Bayt_a.s','#ff0000','<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>'],
-['https://x.com/Ahl_al_Bayt_a_s','#e7e9ea','<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>']
-].map(([href,c,svg])=>`<a href="${href}" target="_blank" rel="noopener noreferrer" style="width:38px;height:38px;border-radius:10px;background:${c}22;border:1px solid ${c}33;display:flex;align-items:center;justify-content:center;color:${c};transition:transform var(--t-spring)" class="hover:scale-110">${svg}</a>`).join('')}
+                    <div class="flex items-center gap-3 mb-5">
+                        <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#059669,#065f46);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(5,150,105,.45);flex-shrink:0">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 3C8 3 4.5 6.5 4.5 11C4.5 15.5 8 19 12 19C10 16.5 9 14 9 11C9 7.5 10.5 4.5 14 3.5C13.4 3.2 12.7 3 12 3Z" fill="#fbbf24" opacity=".95"/>
+                                <circle cx="16" cy="6" r="2" fill="white" opacity=".9"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-white leading-tight">${l==='bn'?'আহলে বাইত (আ.)':'Ahl al-Bayt (a.s)'}</h3>
+                            <p class="text-xs" style="color:rgba(52,211,153,.7)">${l==='bn'?'ইসলামিক জ্ঞান কেন্দ্র':'Islamic Knowledge Center'}</p>
+                        </div>
+                    </div>
+                    <p class="text-sm leading-relaxed mb-5" style="color:rgba(255,255,255,.52)">
+                        ${l==='bn'
+                            ?'কুরআন, হাদিস ও আহলে বাইত (আ.)-এর শিক্ষায় আলোকিত হওয়ার জন্য আপনার বিশ্বস্ত উৎস।'
+                            :"Your trusted source for enlightenment through Quran, Hadith & Ahl al-Bayt's (AS) teachings."}
+                    </p>
+                    <!-- Social links -->
+                    <div class="flex gap-2 flex-wrap">
+                        ${socialLinks.map(([href,color,label,svg])=>`
+                        <a href="${href}" target="_blank" rel="noopener noreferrer" title="${label}"
+                            style="width:40px;height:40px;border-radius:12px;background:${color}20;border:1px solid ${color}35;
+                            display:flex;align-items:center;justify-content:center;color:${color};
+                            transition:transform var(--t-spring),box-shadow var(--t-base)"
+                            onmouseover="this.style.transform='scale(1.18) translateY(-3px)';this.style.boxShadow='0 8px 20px ${color}45'"
+                            onmouseout="this.style.transform='';this.style.boxShadow=''">
+                            ${svg}
+                        </a>`).join('')}
                     </div>
                 </div>
+
+                <!-- Quick links -->
                 <div>
-                    <h4 class="font-bold text-white mb-4">${l==='bn'?'দ্রুত লিংক':'Quick Links'}</h4>
-                    <div class="grid grid-cols-2 gap-y-2">
-                        ${['home','blog','imams','library','tasbeeh','quiz','asmaul','qibla','contact'].map(p=>`<button data-action="changePage" data-param="${p}" class="text-left text-sm text-gray-400 hover:text-emerald-400 transition-colors">${t(p)}</button>`).join('')}
+                    <h4 class="font-bold text-white mb-4 flex items-center gap-2">
+                        <span style="width:20px;height:2px;background:linear-gradient(90deg,#059669,#c9a227);border-radius:2px"></span>
+                        ${l==='bn'?'দ্রুত লিংক':'Quick Links'}
+                    </h4>
+                    <div class="grid grid-cols-2 gap-y-2 gap-x-3">
+                        ${quickLinks.map(p=>`
+                        <button data-action="changePage" data-param="${p}"
+                            class="text-left text-sm transition-all hover:translate-x-1"
+                            style="color:rgba(255,255,255,.5);display:flex;align-items:center;gap:5px"
+                            onmouseover="this.style.color='#34d399'"
+                            onmouseout="this.style.color='rgba(255,255,255,.5)'">
+                            <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+                            ${t(p)}
+                        </button>`).join('')}
                     </div>
                 </div>
+
+                <!-- Contact -->
                 <div>
-                    <h4 class="font-bold text-white mb-4">${l==='bn'?'যোগাযোগ':'Contact'}</h4>
-                    <div class="space-y-3 text-sm text-gray-400">
-                        <p>✉ theroleofahlalbaytas@gmail.com</p>
-                        <p>☎ +880 1636428274</p>
+                    <h4 class="font-bold text-white mb-4 flex items-center gap-2">
+                        <span style="width:20px;height:2px;background:linear-gradient(90deg,#059669,#c9a227);border-radius:2px"></span>
+                        ${l==='bn'?'যোগাযোগ':'Contact'}
+                    </h4>
+                    <div class="space-y-3">
+                        <a href="mailto:theroleofahlalbaytas@gmail.com"
+                            class="flex items-center gap-3 text-sm transition-all"
+                            style="color:rgba(255,255,255,.5)"
+                            onmouseover="this.style.color='#34d399'"
+                            onmouseout="this.style.color='rgba(255,255,255,.5)'">
+                            <span style="width:32px;height:32px;border-radius:10px;background:rgba(5,150,105,.15);border:1px solid rgba(5,150,105,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                            </span>
+                            theroleofahlalbaytas@gmail.com
+                        </a>
+                        <a href="tel:+8801636428274"
+                            class="flex items-center gap-3 text-sm transition-all"
+                            style="color:rgba(255,255,255,.5)"
+                            onmouseover="this.style.color='#34d399'"
+                            onmouseout="this.style.color='rgba(255,255,255,.5)'">
+                            <span style="width:32px;height:32px;border-radius:10px;background:rgba(5,150,105,.15);border:1px solid rgba(5,150,105,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.5a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .82h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                            </span>
+                            +880 1636428274
+                        </a>
                     </div>
                 </div>
             </div>
-            <div class="border-t border-white/5 mt-8 pt-7 text-center">
-                <p class="arabic-text mb-2" style="color:#34d399;font-size:1.6rem" dir="rtl">اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَآلِ مُحَمَّدٍ</p>
-                <p class="text-sm text-gray-600">© ${new Date().getFullYear()} ${l==='bn'?'আহলে বাইত (আ.)':'Ahl al-Bayt (a.s)'}. ${l==='bn'?'সর্বস্বত্ব সংরক্ষিত।':'All rights reserved.'}</p>
+
+            <!-- Bottom bar -->
+            <div style="border-top:1px solid rgba(255,255,255,.06);margin-top:2.5rem;padding-top:1.75rem;text-align:center">
+                <p class="arabic-text mb-2" dir="rtl"
+                    style="font-size:1.55rem;background:linear-gradient(135deg,#34d399,#c9a227);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+                    اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَآلِ مُحَمَّدٍ
+                </p>
+                <p class="text-xs" style="color:rgba(255,255,255,.28)">
+                    © ${new Date().getFullYear()} ${l==='bn'?'আহলে বাইত (আ.)':'Ahl al-Bayt (a.s)'}
+                    · ${l==='bn'?'সর্বস্বত্ব সংরক্ষিত':'All rights reserved'}
+                </p>
             </div>
         </div>
     </footer>`;
 }
-
 // ============================================================================
 // PRAYER TIMES WIDGET
 // ============================================================================
@@ -2759,366 +3045,656 @@ function renderPrayerWidget()
 {
     const d=state.darkMode; const l=state.language;
     const prayerIcons={fajr:'🌅',dhuhr:'☀️',asr:'🌤',maghrib:'🌇',isha:'🌙'};
+    const prayerBg={
+        fajr:   'linear-gradient(135deg,#1e3a5f,#1e40af)',
+        dhuhr:  'linear-gradient(135deg,#78350f,#b45309)',
+        asr:    'linear-gradient(135deg,#065f46,#059669)',
+        maghrib:'linear-gradient(135deg,#7f1d1d,#dc2626)',
+        isha:   'linear-gradient(135deg,#1e1b4b,#4c1d95)',
+    };
     function getActive(){
         const keys=['fajr','dhuhr','asr','maghrib','isha'];
         const now=new Date();
-        // Find the next upcoming prayer; active = the one just before it
         let nextIdx=-1;
-        for(let i=0;i<keys.length;i++){try{const[t,ap]=state.prayerTimes[keys[i]].split(' ');let[h,m]=t.split(':').map(Number);if(ap==='PM'&&h!==12)h+=12;if(ap==='AM'&&h===12)h=0;const tgt=new Date(now);tgt.setHours(h,m,0,0);if(tgt>now){nextIdx=i;break;}}catch(e){}}
-        // All prayers passed today → isha is active; before fajr → no active (return null)
+        for(let i=0;i<keys.length;i++){
+            try{
+                const[tm,ap]=state.prayerTimes[keys[i]].split(' ');
+                let[h,m]=tm.split(':').map(Number);
+                if(ap==='PM'&&h!==12)h+=12;
+                if(ap==='AM'&&h===12)h=0;
+                const tgt=new Date(now); tgt.setHours(h,m,0,0);
+                if(tgt>now){nextIdx=i;break;}
+            }catch(e){}
+        }
         if(nextIdx===-1) return 'isha';
-        if(nextIdx===0) return null;
+        if(nextIdx===0)  return null;
         return keys[nextIdx-1];
     }
-    const activePrayer=getActive();
-    const nextPrayerInfo=getNextPrayerInfo();
-    const nextPrayer=nextPrayerInfo?nextPrayerInfo.key:null;
-    const hasGPS = !!state.userLocation;
+    const activePrayer  = getActive();
+    const nextPrayerInfo= getNextPrayerInfo();
+    const nextPrayer    = nextPrayerInfo?nextPrayerInfo.key:null;
+    const hasGPS        = !!state.userLocation;
+
     return `
-    <div class="card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border" style="box-shadow:var(--shadow-md)">
+    <div class="card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border reveal" style="box-shadow:var(--shadow-md)">
         <div class="gold-top-bar" style="border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
         <div class="p-5">
+
+            <!-- Header row -->
             <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-                <h3 class="font-bold text-base flex items-center gap-2"><span style="width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#059669,#065f46);display:flex;align-items:center;justify-content:center;font-size:.85rem;box-shadow:0 3px 10px rgba(5,150,105,.4)">🕌</span>${t('prayerTimes')}</h3>
-                <button onclick="requestGPSPrayerTimes()" title="${l==='bn'?'GPS দিয়ে সঠিক সময় আনুন':'Get accurate GPS time'}"
-                    style="display:flex;align-items:center;gap:4px;font-size:.68rem;font-weight:600;padding:4px 9px;border-radius:20px;
-                           background:${hasGPS?(d?'rgba(5,150,105,.15)':'rgba(5,150,105,.1)'):(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)')};
-                           color:${hasGPS?'#059669':(d?'#9ca3af':'#6b7280')};border:1px solid ${hasGPS?'rgba(5,150,105,.25)':(d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)')};
-                           cursor:pointer;transition:all .2s">
-                    <span style="width:6px;height:6px;border-radius:50%;background:${hasGPS?'#10b981':'#9ca3af'};${hasGPS?'animation:gpsPulseDot 2s ease-in-out infinite':''}"></span>
-                    📍 ${hasGPS?(l==='bn'?'GPS সক্রিয়':'GPS Live'):(l==='bn'?'আমার লোকেশন':'My Location')}
-                </button>
+                <h3 class="font-bold text-base flex items-center gap-2">
+                    <span style="width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#059669,#065f46);display:flex;align-items:center;justify-content:center;font-size:.85rem;box-shadow:0 3px 10px rgba(5,150,105,.4)">🕌</span>
+                    ${t('prayerTimes')}
+                </h3>
+                <div class="flex items-center gap-2">
+                    <button onclick="requestGPSPrayerTimes()"
+                        style="display:flex;align-items:center;gap:5px;font-size:.68rem;font-weight:700;
+                        padding:5px 11px;border-radius:50px;cursor:pointer;transition:all .2s;
+                        background:${hasGPS?(d?'rgba(5,150,105,.2)':'rgba(5,150,105,.1)'):(d?'rgba(255,255,255,.07)':'rgba(0,0,0,.04)')};
+                        color:${hasGPS?'#059669':(d?'#9ca3af':'#6b7280')};
+                        border:1.5px solid ${hasGPS?'rgba(5,150,105,.35)':(d?'rgba(255,255,255,.12)':'rgba(0,0,0,.08)')}">
+                        <span style="width:7px;height:7px;border-radius:50%;background:${hasGPS?'#10b981':'#9ca3af'};${hasGPS?'animation:gpsPulseDot 2s ease-in-out infinite':''}"></span>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        ${hasGPS?(l==='bn'?'GPS সক্রিয়':'GPS Live'):(l==='bn'?'আমার লোকেশন':'My Location')}
+                    </button>
+                    <button data-action="changePage" data-param="prayer"
+                        style="font-size:.68rem;font-weight:700;padding:5px 11px;border-radius:50px;cursor:pointer;
+                        background:${d?'rgba(255,255,255,.07)':'rgba(0,0,0,.04)'};
+                        color:${d?'#9ca3af':'#6b7280'};
+                        border:1.5px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}">
+                        ${l==='bn'?'বিস্তারিত':'Details'}
+                    </button>
+                </div>
             </div>
-            ${state.prayerTimesLoading?`<div class="space-y-2">${[1,2,3,4,5].map(()=>`<div class="flex justify-between items-center px-3 py-2.5 rounded-xl ${d?'bg-gray-900':'bg-gray-50'}"><div class="${d?'skeleton-dark':'skeleton'}" style="width:55px;height:12px"></div><div class="${d?'skeleton-dark':'skeleton'}" style="width:60px;height:12px"></div></div>`).join('')}</div>`:
-            state.prayerTimesError?`<p class="text-center text-red-500 py-4 text-sm">${sanitize(state.prayerTimesError)}</p>`:
-            `<div class="space-y-1">
-                ${Object.entries(state.prayerTimes).map(([k,v])=>{
-                    const isActive=k===activePrayer;
-                    const isNext=k===nextPrayer;
-                    return `<div class="prayer-row flex justify-between items-center px-3 py-2.5 ${d?'bg-gray-900':'bg-gray-50'} ${isActive?'prayer-row-active':''}">
-                        <div class="flex items-center gap-2.5"><span>${prayerIcons[k]||'🕌'}</span><div><p class="font-semibold text-sm ${isActive?(d?'text-emerald-300':'text-emerald-700'):''}">${t(k)}</p>${isNext?`<p class="prayer-countdown" id="pclock-${k}">…</p>`:''}</div>${isActive?`<span class="prayer-pulse w-1.5 h-1.5 rounded-full bg-emerald-500"></span>`:''}</div>
-                        <span class="font-bold text-sm ${isActive?(d?'text-emerald-300':'text-emerald-600'):''}">${sanitize(v)}</span>
-                    </div>`;
-                }).join('')}
-            </div>
-            <p class="text-center text-xs mt-3 ${d?'text-gray-500':'text-gray-400'}">
-                ${hasGPS?`📍 ${state.userLocation.latitude.toFixed(2)}°, ${state.userLocation.longitude.toFixed(2)}° ${l==='bn'?'থেকে সঠিক সময়':'precise time'}`:`${l==='bn'?'ঢাকার আনুমানিক সময় — সঠিক সময়ের জন্য GPS চালু করুন':'Approximate Dhaka time — enable GPS for precision'}`}
-            </p>`}
+
+            <!-- Prayer rows -->
+            ${state.prayerTimesLoading
+                ? `<div class="space-y-2">${[1,2,3,4,5].map(()=>`
+                    <div class="flex justify-between items-center px-3 py-2.5 rounded-xl ${d?'bg-gray-900':'bg-gray-50'}">
+                        <div class="${d?'skeleton-dark':'skeleton'}" style="width:80px;height:13px;border-radius:6px"></div>
+                        <div class="${d?'skeleton-dark':'skeleton'}" style="width:60px;height:13px;border-radius:6px"></div>
+                    </div>`).join('')}</div>`
+                : state.prayerTimesError
+                ? `<p class="text-center text-red-500 py-4 text-sm">${sanitize(state.prayerTimesError)}</p>`
+                : `<div class="space-y-1.5">
+                    ${Object.entries(state.prayerTimes).map(([k,v])=>{
+                        const isActive = k===activePrayer;
+                        const isNext   = k===nextPrayer;
+                        return `
+                        <div class="prayer-row flex justify-between items-center px-3 py-2.5 rounded-xl
+                            ${d?'bg-gray-900/60':'bg-gray-50'}
+                            ${isActive?'prayer-row-active':''}"
+                            style="${isActive?'background:linear-gradient(135deg,rgba(5,150,105,.14),rgba(5,150,105,.06)) !important':''}">
+                            <div class="flex items-center gap-3">
+                                <span style="width:32px;height:32px;border-radius:10px;
+                                    background:${isActive?prayerBg[k]:(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.05)')};
+                                    display:flex;align-items:center;justify-content:center;
+                                    font-size:.9rem;flex-shrink:0;
+                                    transition:all var(--t-base)">
+                                    ${prayerIcons[k]||'🕌'}
+                                </span>
+                                <div>
+                                    <p class="font-semibold text-sm leading-tight
+                                        ${isActive?(d?'text-emerald-300':'text-emerald-700'):''}">
+                                        ${t(k)}
+                                    </p>
+                                    ${isNext?`<p class="prayer-countdown text-xs" id="pclock-${k}" style="color:#c9a227;font-weight:700">…</p>`:''}
+                                </div>
+                                ${isActive?`<span class="prayer-pulse" style="width:7px;height:7px;border-radius:50%;background:#10b981;margin-left:2px"></span>`:''}
+                            </div>
+                            <span class="font-bold text-sm tabular-nums
+                                ${isActive?(d?'text-emerald-300':'text-emerald-600'):(d?'text-gray-300':'text-gray-700')}">
+                                ${sanitize(v)}
+                            </span>
+                        </div>`;
+                    }).join('')}
+                </div>
+                <p class="text-center text-xs mt-3" style="color:${d?'rgba(255,255,255,.28)':'rgba(0,0,0,.35)'}">
+                    ${hasGPS
+                        ? `📍 ${state.userLocation.latitude.toFixed(2)}°, ${state.userLocation.longitude.toFixed(2)}° ${l==='bn'?'থেকে সঠিক সময়':'precise'}`
+                        : (l==='bn'?'ঢাকার আনুমানিক সময় — সঠিক সময়ের জন্য GPS চালু করুন':'Approximate Dhaka time — enable GPS for precision')}
+                </p>`}
         </div>
     </div>`;
 }
-
 // ============================================================================
 // PAGE: HOME
 // ============================================================================
 function renderHomePage()
 {
     const d=state.darkMode; const l=state.language;
+
+    /* ── Feature cards data ── */
+    const features=[
+        {icon:'👑',title:l==='bn'?'ইমামগণ':'The Imams',       desc:l==='bn'?'১৪ মাসুমিনের জীবনী':'Lives of 14 Masumeen',    page:'imams',   color:'#059669',bg:'rgba(5,150,105,.1)', faint:'rgba(5,150,105,.25)'},
+        {icon:'📝',title:t('blog'),                              desc:l==='bn'?'ইসলামিক প্রবন্ধ':'Islamic writings',            page:'blog',    color:'#0369a1',bg:'rgba(3,105,161,.1)',  faint:'rgba(3,105,161,.25)'},
+        {icon:'🤲',title:l==='bn'?'দোয়া ও যিয়ারত':'Dua & Ziyarat',desc:l==='bn'?'দোয়া সংকলন':'Supplications',              page:'dua',     color:'#7c3aed',bg:'rgba(124,58,237,.1)',faint:'rgba(124,58,237,.25)'},
+        {icon:'📚',title:l==='bn'?'লাইব্রেরি':'Library',       desc:l==='bn'?'ইসলামিক কিতাব':'Islamic books',                page:'library', color:'#047857',bg:'rgba(4,120,87,.1)',  faint:'rgba(4,120,87,.25)'},
+        {icon:'📿',title:l==='bn'?'তাসবিহ':'Tasbeeh',          desc:l==='bn'?'ডিজিটাল তাসবিহ':'Digital counter',             page:'tasbeeh', color:'#059669',bg:'rgba(5,150,105,.1)', faint:'rgba(5,150,105,.25)'},
+        {icon:'🧠',title:l==='bn'?'কুইজ':'Quiz',               desc:l==='bn'?'জ্ঞান পরীক্ষা':'Test your knowledge',           page:'quiz',    color:'#dc2626',bg:'rgba(220,38,38,.1)',faint:'rgba(220,38,38,.25)'},
+        {icon:'☀️',title:l==='bn'?'৯৯ নাম':'99 Names',         desc:l==='bn'?'আসমাউল হুসনা':'Names of Allah',               page:'asmaul',  color:'#b45309',bg:'rgba(180,83,9,.1)', faint:'rgba(180,83,9,.25)'},
+        {icon:'🧭',title:l==='bn'?'কিবলা':'Qibla',             desc:l==='bn'?'কিবলার দিক':'Qibla direction',                 page:'qibla',   color:'#0d9488',bg:'rgba(13,148,136,.1)',faint:'rgba(13,148,136,.25)'},
+    ];
+
+    /* ── Ashura countdown ── */
+    const h=approxHijriNow();
+    const ashuraYear=(h.month>1||(h.month===1&&h.day>10))?h.year+1:h.year;
+    const ashuraGreg=hijriToGregorian(10,1,ashuraYear);
+    const todayD=new Date(); todayD.setHours(0,0,0,0); ashuraGreg.setHours(0,0,0,0);
+    const daysLeft=Math.ceil((ashuraGreg-todayD)/86400000);
+    const cdLabel=daysLeft===0
+        ?(l==='bn'?'🔴 আজ আশুরা':'🔴 Ashura is today')
+        :daysLeft<0
+            ?(l==='bn'?'কারবালার ঘটনা জানুন':'Learn about Karbala')
+            :(l==='bn'?`আশুরা ${toBengaliDigits(daysLeft)} দিন বাকি`:`${daysLeft} day${daysLeft===1?'':'s'} until Ashura`);
+
     return `
-    <!-- Hijri Date + Islamic Event Banner -->
+    <!-- ① Hijri banner -->
     ${renderHijriBanner(d,l)}
-    <!-- Next Prayer Countdown Banner -->
+
+    <!-- ② Next prayer countdown -->
     <div class="next-prayer-banner p-5 mb-8 reveal" id="next-prayer-home">
         <div class="flex items-center justify-between flex-wrap gap-4">
             <div class="flex items-center gap-3">
-                <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#059669,#065f46);display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 4px 16px rgba(5,150,105,.4)">🕌</div>
+                <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#059669,#065f46);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(5,150,105,.45)">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2v3"/>
+                        <circle cx="12" cy="6.2" r="1.1" fill="white" stroke="none"/>
+                        <path d="M9 11c0-2.2 1.3-4 3-4s3 1.8 3 4"/>
+                        <path d="M5 21v-7c0-1.8 1.2-3.3 2.8-3.8L9 9.7V21"/>
+                        <path d="M19 21v-7c0-1.8-1.2-3.3-2.8-3.8L15 9.7V21"/>
+                        <path d="M9 17h6"/>
+                        <path d="M3 21h18"/>
+                    </svg>
+                </div>
                 <div>
-                    <p class="text-xs text-gray-400 font-medium">${l==='bn'?'পরবর্তী নামাজ':'Next Prayer'}</p>
+                    <p class="text-xs font-semibold" style="color:rgba(52,211,153,.75)">${l==='bn'?'পরবর্তী নামাজ':'Next Prayer'}</p>
                     <p id="next-prayer-name-home" class="text-white font-bold text-base">${l==='bn'?'লোড হচ্ছে...':'Loading...'}</p>
                 </div>
             </div>
-            <div id="next-prayer-countdown-home" class="next-prayer-time">--:--:--</div>
+            <div style="text-align:right">
+                <div id="next-prayer-countdown-home" class="next-prayer-time">--:--:--</div>
+                <p class="text-xs" style="color:rgba(52,211,153,.6);margin-top:2px">${l==='bn'?'বাকি সময়':'remaining'}</p>
+            </div>
         </div>
     </div>
-    <div class="${d?'hero-luxury':'hero-luxury-light'} px-6 rounded-3xl mb-12 relative page-enter" style="min-height:420px;display:flex;align-items:center;justify-content:center;padding-top:52px;padding-bottom:52px;color:${d?'white':'inherit'}">
+
+    <!-- ③ HERO SECTION -->
+    <div class="${d?'hero-luxury':'hero-luxury-light'} rounded-3xl mb-12 relative page-enter overflow-hidden"
+        style="min-height:440px;display:flex;align-items:center;justify-content:center;padding:56px 24px;color:${d?'white':'inherit'}">
+
+        <!-- Geo grid -->
         <div class="hero-geo-bg"></div>
         <div class="islamic-geo-overlay"></div>
-        ${d?`<div class="hero-orb hero-orb-1"></div><div class="hero-orb hero-orb-2"></div><div class="hero-orb hero-orb-3"></div>`:''}
-        ${d?Array.from({length:14},(_,i)=>`<div class="hero-particle" style="width:${3+i%4*2}px;height:${3+i%4*2}px;left:${5+i*7}%;bottom:-8px;background:${i%4===0?'rgba(180,83,9,.9)':i%4===1?'rgba(5,150,105,.7)':i%4===2?'rgba(255,255,255,.5)':'rgba(201,162,39,.6)'};animation-duration:${7+i*1.1}s;animation-delay:${i*.6}s;--drift:${(i%2===0?1:-1)*35}px"></div>`).join(''):''}
-        ${!d?`<div class="hero-ornament hero-ornament-tl"></div><div class="hero-ornament hero-ornament-tl2"></div><div class="hero-ornament hero-ornament-br"></div><div class="hero-ornament hero-ornament-br2"></div><div class="hero-float-dot" style="width:7px;height:7px;background:rgba(180,83,9,.45);top:18%;left:12%;animation-duration:4s"></div><div class="hero-float-dot" style="width:5px;height:5px;background:rgba(5,150,105,.45);top:65%;left:8%;animation-duration:5.5s;animation-delay:.8s"></div><div class="hero-float-dot" style="width:6px;height:6px;background:rgba(180,83,9,.35);top:22%;right:10%;animation-duration:6s;animation-delay:.3s"></div><div class="hero-float-dot" style="width:4px;height:4px;background:rgba(5,150,105,.55);top:68%;right:14%;animation-duration:4.5s;animation-delay:1.2s"></div><div class="hero-float-dot" style="width:9px;height:9px;background:rgba(201,162,39,.3);top:40%;left:5%;animation-duration:7s;animation-delay:.5s"></div>`:''}
-        <div style="position:relative;z-index:2;text-align:center;max-width:680px;margin:0 auto">
-            <div class="hero-bismillah-pill"><div class="hero-bismillah-line"></div><p class="arabic-text" dir="rtl" style="font-size:1.4rem;margin:0;color:${d?'#f59e0b':'#78350f'}">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p><div class="hero-bismillah-line hero-bismillah-line-r"></div></div>
-            <div class="hero-crescent-badge">☽</div><p class="hero-arabic-sub">آلُ بَيْتِ النَّبِيِّ ﷺ</p>
-            <h2 style="font-size:clamp(2.2rem,6vw,3.4rem);font-weight:900;line-height:1.1;margin-bottom:.5rem;${d?'text-shadow:0 4px 20px rgba(0,0,0,.25)':''};color:${d?'#fff':'#022c22'};font-family:'Amiri',serif">${l==='bn'?'আহলে বাইত (আ.)':'Ahl al-Bayt (a.s)'}</h2>
-            <div class="hero-divider-dots"><span class="hero-divider-dot"></span><span class="hero-divider-dot hero-divider-dot-mid"></span><span class="hero-divider-dot"></span></div>
-            <p style="font-size:clamp(.9rem,2.5vw,1.05rem);margin-bottom:2rem;line-height:1.7;color:${d?'rgba(255,255,255,.8)':'rgba(2,44,34,.6)'};max-width:480px;margin-left:auto;margin-right:auto">${l==='bn'?'কুরআন, হাদিস ও পবিত্র ইমামদের শিক্ষায় আলোকিত হোন':'Enlighten yourself with Quran, Hadith & Holy Imams\' teachings'}</p>
-            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-                <button data-action="changePage" data-param="imams" class="btn-primary" style="background:${d?'rgba(255,255,255,.12)':'rgba(255,255,255,.7)'};color:${d?'white':'#022c22'};padding:13px 28px;border-radius:50px;font-weight:700;border:1.5px solid ${d?'rgba(255,255,255,.3)':'rgba(5,150,105,.3)'};cursor:pointer;backdrop-filter:blur(8px);display:flex;align-items:center;gap:7px;font-size:.93rem;transition:transform .2s,background .2s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">👑 ${l==='bn'?'ইমামগণ':'The Imams'}</button>
-                <button data-action="changePage" data-param="blog" class="btn-primary" style="background:rgba(5,150,105,.12);color:${d?'#6ee7b7':'#065f46'};padding:13px 28px;border-radius:50px;font-weight:700;border:1.5px solid rgba(5,150,105,.28);cursor:pointer;backdrop-filter:blur(8px);display:flex;align-items:center;gap:7px;font-size:.93rem;transition:transform .2s,background .2s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">📖 ${t('blog')}</button>
+
+        <!-- Dark mode: orbs + particles -->
+        ${d?`
+        <div class="hero-orb hero-orb-1"></div>
+        <div class="hero-orb hero-orb-2"></div>
+        <div class="hero-orb hero-orb-3"></div>
+        ${Array.from({length:16},(_,i)=>`
+        <div class="hero-particle" style="
+            width:${3+i%4*2}px;height:${3+i%4*2}px;
+            left:${4+i*6}%;bottom:-8px;
+            background:${['rgba(180,83,9,.9)','rgba(5,150,105,.7)','rgba(255,255,255,.5)','rgba(201,162,39,.6)'][i%4]};
+            animation-duration:${7+i*1.1}s;animation-delay:${i*.55}s;
+            --drift:${(i%2===0?1:-1)*38}px">
+        </div>`).join('')}
+        `:''}
+
+        <!-- Light mode: ornament diamonds + float dots -->
+        ${!d?`
+        <div class="hero-ornament hero-ornament-tl"></div>
+        <div class="hero-ornament hero-ornament-tl2"></div>
+        <div class="hero-ornament hero-ornament-br"></div>
+        <div class="hero-ornament hero-ornament-br2"></div>
+        <div class="hero-float-dot" style="width:7px;height:7px;background:rgba(180,83,9,.42);top:16%;left:10%;animation-duration:4s"></div>
+        <div class="hero-float-dot" style="width:5px;height:5px;background:rgba(5,150,105,.42);top:66%;left:7%;animation-duration:5.5s;animation-delay:.8s"></div>
+        <div class="hero-float-dot" style="width:6px;height:6px;background:rgba(180,83,9,.32);top:20%;right:9%;animation-duration:6s;animation-delay:.3s"></div>
+        <div class="hero-float-dot" style="width:4px;height:4px;background:rgba(5,150,105,.52);top:70%;right:12%;animation-duration:4.5s;animation-delay:1.2s"></div>
+        <div class="hero-float-dot" style="width:9px;height:9px;background:rgba(201,162,39,.28);top:42%;left:4%;animation-duration:7s;animation-delay:.5s"></div>
+        `:''}
+
+        <!-- Hero content -->
+        <div style="position:relative;z-index:2;text-align:center;max-width:700px;margin:0 auto">
+
+            <!-- Bismillah pill -->
+            <div class="hero-bismillah-pill">
+                <div class="hero-bismillah-line"></div>
+                <p class="arabic-text" dir="rtl" style="font-size:1.35rem;margin:0;color:${d?'#f59e0b':'#78350f'}">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+                <div class="hero-bismillah-line hero-bismillah-line-r"></div>
             </div>
+
+            <!-- Crescent badge -->
+            <div class="hero-crescent-badge">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 3C8 3 4.5 6.5 4.5 11C4.5 15.5 8 19 12 19C10 16.5 9 14 9 11C9 7.5 10.5 4.5 14 3.5C13.4 3.2 12.7 3 12 3Z" fill="white" opacity=".95"/>
+                    <circle cx="16" cy="6" r="2.5" fill="white" opacity=".85"/>
+                </svg>
+            </div>
+
+            <!-- Arabic subtitle -->
+            <p class="hero-arabic-sub">آلُ بَيْتِ النَّبِيِّ ﷺ</p>
+
+            <!-- Main heading -->
+            <h1 style="font-size:clamp(2rem,6vw,3.4rem);font-weight:900;line-height:1.1;margin-bottom:.5rem;
+                color:${d?'#fff':'#022c22'};font-family:'Amiri',serif;
+                ${d?'text-shadow:0 4px 24px rgba(0,0,0,.3)':''}">
+                ${l==='bn'?'আহলে বাইত (আ.)':'Ahl al-Bayt (a.s)'}
+            </h1>
+
+            <!-- Gold divider dots -->
+            <div class="hero-divider-dots">
+                <span class="hero-divider-dot"></span>
+                <span class="hero-divider-dot hero-divider-dot-mid"></span>
+                <span class="hero-divider-dot"></span>
+            </div>
+
+            <!-- Tagline -->
+            <p style="font-size:clamp(.88rem,2.5vw,1.05rem);line-height:1.75;margin-bottom:2rem;
+                color:${d?'rgba(255,255,255,.78)':'rgba(2,44,34,.58)'};
+                max-width:480px;margin-left:auto;margin-right:auto">
+                ${l==='bn'
+                    ?'কুরআন, হাদিস ও পবিত্র ইমামদের শিক্ষায় আলোকিত হোন'
+                    :"Enlighten yourself with Quran, Hadith & the Holy Imams' teachings"}
+            </p>
+
+            <!-- CTA buttons -->
+            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:8px">
+                <button data-action="changePage" data-param="imams" class="btn-primary"
+                    style="background:${d?'linear-gradient(135deg,rgba(5,150,105,.35),rgba(5,150,105,.2))':'linear-gradient(135deg,rgba(255,255,255,.85),rgba(255,255,255,.7))'};
+                    color:${d?'white':'#022c22'};padding:13px 30px;border-radius:50px;font-weight:700;
+                    border:1.5px solid ${d?'rgba(52,211,153,.35)':'rgba(5,150,105,.28)'};cursor:pointer;
+                    backdrop-filter:blur(10px);display:flex;align-items:center;gap:8px;font-size:.92rem;
+                    box-shadow:${d?'0 4px 20px rgba(5,150,105,.3)':'0 4px 20px rgba(5,150,105,.12)'}">
+                    👑 ${l==='bn'?'ইমামগণ':'The Imams'}
+                </button>
+                <button data-action="changePage" data-param="dua" class="btn-primary"
+                    style="background:${d?'rgba(124,58,237,.2)':'rgba(124,58,237,.1)'};
+                    color:${d?'#c4b5fd':'#5b21b6'};padding:13px 30px;border-radius:50px;font-weight:700;
+                    border:1.5px solid ${d?'rgba(124,58,237,.35)':'rgba(124,58,237,.25)'};cursor:pointer;
+                    backdrop-filter:blur(10px);display:flex;align-items:center;gap:8px;font-size:.92rem">
+                    🤲 ${l==='bn'?'দোয়া':'Duas'}
+                </button>
+                <button data-action="changePage" data-param="blog" class="btn-primary"
+                    style="background:${d?'rgba(3,105,161,.22)':'rgba(3,105,161,.1)'};
+                    color:${d?'#7dd3fc':'#075985'};padding:13px 30px;border-radius:50px;font-weight:700;
+                    border:1.5px solid ${d?'rgba(3,105,161,.35)':'rgba(3,105,161,.25)'};cursor:pointer;
+                    backdrop-filter:blur(10px);display:flex;align-items:center;gap:8px;font-size:.92rem">
+                    📝 ${t('blog')}
+                </button>
+            </div>
+
+            <!-- Stats row -->
             <div class="hero-stats-row">
-<div class="hero-stat-item"><span class="hero-stat-num">${l==='bn'?'১':'1'}</span><div class="hero-stat-label">${l==='bn'?'আল্লাহ':'Allah'}</div></div>
-<div class="hero-stat-item"><span class="hero-stat-num">${l==='bn'?'১২৪,৩১৩':'124,313'}</span><div class="hero-stat-label">${l==='bn'?'নবী-রাসূলের সংখ্যা':'Prophets & Messengers'}</div></div>
-<div class="hero-stat-item"><span class="hero-stat-num">${l==='bn'?'১৪':'14'}</span><div class="hero-stat-label">${l==='bn'?'ইমাম ও মাসুমিন':'Imams & Masumeen'}</div></div>
-<div class="hero-stat-item"><span class="hero-stat-num">${l==='bn'?'৯৯':'99'}</span><div class="hero-stat-label">${l==='bn'?'আসমাউল হুসনা':'Names of Allah'}</div></div>
-</div>
+                ${[
+                    [l==='bn'?'১':'1',       l==='bn'?'আল্লাহ':'Allah'],
+                    [l==='bn'?'১২৪,৩১৩':'124,313', l==='bn'?'নবী-রাসূল':'Prophets'],
+                    [l==='bn'?'১৪':'14',     l==='bn'?'মাসুমিন':'Masumeen'],
+                    [l==='bn'?'৭২':'72',     l==='bn'?'কারবালার শহীদ':'Karbala Martyrs'],
+                    [l==='bn'?'৯৯':'99',     l==='bn'?'আসমাউল হুসনা':'Names of Allah'],
+                ].map(([num,label])=>`
+                <div class="hero-stat-item">
+                    <span class="hero-stat-num">${num}</span>
+                    <div class="hero-stat-label">${label}</div>
+                </div>`).join('')}
+            </div>
         </div>
     </div>
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-14">
-        ${[['📖',t('blog'),l==='bn'?'ইসলামিক লেখা':'Islamic writings','blog','#059669','rgba(5,150,105,.1)','rgba(5,150,105,.25)',t('blog')],['📚',l==='bn'?'লাইব্রেরি':'Library',l==='bn'?'ইসলামিক বই':'Islamic books','library','#0369a1','rgba(3,105,161,.1)','rgba(3,105,161,.25)',l==='bn'?'লাইব্রেরি':'Library'],['📿',l==='bn'?'তাসবিহ':'Tasbeeh',l==='bn'?'ডিজিটাল তাসবিহ':'Digital tasbeeh','tasbeeh','#059669','rgba(5,150,105,.1)','rgba(5,150,105,.25)',l==='bn'?'তাসবিহ':'Tasbeeh'],['🧠',l==='bn'?'কুইজ':'Quiz',l==='bn'?'জ্ঞান পরীক্ষা':'Test knowledge','quiz','#dc2626','rgba(220,38,38,.1)','rgba(220,38,38,.25)',l==='bn'?'কুইজ':'Quiz'],['☀️',l==='bn'?'৯৯ নাম':'99 Names',l==='bn'?'আসমাউল হুসনা':'Names of Allah','asmaul','#b45309','rgba(180,83,9,.1)','rgba(180,83,9,.25)',l==='bn'?'৯৯ নাম':'Names'],['🧭',l==='bn'?'কিবলা':'Qibla',l==='bn'?'কিবলার দিক':'Qibla direction','qibla','#0d9488','rgba(13,148,136,.1)','rgba(13,148,136,.25)',l==='bn'?'কিবলা':'Qibla'],['🌳',l==='bn'?'বংশধারা':'Family Tree',l==='bn'?'আহলুল বাইত বংশতালিকা':'Ahl al-Bayt lineage','familyTree','#065f46','rgba(6,95,70,.1)','rgba(6,95,70,.25)',l==='bn'?'বংশধারা':'Family Tree'],['🤲',l==='bn'?'দোয়া ও যিয়ারত':'Dua & Ziyarat',l==='bn'?'ইসলামিক দোয়া সংকলন':'Islamic supplications','dua','#7c3aed','rgba(124,58,237,.1)','rgba(124,58,237,.25)',l==='bn'?'দোয়া':'Dua']].map(([icon,title,desc,page,color,bg,faint,badge],fi)=>`
-            <button data-action="changePage" data-param="${page}" class="feature-card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border text-left w-full p-5 reveal reveal-delay-${fi%4+1}" style="box-shadow:var(--shadow-sm);--fc-accent:${color};--fc-accent-bg:${bg};--fc-accent-faint:${faint}">
-                <span class="feature-card-badge">${badge}</span>
+
+    <!-- ④ FEATURE CARDS GRID -->
+    <div style="margin-bottom:3.5rem">
+        <div class="section-heading reveal">
+            <span style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#059669,#047857);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;box-shadow:0 4px 12px rgba(5,150,105,.4)">✨</span>
+            <h2 class="section-title">${l==='bn'?'বিভাগসমূহ':'Sections'}</h2>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            ${features.map((f,fi)=>`
+            <button data-action="changePage" data-param="${f.page}"
+                class="feature-card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border text-left w-full p-5 reveal reveal-delay-${fi%4+1}"
+                style="box-shadow:var(--shadow-sm);--fc-accent:${f.color};--fc-accent-bg:${f.bg};--fc-accent-faint:${f.faint}">
+                <span class="feature-card-badge">${f.title}</span>
                 <div class="feature-card-content">
-                    <div class="feature-icon-wrap" style="background:${bg}">${icon}</div>
-                    <h3 class="font-bold text-sm mb-1">${title}</h3>
-                    <p class="text-xs ${d?'text-gray-400':'text-gray-500'} leading-relaxed">${desc}</p>
-                    <div class="feature-card-link">${l==='bn'?'দেখুন':'Explore'} <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M2 6h8M6 2l4 4-4 4"/></svg></div>
+                    <div class="feature-icon-wrap" style="background:${f.bg};border-color:${f.faint}">${f.icon}</div>
+                    <h3 class="font-bold text-sm mb-1" style="color:${d?'#f9fafb':'#111827'}">${f.title}</h3>
+                    <p class="text-xs leading-relaxed" style="color:${d?'#9ca3af':'#6b7280'}">${f.desc}</p>
+                    <div class="feature-card-link">
+                        ${l==='bn'?'দেখুন':'Explore'}
+                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+                    </div>
                 </div>
             </button>`).join('')}
-    </div>
-    <!-- ── ইসলামিক ক্যালেন্ডার কুইক অ্যাকসেস ── -->
-    <div class="mb-10">
-        <h3 class="text-base font-bold mb-3 flex items-center gap-2">
-            <span style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#dc2626,#7c1d1d);display:inline-flex;align-items:center;justify-content:center">🌙</span>
-            ${l==='bn'?'ইসলামিক ক্যালেন্ডার ও বিশেষ দিন':'Islamic Calendar & Special Days'}
-        </h3>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5" style="min-height:130px">
-            ${(()=>{
-                const h=approxHijriNow();
-                const ashuraYear=(h.month>1||(h.month===1&&h.day>10))?h.year+1:h.year;
-                const ashuraGreg=hijriToGregorian(10,1,ashuraYear);
-                const today=new Date(); today.setHours(0,0,0,0); ashuraGreg.setHours(0,0,0,0);
-                const daysLeft=Math.ceil((ashuraGreg-today)/86400000);
-                const cdLabel=daysLeft===0?'🔴 আজ আশুরা':daysLeft<0?'কারবালার ঘটনা জানুন':`আশুরা ${l==='bn'?toBengaliDigits(daysLeft):daysLeft} দিন বাকি`;
-                return [
-                    {page:'muharram',icon:'🌙',grad:'linear-gradient(135deg,#7f1d1d,#dc2626)',title:l==='bn'?'মুহাররম ও আশুরা':'Muharram & Ashura',desc:cdLabel},
-                    {page:'shia-days',icon:'✨',grad:'linear-gradient(135deg,#1e3a8a,#7c3aed)',title:l==='bn'?'বিশেষ দিনসমূহ':'Special Days',desc:l==='bn'?'ঈদে গাদির · মুবাহিলা · নিমে শাবান':'Ghadeer · Mubahila · Mid-Shaban'},
-                    {page:'calendar',icon:'📅',grad:'linear-gradient(135deg,#065f46,#059669)',title:l==='bn'?'হিজরি ক্যালেন্ডার':'Hijri Calendar',desc:l==='bn'?'ইমামদের তারিখ হাইলাইট সহ':'With Imam dates highlighted'},
-                ].map(c=>`
-                <button data-action="changePage" data-param="${c.page}" class="text-left rounded-2xl hover:brightness-110 transition-all focus:outline-none" style="background:${c.grad};padding:1.1rem 1.1rem 1.4rem;box-shadow:0 4px 16px rgba(0,0,0,.2)">
-                    <div style="font-size:1.8rem;margin-bottom:.4rem">${c.icon}</div>
-                    <h4 style="font-weight:800;font-size:.93rem;color:white;margin-bottom:.2rem">${c.title}</h4>
-                    <p style="font-size:.75rem;color:rgba(255,255,255,.8)">${c.desc}</p>
-                </button>`).join('');
-            })()}
         </div>
     </div>
 
-    <div class="space-y-5 mt-2">
-            ${renderPrayerWidget()}
-            <div class="card-luxury ${d?'bg-gradient-to-br from-purple-950 to-blue-950 border-purple-900':'bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200'} border p-5" style="box-shadow:var(--shadow-md)">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-sm font-bold flex items-center gap-2"><span>📜</span>${t('hadithOfDay')}</h3>
-                    <div class="flex items-center gap-2">
-                        ${state.isAdmin?`<button data-action="openHadithEditor" class="${d?'bg-purple-800 text-purple-200':'bg-purple-100 text-purple-700'} text-xs px-3 py-1 rounded-lg font-semibold hover:opacity-80">✏️ ${l==='bn'?'এডিট':'Edit'}</button>`:''}
-                    </div>
-                </div>
-                <div class="${d?'bg-black/20':'bg-white/60'} rounded-2xl p-4">
-                    <p class="text-sm leading-relaxed mb-3 italic">"${sanitize(l==='bn'?getDailyHadith().textBn:getDailyHadith().textEn)}"</p>
-                    <p class="text-xs font-bold" style="${d?'color:#fbbf24':'color:#92400e'}">— ${sanitize(l==='bn'?getDailyHadith().sourceBn:getDailyHadith().sourceEn)}</p>
-                </div>
-                <div class="flex items-center justify-between mt-3 gap-2">
-                    <div class="flex gap-1">
-                        <button data-action="hadithPrev" class="${d?'bg-purple-900 text-purple-200 hover:bg-purple-800':'bg-purple-100 text-purple-700 hover:bg-purple-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors" title="${l==='bn'?'আগেরটা':'Previous'}">‹ ${l==='bn'?'আগে':'Prev'}</button>
-                        <button data-action="hadithNext" class="${d?'bg-purple-900 text-purple-200 hover:bg-purple-800':'bg-purple-100 text-purple-700 hover:bg-purple-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors" title="${l==='bn'?'পরেরটা':'Next'}">${l==='bn'?'পরে':'Next'} ›</button>
-                    </div>
-                    <button data-action="shareHadith" class="${d?'bg-emerald-900 text-emerald-200 hover:bg-emerald-800':'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors flex items-center gap-1">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-                        ${l==='bn'?'শেয়ার':'Share'}
-                    </button>
-                </div>
+    <!-- ⑤ ISLAMIC CALENDAR & SPECIAL DAYS -->
+    <div style="margin-bottom:3rem">
+        <div class="section-heading reveal">
+            <span style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#dc2626,#7f1d1d);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;box-shadow:0 4px 12px rgba(220,38,38,.35)">🌙</span>
+            <h2 class="section-title">${l==='bn'?'ইসলামিক ক্যালেন্ডার':'Islamic Calendar'}</h2>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 reveal">
+            ${[
+                {page:'muharram', icon:'⚔️', grad:'linear-gradient(135deg,#7f1d1d,#dc2626)', title:l==='bn'?'মুহাররম ও আশুরা':'Muharram & Ashura', desc:cdLabel},
+                {page:'shia-days',icon:'✨', grad:'linear-gradient(135deg,#1e3a8a,#7c3aed)',  title:l==='bn'?'বিশেষ দিনসমূহ':'Special Days',      desc:l==='bn'?'ঈদে গাদির · মুবাহিলা · নিমে শাবান':'Ghadeer · Mubahila · Mid-Shaban'},
+                {page:'calendar', icon:'📅', grad:'linear-gradient(135deg,#065f46,#059669)',  title:l==='bn'?'হিজরি ক্যালেন্ডার':'Hijri Calendar',  desc:l==='bn'?'ইমামদের তারিখ হাইলাইট সহ':'With Imam dates highlighted'},
+            ].map(c=>`
+            <button data-action="changePage" data-param="${c.page}"
+                class="text-left rounded-2xl transition-all focus:outline-none hover:scale-[1.02] hover:brightness-110"
+                style="background:${c.grad};padding:1.3rem 1.3rem 1.6rem;box-shadow:0 6px 24px rgba(0,0,0,.22)">
+                <div style="font-size:2rem;margin-bottom:.55rem">${c.icon}</div>
+                <h4 style="font-weight:800;font-size:.95rem;color:white;margin-bottom:.3rem">${c.title}</h4>
+                <p style="font-size:.75rem;color:rgba(255,255,255,.78);line-height:1.5">${c.desc}</p>
+            </button>`).join('')}
+        </div>
+    </div>
+
+    <!-- ⑥ WIDGETS COLUMN -->
+    <div class="space-y-5">
+
+        <!-- Prayer times -->
+        ${renderPrayerWidget()}
+
+        <!-- Hadith of the Day -->
+        <div class="card-luxury ${d?'bg-gradient-to-br from-purple-950 to-blue-950 border-purple-900':'bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200'} border p-5 reveal" style="box-shadow:var(--shadow-md)">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-bold flex items-center gap-2">
+                    <span style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#4f46e5);display:flex;align-items:center;justify-content:center;font-size:.8rem">📜</span>
+                    ${t('hadithOfDay')}
+                </h3>
+                ${state.isAdmin?`<button data-action="openHadithEditor" class="${d?'bg-purple-800 text-purple-200':'bg-purple-100 text-purple-700'} text-xs px-3 py-1 rounded-lg font-semibold hover:opacity-80">✏️ ${l==='bn'?'এডিট':'Edit'}</button>`:''}
             </div>
-            <!-- Daily Ayah Widget -->
-            <div class="ayah-widget p-5" style="box-shadow:var(--shadow-md)">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-sm font-bold flex items-center gap-2">
-                        <span style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#c9a227,#b45309);display:flex;align-items:center;justify-content:center;font-size:.8rem">📖</span>
-                        ${l==='bn'?'আজকের আয়াত':'Today\'s Verse'}
-                    </h3>
-                    ${state.isAdmin?`<button data-action="openAyahEditor" class="${d?'bg-amber-900 text-amber-200':'bg-amber-100 text-amber-700'} text-xs px-3 py-1 rounded-lg font-semibold hover:opacity-80">✏️ ${l==='bn'?'এডিট':'Edit'}</button>`:''}
-                </div>
-                ${renderDailyAyahInner(d,l)}
-                <div class="flex items-center justify-between mt-3 gap-2">
-                    <div class="flex gap-1">
-                        <button data-action="ayahPrev" class="${d?'bg-amber-900 text-amber-200 hover:bg-amber-800':'bg-amber-100 text-amber-700 hover:bg-amber-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors">‹ ${l==='bn'?'আগে':'Prev'}</button>
-                        <button data-action="ayahNext" class="${d?'bg-amber-900 text-amber-200 hover:bg-amber-800':'bg-amber-100 text-amber-700 hover:bg-amber-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors">${l==='bn'?'পরে':'Next'} ›</button>
-                    </div>
-                    <button data-action="shareAyah" class="${d?'bg-emerald-900 text-emerald-200 hover:bg-emerald-800':'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors flex items-center gap-1">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-                        ${l==='bn'?'শেয়ার':'Share'}
-                    </button>
-                </div>
+            <div class="${d?'bg-black/20':'bg-white/60'} rounded-2xl p-4">
+                <p class="text-sm leading-relaxed mb-3 italic">"${sanitize(l==='bn'?getDailyHadith().textBn:getDailyHadith().textEn)}"</p>
+                <p class="text-xs font-bold" style="${d?'color:#fbbf24':'color:#7c3aed'}">— ${sanitize(l==='bn'?getDailyHadith().sourceBn:getDailyHadith().sourceEn)}</p>
             </div>
-            <div class="card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border p-5" style="box-shadow:var(--shadow-sm)">
-                <h3 class="text-sm font-bold mb-4">${l==='bn'?'আমাদের অনুসরণ করুন':'Follow Us'}</h3>
-                <div class="space-y-2">
-                    ${[
-['https://www.facebook.com/profile.php?id=100090495041094',l==='bn'?'ফেসবুক পেজ':'Facebook','#1d4ed8','rgba(29,78,216,.12)','<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>'],
-['https://www.instagram.com/ahl.al.bayt.a.s/',l==='bn'?'ইনস্টাগ্রাম':'Instagram','#be185d','rgba(190,24,93,.12)','<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>'],
-['https://www.youtube.com/@Ahl_al-Bayt_a.s',l==='bn'?'ইউটিউব':'YouTube','#dc2626','rgba(220,38,38,.12)','<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>'],
-['https://x.com/Ahl_al_Bayt_a_s',l==='bn'?'টুইটার (X)':'Twitter (X)','#000000','rgba(0,0,0,.1)','<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>']
-].map(([href,label,color,bg,icon])=>`
-                    <a href="${href}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all hover:translate-x-1 hover:scale-[1.01]" style="background:${bg};color:${color};border:1px solid ${color}22">
-                        ${icon}<span class="flex-1">${label}</span><svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-                    </a>`).join('')}
+            <div class="flex items-center justify-between mt-3 gap-2">
+                <div class="flex gap-1">
+                    <button data-action="hadithPrev" class="${d?'bg-purple-900 text-purple-200 hover:bg-purple-800':'bg-purple-100 text-purple-700 hover:bg-purple-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors">‹ ${l==='bn'?'আগে':'Prev'}</button>
+                    <button data-action="hadithNext" class="${d?'bg-purple-900 text-purple-200 hover:bg-purple-800':'bg-purple-100 text-purple-700 hover:bg-purple-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors">${l==='bn'?'পরে':'Next'} ›</button>
                 </div>
+                <button data-action="shareHadith" class="${d?'bg-emerald-900/60 text-emerald-300 hover:bg-emerald-800':'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors flex items-center gap-1">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                    ${l==='bn'?'শেয়ার':'Share'}
+                </button>
             </div>
+        </div>
+
+        <!-- Daily Ayah -->
+        <div class="ayah-widget p-5 reveal" style="box-shadow:var(--shadow-md)">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-bold flex items-center gap-2">
+                    <span style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#c9a227,#b45309);display:flex;align-items:center;justify-content:center;font-size:.8rem">📖</span>
+                    ${l==='bn'?'আজকের আয়াত':"Today's Verse"}
+                </h3>
+                ${state.isAdmin?`<button data-action="openAyahEditor" class="${d?'bg-amber-900 text-amber-200':'bg-amber-100 text-amber-700'} text-xs px-3 py-1 rounded-lg font-semibold hover:opacity-80">✏️ ${l==='bn'?'এডিট':'Edit'}</button>`:''}
+            </div>
+            ${renderDailyAyahInner(d,l)}
+            <div class="flex items-center justify-between mt-3 gap-2">
+                <div class="flex gap-1">
+                    <button data-action="ayahPrev" class="${d?'bg-amber-900 text-amber-200 hover:bg-amber-800':'bg-amber-100 text-amber-700 hover:bg-amber-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors">‹ ${l==='bn'?'আগে':'Prev'}</button>
+                    <button data-action="ayahNext" class="${d?'bg-amber-900 text-amber-200 hover:bg-amber-800':'bg-amber-100 text-amber-700 hover:bg-amber-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors">${l==='bn'?'পরে':'Next'} ›</button>
+                </div>
+                <button data-action="shareAyah" class="${d?'bg-emerald-900/60 text-emerald-300 hover:bg-emerald-800':'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors flex items-center gap-1">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                    ${l==='bn'?'শেয়ার':'Share'}
+                </button>
+            </div>
+        </div>
+
+        <!-- Follow Us -->
+        <div class="card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border p-5 reveal" style="box-shadow:var(--shadow-sm)">
+            <h3 class="text-sm font-bold mb-4 flex items-center gap-2">
+                <span style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#1d4ed8,#1e40af);display:flex;align-items:center;justify-content:center;font-size:.8rem">🌐</span>
+                ${l==='bn'?'আমাদের অনুসরণ করুন':'Follow Us'}
+            </h3>
+            <div class="space-y-2">
+                ${[
+                    ['https://www.facebook.com/profile.php?id=100090495041094', l==='bn'?'ফেসবুক পেজ':'Facebook Page', '#1877f2','rgba(24,119,242,.12)',
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>'],
+                    ['https://www.instagram.com/ahl.al.bayt.a.s/', l==='bn'?'ইনস্টাগ্রাম':'Instagram', '#e1306c','rgba(225,48,108,.12)',
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>'],
+                    ['https://www.youtube.com/@Ahl_al-Bayt_a.s', l==='bn'?'ইউটিউব':'YouTube', '#ff0000','rgba(255,0,0,.12)',
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>'],
+                    ['https://x.com/Ahl_al_Bayt_a_s', l==='bn'?'টুইটার (X)':'Twitter (X)', d?'#e7e9ea':'#0f172a','rgba(15,23,42,.08)',
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>'],
+                ].map(([href,label,color,bg,icon])=>`
+                <a href="${href}" target="_blank" rel="noopener noreferrer"
+                    class="flex items-center gap-3 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all hover:translate-x-1 hover:scale-[1.01]"
+                    style="background:${bg};color:${color};border:1px solid ${color}28">
+                    ${icon}
+                    <span class="flex-1">${label}</span>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>
+                </a>`).join('')}
+            </div>
+        </div>
+
     </div>`;
 }
-
 // ============================================================================
 // PAGE: LIBRARY (PDF)
 // ============================================================================
 function renderLibraryPage() {
     const d=state.darkMode; const l=state.language;
     const tab = state.libraryTab || '';
-
-    // Folder definitions
     const folders = [
-        { key:'pdf',         icon:'📕', color:'#059669', bg: d?'#052e16':'#ecfdf5', border:'#059669', label: l==='bn'?'দোয়া এবং যিয়ারত':'Dua and Ziyarat',      list: state.pdfList },
-        { key:'nahjul',      icon:'📖', color:'#1d4ed8', bg: d?'#1e1b4b':'#eff6ff', border:'#3b82f6', label: l==='bn'?'নাহজুল বালাগা':'Nahjul Balagha',         list: state.nahjulPdfs||[] },
-        { key:'sahifa',      icon:'🌹', color:'#7c3aed', bg: d?'#2e1065':'#faf5ff', border:'#8b5cf6', label: l==='bn'?'সাহিফা সাজ্জাদিয়্যা':'Sahifa Sajjadiya', list: state.sahifaPdfs||[] },
-        { key:'imamhadiths', icon:'⭐', color:'#0d9488', bg: d?'#042f2e':'#f0fdfa', border:'#14b8a6', label: l==='bn'?'ইমামদের হাদিস':'Imam Hadiths',           list: state.imamHadithPdfs||[] },
-        { key:'specialdays', icon:'✨', color:'#dc2626', bg: d?'#450a0a':'#fff1f2', border:'#f87171', label: l==='bn'?'বিশেষ দিন':'Special Days',               list: state.specialDayPdfs||[] },
+        {key:'pdf',         icon:'📕', color:'#059669', grad:'linear-gradient(135deg,#022c22,#065f46)', label:l==='bn'?'দোয়া ও যিয়ারত':'Dua & Ziyarat',     list:state.pdfList},
+        {key:'nahjul',      icon:'📖', color:'#1d4ed8', grad:'linear-gradient(135deg,#1e1b4b,#1d4ed8)', label:l==='bn'?'নাহজুল বালাগা':'Nahjul Balagha',     list:state.nahjulPdfs||[]},
+        {key:'sahifa',      icon:'🌹', color:'#7c3aed', grad:'linear-gradient(135deg,#2e1065,#7c3aed)', label:l==='bn'?'সাহিফা সাজ্জাদিয়্যা':'Sahifa Sajjadiya',list:state.sahifaPdfs||[]},
+        {key:'imamhadiths', icon:'⭐', color:'#0d9488', grad:'linear-gradient(135deg,#042f2e,#0d9488)', label:l==='bn'?'ইমামদের হাদিস':'Imam Hadiths',        list:state.imamHadithPdfs||[]},
+        {key:'specialdays', icon:'✨', color:'#dc2626', grad:'linear-gradient(135deg,#450a0a,#dc2626)', label:l==='bn'?'বিশেষ দিন':'Special Days',             list:state.specialDayPdfs||[]},
     ];
 
-    // If no tab selected → show folder grid
-    if (!tab) {
-        return `
-        <div class="space-y-8">
-            <h2 class="text-3xl font-bold">📚 ${t('library')}</h2>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-5">
-                ${folders.map(f=>`
-                <button data-action="setLibraryTab" data-param="${f.key}"
-                    class="relative flex flex-col items-center justify-center gap-3 p-8 rounded-2xl border-2 transition-all hover:scale-[1.03] hover:shadow-lg text-center"
-                    style="background:${f.bg};border-color:${f.border};box-shadow:0 2px 12px ${f.color}22">
-                    <span style="font-size:2.8rem;filter:drop-shadow(0 2px 6px ${f.color}44)">${f.icon}</span>
-                    <span class="font-bold text-sm leading-snug" style="color:${f.color}">${f.label}</span>
-                    <span class="text-xs px-2.5 py-1 rounded-full font-semibold" style="background:${f.color}18;color:${f.color}">
+    // Folder grid view
+    if (!tab) return `
+    <div class="space-y-8 page-enter">
+        <div class="reveal">
+            <h2 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#059669,#0369a1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+                📚 ${t('library')}
+            </h2>
+            <p class="text-sm mt-1" style="color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?'ইসলামিক কিতাব ও পিডিএফ সংকলন':'Islamic books & PDF collection'}</p>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 reveal">
+            ${folders.map(f=>`
+            <button data-action="setLibraryTab" data-param="${f.key}"
+                class="feature-card-luxury text-left w-full focus:outline-none"
+                style="background:${f.grad};border:1px solid ${f.color}30;box-shadow:0 6px 24px ${f.color}22;
+                padding:1.5rem 1.2rem 1.8rem;--fc-accent:${f.color};--fc-accent-bg:${f.color}18;--fc-accent-faint:${f.color}35">
+                <div class="feature-card-content" style="text-align:center">
+                    <div style="font-size:2.6rem;margin-bottom:.75rem;filter:drop-shadow(0 2px 8px ${f.color}55)">${f.icon}</div>
+                    <p class="font-bold text-sm leading-snug mb-2" style="color:white">${f.label}</p>
+                    <span style="font-size:.7rem;font-weight:700;padding:3px 12px;border-radius:50px;
+                        background:rgba(255,255,255,.15);color:rgba(255,255,255,.9)">
                         ${f.list.length} ${l==='bn'?'টি পিডিএফ':'PDFs'}
                     </span>
-                </button>`).join('')}
-            </div>
-        </div>`;
-    }
+                </div>
+            </button>`).join('')}
+        </div>
+    </div>`;
 
-    // Inside a folder
+    // Inside folder
     const folder = folders.find(f=>f.key===tab);
     if (!folder) { state.libraryTab=''; render(); return ''; }
-
-    const listKeyMap = { pdf:'pdfList', nahjul:'nahjulPdfs', sahifa:'sahifaPdfs', imamhadiths:'imamHadithPdfs', specialdays:'specialDayPdfs' };
-    const listKey = listKeyMap[tab];
+    const listKeyMap={pdf:'pdfList',nahjul:'nahjulPdfs',sahifa:'sahifaPdfs',imamhadiths:'imamHadithPdfs',specialdays:'specialDayPdfs'};
+    const listKey=listKeyMap[tab];
 
     return `
-    <div class="space-y-6">
-        <!-- Back + Header -->
-        <div class="flex items-center justify-between flex-wrap gap-3">
+    <div class="space-y-6 page-enter">
+        <!-- Back + header -->
+        <div class="flex items-center justify-between flex-wrap gap-3 reveal">
             <div class="flex items-center gap-3">
                 <button data-action="setLibraryTab" data-param=""
-                    class="flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm hover:scale-[1.02] transition-all"
-                    style="background:${folder.color}15;color:${folder.color}">← ${l==='bn'?'ফোল্ডারে ফিরুন':'Back to Folders'}</button>
-                <h2 class="text-2xl font-bold flex items-center gap-2">${folder.icon} ${folder.label}</h2>
+                    style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;
+                    padding:8px 16px;border-radius:50px;cursor:pointer;transition:all .2s;
+                    background:${folder.color}12;color:${folder.color};border:1.5px solid ${folder.color}30">
+                    ← ${l==='bn'?'ফোল্ডারে ফিরুন':'Back'}
+                </button>
+                <h2 class="font-bold text-xl flex items-center gap-2">${folder.icon} ${folder.label}</h2>
             </div>
-            ${state.isAdmin?`<button data-action="openFolderUpload" data-param="${tab}"
-                class="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white whitespace-nowrap"
-                style="background:linear-gradient(135deg,${folder.color},${folder.color}cc);box-shadow:0 4px 14px ${folder.color}44">
-                ＋ ${l==='bn'?'পিডিএফ আপলোড':'Upload PDF'}
-            </button>`:''}
+            ${state.isAdmin?`
+            <button data-action="openFolderUpload" data-param="${tab}"
+                style="font-size:12.5px;font-weight:700;padding:9px 20px;border-radius:50px;
+                background:linear-gradient(135deg,${folder.color},${folder.color}bb);color:white;
+                border:none;cursor:pointer;display:flex;align-items:center;gap:6px;
+                box-shadow:0 4px 14px ${folder.color}40">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                ${l==='bn'?'পিডিএফ আপলোড':'Upload PDF'}
+            </button>`:''
+        }
         </div>
 
         <!-- PDF grid -->
         ${folder.list.length===0?`
-        <div class="text-center py-16 ${d?'text-gray-400':'text-gray-500'}">
-            <div class="text-6xl mb-4">${folder.icon}</div>
-            <p class="text-xl font-bold mb-2">${l==='bn'?'এই ফোল্ডারে কোনো পিডিএফ নেই':'This folder is empty'}</p>
-            ${state.isAdmin?`<p class="text-sm mb-4">${l==='bn'?'উপরের বাটন থেকে পিডিএফ আপলোড করুন':'Upload a PDF using the button above'}</p>`:`<p class="text-sm">${l==='bn'?'🔐 অ্যাডমিন শীঘ্রই আপলোড করবেন':'🔐 Admin will upload soon'}</p>`}
+        <div class="text-center py-16 reveal" style="color:${d?'#6b7280':'#9ca3af'}">
+            <div style="font-size:4rem;margin-bottom:1rem;opacity:.5">${folder.icon}</div>
+            <p class="font-bold text-lg mb-1">${l==='bn'?'এই ফোল্ডারে কোনো পিডিএফ নেই':'This folder is empty'}</p>
+            ${state.isAdmin
+                ?`<p class="text-sm">${l==='bn'?'উপরের বাটন থেকে পিডিএফ আপলোড করুন':'Upload a PDF using the button above'}</p>`
+                :`<p class="text-sm">${l==='bn'?'🔐 অ্যাডমিন শীঘ্রই আপলোড করবেন':'🔐 Admin will upload soon'}</p>`}
         </div>`:`
-        <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-5">
-            ${folder.list.map(pdf=>`
-            <div class="${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-2xl p-5 flex flex-col card-hover" style="border-top:3px solid ${folder.color}">
-                <div class="w-full h-36 rounded-xl flex items-center justify-center text-5xl mb-4" style="background:${folder.bg}">${folder.icon}</div>
-                <h3 class="font-bold text-sm mb-1 flex-1 leading-snug">${sanitize(pdf.name)}</h3>
-                <p class="text-xs ${d?'text-gray-400':'text-gray-500'} mb-4">${sanitize(pdf.sizeFmt||'')} • ${sanitize(pdf.uploadDate||'')}</p>
-                <div class="flex gap-2">
-                    <button data-action="openViewer" data-param="${pdf.id}" data-vtype="pdf" data-listkey="${listKey}"
-                        class="flex-1 py-2 rounded-lg text-sm font-semibold hover:opacity-90 text-white" style="background:${folder.color}">
-                        👁 ${l==='bn'?'পড়ুন':'Read'}
-                    </button>
-                    <button data-action="downloadFile" data-param="${pdf.id}" data-name="${sanitize(pdf.name)}"
-                        class="flex-1 py-2 rounded-lg text-sm font-semibold hover:opacity-90 ${d?'bg-gray-700 text-gray-200':'bg-gray-100 text-gray-700'}">
-                        ⬇ ${l==='bn'?'ডাউনলোড':'Download'}
-                    </button>
-                    ${state.isAdmin?`<button data-action="deleteFile" data-param="${pdf.id}" data-listkey="${listKey}"
-                        class="${d?'bg-red-900 text-red-300':'bg-red-100 text-red-600'} px-3 py-2 rounded-lg text-sm hover:opacity-90">🗑</button>`:''}
+        <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+            ${folder.list.map((pdf,pi)=>`
+            <div class="card-luxury border flex flex-col reveal"
+                style="background:${d?'#1e2a22':'#ffffff'};border-color:${d?'rgba(5,150,105,.15)':'rgba(5,150,105,.1)'};
+                animation:fadeInUp .4s ease-out ${pi*.04}s both;box-shadow:var(--shadow-sm)">
+                <div style="height:3px;background:${folder.color};border-radius:var(--r-lg) var(--r-lg) 0 0;flex-shrink:0"></div>
+                <!-- Thumbnail -->
+                <div class="flex items-center justify-center"
+                    style="height:120px;background:${folder.grad};border-radius:0;flex-shrink:0">
+                    <div style="font-size:3rem;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3));opacity:.9">${folder.icon}</div>
+                </div>
+                <div class="p-4 flex flex-col flex-1">
+                    <h3 class="font-bold text-sm mb-1 leading-snug flex-1" style="color:${d?'#f9fafb':'#111827'}">${sanitize(pdf.name)}</h3>
+                    <p class="text-xs mb-3" style="color:${d?'#6b7280':'#9ca3af'}">${sanitize(pdf.sizeFmt||'')} · ${sanitize(pdf.uploadDate||'')}</p>
+                    <div class="flex gap-2">
+                        <button data-action="openViewer" data-param="${pdf.id}" data-vtype="pdf" data-listkey="${listKey}"
+                            style="flex:1;padding:8px;border-radius:12px;font-size:11.5px;font-weight:700;
+                            background:linear-gradient(135deg,${folder.color},${folder.color}bb);
+                            color:white;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            ${l==='bn'?'পড়ুন':'Read'}
+                        </button>
+                        <button data-action="downloadFile" data-param="${pdf.id}" data-name="${sanitize(pdf.name)}"
+                            style="flex:1;padding:8px;border-radius:12px;font-size:11.5px;font-weight:700;
+                            background:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.05)'};
+                            color:${d?'#d1d5db':'#374151'};border:1.5px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'};
+                            cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            ${l==='bn'?'ডাউনলোড':'Download'}
+                        </button>
+                        ${state.isAdmin?`
+                        <button data-action="deleteFile" data-param="${pdf.id}" data-listkey="${listKey}"
+                            style="width:36px;border-radius:12px;background:rgba(220,38,38,.1);
+                            border:1.5px solid rgba(220,38,38,.2);color:#ef4444;cursor:pointer;font-size:13px;
+                            display:flex;align-items:center;justify-content:center">🗑</button>`:''
+                        }
+                    </div>
                 </div>
             </div>`).join('')}
         </div>`}
     </div>`;
 }
-
-
 // ============================================================================
 // PAGE: MEDIA (Image / Video / Audio)
 // ============================================================================
 function renderMediaPage() {
     const d=state.darkMode; const l=state.language;
-    const tabs = [
-        {key:'imageList',label:l==='bn'?'ছবি':'Images',icon:'🖼️',type:'image',uploadKey:'image'},
-        {key:'videoList',label:l==='bn'?'ভিডিও':'Videos',icon:'🎬',type:'video',uploadKey:'video'},
-        {key:'audioList',label:l==='bn'?'অডিও':'Audio',icon:'🎵',type:'audio',uploadKey:'audio'}
+    const tabs=[
+        {key:'imageList', label:l==='bn'?'ছবি':'Images',  icon:'🖼️', type:'image', uploadKey:'image', color:'#7c3aed', grad:'linear-gradient(135deg,#3b0764,#7c3aed)'},
+        {key:'videoList', label:l==='bn'?'ভিডিও':'Videos', icon:'🎬', type:'video', uploadKey:'video', color:'#dc2626', grad:'linear-gradient(135deg,#450a0a,#dc2626)'},
+        {key:'audioList', label:l==='bn'?'অডিও':'Audio',   icon:'🎵', type:'audio', uploadKey:'audio', color:'#059669', grad:'linear-gradient(135deg,#022c22,#059669)'},
     ];
     return `
-    <div class="space-y-10">
-        <h2 class="text-3xl font-bold">🎭 ${t('media')}</h2>
+    <div class="space-y-10 page-enter">
+        <div class="reveal">
+            <h2 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#7c3aed,#dc2626);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+                🎭 ${t('media')}
+            </h2>
+            <p class="text-sm mt-1" style="color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?'ছবি, ভিডিও ও অডিও সংকলন':'Images, videos & audio collection'}</p>
+        </div>
         ${tabs.map(tab=>`
-        <div>
-            <div class="flex flex-wrap justify-between items-center mb-5 gap-3">
-                <h3 class="text-xl font-bold">${tab.icon} ${tab.label}</h3>
-                ${state.isAdmin?`<button data-action="openUploadModal" data-param="${tab.uploadKey}"
-                    class="${d?'bg-purple-900 text-purple-300':'bg-purple-600 text-white'} px-4 py-2 rounded-xl text-sm font-semibold hover:opacity-90 focus:outline-none"
-                >+ ${l==='bn'?'আপলোড':'Upload'}</button>`:''}
+        <div class="reveal">
+            <div class="section-heading">
+                <span style="width:32px;height:32px;border-radius:10px;background:${tab.grad};display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;box-shadow:0 4px 12px ${tab.color}40">${tab.icon}</span>
+                <h3 class="font-bold text-base" style="color:${d?'#f9fafb':'#111827'}">${tab.label}</h3>
+                ${state.isAdmin?`
+                <button data-action="openUploadModal" data-param="${tab.uploadKey}"
+                    style="margin-left:auto;font-size:11.5px;font-weight:700;padding:6px 16px;border-radius:50px;
+                    background:${tab.color}18;color:${tab.color};border:1.5px solid ${tab.color}30;cursor:pointer">
+                    + ${l==='bn'?'আপলোড':'Upload'}
+                </button>`:''}
             </div>
-            ${(state[tab.key] || []).length===0?`
-                <div class="text-center py-12 ${d?'text-gray-500':'text-gray-400'} border-2 border-dashed ${d?'border-gray-700':'border-gray-200'} rounded-2xl">
-                    <div class="text-5xl mb-3 opacity-60">${tab.icon}</div>
-                    <p class="font-semibold">${l==='bn'?`কোনো ${tab.label} নেই`:`No ${tab.label} yet`}</p>
-                    <p class="text-xs mt-1 ${d?'text-gray-600':'text-gray-400'}">${l==='bn'?'অ্যাডমিন শীঘ্রই যোগ করবেন':'Admin will add content soon'}</p>
-                </div>`:`
-                <div class="grid sm:grid-cols-2 ${tab.type==='audio'?'md:grid-cols-2':'md:grid-cols-3'} gap-5">
-                    ${state[tab.key].map(item=>renderMediaCard(item,tab.type,tab.key,d,l)).join('')}
-                </div>`}
+            ${(state[tab.key]||[]).length===0?`
+            <div class="text-center py-10 rounded-2xl" style="border:2px dashed ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}">
+                <div style="font-size:3rem;margin-bottom:.6rem;opacity:.45">${tab.icon}</div>
+                <p class="font-semibold text-sm" style="color:${d?'#6b7280':'#9ca3af'}">${l==='bn'?`কোনো ${tab.label} নেই`:`No ${tab.label} yet`}</p>
+                <p class="text-xs mt-1" style="color:${d?'#4b5563':'#d1d5db'}">${l==='bn'?'অ্যাডমিন শীঘ্রই যোগ করবেন':'Admin will add content soon'}</p>
+            </div>`:`
+            <div class="grid sm:grid-cols-2 ${tab.type==='audio'?'md:grid-cols-2':'md:grid-cols-3'} gap-4">
+                ${(state[tab.key]||[]).map((item,pi)=>renderMediaCard(item,tab.type,tab.key,d,l,tab.color,tab.grad,pi)).join('')}
+            </div>`}
         </div>`).join('')}
     </div>`;
 }
 
-function renderMediaCard(item, type, listKey, d, l) {
+function renderMediaCard(item, type, listKey, d, l, color='#059669', grad='linear-gradient(135deg,#022c22,#059669)', pi=0) {
+    color = color||'#059669'; grad = grad||'linear-gradient(135deg,#022c22,#059669)';
     const thumb = type==='image'
-        ? `<div class="${d?'bg-gray-700':'bg-gray-100'} h-44 rounded-xl overflow-hidden flex items-center justify-center mb-3">
+        ? `<div style="height:160px;border-radius:0;overflow:hidden;background:${d?'#111827':'#f3f4f6'};position:relative">
                ${item.cloudUrl
-                   ? `<img src="${item.cloudUrl}" class="w-full h-full object-cover" alt="${sanitize(item.name)}" loading="lazy" />`
-                   : `<img src="" data-src-id="${item.id}" class="lazy-img w-full h-full object-cover" alt="${sanitize(item.name)}" loading="lazy" />`
-               }
+                   ?`<img src="${item.cloudUrl}" style="width:100%;height:100%;object-fit:cover" alt="${sanitize(item.name)}" loading="lazy"/>`
+                   :`<img src="" data-src-id="${item.id}" class="lazy-img" style="width:100%;height:100%;object-fit:cover" alt="${sanitize(item.name)}" loading="lazy"/>`}
+               <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.3),transparent);pointer-events:none"></div>
            </div>`
         : type==='video'
-        ? `<div class="${d?'bg-gray-900':'bg-gray-800'} h-44 rounded-xl overflow-hidden flex items-center justify-center mb-3 relative">
-               ${item.cloudUrl?`<video src="${item.cloudUrl}" class="w-full h-full object-cover opacity-70" muted preload="metadata" style="pointer-events:none"></video>`:`<div class="text-5xl">🎬</div>`}
-               <div class="absolute inset-0 flex items-center justify-center">
-                   <div class="w-14 h-14 rounded-full flex items-center justify-center" style="background:rgba(5,150,105,0.85);box-shadow:0 4px 20px rgba(5,150,105,.5)"><span style="font-size:1.4rem;margin-left:3px">▶</span></div>
+        ? `<div style="height:160px;background:${d?'#0f172a':'#1e293b'};position:relative;overflow:hidden">
+               ${item.cloudUrl?`<video src="${item.cloudUrl}" style="width:100%;height:100%;object-fit:cover;opacity:.65" muted preload="metadata"></video>`:''}
+               <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+                   <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,${color},${color}bb);box-shadow:0 4px 20px ${color}60;display:flex;align-items:center;justify-content:center">
+                       <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                   </div>
                </div>
            </div>`
-        : `<div class="${d?'bg-gradient-to-br from-gray-800 to-gray-900':'bg-gradient-to-br from-green-50 to-emerald-100'} h-28 rounded-xl flex items-center justify-center mb-3">
-               <div class="text-4xl">🎵</div>
+        : `<div style="height:100px;background:${grad};display:flex;align-items:center;justify-content:center">
+               <div style="text-align:center">
+                   <div style="font-size:2.2rem;margin-bottom:.3rem">🎵</div>
+                   <div style="width:44px;height:3px;background:rgba(255,255,255,.4);border-radius:2px;margin:0 auto"></div>
+               </div>
            </div>`;
-
     return `
-    <div class="${d?'bg-gray-800':'bg-white'} border rounded-xl p-4 fade-in card-hover">
+    <div class="card-luxury border flex flex-col"
+        style="background:${d?'#1e2a22':'#ffffff'};border-color:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.08)'};
+        box-shadow:var(--shadow-sm);animation:fadeInUp .4s ease-out ${pi*.04}s both;overflow:hidden">
+        <div style="height:2.5px;background:${color};flex-shrink:0"></div>
         ${thumb}
-        <h4 class="font-semibold text-sm mb-1 truncate">${sanitize(item.name)}</h4>
-        <p class="text-xs ${d?'text-gray-400':'text-gray-500'} mb-3">${sanitize(item.sizeFmt)} • ${sanitize(item.uploadDate)}</p>
-        <div class="flex gap-2">
-            <button data-action="openViewer" data-param="${item.id}" data-vtype="${type}" data-listkey="${listKey}"
-                class="${d?'bg-blue-900 text-blue-300':'bg-blue-600 text-white'} flex-1 py-2 rounded-lg text-xs font-semibold hover:opacity-90"
-            >👁 ${l==='bn'?(type==='audio'?'শুনুন':'দেখুন'):(type==='audio'?'Play':'View')}</button>
-            <button data-action="downloadFile" data-param="${item.id}" data-name="${sanitize(item.name)}"
-                class="${d?'bg-green-900 text-green-300':'bg-green-600 text-white'} flex-1 py-2 rounded-lg text-xs font-semibold hover:opacity-90"
-            >⬇ ${l==='bn'?'ডাউনলোড':'Download'}</button>
-            ${state.isAdmin?`<button data-action="deleteFile" data-param="${item.id}" data-listkey="${listKey}"
-                class="${d?'bg-red-900 text-red-300':'bg-red-600 text-white'} px-3 py-2 rounded-lg text-xs hover:opacity-90"
-            >🗑</button>`:''}
+        <div class="p-4 flex flex-col flex-1">
+            <h4 class="font-semibold text-sm mb-1 truncate" style="color:${d?'#f9fafb':'#111827'}">${sanitize(item.name)}</h4>
+            <p class="text-xs mb-3" style="color:${d?'#6b7280':'#9ca3af'}">${sanitize(item.sizeFmt||'')} · ${sanitize(item.uploadDate||'')}</p>
+            <div class="flex gap-2 mt-auto">
+                <button data-action="openViewer" data-param="${item.id}" data-vtype="${type}" data-listkey="${listKey}"
+                    style="flex:1;padding:7px;border-radius:10px;font-size:11.5px;font-weight:700;
+                    background:linear-gradient(135deg,${color},${color}bb);color:white;border:none;cursor:pointer;
+                    display:flex;align-items:center;justify-content:center;gap:5px">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    ${l==='bn'?(type==='audio'?'শুনুন':'দেখুন'):(type==='audio'?'Play':'View')}
+                </button>
+                <button data-action="downloadFile" data-param="${item.id}" data-name="${sanitize(item.name)}"
+                    style="flex:1;padding:7px;border-radius:10px;font-size:11.5px;font-weight:700;
+                    background:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.05)'};
+                    color:${d?'#d1d5db':'#374151'};border:1.5px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'};
+                    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    ${l==='bn'?'ডাউনলোড':'Download'}
+                </button>
+                ${state.isAdmin?`
+                <button data-action="deleteFile" data-param="${item.id}" data-listkey="${listKey}"
+                    style="width:34px;border-radius:10px;background:rgba(220,38,38,.1);border:1.5px solid rgba(220,38,38,.2);
+                    color:#ef4444;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center">🗑</button>`:''
+                }
+            </div>
         </div>
     </div>`;
 }
-
 // ============================================================================
 // PAGE: VIEWER (PDF / Image / Video / Audio)
 // ============================================================================
@@ -3230,147 +3806,209 @@ function renderDuaPage() {
     const d=state.darkMode; const l=state.language;
     const tab = state.duaTab || 'dua';
     const selectedCategory = state.duaCategory || 'all';
-    const allDuas = [...state.customDuas, ...duas];
-    const allZiyarat = [...ziyarats, ...state.customZiyarat];
-    
-    const filteredDuas = selectedCategory === 'all' 
-        ? allDuas 
-        : allDuas.filter(dua => dua.category === selectedCategory);
+    const allDuas    = [...state.customDuas,...duas];
+    const allZiyarat = [...ziyarats,...state.customZiyarat];
+    const filteredDuas = selectedCategory==='all' ? allDuas : allDuas.filter(dua=>dua.category===selectedCategory);
+
+    const catFilters=[
+        {key:'all',     icon:'✦', label:l==='bn'?'সকল দোয়া':'All Duas',   color:'#059669', bg:'rgba(5,150,105,.15)'},
+        {key:'morning', icon:'🌅', label:l==='bn'?'সকাল':'Morning',         color:'#0ea5e9', bg:'rgba(14,165,233,.15)'},
+        {key:'night',   icon:'🌙', label:l==='bn'?'রাত':'Night',             color:'#8b5cf6', bg:'rgba(139,92,246,.15)'},
+        {key:'hardship',icon:'⚠️', label:l==='bn'?'বিপদে':'Hardship',       color:'#ef4444', bg:'rgba(239,68,68,.15)'},
+        {key:'gratitude',icon:'🙏',label:l==='bn'?'কৃতজ্ঞতা':'Gratitude',  color:'#10b981', bg:'rgba(16,185,129,.15)'},
+    ];
+
     return `
-    <div class="space-y-6">
+    <div class="space-y-6 page-enter">
+
         <!-- Header -->
-        <div class="flex flex-wrap justify-between items-center gap-3 page-enter">
-            <h2 class="text-3xl font-bold">🤲 ${t('dua')}</h2>
-            ${state.isAdmin ? `
+        <div class="flex flex-wrap justify-between items-center gap-3 reveal">
+            <div>
+                <h2 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#059669,#b45309);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+                    🤲 ${t('dua')}
+                </h2>
+                <p class="text-sm mt-1" style="color:${d?'#9ca3af':'#6b7280'}">
+                    ${l==='bn'?`${allDuas.length} দোয়া · ${allZiyarat.length} যিয়ারত`:`${allDuas.length} Duas · ${allZiyarat.length} Ziyarat`}
+                </p>
+            </div>
+            ${state.isAdmin?`
             <div class="flex gap-2 flex-wrap">
-                ${tab==='dua'?`<button data-action="openDuaEditor" data-param="dua" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-xl font-semibold text-sm transition-colors whitespace-nowrap">+ ${l==='bn'?'নতুন দোয়া':'Add Dua'}</button>`:''}
-                ${tab==='ziyarat'?`<button data-action="openDuaEditor" data-param="ziyarat" class="flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 rounded-xl font-semibold text-sm transition-colors whitespace-nowrap">+ ${l==='bn'?'নতুন যিয়ারত':'Add Ziyarat'}</button>`:''}
-            </div>` : ''}
+                ${tab==='dua'?`
+                <button data-action="openDuaEditor" data-param="dua"
+                    style="font-size:12.5px;font-weight:700;padding:9px 18px;border-radius:50px;
+                    background:linear-gradient(135deg,#059669,#047857);color:white;border:none;
+                    cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(5,150,105,.38)">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    ${l==='bn'?'নতুন দোয়া':'Add Dua'}
+                </button>`:''}
+                ${tab==='ziyarat'?`
+                <button data-action="openDuaEditor" data-param="ziyarat"
+                    style="font-size:12.5px;font-weight:700;padding:9px 18px;border-radius:50px;
+                    background:linear-gradient(135deg,#b45309,#92400e);color:white;border:none;
+                    cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(180,83,9,.38)">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    ${l==='bn'?'নতুন যিয়ারত':'Add Ziyarat'}
+                </button>`:''}
+            </div>`:''
+        }
         </div>
 
-        <!-- Tabs -->
-        <div class="flex flex-wrap gap-2 ${d?'bg-gray-800':'bg-gray-100'} p-1 rounded-2xl w-fit">
+        <!-- Tab switcher -->
+        <div class="flex gap-2 p-1 rounded-2xl w-fit reveal"
+            style="background:${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)'}">
             <button data-action="setDuaTab" data-param="dua"
-                class="${tab==='dua'?(d?'bg-green-700 text-white shadow':'bg-white text-green-700 shadow-sm'):(d?'text-gray-400 hover:text-white':'text-gray-500 hover:text-gray-900')} px-4 py-2 rounded-xl font-semibold text-sm transition-all">
-                🤲 ${l==='bn'?'দোয়া':'Duas'} <span class="ml-1 text-xs opacity-70">${allDuas.length}</span>
+                style="padding:9px 22px;border-radius:14px;font-size:.85rem;font-weight:700;
+                cursor:pointer;transition:all .22s;border:none;
+                background:${tab==='dua'?'linear-gradient(135deg,#059669,#047857)':'transparent'};
+                color:${tab==='dua'?'white':(d?'#9ca3af':'#6b7280')};
+                box-shadow:${tab==='dua'?'0 4px 14px rgba(5,150,105,.38)':'none'}">
+                🤲 ${l==='bn'?'দোয়া':'Duas'}
+                <span style="font-size:.7rem;opacity:.75;margin-left:4px">${allDuas.length}</span>
             </button>
             <button data-action="setDuaTab" data-param="ziyarat"
-                class="${tab==='ziyarat'?(d?'bg-amber-700 text-white shadow':'bg-white text-amber-700 shadow-sm'):(d?'text-gray-400 hover:text-white':'text-gray-500 hover:text-gray-900')} px-4 py-2 rounded-xl font-semibold text-sm transition-all">
-                ☪️ ${l==='bn'?'যিয়ারত':'Ziyarat'} <span class="ml-1 text-xs opacity-70">${allZiyarat.length}</span>
+                style="padding:9px 22px;border-radius:14px;font-size:.85rem;font-weight:700;
+                cursor:pointer;transition:all .22s;border:none;
+                background:${tab==='ziyarat'?'linear-gradient(135deg,#b45309,#92400e)':'transparent'};
+                color:${tab==='ziyarat'?'white':(d?'#9ca3af':'#6b7280')};
+                box-shadow:${tab==='ziyarat'?'0 4px 14px rgba(180,83,9,.35)':'none'}">
+                ☪️ ${l==='bn'?'যিয়ারত':'Ziyarat'}
+                <span style="font-size:.7rem;opacity:.75;margin-left:4px">${allZiyarat.length}</span>
             </button>
         </div>
 
-        <!-- CATEGORY FILTER - Only show on Dua tab -->
-        ${tab==='dua' ? `
-        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:8px">
-            <div style="display:flex;gap:8px;width:max-content;padding:2px 1px;flex-wrap:nowrap">
-                <button data-action="setDuaCategory" data-param="all" 
-                    class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap"
-                    style="${selectedCategory==='all'?'background:rgba(5,150,105,.2);color:#059669;border:1.5px solid rgba(5,150,105,.35)':'border:1.5px solid '+(d?'rgba(255,255,255,.12)':'rgba(0,0,0,.1)')+';color:'+(d?'#9ca3af':'#6b7280')+';background:transparent'}">
-                    ${l==='bn'?'সকল দোয়া':'All Duas'}
-                </button>
-                <button data-action="setDuaCategory" data-param="morning"
-                    class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap"
-                    style="${selectedCategory==='morning'?'background:rgba(14,165,233,.2);color:#0ea5e9;border:1.5px solid rgba(14,165,233,.35)':'border:1.5px solid '+(d?'rgba(255,255,255,.12)':'rgba(0,0,0,.1)')+';color:'+(d?'#9ca3af':'#6b7280')+';background:transparent'}">
-                    🌅 ${l==='bn'?'সকাল':'Morning'}
-                </button>
-                <button data-action="setDuaCategory" data-param="night"
-                    class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap"
-                    style="${selectedCategory==='night'?'background:rgba(139,92,246,.2);color:#8b5cf6;border:1.5px solid rgba(139,92,246,.35)':'border:1.5px solid '+(d?'rgba(255,255,255,.12)':'rgba(0,0,0,.1)')+';color:'+(d?'#9ca3af':'#6b7280')+';background:transparent'}">
-                    🌙 ${l==='bn'?'রাত':'Night'}
-                </button>
-                <button data-action="setDuaCategory" data-param="hardship"
-                    class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap"
-                    style="${selectedCategory==='hardship'?'background:rgba(239,68,68,.2);color:#ef4444;border:1.5px solid rgba(239,68,68,.35)':'border:1.5px solid '+(d?'rgba(255,255,255,.12)':'rgba(0,0,0,.1)')+';color:'+(d?'#9ca3af':'#6b7280')+';background:transparent'}">
-                    ⚠️ ${l==='bn'?'বিপদে':'Hardship'}
-                </button>
-                <button data-action="setDuaCategory" data-param="gratitude"
-                    class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap"
-                    style="${selectedCategory==='gratitude'?'background:rgba(16,185,129,.2);color:#10b981;border:1.5px solid rgba(16,185,129,.35)':'border:1.5px solid '+(d?'rgba(255,255,255,.12)':'rgba(0,0,0,.1)')+';color:'+(d?'#9ca3af':'#6b7280')+';background:transparent'}">
-                    🙏 ${l==='bn'?'কৃতজ্ঞতা':'Gratitude'}
-                </button>
+        <!-- Category filter (dua tab only) -->
+        ${tab==='dua'?`
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 1px 6px">
+            <div style="display:flex;gap:7px;width:max-content">
+                ${catFilters.map(f=>{
+                    const isActive=selectedCategory===f.key;
+                    return `<button data-action="setDuaCategory" data-param="${f.key}"
+                        style="flex-shrink:0;font-size:11.5px;font-weight:700;padding:6px 16px;border-radius:50px;
+                        cursor:pointer;white-space:nowrap;transition:all .18s;
+                        background:${isActive?f.color:(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)')};
+                        color:${isActive?'#fff':(d?'#9ca3af':'#6b7280')};
+                        border:1.5px solid ${isActive?f.color:(d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)')}">
+                        ${f.icon} ${f.label}
+                    </button>`;
+                }).join('')}
             </div>
-        </div>
-        ` : ''}
+        </div>`:''}
 
-        <!-- DUA TAB -->
-        ${tab==='dua' ? `
-        <div class="space-y-5">
-            ${filteredDuas.length===0 ? `
-            <div class="text-center py-16 ${d?'text-gray-500':'text-gray-400'}">
-                <div class="text-5xl mb-3">🤲</div>
-                <p>${l==='bn'?'কোনো দোয়া নেই':'No duas yet'}</p>
-            </div>` :
+        <!-- DUA TAB content -->
+        ${tab==='dua'?`
+        <div class="space-y-4">
+            ${filteredDuas.length===0?`
+            <div class="text-center py-16" style="color:${d?'#6b7280':'#9ca3af'}">
+                <div style="font-size:3rem;margin-bottom:.75rem">🤲</div>
+                <p class="font-semibold">${l==='bn'?'কোনো দোয়া নেই':'No duas yet'}</p>
+            </div>`:
             filteredDuas.map((dua,i)=>{
-                const isCustom = !!dua.id;
-                const idx = isCustom ? i : (i - state.customDuas.length);
+                const isCustom=!!dua.id;
+                const idx=isCustom?i:(i-state.customDuas.length);
                 return `
-                <article class="${d?'bg-gray-800':'bg-white'} border rounded-2xl p-6 card-hover dua-card-accent fade-in" style="box-shadow:var(--shadow-card)">
-                    <div class="flex items-start justify-between gap-3 mb-4">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-1">
-                                ${isCustom ? `<span class="${d?'gold-badge-dark':'gold-badge'}">${l==='bn'?'কাস্টম':'Custom'}</span>` : ''}
-                                <h3 class="text-xl font-bold">${sanitize(l==='bn'?dua.titleBn:dua.titleEn)}</h3>
+                <article class="card-luxury border reveal"
+                    style="background:${d?'#1e2a22':'#ffffff'};
+                    border-color:${d?'rgba(5,150,105,.15)':'rgba(5,150,105,.1)'};
+                    box-shadow:var(--shadow-sm)">
+                    <div style="height:3px;background:linear-gradient(90deg,#059669,#c9a227,#059669);background-size:200% 100%;animation:goldShimmer 3s linear infinite;border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
+                    <div class="p-5">
+                        <!-- Title row -->
+                        <div class="flex items-start justify-between gap-3 mb-4">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    ${isCustom?`<span class="${d?'gold-badge-dark':'gold-badge'}">${l==='bn'?'কাস্টম':'Custom'}</span>`:''}
+                                    <h3 class="font-bold text-base" style="color:${d?'#f9fafb':'#111827'}">${sanitize(l==='bn'?dua.titleBn:dua.titleEn)}</h3>
+                                </div>
+                                ${dua.source?`<p class="text-xs" style="color:${d?'#6b7280':'#9ca3af'}">${sanitize(dua.source)}</p>`:''}
                             </div>
-                            ${dua.source ? `<p class="text-xs ${d?'text-gray-400':'text-gray-500'}">${sanitize(dua.source)}</p>` : ''}
+                            ${state.isAdmin&&isCustom?`
+                            <div class="flex gap-1 flex-shrink-0">
+                                <button data-action="editCustomDua" data-param="${dua.id}" data-dtype="dua"
+                                    style="width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;background:${d?'rgba(59,130,246,.15)':'rgba(59,130,246,.1)'};border:1px solid rgba(59,130,246,.25);color:${d?'#93c5fd':'#1d4ed8'}">✏️</button>
+                                <button data-action="deleteCustomDua" data-param="${dua.id}" data-dtype="dua"
+                                    style="width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.2);color:#ef4444">🗑</button>
+                            </div>`:''}
                         </div>
-                        ${state.isAdmin && isCustom ? `
-                        <div class="flex gap-1 flex-shrink-0">
-                            <button data-action="editCustomDua" data-param="${dua.id}" data-dtype="dua"
-                                class="${d?'bg-blue-900 text-blue-300 hover:bg-blue-800':'bg-blue-100 text-blue-700 hover:bg-blue-200'} p-2 rounded-lg text-sm transition-colors" title="${l==='bn'?'সম্পাদনা':'Edit'}">✏️</button>
-                            <button data-action="deleteCustomDua" data-param="${dua.id}" data-dtype="dua"
-                                class="${d?'bg-red-900 text-red-300 hover:bg-red-800':'bg-red-100 text-red-700 hover:bg-red-200'} p-2 rounded-lg text-sm transition-colors" title="${l==='bn'?'মুছুন':'Delete'}">🗑</button>
-                        </div>` : ''}
+                        <!-- Arabic block -->
+                        <div class="rounded-2xl p-5 mb-4"
+                            style="background:${d?'rgba(180,83,9,.08)':'rgba(254,243,199,.6)'};border:1px solid ${d?'rgba(180,83,9,.18)':'rgba(180,83,9,.14)'}">
+                            <p class="arabic-text arabic-reveal text-center mb-3" dir="rtl" lang="ar"
+                                style="font-size:1.6rem;line-height:2.2;color:${d?'#fbbf24':'#78350f'}">
+                                ${sanitize(dua.arabic)}
+                            </p>
+                            ${dua.transliteration?`<p class="text-center text-xs italic mb-2" style="color:${d?'#9ca3af':'#6b7280'}">${sanitize(dua.transliteration)}</p>`:''}
+                            <p class="text-center text-sm leading-relaxed" style="color:${d?'#d1d5db':'#374151'}">${sanitize(l==='bn'?dua.meaningBn:dua.meaningEn)}</p>
+                        </div>
+                        <!-- Read more -->
+                        <button data-action="readDua" data-param="${isCustom?'c'+dua.id:idx}"
+                            style="font-size:12.5px;font-weight:700;padding:8px 20px;border-radius:50px;
+                            background:rgba(5,150,105,.12);color:${d?'#34d399':'#059669'};
+                            border:1.5px solid rgba(5,150,105,.25);cursor:pointer;
+                            display:inline-flex;align-items:center;gap:6px;transition:all .2s">
+                            ${t('readMore')}
+                            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+                        </button>
                     </div>
-                    <div class="${d?'bg-gray-900 border-gray-700':'bg-amber-50 border-amber-100'} border rounded-xl p-5 mb-4">
-                        <p class="arabic-text arabic-reveal text-center mb-3" dir="rtl" lang="ar" style="font-size:1.6rem;line-height:2.2">${sanitize(dua.arabic)}</p>
-                        ${dua.transliteration ? `<p class="text-center text-xs italic ${d?'text-gray-400':'text-gray-500'} mb-2">${sanitize(dua.transliteration)}</p>` : ''}
-                        <p class="text-center text-sm ${d?'text-gray-300':'text-gray-600'} leading-relaxed">${sanitize(l==='bn'?dua.meaningBn:dua.meaningEn)}</p>
-                    </div>
-                    <button data-action="readDua" data-param="${isCustom?'c'+dua.id:idx}" class="${d?'text-green-400':'text-green-600'} font-semibold hover:underline text-sm">${t('readMore')} →</button>
-                </article>`}).join('')}
-        </div>` : ''}
+                </article>`;
+            }).join('')}
+        </div>`:''}
 
-        <!-- ZIYARAT TAB -->
-        ${tab==='ziyarat' ? `
-        <div class="space-y-5">
-            ${allZiyarat.length===0 ? `
-            <div class="text-center py-16 ${d?'text-gray-500':'text-gray-400'}">
-                <div class="text-5xl mb-3">☪️</div>
-                <p class="text-lg font-medium mb-1">${l==='bn'?'কোনো যিয়ারত নেই':'No Ziyarat yet'}</p>
-                ${state.isAdmin ? `<p class="text-sm">${l==='bn'?'উপরের বাটন থেকে যিয়ারত যোগ করুন':'Use the button above to add Ziyarat'}</p>` : ''}
-            </div>` :
+        <!-- ZIYARAT TAB content -->
+        ${tab==='ziyarat'?`
+        <div class="space-y-4">
+            ${allZiyarat.length===0?`
+            <div class="text-center py-16" style="color:${d?'#6b7280':'#9ca3af'}">
+                <div style="font-size:3rem;margin-bottom:.75rem">☪️</div>
+                <p class="font-semibold text-lg mb-1">${l==='bn'?'কোনো যিয়ারত নেই':'No Ziyarat yet'}</p>
+                ${state.isAdmin?`<p class="text-sm">${l==='bn'?'উপরের বাটন থেকে যিয়ারত যোগ করুন':'Use the button above to add Ziyarat'}</p>`:''}
+            </div>`:
             allZiyarat.map((z,i)=>`
-                <article class="${d?'bg-gray-800':'bg-white'} border rounded-2xl p-6 card-hover fade-in" style="border-top:3px solid #B45309;box-shadow:var(--shadow-card)">
+            <article class="card-luxury border reveal"
+                style="background:${d?'#1e1a14':'#fffbf0'};
+                border-color:${d?'rgba(180,83,9,.2)':'rgba(180,83,9,.15)'};
+                box-shadow:var(--shadow-sm)">
+                <div style="height:3px;background:linear-gradient(90deg,#b45309,#c9a227,#b45309);background-size:200% 100%;animation:goldShimmer 3s linear infinite;border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
+                <div class="p-5">
                     <div class="flex items-start justify-between gap-3 mb-4">
                         <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-1">
+                            <div class="flex items-center gap-2 mb-1 flex-wrap">
                                 <span class="${d?'gold-badge-dark':'gold-badge'}">☪️ ${l==='bn'?'যিয়ারত':'Ziyarat'}</span>
-                                <h3 class="text-xl font-bold">${sanitize(l==='bn'?z.titleBn:z.titleEn)}</h3>
+                                <h3 class="font-bold text-base" style="color:${d?'#f9fafb':'#111827'}">${sanitize(l==='bn'?z.titleBn:z.titleEn)}</h3>
                             </div>
-                            ${z.occasion ? `<p class="text-xs ${d?'text-amber-400':'text-amber-700'} font-medium mt-1">📅 ${sanitize(z.occasion)}</p>` : ''}
-                            ${z.source ? `<p class="text-xs ${d?'text-gray-400':'text-gray-500'} mt-0.5">${sanitize(z.source)}</p>` : ''}
+                            ${z.occasion?`<p class="text-xs font-semibold mt-1" style="color:${d?'#fbbf24':'#92400e'}">📅 ${sanitize(z.occasion)}</p>`:''}
+                            ${z.source?`<p class="text-xs mt-0.5" style="color:${d?'#6b7280':'#9ca3af'}">${sanitize(z.source)}</p>`:''}
                         </div>
-                        ${state.isAdmin ? `
+                        ${state.isAdmin?`
                         <div class="flex gap-1 flex-shrink-0">
                             <button data-action="editCustomDua" data-param="${z.id}" data-dtype="ziyarat"
-                                class="${d?'bg-blue-900 text-blue-300 hover:bg-blue-800':'bg-blue-100 text-blue-700 hover:bg-blue-200'} p-2 rounded-lg text-sm transition-colors">✏️</button>
+                                style="width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;background:${d?'rgba(59,130,246,.15)':'rgba(59,130,246,.1)'};border:1px solid rgba(59,130,246,.25)">✏️</button>
                             <button data-action="deleteCustomDua" data-param="${z.id}" data-dtype="ziyarat"
-                                class="${d?'bg-red-900 text-red-300 hover:bg-red-800':'bg-red-100 text-red-700 hover:bg-red-200'} p-2 rounded-lg text-sm transition-colors">🗑</button>
-                        </div>` : ''}
+                                style="width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.2)">🗑</button>
+                        </div>`:''}
                     </div>
-                    <div class="${d?'bg-gray-900 border-gray-700':'bg-amber-50 border-amber-100'} border rounded-xl p-5 mb-4">
-                        <p class="arabic-text text-center mb-3" dir="rtl" lang="ar" style="font-size:1.6rem;line-height:2.3">${sanitize(z.arabic)}</p>
-                        ${z.transliteration ? `<p class="text-center text-xs italic ${d?'text-gray-400':'text-gray-500'} mb-2">${sanitize(z.transliteration)}</p>` : ''}
-                        <p class="text-center text-sm ${d?'text-gray-300':'text-gray-600'} leading-relaxed">${sanitize(l==='bn'?z.meaningBn:z.meaningEn)}</p>
+                    <div class="rounded-2xl p-5 mb-4"
+                        style="background:${d?'rgba(180,83,9,.08)':'rgba(254,243,199,.6)'};border:1px solid ${d?'rgba(180,83,9,.18)':'rgba(180,83,9,.14)'}">
+                        <p class="arabic-text text-center mb-3" dir="rtl" lang="ar"
+                            style="font-size:1.6rem;line-height:2.3;color:${d?'#fbbf24':'#78350f'}">
+                            ${sanitize(z.arabic)}
+                        </p>
+                        ${z.transliteration?`<p class="text-center text-xs italic mb-2" style="color:${d?'#9ca3af':'#6b7280'}">${sanitize(z.transliteration)}</p>`:''}
+                        <p class="text-center text-sm leading-relaxed" style="color:${d?'#d1d5db':'#374151'}">${sanitize(l==='bn'?z.meaningBn:z.meaningEn)}</p>
                     </div>
-                    <button data-action="readZiyarat" data-param="${z.id||i}" class="${d?'text-amber-400':'text-amber-700'} font-semibold hover:underline text-sm">${t('readMore')} →</button>
-                </article>`).join('')}
-        </div>` : ''}
+                    <button data-action="readZiyarat" data-param="${z.id||i}"
+                        style="font-size:12.5px;font-weight:700;padding:8px 20px;border-radius:50px;
+                        background:rgba(180,83,9,.12);color:${d?'#fbbf24':'#92400e'};
+                        border:1.5px solid rgba(180,83,9,.25);cursor:pointer;
+                        display:inline-flex;align-items:center;gap:6px;transition:all .2s">
+                        ${t('readMore')}
+                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+                    </button>
+                </div>
+            </article>`).join('')}
+        </div>`:''}
 
     </div>`;
 }
-
 // ============================================================================
 // PAGE: CALENDAR
 // ============================================================================
@@ -3955,195 +4593,310 @@ function renderReadDuaPage()
 function renderImamsPage()
 {
     const d=state.darkMode; const l=state.language;
-    const ACS=['#059669','#0d9488','#c9a227','#7c3aed','#0369a1','#d97706','#166534','#be123c','#0e7490','#4f46e5','#0f766e','#c9a227'];
-    const ACS2=['#022c22','#134e4a','#7a5c0a','#3b0764','#0c2a4a','#78350f','#052e16','#500724','#083344','#1e1b4b','#042f2e','#065f46'];
-    const CONIC=['conic-gradient(from 0deg,#059669,#6ee7b7,#065f46,#34d399,#059669)','conic-gradient(from 0deg,#0d9488,#5eead4,#0f766e,#99f6e4,#0d9488)','conic-gradient(from 0deg,#c9a227,#fde68a,#b45309,#fbbf24,#c9a227)','conic-gradient(from 0deg,#7c3aed,#c4b5fd,#5b21b6,#a78bfa,#7c3aed)','conic-gradient(from 0deg,#0369a1,#7dd3fc,#075985,#38bdf8,#0369a1)','conic-gradient(from 0deg,#d97706,#fcd34d,#b45309,#fbbf24,#d97706)','conic-gradient(from 0deg,#166534,#86efac,#14532d,#4ade80,#166534)','conic-gradient(from 0deg,#be123c,#fda4af,#9f1239,#fb7185,#be123c)','conic-gradient(from 0deg,#0e7490,#67e8f9,#155e75,#22d3ee,#0e7490)','conic-gradient(from 0deg,#4f46e5,#a5b4fc,#4338ca,#818cf8,#4f46e5)','conic-gradient(from 0deg,#0f766e,#5eead4,#115e59,#2dd4bf,#0f766e)','conic-gradient(from 0deg,#c9a227,#fde68a,#059669,#6ee7b7,#c9a227)'];
-    // ── Card renderer (shared for masumeen & imams) ──────────────────
-    const renderCard = (im, idx, acList, ac2List, conicList) => {
-        const ac=acList[idx%acList.length];const ac2=ac2List[idx%ac2List.length];const conic=conicList[idx%conicList.length];
-        const quoteText=sanitize(l==='bn'?im.quoteBn:im.quoteEn);
-        const quotePreview = quoteText.length > 50 ? quoteText.substring(0, 50) + '...' : quoteText;
-        const flipId=`imam-flip-${im.id}`;
-        // Avatar-এ শুধু প্রথম শব্দ/লকব — দীর্ঘ আরবি নাম overflow এড়াতে
-        const avatarArabic = im.arabicName ? im.arabicName.split(' ')[0] : (im.icon||'✦');
-        // বিশেষ ring style — হুসাইন (আ.) ও মাহদি (আ.)
-        const isHussain = im.id === 3;
-        const isMahdi   = im.id === 12;
-        let outerRing = '';
-        if (isHussain) {
-            // Crimson double-ring — কারবালার শাহীদ
-            outerRing = `<div style="position:absolute;inset:-7px;border-radius:50%;border:2px solid #b91c1c;z-index:0;opacity:.75"></div>
-                         <div style="position:absolute;inset:-11px;border-radius:50%;border:1.5px solid #dc2626;z-index:0;opacity:.45"></div>`;
-        } else if (isMahdi) {
-            // Dashed ring — গায়বত/occultation
-            outerRing = `<div style="position:absolute;inset:-8px;border-radius:50%;border:2.5px dashed #6366f1;z-index:0;opacity:.65;animation:avatarRotate 18s linear infinite reverse"></div>`;
-        }
-        return `
-        <div class="imam-flip-wrapper" style="height:100%;position:relative">
-            <!-- FRONT: Simplified hierarchy -->
-            <div class="imam-card-luxury imam-card-front border text-center p-6"
-                 id="${flipId}-front"
-                 style="display:flex;flex-direction:column;background:${d?'#1e2d26':'#ffffff'};border-color:${d?'rgba(52,211,153,.18)':'#e8e2db'};box-shadow:var(--shadow-sm);height:100%;border-radius:var(--r-lg)"
-                 onmouseenter="imamCardParticles(this,'${ac}')">
-                <div class="imam-top-bar" style="background:linear-gradient(90deg,${ac},${ac}bb,#c9a227,${ac2},${ac});background-size:300% 100%"></div>
-                ${typeof im.id==='number'?`<div class="imam-num" style="background:linear-gradient(135deg,#c9a227,#92400e)">${im.id}</div>`:''}
-                
-                <!-- LAYER 1: PRIMARY — Avatar + Name -->
-                <div style="position:relative;display:flex;justify-content:center;margin-bottom:1.2rem;margin-top:.5rem">
-                    <div class="imam-avatar-inner-wrap" style="width:84px;height:84px;border-radius:50%;position:relative">
-                        ${outerRing}
-                        <div class="imam-avatar-rotate" style="position:absolute;inset:-3px;border-radius:50%;background:${conic};animation:avatarRotate 8s linear infinite;z-index:1"></div>
-                        <div style="position:absolute;inset:0;border-radius:50%;background:${d?'#1e2d26':'#ffffff'};z-index:2;display:flex;align-items:center;justify-content:center;font-family:'Amiri',serif;font-size:1.55rem;font-weight:700;color:${ac};border:2.5px solid ${d?'rgba(52,211,153,.2)':'rgba(5,150,105,.15)'};text-align:center;padding:4px;line-height:1.1">${avatarArabic}</div>
-                    </div>
-                </div>
-                <h3 class="text-xl font-black mb-0.5 leading-snug">${sanitize(l==='bn'?im.nameBn:im.nameEn)}</h3>
-                <p class="mb-2.5" style="font-family:'Amiri',serif;font-size:0.95rem;opacity:.8"><span class="imam-arabic-shimmer">${sanitize(im.arabicName)}</span></p>
-                
-                <!-- LAYER 2: SECONDARY — Epithet badge -->
-                <div style="display:flex;justify-content:center;margin-bottom:1.5rem">
-                    <span class="imam-epithet-badge text-xs font-bold px-3 py-1.5 rounded-full" style="background:${ac}22;color:${ac};border:1.5px solid ${ac}40;display:inline-block">${sanitize(l==='bn'?im.epithetBn:im.epithetEn)}</span>
-                </div>
-                
-                <!-- LAYER 3: TERTIARY — Quote preview (3 line-clamp) -->
-                <div class="rounded-lg p-2.5 mb-3.5 text-left" style="border-left:3px solid ${ac};background:${ac}08;flex:1;display:flex;align-items:flex-start">
-                    <p class="text-xs italic ${d?'text-gray-400':'text-gray-600'} leading-normal imam-quote-text" style="margin:0;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical">"${quoteText}"</p>
-                </div>
-                
-                <!-- ACTION BUTTONS -->
-                <div class="flex gap-2">
-                    <button data-action="viewImam" data-param="${im.id}" class="imam-detail-btn flex-1 py-2.5 rounded-xl text-xs font-bold transition-all" style="background:linear-gradient(135deg,${ac},${ac2});color:white;box-shadow:0 3px 10px ${ac}45">${l==='bn'?'বিস্তারিত':'Details'} →</button>
-                    <button data-action="shareImamQuote" data-param="${im.id}" class="px-3 py-2.5 rounded-xl text-xs font-bold hover:scale-110 transition-all" style="background:${ac}15;color:${ac};border:1.5px solid ${ac}30;display:flex;align-items:center;justify-content:center" title="${l==='bn'?'শেয়ার করুন':'Share'}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
-                </div>
-            </div><!-- /front -->
-            
-            <!-- BACK: Quote card (unchanged) -->
-            <div class="imam-card-back" id="${flipId}-back"
-                 style="display:none;position:absolute;inset:0;background:linear-gradient(145deg,${ac2},${d?'#0a1a0e':'#022c22'});color:white;border:1px solid ${ac}40;box-shadow:var(--shadow-lg);border-radius:var(--r-lg)">
-                <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,${ac}25 0%,transparent 70%);pointer-events:none;border-radius:var(--r-lg)"></div>
-                <div style="position:relative;z-index:2;width:100%;text-align:center">
-                    <div style="font-family:'Amiri',serif;font-size:2.2rem;color:${ac};margin-bottom:.5rem;line-height:1">❝</div>
-                    <p style="font-family:'Amiri',serif;font-size:1.05rem;line-height:1.7;color:rgba(255,255,255,.92);margin-bottom:1rem;padding:0 .5rem">${sanitize(l==='bn'?im.quoteBn:im.quoteEn)}</p>
-                    <div style="width:40px;height:2px;background:${ac};margin:0 auto .75rem"></div>
-                    <p style="font-size:.75rem;font-weight:700;color:${ac};letter-spacing:.5px">${sanitize(l==='bn'?im.nameBn:im.nameEn)}</p>
-                    <button onclick="imamFlip('${flipId}')" style="margin-top:1.2rem;padding:6px 18px;border-radius:50px;background:${ac}30;border:1px solid ${ac}60;color:white;font-size:.75rem;cursor:pointer;transition:background .2s" onmouseover="this.style.background='${ac}55'" onmouseout="this.style.background='${ac}30'">← ${l==='bn'?'ফিরে যান':'Back'}</button>
-                </div>
-            </div><!-- /back -->
-        </div>`;
-    };
 
-    // ── masumeen color scheme (golden/emerald for Prophet, rose/crimson for Fatima) ──
-    const MACS  = ['#c9a227','#be185d'];
-    const MACS2 = ['#78350f','#881337'];
-    const MCONIC= ['conic-gradient(from 0deg,#c9a227,#fde68a,#b45309,#fbbf24,#c9a227)','conic-gradient(from 0deg,#be185d,#fda4af,#9f1239,#fb7185,#be185d)'];
+    // ── Per-imam accent colors ────────────────────────────────────────
+    const ACS =['#059669','#0d9488','#be123c','#7c3aed','#0369a1','#d97706','#166534','#be123c','#0e7490','#4f46e5','#0f766e','#c9a227'];
+    const ACS2=['#022c22','#134e4a','#500724','#3b0764','#0c2a4a','#78350f','#052e16','#500724','#083344','#1e1b4b','#042f2e','#065f46'];
+    const CONIC=[
+        'conic-gradient(from 0deg,#059669,#6ee7b7,#065f46,#34d399,#059669)',
+        'conic-gradient(from 0deg,#0d9488,#5eead4,#0f766e,#99f6e4,#0d9488)',
+        'conic-gradient(from 0deg,#be123c,#fda4af,#9f1239,#fb7185,#be123c)',
+        'conic-gradient(from 0deg,#7c3aed,#c4b5fd,#5b21b6,#a78bfa,#7c3aed)',
+        'conic-gradient(from 0deg,#0369a1,#7dd3fc,#075985,#38bdf8,#0369a1)',
+        'conic-gradient(from 0deg,#d97706,#fcd34d,#b45309,#fbbf24,#d97706)',
+        'conic-gradient(from 0deg,#166534,#86efac,#14532d,#4ade80,#166534)',
+        'conic-gradient(from 0deg,#be123c,#fda4af,#9f1239,#fb7185,#be123c)',
+        'conic-gradient(from 0deg,#0e7490,#67e8f9,#155e75,#22d3ee,#0e7490)',
+        'conic-gradient(from 0deg,#4f46e5,#a5b4fc,#4338ca,#818cf8,#4f46e5)',
+        'conic-gradient(from 0deg,#0f766e,#5eead4,#115e59,#2dd4bf,#0f766e)',
+        'conic-gradient(from 0deg,#c9a227,#fde68a,#059669,#6ee7b7,#c9a227)',
+    ];
+    const MACS =['#c9a227','#be185d'];
+    const MACS2=['#78350f','#881337'];
+    const MCONIC=[
+        'conic-gradient(from 0deg,#c9a227,#fde68a,#b45309,#fbbf24,#c9a227)',
+        'conic-gradient(from 0deg,#be185d,#fda4af,#9f1239,#fb7185,#be185d)',
+    ];
 
-    // ── jump chip labels (বাংলা/ইংরেজি সংক্ষিপ্ত নাম) ──────────────────
+    // ── Jump nav chips ────────────────────────────────────────────────
     const CHIP_BN=['আলী','হাসান','হোসাইন','সাজ্জাদ','বাকির','সাদিক','কাযিম','রেজা','জওয়াদ','হাদি','আসকারি','মাহদি'];
     const CHIP_EN=['Ali','Hasan','Husayn','Sajjad','Baqir','Sadiq','Kazim','Ridha','Jawad','Hadi','Askari','Mahdi'];
     const chips=(l==='bn'?CHIP_BN:CHIP_EN).map((name,i)=>`
-        <button onclick="(function(){const el=document.getElementById('imam-anchor-${i+1}');if(el){el.scrollIntoView({behavior:'smooth',block:'center'})}})()"
-            style="flex-shrink:0;padding:5px 13px;border-radius:50px;font-size:.72rem;font-weight:700;border:1.5px solid ${ACS[i%12]}50;color:${ACS[i%12]};background:${ACS[i%12]}12;cursor:pointer;white-space:nowrap;transition:all .18s"
-            onmouseover="this.style.background='${ACS[i%12]}28'" onmouseout="this.style.background='${ACS[i%12]}12'">${i+1}. ${name}</button>`).join('');
+        <button
+            onclick="(function(){const el=document.getElementById('imam-anchor-${i+1}');scrollToImamEl(el)})()"
+            style="flex-shrink:0;padding:5px 14px;border-radius:50px;font-size:.72rem;font-weight:700;
+                border:1.5px solid ${ACS[i]}50;color:${ACS[i]};background:${ACS[i]}12;
+                cursor:pointer;white-space:nowrap;transition:all .18s"
+            onmouseover="this.style.background='${ACS[i]}28';this.style.transform='translateY(-2px)'"
+            onmouseout="this.style.background='${ACS[i]}12';this.style.transform=''">
+            ${i+1}. ${name}
+        </button>`).join('');
+
+    // ── Shared card renderer ──────────────────────────────────────────
+    const renderCard = (im, idx, acList, ac2List, conicList) => {
+        const ac    = acList[idx % acList.length];
+        const ac2   = ac2List[idx % ac2List.length];
+        const conic = conicList[idx % conicList.length];
+        const flipId= `imam-flip-${im.id}`;
+        const quoteText   = sanitize(l==='bn'?im.quoteBn:im.quoteEn);
+        const avatarArabic= im.arabicName ? im.arabicName.split(' ')[0] : (im.icon||'✦');
+
+        // Special rings
+        const isHussain = im.id===3;
+        const isMahdi   = im.id===12;
+        let outerRing = '';
+        if (isHussain) {
+            outerRing = `
+            <div style="position:absolute;inset:-7px;border-radius:50%;border:2px solid #b91c1c;z-index:0;opacity:.78"></div>
+            <div style="position:absolute;inset:-12px;border-radius:50%;border:1.5px solid #dc2626;z-index:0;opacity:.42"></div>`;
+        } else if (isMahdi) {
+            outerRing = `<div style="position:absolute;inset:-9px;border-radius:50%;border:2.5px dashed #6366f1;z-index:0;opacity:.68;animation:avatarRotate 18s linear infinite reverse"></div>`;
+        }
+
+        return `
+        <div class="imam-flip-wrapper" style="height:100%;position:relative">
+
+            <!-- ── FRONT ── -->
+            <div class="imam-card-luxury imam-card-front border text-center p-5"
+                id="${flipId}-front"
+                style="display:flex;flex-direction:column;
+                    background:${d?'#1e2d26':'#ffffff'};
+                    border-color:${d?'rgba(52,211,153,.15)':'rgba(5,150,105,.1)'};
+                    box-shadow:var(--shadow-sm);height:100%;border-radius:var(--r-lg)"
+                onmouseenter="imamCardParticles(this,'${ac}')">
+
+                <!-- Animated top gradient bar -->
+                <div class="imam-top-bar"
+                    style="background:linear-gradient(90deg,${ac},${ac}cc,#c9a227,${ac2},${ac});background-size:300% 100%">
+                </div>
+
+                <!-- Imam number badge -->
+                ${typeof im.id==='number'
+                    ? `<div class="imam-num" style="background:linear-gradient(135deg,#c9a227,#92400e)">${im.id}</div>`
+                    : ''}
+
+                <!-- Avatar -->
+                <div style="position:relative;display:flex;justify-content:center;margin:1rem 0 1rem">
+                    <div class="imam-avatar-inner-wrap" style="width:86px;height:86px;border-radius:50%;position:relative">
+                        ${outerRing}
+                        <div class="imam-avatar-rotate"
+                            style="position:absolute;inset:-3px;border-radius:50%;background:${conic};animation:avatarRotate 8s linear infinite;z-index:1">
+                        </div>
+                        <div style="position:absolute;inset:0;border-radius:50%;
+                            background:${d?'#1e2d26':'#ffffff'};z-index:2;
+                            display:flex;align-items:center;justify-content:center;
+                            font-family:'Amiri',serif;font-size:1.5rem;font-weight:700;
+                            color:${ac};border:2.5px solid ${d?'rgba(52,211,153,.18)':'rgba(5,150,105,.12)'};
+                            text-align:center;padding:4px;line-height:1.1">
+                            ${avatarArabic}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Name -->
+                <h3 class="font-black text-base leading-snug mb-0.5" style="color:${d?'#f9fafb':'#111827'}">
+                    ${sanitize(l==='bn'?im.nameBn:im.nameEn)}
+                </h3>
+
+                <!-- Arabic name shimmer -->
+                <p class="mb-3" style="font-family:'Amiri',serif;font-size:.9rem;opacity:.85">
+                    <span class="imam-arabic-shimmer">${sanitize(im.arabicName)}</span>
+                </p>
+
+                <!-- Epithet badge -->
+                <div style="display:flex;justify-content:center;margin-bottom:1.1rem">
+                    <span class="imam-epithet-badge text-xs font-bold px-3 py-1.5 rounded-full"
+                        style="background:${ac}20;color:${ac};border:1.5px solid ${ac}38">
+                        ${sanitize(l==='bn'?im.epithetBn:im.epithetEn)}
+                    </span>
+                </div>
+
+                <!-- Quote preview -->
+                <div class="imam-quote-wrap rounded-xl p-3 mb-4 text-left"
+                    style="border-left:3px solid ${ac};background:${ac}09;flex:1;display:flex;align-items:flex-start">
+                    <p class="text-xs italic leading-relaxed" style="color:${d?'#9ca3af':'#6b7280'};margin:0;
+                        overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical">
+                        "${quoteText}"
+                    </p>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="flex gap-2">
+                    <button data-action="viewImam" data-param="${im.id}"
+                        class="imam-detail-btn flex-1 py-2.5 rounded-xl text-xs font-bold transition-all"
+                        style="background:linear-gradient(135deg,${ac},${ac2});color:white;
+                            box-shadow:0 3px 12px ${ac}42;letter-spacing:.2px">
+                        ${l==='bn'?'বিস্তারিত':'Details'}
+                        <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" style="display:inline;margin-left:4px"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+                    </button>
+                    <button data-action="shareImamQuote" data-param="${im.id}"
+                        class="px-3 py-2.5 rounded-xl text-xs font-bold hover:scale-110 transition-all flex items-center justify-center"
+                        style="background:${ac}15;color:${ac};border:1.5px solid ${ac}30"
+                        title="${l==='bn'?'শেয়ার করুন':'Share'}">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                        </svg>
+                    </button>
+                </div>
+            </div><!-- /front -->
+
+            <!-- ── BACK (quote card) ── -->
+            <div class="imam-card-back" id="${flipId}-back"
+                style="display:none;position:absolute;inset:0;
+                    background:linear-gradient(145deg,${ac2},${d?'#0a1a0e':'#022c22'});
+                    color:white;border:1px solid ${ac}40;
+                    box-shadow:var(--shadow-lg);border-radius:var(--r-lg)">
+                <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,${ac}28 0%,transparent 70%);pointer-events:none;border-radius:var(--r-lg)"></div>
+                <div style="position:relative;z-index:2;width:100%;text-align:center">
+                    <div style="font-family:'Amiri',serif;font-size:2.5rem;color:${ac};margin-bottom:.4rem;line-height:1">❝</div>
+                    <p style="font-family:'Amiri',serif;font-size:1.05rem;line-height:1.75;
+                        color:rgba(255,255,255,.92);margin-bottom:1.1rem;padding:0 .5rem">
+                        ${sanitize(l==='bn'?im.quoteBn:im.quoteEn)}
+                    </p>
+                    <div style="width:44px;height:2px;background:${ac};margin:0 auto .8rem;border-radius:2px"></div>
+                    <p style="font-size:.75rem;font-weight:700;color:${ac};letter-spacing:.5px">
+                        ${sanitize(l==='bn'?im.nameBn:im.nameEn)}
+                    </p>
+                    <button onclick="imamFlip('${flipId}')"
+                        style="margin-top:1.2rem;padding:7px 20px;border-radius:50px;
+                            background:${ac}30;border:1px solid ${ac}60;
+                            color:white;font-size:.75rem;cursor:pointer;transition:background .2s"
+                        onmouseover="this.style.background='${ac}55'"
+                        onmouseout="this.style.background='${ac}30'">
+                        ← ${l==='bn'?'ফিরে যান':'Back'}
+                    </button>
+                </div>
+            </div><!-- /back -->
+
+        </div>`;
+    };
 
     return `
     <div class="space-y-8 page-enter">
-        <!-- ══ Header — timeline বাটন subtle outline ══ -->
-        <div class="flex flex-wrap justify-between items-center gap-3">
-            <div><h2 class="text-3xl font-black" style="background:linear-gradient(135deg,#059669,#b45309);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">👑 ${t('imams')}</h2><p class="text-sm ${d?'text-gray-400':'text-gray-500'} mt-1">${l==='bn'?'পবিত্র ইমাম ও মাসুমিনদের জীবনী':'Lives of the Holy Imams & Masumeen'}</p></div>
-            <button data-action="toggleTimeline" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all" style="${state.showTimeline?'background:rgba(5,150,105,.12);color:#059669;border:1.5px solid rgba(5,150,105,.35)':'border:1.5px solid '+(d?'rgba(255,255,255,.12)':'rgba(0,0,0,.1)')+';color:'+(d?'#6b7280':'#9ca3af')+';background:transparent'}">📅 ${l==='bn'?'টাইমলাইন':'Timeline'}${state.showTimeline?' ✓':''}</button>
-        </div>
-        ${state.showTimeline?renderImamTimeline(d,l):''}
 
-        <!-- ══ Jump nav chips — মোবাইলে scroll সহজ করতে ══ -->
-        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:4px">
-            <div style="display:flex;gap:7px;width:max-content;padding:2px 1px">
-                ${chips}
+        <!-- ── Page header ── -->
+        <div class="flex flex-wrap justify-between items-start gap-3 reveal">
+            <div>
+                <h2 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#059669,#b45309);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+                    👑 ${t('imams')}
+                </h2>
+                <p class="text-sm mt-1" style="color:${d?'#9ca3af':'#6b7280'}">
+                    ${l==='bn'?'পবিত্র নবী, মাসুমিন ও ১২ ইমামের জীবনী':'Lives of the Holy Prophet, Masumeen & 12 Imams'}
+                </p>
+            </div>
+            <button data-action="toggleTimeline"
+                class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all"
+                style="${state.showTimeline
+                    ? 'background:rgba(5,150,105,.14);color:#059669;border:1.5px solid rgba(5,150,105,.38)'
+                    : 'border:1.5px solid '+(d?'rgba(255,255,255,.12)':'rgba(0,0,0,.1)')+';color:'+(d?'#6b7280':'#9ca3af')}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                ${l==='bn'?'টাইমলাইন':'Timeline'}${state.showTimeline?' ✓':''}
+            </button>
+        </div>
+
+        <!-- ── Timeline (optional) ── -->
+        ${state.showTimeline ? renderImamTimeline(d,l) : ''}
+
+        <!-- ── Jump nav chips ── -->
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 1px 6px">
+            <div style="display:flex;gap:7px;width:max-content">${chips}</div>
+        </div>
+
+        <!-- ── মাসুমিন section ── -->
+        <div class="reveal">
+            <div class="section-heading">
+                <span style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#c9a227,#78350f);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;box-shadow:0 4px 14px rgba(201,162,39,.38)">✨</span>
+                <h3 class="font-black text-lg" style="color:${d?'#f9fafb':'#111827'}">
+                    ${l==='bn'?'নবী ও মাসুমিন (আ.)':'Prophet & Masumeen (AS)'}
+                </h3>
+                <span class="text-xs font-bold px-2.5 py-1 rounded-full"
+                    style="background:rgba(201,162,39,.15);color:#c9a227;border:1px solid rgba(201,162,39,.3)">
+                    ${l==='bn'?'২ জন':'2'}
+                </span>
+            </div>
+            <div class="grid sm:grid-cols-2 gap-5 items-stretch">
+                ${masumeen.map((im,idx)=>`
+                <div style="min-height:320px">${renderCard(im,idx,MACS,MACS2,MCONIC)}</div>`).join('')}
             </div>
         </div>
 
-        <!-- ══ মাসুমিন সেকশন — featured / সামান্য বড় ══ -->
-        <div>
-            <div class="flex items-center gap-3 mb-4">
-                <div style="width:4px;height:28px;background:linear-gradient(180deg,#c9a227,#b45309);border-radius:2px"></div>
-                <h3 class="text-xl font-black ${d?'text-white':'text-gray-900'}">${l==='bn'?'নবী ও মাসুমিন (আ.)':'Prophet & Masumeen (AS)'}</h3>
-                <span class="text-xs font-bold px-2.5 py-1 rounded-full" style="background:rgba(201,162,39,.15);color:#c9a227;border:1px solid rgba(201,162,39,.3)">২ জন</span>
-            </div>
-            <!-- gap-5 ও border-radius একই রেখে min-height দিয়ে featured feel -->
-            <div class="grid sm:grid-cols-2 gap-5 items-stretch" style="--card-min:320px">
-                ${masumeen.map((im,idx)=>`<div style="min-height:var(--card-min,280px)">${renderCard(im,idx,MACS,MACS2,MCONIC)}</div>`).join('')}
-            </div>
-        </div>
-
-        <!-- ══ ১২ ইমাম সেকশন ══ -->
-        <div>
-            <div class="flex items-center gap-3 mb-4">
-                <div style="width:4px;height:28px;background:linear-gradient(180deg,#059669,#065f46);border-radius:2px"></div>
-                <h3 class="text-xl font-black ${d?'text-white':'text-gray-900'}">${l==='bn'?'বারো ইমাম (আ.)':'The Twelve Imams (AS)'}</h3>
-                <span class="text-xs font-bold px-2.5 py-1 rounded-full" style="background:rgba(5,150,105,.12);color:#059669;border:1px solid rgba(5,150,105,.25)">১২ জন</span>
+        <!-- ── ১২ ইমাম section ── -->
+        <div class="reveal">
+            <div class="section-heading">
+                <span style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#059669,#065f46);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;box-shadow:0 4px 14px rgba(5,150,105,.4)">👑</span>
+                <h3 class="font-black text-lg" style="color:${d?'#f9fafb':'#111827'}">
+                    ${l==='bn'?'বারো ইমাম (আ.)':'The Twelve Imams (AS)'}
+                </h3>
+                <span class="text-xs font-bold px-2.5 py-1 rounded-full"
+                    style="background:rgba(5,150,105,.12);color:#059669;border:1px solid rgba(5,150,105,.25)">
+                    ${l==='bn'?'১২ জন':'12'}
+                </span>
             </div>
             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
-                ${imams.map((im,idx)=>`<div id="imam-anchor-${im.id}">${renderCard(im,idx,ACS,ACS2,CONIC)}</div>`).join('')}
+                ${imams.map((im,idx)=>`
+                <div id="imam-anchor-${im.id}">${renderCard(im,idx,ACS,ACS2,CONIC)}</div>`).join('')}
             </div>
         </div>
+
     </div>`;
 }
 
 function renderImamTimeline(d, l) {
-    // Extract birth years
     const timelineImams = imams.map(im => ({
         ...im,
         birthYear: parseInt((im.birthEn||'').match(/\d+/)?.[0]||0),
-        deathYear: (im.martyrdomEn||'').includes('Occultation') ? 'Present' : parseInt((im.martyrdomEn||'').match(/\d+/)?.[0]||0),
+        deathYear: (im.martyrdomEn||'').includes('Occultation')
+            ? 'Present'
+            : parseInt((im.martyrdomEn||'').match(/\d+/)?.[0]||0),
     }));
-    const minYear = 600; const maxYear = 880;
-    const range = maxYear - minYear;
+    const minYear=600, maxYear=880, range=maxYear-minYear;
+    const barColors=['#059669','#0d9488','#be123c','#7c3aed','#0369a1','#d97706','#166534','#be123c','#0e7490','#4f46e5','#0f766e','#c9a227'];
     return `
-    <div class="${d?'bg-gray-800':'bg-white'} border rounded-2xl p-6 fade-in">
-        <h3 class="text-xl font-bold mb-2 text-center">${l==='bn'?'ইমাম ও মাসুমিনদের জীবনকাল টাইমলাইন':'Imams & Masumeen Timeline'}</h3>
-        <p class="text-center text-sm ${d?'text-gray-400':'text-gray-500'} mb-6">${l==='bn'?'খ্রিস্টাব্দ ৬০০ - ৮৮০':'600 CE – 880 CE'}</p>
-        <!-- Horizontal bar timeline -->
-        <div class="space-y-3">
-            ${timelineImams.map((im, idx) => {
-                const startPct = Math.max(0, ((im.birthYear - minYear) / range) * 100);
-                const endYear = typeof im.deathYear === 'number' ? im.deathYear : maxYear;
-                const widthPct = Math.max(2, ((endYear - im.birthYear) / range) * 100);
-                const colors = ['bg-green-500','bg-blue-500','bg-red-500','bg-purple-500','bg-yellow-500','bg-teal-500','bg-orange-500','bg-pink-500','bg-indigo-500','bg-cyan-500','bg-emerald-500','bg-violet-500'];
-                const color = colors[idx % colors.length];
+    <div class="${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-2xl p-6 fade-in" style="box-shadow:var(--shadow-md)">
+        <div class="gold-top-bar" style="border-radius:12px 12px 0 0;margin:-24px -24px 20px"></div>
+        <h3 class="text-base font-bold mb-1 text-center">${l==='bn'?'ইমামদের জীবনকাল টাইমলাইন':'Imams Lifetime Timeline'}</h3>
+        <p class="text-center text-xs mb-5" style="color:${d?'#6b7280':'#9ca3af'}">${l==='bn'?'খ্রিস্টাব্দ ৬০০–৮৮০':'600 CE – 880 CE'}</p>
+        <div class="space-y-2.5">
+            ${timelineImams.map((im,idx)=>{
+                const startPct=Math.max(0,((im.birthYear-minYear)/range)*100);
+                const endYear=typeof im.deathYear==='number'?im.deathYear:maxYear;
+                const widthPct=Math.max(2,((endYear-im.birthYear)/range)*100);
+                const c=barColors[idx%barColors.length];
                 return `
                 <div class="flex items-center gap-3">
-                    <div class="text-right flex-shrink-0" style="width:140px">
-                        <span class="text-xs font-semibold ${d?'text-gray-300':'text-gray-700'} leading-tight">${im.icon} ${sanitize(l==='bn'?im.nameBn.replace('ইমাম ',''):im.nameEn.replace('Imam ',''))}</span>
+                    <div class="text-right flex-shrink-0" style="width:130px">
+                        <span class="text-xs font-semibold" style="color:${d?'#d1d5db':'#374151'}">${im.icon} ${sanitize(l==='bn'?im.nameBn.replace('ইমাম ',''):im.nameEn.replace('Imam ',''))}</span>
                     </div>
-                    <div class="flex-1 relative" style="height:28px">
-                        <div class="${d?'bg-gray-700':'bg-gray-100'} rounded-full w-full h-full absolute"></div>
-                        <div class="${color} rounded-full h-full absolute flex items-center px-2 overflow-hidden"
-                            style="left:${startPct.toFixed(1)}%;width:${Math.min(widthPct, 100-startPct).toFixed(1)}%;min-width:28px">
-                            <span class="text-white text-xs font-bold truncate whitespace-nowrap">${im.birthYear}</span>
+                    <div class="flex-1 relative" style="height:26px">
+                        <div class="w-full h-full absolute rounded-full" style="background:${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)'}"></div>
+                        <div class="h-full absolute rounded-full flex items-center px-2 overflow-hidden"
+                            style="left:${startPct.toFixed(1)}%;width:${Math.min(widthPct,100-startPct).toFixed(1)}%;min-width:28px;background:${c}">
+                            <span class="text-white text-xs font-bold truncate">${im.birthYear}</span>
                         </div>
                     </div>
-                    <div class="flex-shrink-0 text-xs ${d?'text-gray-400':'text-gray-500'}" style="width:50px">${typeof im.deathYear==='string'?'—':im.deathYear}</div>
+                    <div class="flex-shrink-0 text-xs" style="width:46px;color:${d?'#6b7280':'#9ca3af'}">${typeof im.deathYear==='string'?'—':im.deathYear}</div>
                 </div>`;
             }).join('')}
         </div>
-        <!-- Year markers -->
-        <div class="flex justify-between mt-4 px-0 ml-36 mr-16">
-            ${[600,650,700,750,800,850].map(yr=>`<span class="text-xs ${d?'text-gray-500':'text-gray-400'}">${yr}</span>`).join('')}
+        <div class="flex justify-between mt-4 px-0" style="margin-left:142px;margin-right:58px">
+            ${[600,650,700,750,800,850].map(yr=>`<span class="text-xs" style="color:${d?'#4b5563':'#9ca3af'}">${yr}</span>`).join('')}
         </div>
     </div>`;
 }
-
-// viewImamDetail is handled via 'viewImam' data-action
-
+// ============================================================================
+// IMAM DETAIL PAGE
+// ============================================================================
 function renderImamDetailPage()
 {
     const d=state.darkMode; const l=state.language;
     const im=state.currentImam;
     if(!im) return renderImamsPage();
-    // unified list: masumeen first, then imams
     const allList=[...masumeen,...imams];
     const idx=allList.findIndex(x=>x.id===im.id);
     const prev=idx>0?allList[idx-1]:null;
     const next=idx<allList.length-1?allList[idx+1]:null;
-    // color scheme
     const isMasumeen=masumeen.some(m=>m.id===im.id);
     const colorIdx=isMasumeen?masumeen.findIndex(m=>m.id===im.id):imams.indexOf(im);
     const ACS=['#059669','#0d9488','#c9a227','#7c3aed','#0369a1','#d97706','#166534','#be123c','#0e7490','#4f46e5','#0f766e','#c9a227'];
@@ -4155,39 +4908,72 @@ function renderImamDetailPage()
     const conic2=isMasumeen?MCONIC2[colorIdx%2]:CONIC2[colorIdx%12];
     return `
     <div class="max-w-2xl mx-auto page-enter">
-        <button data-action="changePage" data-param="imams" class="flex items-center gap-2 mb-6 px-4 py-2 rounded-xl font-semibold text-sm hover:scale-[1.02] transition-all" style="background:${ac}12;color:${ac}">← ${l==='bn'?'সকল ইমাম':'All Imams'}</button>
-        <div class="card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border mb-6" style="box-shadow:var(--shadow-lg);position:relative">
+        <button data-action="changePage" data-param="imams"
+            class="flex items-center gap-2 mb-6 px-4 py-2 rounded-xl font-semibold text-sm hover:scale-[1.02] transition-all"
+            style="background:${ac}12;color:${ac}">
+            ← ${l==='bn'?'সকল ইমাম':'All Imams'}
+        </button>
+        <div class="card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border mb-6"
+            style="box-shadow:var(--shadow-lg);position:relative">
             <div style="height:4px;background:linear-gradient(90deg,${ac},${ac2},${ac});border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
             <div style="background:linear-gradient(135deg,${ac}10,transparent,${ac2}07);padding:2.5rem 2rem 1.5rem;text-align:center;position:relative">
-                <div style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,${ac},${ac2});display:flex;align-items:center;justify-content:center;color:white;font-size:${typeof im.id==='number'?'.75rem':'1rem'};font-weight:800;box-shadow:0 3px 10px ${ac}50">${typeof im.id==='number'?im.id:im.icon}</div>
+                <div style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,${ac},${ac2});display:flex;align-items:center;justify-content:center;color:white;font-size:${typeof im.id==='number'?'.75rem':'1rem'};font-weight:800;box-shadow:0 3px 10px ${ac}50">
+                    ${typeof im.id==='number'?im.id:im.icon}
+                </div>
                 <div style="position:relative;display:flex;justify-content:center;margin-bottom:1.2rem">
                     <div style="width:96px;height:96px;border-radius:50%;position:relative">
                         ${im.id===3?`<div style="position:absolute;inset:-8px;border-radius:50%;border:2px solid #b91c1c;z-index:0;opacity:.75"></div><div style="position:absolute;inset:-13px;border-radius:50%;border:1.5px solid #dc2626;z-index:0;opacity:.4"></div>`:''}
                         ${im.id===12?`<div style="position:absolute;inset:-9px;border-radius:50%;border:2.5px dashed #6366f1;z-index:0;opacity:.65;animation:avatarRotate 18s linear infinite reverse"></div>`:''}
                         <div style="position:absolute;inset:-4px;border-radius:50%;background:${conic2};animation:avatarRotate 7s linear infinite;z-index:1"></div>
-                        <div style="position:absolute;inset:0;border-radius:50%;background:${d?'#1f2937':'white'};z-index:2;display:flex;align-items:center;justify-content:center;font-family:'Amiri',serif;font-size:2rem;font-weight:700;color:${ac2}">${im.arabicName.split(' ')[0]||im.icon}</div>
+                        <div style="position:absolute;inset:0;border-radius:50%;background:${d?'#1f2937':'white'};z-index:2;display:flex;align-items:center;justify-content:center;font-family:'Amiri',serif;font-size:2rem;font-weight:700;color:${ac2}">
+                            ${im.arabicName.split(' ')[0]||im.icon}
+                        </div>
                     </div>
                 </div>
                 <h1 class="text-2xl md:text-3xl font-black mb-2">${sanitize(l==='bn'?im.nameBn:im.nameEn)}</h1>
                 <p class="arabic-text mb-3" style="font-size:1.5rem;color:${ac}">${sanitize(im.arabicName)}</p>
-                <span class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold" style="background:${ac}18;color:${ac};border:1px solid ${ac}28">✨ ${sanitize(l==='bn'?im.epithetBn:im.epithetEn)}</span>
+                <span class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold"
+                    style="background:${ac}18;color:${ac};border:1px solid ${ac}28">
+                    ✨ ${sanitize(l==='bn'?im.epithetBn:im.epithetEn)}
+                </span>
             </div>
             <div class="p-6 pt-2">
                 <div class="grid grid-cols-2 gap-3 mb-5">
-                    <div class="rounded-2xl p-4" style="background:${d?'rgba(255,255,255,.05)':'rgba(0,0,0,.03)'};border:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}"><p class="font-bold text-xs mb-1.5" style="color:${ac}">🌙 ${l==='bn'?'জন্ম':'Birth'}</p><p class="font-semibold text-sm">${sanitize(l==='bn'?im.birthBn:im.birthEn)}</p></div>
-                    <div class="rounded-2xl p-4" style="background:${d?'rgba(255,255,255,.05)':'rgba(0,0,0,.03)'};border:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}"><p class="font-bold text-xs mb-1.5" style="color:${ac}">⚔️ ${l==='bn'?'শাহাদাত':'Martyrdom'}</p><p class="font-semibold text-sm">${sanitize(l==='bn'?im.martyrdomBn:im.martyrdomEn)}</p></div>
+                    <div class="rounded-2xl p-4" style="background:${d?'rgba(255,255,255,.05)':'rgba(0,0,0,.03)'};border:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}">
+                        <p class="font-bold text-xs mb-1.5" style="color:${ac}">🌙 ${l==='bn'?'জন্ম':'Birth'}</p>
+                        <p class="font-semibold text-sm">${sanitize(l==='bn'?im.birthBn:im.birthEn)}</p>
+                    </div>
+                    <div class="rounded-2xl p-4" style="background:${d?'rgba(255,255,255,.05)':'rgba(0,0,0,.03)'};border:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}">
+                        <p class="font-bold text-xs mb-1.5" style="color:${ac}">⚔️ ${l==='bn'?'শাহাদাত':'Martyrdom'}</p>
+                        <p class="font-semibold text-sm">${sanitize(l==='bn'?im.martyrdomBn:im.martyrdomEn)}</p>
+                    </div>
                 </div>
-                <div class="${d?'bg-gray-900':'bg-gray-50'} rounded-2xl p-5 mb-5"><h3 class="font-bold mb-3 text-sm">📝 ${l==='bn'?'পরিচিতি':'About'}</h3><p class="${d?'text-gray-300':'text-gray-700'} leading-relaxed text-sm">${sanitize(l==='bn'?im.descBn:im.descEn)}</p></div>
+                <div class="${d?'bg-gray-900':'bg-gray-50'} rounded-2xl p-5 mb-5">
+                    <h3 class="font-bold mb-3 text-sm">📝 ${l==='bn'?'পরিচিতি':'About'}</h3>
+                    <p class="${d?'text-gray-300':'text-gray-700'} leading-relaxed text-sm">${sanitize(l==='bn'?im.descBn:im.descEn)}</p>
+                </div>
                 <div class="rounded-2xl p-5" style="background:linear-gradient(135deg,${ac}0d,${ac2}07);border-left:4px solid ${ac}">
-                    <div class="flex justify-between items-center mb-3"><h3 class="font-bold text-sm flex items-center gap-2"><span style="color:${ac}">💬</span>${l==='bn'?'বিখ্যাত উক্তি':'Famous Quote'}</h3>
-                    <button data-action="shareImamQuote" data-param="${im.id}" class="text-xs px-3 py-1.5 rounded-xl font-bold hover:scale-105 transition-all" style="background:${ac}18;color:${ac}">🔗 ${l==='bn'?'শেয়ার':'Share'}</button></div>
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-bold text-sm flex items-center gap-2">
+                            <span style="color:${ac}">💬</span>${l==='bn'?'বিখ্যাত উক্তি':'Famous Quote'}
+                        </h3>
+                        <button data-action="shareImamQuote" data-param="${im.id}"
+                            class="text-xs px-3 py-1.5 rounded-xl font-bold hover:scale-105 transition-all"
+                            style="background:${ac}18;color:${ac}">
+                            🔗 ${l==='bn'?'শেয়ার':'Share'}
+                        </button>
+                    </div>
                     <p class="text-base italic leading-relaxed">"${sanitize(l==='bn'?im.quoteBn:im.quoteEn)}"</p>
                 </div>
             </div>
         </div>
         <div class="flex justify-between gap-4">
-            ${prev?`<button data-action="viewImam" data-param="${prev.id}" class="${d?'bg-gray-800 hover:bg-gray-700 border-gray-700':'bg-white hover:bg-gray-50 border-gray-200'} border rounded-2xl px-5 py-3 font-semibold text-sm flex items-center gap-2 hover:scale-[1.02] transition-all" style="flex:1">← ${sanitize(l==='bn'?prev.nameBn:prev.nameEn)}</button>`:'<div style="flex:1"></div>'}
-            ${next?`<button data-action="viewImam" data-param="${next.id}" class="${d?'bg-gray-800 hover:bg-gray-700 border-gray-700':'bg-white hover:bg-gray-50 border-gray-200'} border rounded-2xl px-5 py-3 font-semibold text-sm flex items-center gap-2 justify-end hover:scale-[1.02] transition-all" style="flex:1">${sanitize(l==='bn'?next.nameBn:next.nameEn)} →</button>`:'<div style="flex:1"></div>'}
+            ${prev?`<button data-action="viewImam" data-param="${prev.id}"
+                class="${d?'bg-gray-800 hover:bg-gray-700 border-gray-700':'bg-white hover:bg-gray-50 border-gray-200'} border rounded-2xl px-5 py-3 font-semibold text-sm flex items-center gap-2 hover:scale-[1.02] transition-all"
+                style="flex:1">← ${sanitize(l==='bn'?prev.nameBn:prev.nameEn)}</button>`:'<div style="flex:1"></div>'}
+            ${next?`<button data-action="viewImam" data-param="${next.id}"
+                class="${d?'bg-gray-800 hover:bg-gray-700 border-gray-700':'bg-white hover:bg-gray-50 border-gray-200'} border rounded-2xl px-5 py-3 font-semibold text-sm flex items-center gap-2 justify-end hover:scale-[1.02] transition-all"
+                style="flex:1">${sanitize(l==='bn'?next.nameBn:next.nameEn)} →</button>`:'<div style="flex:1"></div>'}
         </div>
     </div>`;
 }
@@ -4195,73 +4981,6 @@ function renderImamDetailPage()
 // ============================================================================
 // PAGE: TASBEEH COUNTER
 // ============================================================================
-function renderTasbeehPage()
-{
-    const d=state.darkMode; const l=state.language;
-    const curLbl=tasbeehLabels.find(lb=>(l==='bn'?lb.bn:lb.en)===state.tasbeehLabel)||tasbeehLabels[0];
-    const pct=Math.min(1,state.tasbeehCount/state.tasbeehTarget);
-    const R=88; const C=2*Math.PI*R; const OFF=C*(1-pct);
-    return `
-    <div class="space-y-8 page-enter">
-        <div><h2 class="text-3xl font-black" style="background:linear-gradient(135deg,#059669,#b45309);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">📿 ${t('tasbeeh')}</h2><p class="text-sm ${d?'text-gray-400':'text-gray-500'} mt-1">${l==='bn'?'ডিজিটাল তাসবিহ কাউন্টার':'Digital Tasbeeh Counter'}</p></div>
-        <div class="grid md:grid-cols-2 gap-8">
-            <div class="card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border p-8 text-center" style="box-shadow:var(--shadow-lg);position:relative">
-                <div class="gold-top-bar" style="position:absolute;top:0;left:0;right:0;border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
-                <div class="mb-6"><p class="arabic-text" style="font-size:2rem">${sanitize(curLbl.arabic)}</p><p class="font-bold text-xl mt-1">${sanitize(l==='bn'?curLbl.bn:curLbl.en)}</p><p class="text-sm ${d?'text-gray-400':'text-gray-500'} mt-1">${l==='bn'?'লক্ষ্য':'Target'}: <span class="${d?'text-emerald-400':'text-emerald-600'} font-bold">${curLbl.target}</span></p></div>
-                <div style="position:relative;width:220px;height:220px;margin:0 auto 1.5rem">
-                    <svg width="220" height="220" style="position:absolute;inset:0;transform:rotate(-90deg)">
-                        <circle cx="110" cy="110" r="${R}" fill="none" stroke="${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.05)'}" stroke-width="8"/>
-                        <circle cx="110" cy="110" r="${R}" fill="none" stroke="url(#tg)" stroke-width="8" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${OFF.toFixed(1)}" stroke-linecap="round" style="transition:stroke-dashoffset .4s ease"/>
-                        <defs><linearGradient id="tg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#059669"/><stop offset="100%" stop-color="#b45309"/></linearGradient></defs>
-                    </svg>
-                    <button data-action="tasbeehTap" id="tasbeeh-main-btn" class="tasbeeh-btn ${d?'tasbeeh-btn-dark':''}" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);transition:box-shadow .1s,filter .1s">
-                        <span style="font-size:3rem;font-weight:900;font-variant-numeric:tabular-nums;line-height:1">${state.tasbeehCount}</span>
-                        <span style="font-size:.78rem;opacity:.65;margin-top:4px">${l==='bn'?'ট্যাপ করুন':'Tap'}</span>
-                    </button>
-                </div>
-                <div class="mb-5"><div class="flex justify-between text-xs font-semibold mb-1.5"><span class="${d?'text-gray-400':'text-gray-500'} tasbeeh-progress-text">${state.tasbeehCount} / ${state.tasbeehTarget}</span><span class="${d?'text-emerald-400':'text-emerald-600'} tasbeeh-progress-pct">${Math.round(pct*100)}%</span></div><div class="${d?'bg-gray-900':'bg-gray-100'} rounded-full h-2 overflow-hidden"><div class="progress-bar tasbeeh-progress-inner h-2 rounded-full" style="width:${Math.round(pct*100)}%"></div></div></div>
-                <button data-action="tasbeehReset" class="px-8 py-2.5 rounded-2xl text-sm font-bold hover:scale-105 transition-all" style="background:${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)'};border:1px solid ${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.07)'}">🔄 ${l==='bn'?'রিসেট':'Reset'}</button>
-            </div>
-            <div class="space-y-5">
-                <div class="card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border p-6" style="box-shadow:var(--shadow-md)">
-                    <h3 class="font-bold text-lg mb-4">${l==='bn'?'তাসবিহ বেছে নিন':'Choose Tasbeeh'}</h3>
-                    <div class="space-y-2.5">
-                        ${tasbeehLabels.map((lb,i)=>{const act=(l==='bn'?lb.bn:lb.en)===state.tasbeehLabel;return`
-                        <button data-action="tasbeehSetLabel" data-param="${i}" class="w-full text-left rounded-2xl px-4 py-3.5 border-2 transition-all hover:scale-[1.01]" style="${act?'border-color:#059669;background:linear-gradient(135deg,rgba(5,150,105,.12),rgba(5,150,105,.06));box-shadow:0 3px 12px rgba(5,150,105,.15)':(d?'border-color:rgba(255,255,255,.07);background:rgba(255,255,255,.03)':'border-color:rgba(0,0,0,.06);background:rgba(0,0,0,.02)')}">
-                            <div class="flex justify-between items-center mb-1"><span class="font-bold text-sm ${act?(d?'text-emerald-400':'text-emerald-700'):''}">${sanitize(l==='bn'?lb.bn:lb.en)}</span><span class="text-xs px-2 py-0.5 rounded-full font-bold" style="${act?'background:rgba(5,150,105,.2);color:#059669':(d?'background:rgba(255,255,255,.07);color:#6b7280':'background:rgba(0,0,0,.05);color:#9ca3af')}">${lb.target}×</span></div>
-                            <p style="font-family:'Amiri',serif;font-size:.95rem;opacity:.7;line-height:1.4">${sanitize(lb.arabic)}</p>
-                        </button>`}).join('')}
-                    </div>
-                </div>
-                ${state.tasbeehHistory.length?`
-                <div class="card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border p-6" style="box-shadow:var(--shadow-sm)">
-                    <h3 class="font-bold text-lg mb-4">🕒 ${l==='bn'?'ইতিহাস':'History'}</h3>
-                    <div class="space-y-2">${state.tasbeehHistory.slice(0,5).map(h=>`<div class="flex justify-between items-center ${d?'bg-gray-900':'bg-gray-50'} rounded-xl px-4 py-3"><span class="text-sm font-semibold">${sanitize(h.label)}</span><span class="${d?'text-emerald-400':'text-emerald-600'} font-bold stat-badge">${h.count}×</span><span class="text-xs ${d?'text-gray-500':'text-gray-400'}">${sanitize(h.date)}</span></div>`).join('')}</div>
-                </div>
-                <!-- Zikr History Bar Chart -->
-                <div class="card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border p-6" style="box-shadow:var(--shadow-sm)">
-                    <h3 class="font-bold text-lg mb-4">📊 ${l==='bn'?'যিকির চার্ট':'Zikr Chart'}</h3>
-                    ${(()=>{
-                        const hist = state.tasbeehHistory.slice(0,7).reverse();
-                        const maxC = Math.max(...hist.map(h=>h.count), 1);
-                        return `<div class="flex items-end gap-2" style="height:120px">
-                            ${hist.map(h=>{
-                                const barH = Math.max(8, Math.round((h.count/maxC)*100));
-                                const c=h.count>=h.target?'#059669':'#b45309';
-                                return `<div class="flex-1 flex flex-col items-center gap-1">
-                                    <span class="text-xs font-bold stat-badge" style="color:${c}">${h.count}</span>
-                                    <div class="w-full rounded-t-lg hist-bar" style="height:${barH}px;background:linear-gradient(to top,${c},${c}88);--bar-h:${barH}px;min-height:8px"></div>
-                                    <span class="text-xs ${d?'text-gray-500':'text-gray-400'} truncate w-full text-center" style="font-size:.6rem">${sanitize(h.label.slice(0,6))}</span>
-                                </div>`;
-                            }).join('')}
-                        </div>`;
-                    })()}
-                </div>`:''}
-            </div>
-        </div>
-    </div>`;
-}
-
 // ============================================================================
 // PAGE: QUIZ
 // ============================================================================
@@ -4325,6 +5044,1272 @@ function renderQuizPage() {
     </div>`;
 }
 
+// ============================================================================
+// PAGE: SEARCH
+// ============================================================================
+function performSearch(q) {
+    const d=state.darkMode; const l=state.language;
+    const lower=q.toLowerCase();
+    const results=[];
+    // Search imams
+    const allImams=[...masumeen,...imams];
+    allImams.forEach(im=>{
+        const name=l==='bn'?im.nameBn:im.nameEn;
+        const epithet=l==='bn'?im.epithetBn:im.epithetEn;
+        if((name||'').toLowerCase().includes(lower)||(epithet||'').toLowerCase().includes(lower)||(im.arabicName||'').includes(q)){
+            results.push({title:name,subtitle:epithet,icon:'👑',color:'#059669',type:l==='bn'?'ইমাম':'Imam',action:'viewImam',param:im.id});
+        }
+    });
+    // Search duas
+    const allDuas=[...state.customDuas,...duas];
+    allDuas.forEach((dua,i)=>{
+        const title=l==='bn'?dua.titleBn:dua.titleEn;
+        const meaning=l==='bn'?dua.meaningBn:dua.meaningEn;
+        if((title||'').toLowerCase().includes(lower)||(meaning||'').toLowerCase().includes(lower)||(dua.arabic||'').includes(q)){
+            const isCustom=!!dua.id;
+            results.push({title,subtitle:dua.source||'',icon:'🤲',color:'#7c3aed',type:l==='bn'?'দোয়া':'Dua',action:'readDua',param:isCustom?'c'+dua.id:i-state.customDuas.length});
+        }
+    });
+    // Search blog
+    const allPosts=[...state.customPosts,...blogPosts];
+    allPosts.forEach(post=>{
+        const title=l==='bn'?post.titleBn:post.titleEn;
+        if((title||'').toLowerCase().includes(lower)||(post.excerpt||'').toLowerCase().includes(lower)){
+            results.push({title,subtitle:post.category||'',icon:'📝',color:'#0369a1',type:l==='bn'?'ব্লগ':'Blog',action:'readPost',param:post.id});
+        }
+    });
+    // Search ziyarat
+    const allZ=[...ziyarats,...state.customZiyarat];
+    allZ.forEach((z,i)=>{
+        const title=l==='bn'?z.titleBn:z.titleEn;
+        if((title||'').toLowerCase().includes(lower)||(z.arabic||'').includes(q)){
+            results.push({title,subtitle:z.occasion||'',icon:'☪️',color:'#b45309',type:l==='bn'?'যিয়ারত':'Ziyarat',action:'readZiyarat',param:z.id||i});
+        }
+    });
+    return results.slice(0,30);
+}
+
+function renderSearchPage() {
+    const d=state.darkMode; const l=state.language;
+    const q=state.searchQuery; const results=state.searchResults;
+    function hl(text) {
+        if(!q||!text) return sanitize(text||'');
+        const safe = sanitize(text);
+        const escaped = sanitize(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+        if(!escaped) return safe;
+        return safe.replace(new RegExp(escaped,'gi'), m=>`<mark>${m}</mark>`);
+    }
+    // Real-time suggestions from content titles
+    function getSuggestions(query) {
+        if (!query || query.length < 2) return [];
+        const q2 = query.toLowerCase();
+        const sugg = [];
+        const allPosts = [...(typeof blogPosts!=='undefined'?blogPosts:[]), ...(state.customPosts||[])];
+        allPosts.forEach(p => { if((p.titleBn||'').toLowerCase().includes(q2)||(p.titleEn||'').toLowerCase().includes(q2)) sugg.push({label:l==='bn'?(p.titleBn||p.titleEn):(p.titleEn||p.titleBn), icon:'📝'}); });
+        if(typeof duas!=='undefined') duas.forEach(dua => { if((dua.titleBn||'').toLowerCase().includes(q2)||(dua.titleEn||'').toLowerCase().includes(q2)) sugg.push({label:l==='bn'?(dua.titleBn||dua.titleEn):(dua.titleEn||dua.titleBn), icon:'🤲'}); });
+        if(typeof imams!=='undefined') imams.forEach(im => { if((im.nameBn||'').toLowerCase().includes(q2)||(im.nameEn||'').toLowerCase().includes(q2)) sugg.push({label:l==='bn'?(im.nameBn||im.nameEn):(im.nameEn||im.nameBn), icon:'👑'}); });
+        if(typeof hadiths!=='undefined') hadiths.forEach(h => { const txt=(l==='bn'?h.textBn:h.textEn)||''; if(txt.toLowerCase().includes(q2)) sugg.push({label:txt.slice(0,55)+'…', icon:'📜'}); });
+        return sugg.slice(0,6);
+    }
+    const suggestions = getSuggestions(q);
+    return `
+    <div class="space-y-6 page-slide-in">
+        <div>
+            <h2 class="text-3xl font-black mb-1" style="background:linear-gradient(135deg,#059669,#c9a227);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">🔍 ${t('searchPage')}</h2>
+            <p class="text-sm ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?'ব্লগ, দোয়া, হাদিস, ইমাম, পিডিএফ — সব এক জায়গায়':'Blog, Duas, Hadiths, Imams, PDFs — all in one place'}</p>
+        </div>
+        <div class="${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-2xl p-5 relative" style="box-shadow:var(--shadow-md)">
+            <div class="flex gap-3 items-center">
+                <div class="relative flex-1">
+                    <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:1.1rem;pointer-events:none">🔍</span>
+                    <input id="search-input" type="search" value="${sanitize(q)}"
+                        placeholder="${l==='bn'?'ব্লগ, দোয়া, হাদিস, ইমাম, পিডিএফ খুঁজুন...':'Search posts, duas, hadiths, imams, PDFs...'}"
+                        class="${d?'bg-gray-900 border-gray-600 text-white placeholder-gray-500':'bg-gray-50 border-gray-200 text-gray-900'} border rounded-xl pl-10 pr-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base transition-all"
+                        oninput="doSearch(this.value)"
+                        autofocus />
+                </div>
+                ${q?`<button onclick="doSearch('');document.getElementById('search-input').value=''" class="${d?'bg-gray-700 text-gray-300':'bg-gray-100 text-gray-600'} px-3 py-3 rounded-xl text-sm font-medium hover:opacity-80 flex-shrink-0">✕</button>`:''}
+            </div>
+            ${q && q.length>=2 && suggestions.length>0?`
+            <div class="mt-3">
+                <p class="text-xs ${d?'text-gray-500':'text-gray-400'} mb-2 px-1">${l==='bn'?'পরামর্শ:':'Suggestions:'}</p>
+                <div class="flex flex-wrap gap-2">
+                    ${suggestions.map(s=>`
+                        <button onclick="doSearch(${JSON.stringify(s.label.replace(/…$/,''))});document.getElementById('search-input').value=${JSON.stringify(s.label.replace(/…$/,''))}"
+                            class="${d?'bg-gray-700 hover:bg-gray-600 text-gray-200 border-gray-600':'bg-gray-100 hover:bg-emerald-50 text-gray-700 border-gray-200'} text-xs px-3 py-1.5 rounded-lg border hover:border-emerald-400 transition-all text-left max-w-xs truncate">
+                            ${s.icon} ${sanitize(s.label)}
+                        </button>`).join('')}
+                </div>
+            </div>`:''}
+        </div>
+        ${q?`
+        <div class="flex items-center justify-between flex-wrap gap-2">
+            <p class="text-sm ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?`"${sanitize(q)}" — ${results.length}টি ফলাফল`:`"${sanitize(q)}" — ${results.length} result${results.length!==1?'s':''}`}</p>
+            ${results.length>0?`<div class="flex gap-1 flex-wrap">
+                ${[['সব/All',null],['📝',`post`],['🤲','dua'],['👑','imam'],['📜','hadith'],['📄','pdf']].map(([label,type])=>{
+                    const count = type?results.filter(r=>r.type===type).length:results.length;
+                    if(count===0&&type) return '';
+                    const dispLabel = l==='bn'?label.split('/')[0]:label.split('/').pop();
+                    return `<button onclick="window._sf='${type||''}';document.querySelectorAll('.search-result-item').forEach(el=>el.style.display=(!window._sf||el.dataset.type===window._sf)?'':'none')"
+                        class="${d?'bg-gray-700 text-gray-300 hover:bg-gray-600':'bg-gray-100 text-gray-600 hover:bg-gray-200'} text-xs px-2.5 py-1 rounded-lg font-medium transition-colors">${dispLabel} ${count}</button>`;
+                }).join('')}
+            </div>`:''}
+        </div>
+        ${results.length===0?`
+            <div class="text-center py-16">
+                <div class="text-6xl mb-4">🔍</div>
+                <p class="font-semibold ${d?'text-gray-400':'text-gray-500'} text-lg">${l==='bn'?'কোনো ফলাফল পাওয়া যায়নি':'No results found'}</p>
+                <p class="text-sm ${d?'text-gray-500':'text-gray-400'} mt-2">${l==='bn'?'অন্য কীওয়ার্ড দিয়ে চেষ্টা করুন':'Try a different keyword'}</p>
+            </div>`:
+        `<div class="space-y-3">
+            ${results.map(r=>{
+                if (r.type==='post') return `
+                    <div class="search-result-item ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl p-5 fade-in" data-type="post" style="box-shadow:var(--shadow-sm)">
+                        <span class="text-xs px-2 py-0.5 rounded-lg ${d?'bg-blue-900 text-blue-300':'bg-blue-100 text-blue-600'} mb-2 inline-block font-medium">📝 ${t('blog')}</span>
+                        <h3 class="font-bold text-base mb-1 leading-snug">${hl(l==='bn'?r.item.titleBn:r.item.titleEn)}</h3>
+                        <p class="text-sm ${d?'text-gray-400':'text-gray-600'} line-clamp-2">${hl(r.item.excerpt||'')}</p>
+                        <button data-action="readPost" data-param="${r.item.id}" class="${d?'text-emerald-400':'text-emerald-600'} text-sm font-bold mt-3 hover:underline">${t('readMore')} →</button>
+                    </div>`;
+                if (r.type==='dua') return `
+                    <div class="search-result-item ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl p-5 fade-in" data-type="dua" style="box-shadow:var(--shadow-sm)">
+                        <span class="text-xs px-2 py-0.5 rounded-lg ${d?'bg-purple-900 text-purple-300':'bg-purple-100 text-purple-600'} mb-2 inline-block font-medium">🤲 ${l==='bn'?'দোয়া':'Dua'}</span>
+                        <h3 class="font-bold text-base mb-1">${hl(l==='bn'?r.item.titleBn:r.item.titleEn)}</h3>
+                        <p class="text-sm ${d?'text-gray-400':'text-gray-600'} line-clamp-2">${hl(l==='bn'?r.item.meaningBn:r.item.meaningEn)}</p>
+                        <button data-action="readDua" data-param="${r.index}" class="${d?'text-purple-400':'text-purple-600'} text-sm font-bold mt-3 hover:underline">${t('readMore')} →</button>
+                    </div>`;
+                if (r.type==='imam') return `
+                    <div class="search-result-item ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl p-5 fade-in" data-type="imam" style="box-shadow:var(--shadow-sm)">
+                        <span class="text-xs px-2 py-0.5 rounded-lg ${d?'bg-green-900 text-green-300':'bg-green-100 text-green-600'} mb-2 inline-block font-medium">👑 ${l==='bn'?'ইমাম':'Imam'}</span>
+                        <h3 class="font-bold text-base mb-1">${r.item.icon||''} ${hl(l==='bn'?r.item.nameBn:r.item.nameEn)}</h3>
+                        <p class="text-sm ${d?'text-gray-400':'text-gray-600'} line-clamp-2">${hl(l==='bn'?r.item.descBn:r.item.descEn)}</p>
+                        <button data-action="viewImam" data-param="${r.item.id}" class="${d?'text-emerald-400':'text-emerald-600'} text-sm font-bold mt-3 hover:underline">${l==='bn'?'বিস্তারিত →':'Details →'}</button>
+                    </div>`;
+                if (r.type==='pdf') return `
+                    <div class="search-result-item ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl p-5 fade-in" data-type="pdf" style="box-shadow:var(--shadow-sm)">
+                        <span class="text-xs px-2 py-0.5 rounded-lg ${d?'bg-amber-900 text-amber-300':'bg-amber-100 text-amber-700'} mb-2 inline-block font-medium">📄 ${l==='bn'?'পিডিএফ':'PDF'}</span>
+                        <h3 class="font-bold text-base">${hl(r.item.name)}</h3>
+                        <p class="text-xs ${d?'text-gray-500':'text-gray-400'} mt-1">${sanitize(r.item.sizeFmt||'')}</p>
+                    </div>`;
+                if (r.type==='hadith') return `
+                    <div class="search-result-item ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl p-5 fade-in" data-type="hadith" style="box-shadow:var(--shadow-sm)">
+                        <span class="text-xs px-2 py-0.5 rounded-lg ${d?'bg-teal-900 text-teal-300':'bg-teal-100 text-teal-700'} mb-2 inline-block font-medium">📜 ${l==='bn'?'হাদিস':'Hadith'}</span>
+                        <p class="text-sm ${d?'text-gray-300':'text-gray-700'} line-clamp-3 leading-relaxed">${hl(l==='bn'?r.item.textBn:r.item.textEn)}</p>
+                        <p class="text-xs ${d?'text-gray-500':'text-gray-400'} mt-2 font-medium">— ${sanitize(l==='bn'?r.item.sourceBn:r.item.sourceEn)}</p>
+                    </div>`;
+                if (r.type==='ziyarat') return `
+                    <div class="search-result-item ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl p-5 fade-in" data-type="ziyarat" style="box-shadow:var(--shadow-sm)">
+                        <span class="text-xs px-2 py-0.5 rounded-lg ${d?'bg-amber-900 text-amber-300':'bg-amber-100 text-amber-700'} mb-2 inline-block font-medium">🕌 ${l==='bn'?'যিয়ারত':'Ziyarat'}</span>
+                        <h3 class="font-bold text-base mb-1">${hl(l==='bn'?r.item.titleBn:r.item.titleEn)}</h3>
+                        <button data-action="readZiyarat" data-param="${r.item.id}" class="${d?'text-amber-400':'text-amber-700'} text-sm font-bold mt-1 hover:underline">${t('readMore')} →</button>
+                    </div>`;
+                return '';
+            }).join('')}
+        </div>`}`:''}
+    </div>`;
+}
+
+// ============================================================================
+// PAGE: ANALYTICS (Admin)
+// ============================================================================
+function renderAnalyticsPage() {
+    const d=state.darkMode; const l=state.language;
+    if (!state.isAdmin) return `<div class="text-center py-16">
+        <div class="text-6xl mb-4">🔒</div>
+        <p>${l==='bn'?'শুধুমাত্র অ্যাডমিনের জন্য':'Admin only'}</p>
+    </div>`;
+    const views = state.pageViews;
+    const sorted = Object.entries(views).sort((a,b)=>b[1]-a[1]);
+    const total = Object.values(views).reduce((s,v)=>s+v,0);
+    const maxV = sorted[0]?.[1]||1;
+    return `
+    <div class="space-y-8">
+        <h2 class="text-3xl font-bold">📊 ${t('analytics')}</h2>
+        <div class="grid sm:grid-cols-3 gap-6">
+            <div class="${d?'bg-gray-800':'bg-white'} border rounded-xl p-6 text-center">
+                <p class="text-4xl font-bold ${d?'text-green-400':'text-green-600'} stat-badge">${total}</p>
+                <p class="text-sm ${d?'text-gray-400':'text-gray-500'} mt-2">${l==='bn'?'মোট পেজ ভিউ':'Total Page Views'}</p>
+            </div>
+            <div class="${d?'bg-gray-800':'bg-white'} border rounded-xl p-6 text-center">
+                <p class="text-4xl font-bold ${d?'text-blue-400':'text-blue-600'} stat-badge">${sorted.length}</p>
+                <p class="text-sm ${d?'text-gray-400':'text-gray-500'} mt-2">${l==='bn'?'ভিজিট করা পেজ':'Pages Visited'}</p>
+            </div>
+            <div class="${d?'bg-gray-800':'bg-white'} border rounded-xl p-6 text-center">
+                <p class="text-4xl font-bold ${d?'text-purple-400':'text-purple-600'} stat-badge">${state.customPosts.length}</p>
+                <p class="text-sm ${d?'text-gray-400':'text-gray-500'} mt-2">${l==='bn'?'কাস্টম পোস্ট':'Custom Posts'}</p>
+            </div>
+        </div>
+        <div class="${d?'bg-gray-800':'bg-white'} border rounded-2xl p-6">
+            <h3 class="font-bold text-lg mb-6">${l==='bn'?'পেজ ভিউ রিপোর্ট':'Page View Report'}</h3>
+            ${sorted.length===0?`<p class="${d?'text-gray-500':'text-gray-400'}">${l==='bn'?'এখনো কোনো তথ্য নেই':'No data yet'}</p>`:`
+            <div class="space-y-4">
+                ${sorted.map(([page,count])=>{
+                    const pct=Math.round(count/maxV*100);
+                    return `<div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="font-medium">${t(page)||page}</span>
+                            <span class="${d?'text-green-400':'text-green-600'} font-bold stat-badge">${count}</span>
+                        </div>
+                        <div class="${d?'bg-gray-900':'bg-gray-100'} rounded-full h-2 overflow-hidden">
+                            <div class="bg-green-500 h-2 rounded-full transition-all" style="width:${pct}%"></div>
+                        </div>
+                    </div>`;}).join('')}
+            </div>`}
+        </div>
+
+        <!-- DUA / ZIYARAT MANAGEMENT -->
+        <div class="${d?'bg-gray-800':'bg-white'} border rounded-2xl p-6">
+            <div class="flex justify-between items-center mb-5">
+                <div>
+                    <h3 class="font-bold text-lg">🤲 ${l==='bn'?'দোয়া ও যিয়ারত ব্যবস্থাপনা':'Dua & Ziyarat Management'}</h3>
+                    <p class="text-sm ${d?'text-gray-400':'text-gray-500'} mt-0.5">${l==='bn'?'কাস্টম দোয়া ও যিয়ারত যোগ, সম্পাদনা বা মুছুন':'Add, edit or delete custom duas and ziyarats'}</p>
+                </div>
+                <button data-action="changePage" data-param="dua" class="${d?'text-green-400':'text-green-600'} text-sm font-semibold hover:underline">${l==='bn'?'পেজে যান →':'Go to page →'}</button>
+            </div>
+            <div class="grid sm:grid-cols-2 gap-4 mb-5">
+                <!-- Duas count card -->
+                <div class="${d?'bg-gray-900':'bg-green-50'} rounded-xl p-4 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-green-600 flex items-center justify-center text-2xl flex-shrink-0">🤲</div>
+                    <div>
+                        <p class="text-2xl font-bold">${state.customDuas.length}</p>
+                        <p class="text-sm ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?'কাস্টম দোয়া':'Custom Duas'}</p>
+                    </div>
+                    <button data-action="openDuaEditor" data-param="dua"
+                        class="ml-auto bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors">
+                        + ${l==='bn'?'যোগ':'Add'}
+                    </button>
+                </div>
+                <!-- Ziyarat count card -->
+                <div class="${d?'bg-gray-900':'bg-amber-50'} rounded-xl p-4 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-amber-600 flex items-center justify-center text-2xl flex-shrink-0">☪️</div>
+                    <div>
+                        <p class="text-2xl font-bold">${state.customZiyarat.length}</p>
+                        <p class="text-sm ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?'কাস্টম যিয়ারত':'Custom Ziyarat'}</p>
+                    </div>
+                    <button data-action="openDuaEditor" data-param="ziyarat"
+                        class="ml-auto bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors">
+                        + ${l==='bn'?'যোগ':'Add'}
+                    </button>
+                </div>
+            </div>
+            <!-- Recent custom duas list -->
+            ${state.customDuas.length>0?`
+            <div class="mb-4">
+                <h4 class="text-sm font-bold mb-3 ${d?'text-green-400':'text-green-700'}">${l==='bn'?'সাম্প্রতিক দোয়া':'Recent Duas'}</h4>
+                <div class="space-y-2">
+                    ${state.customDuas.slice(0,3).map(dua=>`
+                    <div class="flex items-center gap-3 ${d?'bg-gray-900':'bg-gray-50'} rounded-xl px-4 py-3">
+                        <span class="flex-1 font-medium text-sm truncate">${sanitize(dua.titleBn||dua.titleEn||'-')}</span>
+                        <button data-action="editCustomDua" data-param="${dua.id}" data-dtype="dua"
+                            class="${d?'text-blue-400 hover:text-blue-300':'text-blue-600 hover:text-blue-800'} text-sm p-1 rounded transition-colors">✏️</button>
+                        <button data-action="deleteCustomDua" data-param="${dua.id}" data-dtype="dua"
+                            class="${d?'text-red-400 hover:text-red-300':'text-red-500 hover:text-red-700'} text-sm p-1 rounded transition-colors">🗑</button>
+                    </div>`).join('')}
+                </div>
+            </div>`:''}
+            <!-- Recent custom ziyarat list -->
+            ${state.customZiyarat.length>0?`
+            <div>
+                <h4 class="text-sm font-bold mb-3 ${d?'text-amber-400':'text-amber-700'}">${l==='bn'?'সাম্প্রতিক যিয়ারত':'Recent Ziyarat'}</h4>
+                <div class="space-y-2">
+                    ${state.customZiyarat.slice(0,3).map(z=>`
+                    <div class="flex items-center gap-3 ${d?'bg-gray-900':'bg-gray-50'} rounded-xl px-4 py-3">
+                        <span class="flex-1 font-medium text-sm truncate">${sanitize(z.titleBn||z.titleEn||'-')}</span>
+                        ${z.occasion?`<span class="text-xs ${d?'text-amber-400':'text-amber-600'} px-2 py-0.5 rounded-full ${d?'bg-amber-900/40':'bg-amber-100'}">${sanitize(z.occasion)}</span>`:''}
+                        <button data-action="editCustomDua" data-param="${z.id}" data-dtype="ziyarat"
+                            class="${d?'text-blue-400 hover:text-blue-300':'text-blue-600 hover:text-blue-800'} text-sm p-1 rounded transition-colors">✏️</button>
+                        <button data-action="deleteCustomDua" data-param="${z.id}" data-dtype="ziyarat"
+                            class="${d?'text-red-400 hover:text-red-300':'text-red-500 hover:text-red-700'} text-sm p-1 rounded transition-colors">🗑</button>
+                    </div>`).join('')}
+                </div>
+            </div>`:''}
+        </div>
+        <!-- HADITH & AYAH MANAGEMENT -->
+        <div class="${d?'bg-gray-800':'bg-white'} border rounded-2xl p-6">
+            <div class="flex justify-between items-center mb-5">
+                <div>
+                    <h3 class="font-bold text-lg">📜 ${l==='bn'?'হাদিস ও আয়াত ব্যবস্থাপনা':'Hadith & Ayah Management'}</h3>
+                    <p class="text-sm ${d?'text-gray-400':'text-gray-500'} mt-0.5">${l==='bn'?'প্রতিদিন নতুন হাদিস ও আয়াত যোগ করুন':'Add new hadiths and ayahs shown daily'}</p>
+                </div>
+            </div>
+            <div class="grid sm:grid-cols-2 gap-4 mb-5">
+                <div class="${d?'bg-gray-900':'bg-emerald-50'} rounded-xl p-4 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center text-2xl flex-shrink-0">📜</div>
+                    <div>
+                        <p class="text-2xl font-bold">${state.customHadiths.length}</p>
+                        <p class="text-sm ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?'কাস্টম হাদিস':'Custom Hadiths'}</p>
+                    </div>
+                    <button data-action="openHadithEditor"
+                        class="ml-auto bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors">
+                        + ${l==='bn'?'যোগ':'Add'}
+                    </button>
+                </div>
+                <div class="${d?'bg-gray-900':'bg-amber-50'} rounded-xl p-4 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-amber-600 flex items-center justify-center text-2xl flex-shrink-0">🌙</div>
+                    <div>
+                        <p class="text-2xl font-bold">${state.customAyahs.length}</p>
+                        <p class="text-sm ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?'কাস্টম আয়াত':'Custom Ayahs'}</p>
+                    </div>
+                    <button data-action="openAyahEditor"
+                        class="ml-auto bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors">
+                        + ${l==='bn'?'যোগ':'Add'}
+                    </button>
+                </div>
+            </div>
+            ${state.customHadiths.length>0?`
+            <div class="mb-4">
+                <h4 class="text-sm font-bold mb-3 ${d?'text-emerald-400':'text-emerald-700'}">${l==='bn'?'হাদিস তালিকা':'Hadith List'}</h4>
+                <div class="space-y-2">
+                    ${state.customHadiths.map((h,i)=>`
+                    <div class="flex items-center gap-3 ${d?'bg-gray-900':'bg-gray-50'} rounded-xl px-4 py-3">
+                        <span class="flex-1 text-sm truncate italic">"${sanitize(h.textBn||h.textEn||'-')}"</span>
+                        <span class="text-xs ${d?'text-gray-400':'text-gray-500'} shrink-0">${sanitize(h.sourceBn||h.sourceEn||'')}</span>
+                        <button data-action="editHadith" data-param="${i}"
+                            class="${d?'text-blue-400':'text-blue-600'} text-sm p-1 rounded transition-colors">✏️</button>
+                        <button data-action="deleteHadith" data-param="${i}"
+                            class="${d?'text-red-400':'text-red-500'} text-sm p-1 rounded transition-colors">🗑</button>
+                    </div>`).join('')}
+                </div>
+            </div>`:''}
+            ${state.customAyahs.length>0?`
+            <div>
+                <h4 class="text-sm font-bold mb-3 ${d?'text-amber-400':'text-amber-700'}">${l==='bn'?'আয়াত তালিকা':'Ayah List'}</h4>
+                <div class="space-y-2">
+                    ${state.customAyahs.map((a,i)=>`
+                    <div class="flex items-center gap-3 ${d?'bg-gray-900':'bg-gray-50'} rounded-xl px-4 py-3">
+                        <span class="flex-1 text-sm truncate font-arabic" dir="rtl">${sanitize(a.arabic||'-')}</span>
+                        <span class="text-xs ${d?'text-gray-400':'text-gray-500'} shrink-0">${sanitize(a.ref||a.refEn||'')}</span>
+                        <button data-action="editAyah" data-param="${i}"
+                            class="${d?'text-blue-400':'text-blue-600'} text-sm p-1 rounded transition-colors">✏️</button>
+                        <button data-action="deleteAyah" data-param="${i}"
+                            class="${d?'text-red-400':'text-red-500'} text-sm p-1 rounded transition-colors">🗑</button>
+                    </div>`).join('')}
+                </div>
+            </div>`:''}
+        </div>
+        <div class="${d?'bg-gray-800':'bg-white'} border rounded-2xl p-6">
+            <h3 class="font-bold text-lg mb-4">${l==='bn'?'ফন্ট সাইজ সেটিং':'Font Size Settings'}</h3>
+            <p class="${d?'text-gray-400':'text-gray-600'} text-sm mb-4">${l==='bn'?'বয়স্ক ও দৃষ্টি প্রতিবন্ধীদের জন্য ফন্ট বড় করুন:':'Increase font size for elderly or visually impaired users:'}</p>
+            <div class="flex flex-wrap gap-3">
+                ${[['small',l==='bn'?'ছোট':'Small'],['medium',l==='bn'?'স্বাভাবিক':'Normal'],['large',l==='bn'?'বড়':'Large'],['xlarge',l==='bn'?'অতিবড়':'X-Large']].map(([sz,lbl])=>`
+                    <button data-action="setFontSize" data-param="${sz}"
+                        class="${state.fontSize===sz?(d?'bg-green-700 text-white border-green-500':'bg-green-600 text-white border-green-600'):(d?'bg-gray-700 text-gray-300 border-gray-600':'bg-gray-100 text-gray-700 border-gray-300')} border-2 px-5 py-2.5 rounded-xl font-semibold transition-colors">
+                        ${lbl}
+                    </button>`).join('')}
+            </div>
+            <p class="text-sm mt-4 ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?'বর্তমান সাইজ:':'Current size:'} <span class="font-bold ${d?'text-green-400':'text-green-600'}">${l==='bn'?fontSizeLabels.bn[state.fontSize]:fontSizeLabels.en[state.fontSize]}</span></p>
+        </div>
+        <div class="${d?'bg-gray-800':'bg-white'} border rounded-2xl p-6">
+            <h3 class="font-bold text-lg mb-4">${l==='bn'?'নামাজের রিমাইন্ডার':'Prayer Reminder'}</h3>
+            <p class="${d?'text-gray-400':'text-gray-600'} text-sm mb-4">${l==='bn'?'নামাজের সময় ব্রাউজার নোটিফিকেশন পেতে নিচের বোতামে চাপুন।':'Press the button below to receive browser notifications at prayer times.'}</p>
+            <button data-action="requestNotify" class="${d?'bg-green-900 text-green-300':'bg-green-600 text-white'} px-6 py-2.5 rounded-xl font-semibold hover:opacity-90">🔔 ${t('enableNotify')}</button>
+        </div>
+    </div>`;
+}
+
+function renderTasbeehPage()
+{
+    const d=state.darkMode; const l=state.language;
+    const count   = state.tasbeehCount||0;
+    const target  = state.tasbeehTarget||33;
+    const selected= state.tasbeehSelected||0;
+    const history = state.tasbeehHistory||[];
+    const progress= Math.min(count/target,1);
+    const sets    = Math.floor(count/target);
+    const rem     = count%target;
+    const circumference = 2*Math.PI*54;
+    const dashOff = circumference*(1-progress);
+
+    const DHIKR=[
+        {ar:'سُبْحَانَ اللَّهِ',      bn:'সুবহানআল্লাহ',   en:'Subhanallah',    target:33, color:'#059669'},
+        {ar:'اَلْحَمْدُ لِلَّهِ',    bn:'আলহামদুলিল্লাহ', en:'Alhamdulillah',  target:33, color:'#0369a1'},
+        {ar:'اللَّهُ أَكْبَرُ',      bn:'আল্লাহু আকবার',  en:'Allahu Akbar',   target:34, color:'#7c3aed'},
+        {ar:'لَا إِلَٰهَ إِلَّا اللَّهُ',bn:'লা ইলাহা ইল্লাল্লাহ',en:'La ilaha illallah',target:100,color:'#b45309'},
+        {ar:'اَللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَآلِ مُحَمَّدٍ',bn:'দরুদে ইব্রাহিম',en:'Durood Ibrahim',target:10,color:'#be123c'},
+        {ar:'أَسْتَغْفِرُ اللَّهَ',   bn:'আস্তাগফিরুল্লাহ',en:'Astaghfirullah', target:70, color:'#0d9488'},
+    ];
+    const dhikr = DHIKR[selected];
+    const ac = dhikr.color;
+
+    return `
+    <div class="space-y-6 page-enter">
+
+        <!-- Header -->
+        <div class="reveal">
+            <h2 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#059669,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+                📿 ${t('tasbeeh')}
+            </h2>
+            <p class="text-sm mt-1" style="color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?'ডিজিটাল তাসবিহ কাউন্টার':'Digital Tasbeeh Counter'}</p>
+        </div>
+
+        <!-- Dhikr selector -->
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 1px 6px" class="reveal">
+            <div style="display:flex;gap:8px;width:max-content">
+                ${DHIKR.map((dk,i)=>`
+                <button data-action="selectTasbeeh" data-param="${i}"
+                    style="flex-shrink:0;padding:7px 16px;border-radius:50px;cursor:pointer;
+                    font-size:11.5px;font-weight:700;white-space:nowrap;transition:all .2s;
+                    background:${selected===i?dk.color:(d?'rgba(255,255,255,.07)':'rgba(0,0,0,.05)')};
+                    color:${selected===i?'#fff':(d?'#9ca3af':'#6b7280')};
+                    border:1.5px solid ${selected===i?dk.color:(d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)')}">
+                    ${l==='bn'?dk.bn:dk.en}
+                </button>`).join('')}
+            </div>
+        </div>
+
+        <!-- Main counter card -->
+        <div class="card-luxury border reveal"
+            style="background:${d?'linear-gradient(135deg,#1a2520,#0f1a14)':'linear-gradient(135deg,#f0fdf4,#ecfdf5)'};
+            border-color:${ac}25;box-shadow:0 12px 40px ${ac}18">
+            <div style="height:4px;background:linear-gradient(90deg,${ac},#c9a227,${ac});background-size:200% 100%;animation:goldShimmer 3s linear infinite;border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
+            <div class="p-6 text-center">
+
+                <!-- Arabic dhikr -->
+                <p class="arabic-text mb-1" dir="rtl" style="font-size:1.7rem;line-height:1.9;color:${ac}">${dhikr.ar}</p>
+                <p class="font-bold text-sm mb-5" style="color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?dhikr.bn:dhikr.en} · ${l==='bn'?'লক্ষ্য':'Target'}: ${dhikr.target}</p>
+
+                <!-- SVG ring progress -->
+                <div style="position:relative;width:154px;height:154px;margin:0 auto 1.5rem">
+                    <svg width="154" height="154" style="transform:rotate(-90deg)">
+                        <circle cx="77" cy="77" r="54" fill="none" stroke="${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.07)'}" stroke-width="10"/>
+                        <circle cx="77" cy="77" r="54" fill="none" stroke="${ac}" stroke-width="10"
+                            stroke-linecap="round"
+                            stroke-dasharray="${circumference}"
+                            stroke-dashoffset="${dashOff}"
+                            style="transition:stroke-dashoffset .35s cubic-bezier(.34,1.56,.64,1);filter:drop-shadow(0 0 8px ${ac}88)"/>
+                    </svg>
+                    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+                        <span class="tasbeeh-center-count" style="font-size:2.8rem;font-weight:900;line-height:1;color:${ac};font-variant-numeric:tabular-nums">
+                            ${l==='bn'?toBengaliDigits(rem):rem}
+                        </span>
+                        <span class="text-xs font-semibold mt-1" style="color:${d?'#6b7280':'#9ca3af'}">/ ${l==='bn'?toBengaliDigits(dhikr.target):dhikr.target}</span>
+                    </div>
+                </div>
+
+                <!-- Tap button -->
+                <button id="tasbeeh-tap-btn"
+                    onclick="tasbeehTap(this)"
+                    style="width:200px;height:200px;border-radius:50%;border:none;cursor:pointer;
+                    background:linear-gradient(145deg,${ac},${ac}cc);
+                    box-shadow:0 8px 0 ${ac}80,0 14px 28px ${ac}50,inset 0 3px 8px rgba(255,255,255,.25);
+                    display:flex;flex-direction:column;align-items:center;justify-content:center;
+                    gap:4px;position:relative;overflow:hidden;transition:transform .1s,box-shadow .1s;
+                    margin:0 auto">
+                    <div style="position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.28),transparent 56%);pointer-events:none"></div>
+                    <span style="font-size:.72rem;font-weight:700;color:rgba(255,255,255,.8);letter-spacing:1px;text-transform:uppercase">${l==='bn'?'ট্যাপ করুন':'Tap'}</span>
+                    <span style="font-size:3rem;font-weight:900;color:white;line-height:1;font-variant-numeric:tabular-nums">${l==='bn'?toBengaliDigits(count):count}</span>
+                    <span style="font-size:.7rem;color:rgba(255,255,255,.7)">${sets>0?(l==='bn'?`${toBengaliDigits(sets)} সেট`:`${sets} sets`):''}</span>
+                </button>
+
+                <!-- Controls -->
+                <div class="flex justify-center gap-3 mt-6">
+                    <button data-action="resetTasbeeh"
+                        style="padding:10px 24px;border-radius:50px;font-size:12.5px;font-weight:700;
+                        background:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'};
+                        color:${d?'#d1d5db':'#374151'};border:1.5px solid ${d?'rgba(255,255,255,.12)':'rgba(0,0,0,.1)'};cursor:pointer;
+                        display:flex;align-items:center;gap:6px;transition:all .2s">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+                        ${l==='bn'?'রিসেট':'Reset'}
+                    </button>
+                    <button data-action="saveTasbeehHistory"
+                        style="padding:10px 24px;border-radius:50px;font-size:12.5px;font-weight:700;
+                        background:${ac}18;color:${ac};border:1.5px solid ${ac}30;cursor:pointer;
+                        display:flex;align-items:center;gap:6px;transition:all .2s">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        ${l==='bn'?'সেভ করুন':'Save'}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- History -->
+        ${history.length>0?`
+        <div class="reveal">
+            <div class="section-heading">
+                <span style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#6b7280,#374151);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0">📊</span>
+                <h3 class="font-bold text-sm" style="color:${d?'#f9fafb':'#111827'}">${l==='bn'?'ইতিহাস':'History'}</h3>
+            </div>
+            <div class="space-y-2">
+                ${history.slice(-5).reverse().map((h,hi)=>`
+                <div class="flex items-center gap-3 px-4 py-3 rounded-xl"
+                    style="background:${d?'rgba(255,255,255,.05)':'rgba(0,0,0,.03)'};border:1px solid ${d?'rgba(255,255,255,.07)':'rgba(0,0,0,.06)'}">
+                    <span style="width:32px;height:32px;border-radius:10px;background:${DHIKR[h.dhikrIdx]?.color||'#059669'}18;
+                        display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;
+                        color:${DHIKR[h.dhikrIdx]?.color||'#059669'}">${l==='bn'?toBengaliDigits(hi+1):hi+1}</span>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-sm truncate" style="color:${d?'#f9fafb':'#111827'}">${l==='bn'?DHIKR[h.dhikrIdx]?.bn:DHIKR[h.dhikrIdx]?.en}</p>
+                        <p class="text-xs" style="color:${d?'#6b7280':'#9ca3af'}">${sanitize(h.date||'')}</p>
+                    </div>
+                    <span class="font-bold text-sm tabular-nums" style="color:${DHIKR[h.dhikrIdx]?.color||'#059669'}">${l==='bn'?toBengaliDigits(h.count):h.count}</span>
+                </div>`).join('')}
+            </div>
+        </div>`:''}
+    </div>`;
+}
+// ============================================================================
+// PAGE: SEARCH
+// ============================================================================
+function renderSearchPage() {
+    const d=state.darkMode; const l=state.language;
+    const q=(state.searchQuery||'').trim();
+    const results=q?performSearch(q):[];
+
+    return `
+    <div class="space-y-6 page-enter">
+
+        <!-- Header -->
+        <div class="reveal">
+            <h2 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#059669,#0369a1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+                🔍 ${l==='bn'?'সার্চ':'Search'}
+            </h2>
+        </div>
+
+        <!-- Search box -->
+        <div class="reveal" style="position:relative">
+            <div style="position:absolute;left:16px;top:50%;transform:translateY(-50%);pointer-events:none;color:${d?'#6b7280':'#9ca3af'}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            </div>
+            <input
+                id="search-input"
+                type="search"
+                value="${sanitize(q)}"
+                placeholder="${l==='bn'?'দোয়া, ইমাম, ব্লগ পোস্ট খুঁজুন...':'Search duas, imams, blog posts...'}"
+                oninput="state.searchQuery=this.value;requestAnimationFrame(()=>document.getElementById('search-results')?.replaceWith(createSearchResults()))"
+                onkeydown="if(event.key==='Enter'){state.searchQuery=this.value;render()}"
+                style="width:100%;padding:14px 16px 14px 48px;border-radius:18px;font-size:.95rem;
+                background:${d?'#1e2a22':'#ffffff'};
+                border:2px solid ${d?'rgba(5,150,105,.2)':'rgba(5,150,105,.18)'};
+                color:${d?'#f9fafb':'#111827'};outline:none;
+                box-shadow:0 4px 20px rgba(5,150,105,.1);
+                transition:border-color .2s,box-shadow .2s"
+                onfocus="this.style.borderColor='#059669';this.style.boxShadow='0 4px 24px rgba(5,150,105,.22)'"
+                onblur="this.style.borderColor='${d?'rgba(5,150,105,.2)':'rgba(5,150,105,.18)'}';this.style.boxShadow='0 4px 20px rgba(5,150,105,.1)'"
+            />
+            ${q?`<button onclick="state.searchQuery='';render()" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.06)'};border:none;border-radius:50%;width:26px;height:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:${d?'#9ca3af':'#6b7280'}">
+                <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M1 1l12 12M13 1L1 13"/></svg>
+            </button>`:''}
+        </div>
+
+        <!-- Results -->
+        <div id="search-results">
+            ${!q?`
+            <div class="text-center py-16 reveal" style="color:${d?'#6b7280':'#9ca3af'}">
+                <div style="font-size:3.5rem;margin-bottom:1rem;opacity:.4">🔍</div>
+                <p class="font-bold text-lg mb-2" style="color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?'কী খুঁজছেন?':'What are you looking for?'}</p>
+                <p class="text-sm">${l==='bn'?'দোয়া, ইমাম, ব্লগ পোস্ট — সব কিছু খুঁজুন':'Search for duas, imams, blog posts & more'}</p>
+                <div class="flex flex-wrap justify-center gap-2 mt-5">
+                    ${['দুআ কুমাইল','ইমাম আলী','কারবালা','তাওয়াক্কুল'].map(hint=>`
+                    <button onclick="state.searchQuery='${hint}';render()"
+                        style="padding:7px 16px;border-radius:50px;font-size:12px;font-weight:600;cursor:pointer;
+                        background:rgba(5,150,105,.1);color:${d?'#34d399':'#059669'};
+                        border:1.5px solid rgba(5,150,105,.22)">
+                        ${hint}
+                    </button>`).join('')}
+                </div>
+            </div>`
+            :results.length===0?`
+            <div class="text-center py-16 reveal" style="color:${d?'#6b7280':'#9ca3af'}">
+                <div style="font-size:3rem;margin-bottom:.75rem;opacity:.45">📭</div>
+                <p class="font-bold text-base">"${sanitize(q)}" ${l==='bn'?'এর জন্য কোনো ফলাফল নেই':'returned no results'}</p>
+                <p class="text-sm mt-1">${l==='bn'?'ভিন্ন শব্দ দিয়ে চেষ্টা করুন':'Try different keywords'}</p>
+            </div>`:`
+            <div class="space-y-3">
+                <p class="text-xs font-semibold reveal" style="color:${d?'#6b7280':'#9ca3af'};text-transform:uppercase;letter-spacing:.8px">
+                    ${l==='bn'?`"${sanitize(q)}" — ${results.length}টি ফলাফল`:`${results.length} results for "${sanitize(q)}"`}
+                </p>
+                ${results.map((r,ri)=>`
+                <button data-action="${r.action}" data-param="${r.param}"
+                    class="w-full text-left card-luxury border reveal"
+                    style="background:${d?'#1e2a22':'#ffffff'};border-color:${d?'rgba(5,150,105,.12)':'rgba(5,150,105,.1)'};
+                    box-shadow:var(--shadow-xs);padding:14px 16px;
+                    animation:fadeInUp .3s ease-out ${ri*.03}s both;display:flex;align-items:center;gap:12px">
+                    <span style="width:40px;height:40px;border-radius:12px;flex-shrink:0;
+                        background:${r.color||'#059669'}15;
+                        display:flex;align-items:center;justify-content:center;font-size:1.2rem;
+                        border:1px solid ${r.color||'#059669'}22">
+                        ${r.icon||'📄'}
+                    </span>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-bold text-sm truncate" style="color:${d?'#f9fafb':'#111827'}">${sanitize(r.title)}</p>
+                        ${r.subtitle?`<p class="text-xs mt-0.5 truncate" style="color:${d?'#6b7280':'#9ca3af'}">${sanitize(r.subtitle)}</p>`:''}
+                    </div>
+                    <span style="font-size:10px;font-weight:700;padding:2px 9px;border-radius:50px;flex-shrink:0;
+                        background:${r.color||'#059669'}12;color:${r.color||'#059669'};
+                        border:1px solid ${r.color||'#059669'}25">
+                        ${sanitize(r.type||'')}
+                    </span>
+                </button>`).join('')}
+            </div>`}
+        </div>
+    </div>`;
+}
+// ============================================================================
+// PAGE: ABOUT
+// ============================================================================
+function renderAboutPage() {
+    const d=state.darkMode; const l=state.language;
+    return `
+    <div class="space-y-8">
+        <h2 class="text-3xl font-bold">ℹ️ ${t('about')}</h2>
+        <article class="${d?'bg-gray-800':'bg-white'} border rounded-xl p-8">
+            <p class="text-lg mb-6">${l==='bn'?'আহলে বাইত (আ.) ওয়েবসাইটে আপনাকে স্বাগতম। আমরা ইসলামিক জ্ঞান ছড়িয়ে দিতে প্রতিশ্রুতিবদ্ধ।':'Welcome to the Ahl al-Bayt (a.s) website. We are committed to spreading authentic Islamic knowledge.'}</p>
+            <div class="space-y-4">
+                <h3 class="text-xl font-bold">${l==='bn'?'আমাদের লক্ষ্য':'Our Mission'}</h3>
+                <p>${l==='bn'?'কুরআন, হাদিস এবং আহলে বাইতের শিক্ষা প্রচার করা।':'To promote the teachings of Quran, Hadith, and Ahl al-Bayt.'}</p>
+            </div>
+        </article>
+    </div>`;
+}
+
+// ============================================================================
+// PAGE: BOOKMARKS
+// ============================================================================
+function renderBookmarksPage() {
+    const d=state.darkMode; const l=state.language;
+    const allPosts=[...(typeof blogPosts!=='undefined'?blogPosts:[]),...state.customPosts];
+    const bkPosts=allPosts.filter(p=>state.bookmarks.includes('post-'+p.id));
+    return `
+    <div class="space-y-8">
+        <h2 class="text-3xl font-bold">🔖 ${t('bookmarks')}</h2>
+        ${bkPosts.length===0?`
+            <div class="text-center py-16 ${d?'text-gray-500':'text-gray-400'}">
+                <div class="text-6xl mb-4">🔖</div>
+                <p class="text-lg">${l==='bn'?'কোনো বুকমার্ক নেই':'No bookmarks yet'}</p>
+                <p class="text-sm mt-2">${l==='bn'?'ব্লগ পোস্টে 🤍 চাপলে বুকমার্ক হবে':'Press 🤍 on any blog post to bookmark it'}</p>
+            </div>`:`
+            <div class="grid md:grid-cols-2 gap-6">
+                ${bkPosts.map(post=>`
+                    <article class="${d?'bg-gray-800':'bg-white'} border rounded-xl p-6 fade-in">
+                        <span class="text-xs px-3 py-1 rounded-full ${d?'bg-green-900 text-green-300':'bg-green-100 text-green-700'} mb-3 inline-block">${sanitize(post.category)}</span>
+                        <h3 class="text-xl font-bold mb-2">${sanitize(l==='bn'?post.titleBn:post.titleEn)}</h3>
+                        <p class="text-sm ${d?'text-gray-400':'text-gray-600'} mb-4">${sanitize(post.excerpt)}</p>
+                        <div class="flex gap-3">
+                            <button data-action="readPost" data-param="${post.id}" class="${d?'text-green-400':'text-green-600'} font-medium hover:underline">${t('readMore')} →</button>
+                            <button data-action="toggleBookmark" data-param="${post.id}" data-param2="post" class="ml-auto" aria-pressed="${isBookmarked(post.id,'post')?'true':'false'}">🔖</button>
+                        </div>
+                    </article>`).join('')}
+            </div>`}
+    </div>`;
+}
+
+// ============================================================================
+// PAGE: READ POST
+// ============================================================================
+function renderReadPostPage()
+{
+    const post=state.currentPost; const d=state.darkMode; const l=state.language;
+    if(!post) return renderBlogPage();
+    const ac=['#059669','#7c3aed','#b45309','#0369a1','#be185d','#dc2626'];
+    const idx2=(typeof blogPosts!=='undefined'?blogPosts:[]).indexOf(post); const a=ac[idx2>=0?idx2%ac.length:0];
+    return `
+    <div class="max-w-3xl mx-auto page-enter">
+        <button data-action="changePage" data-param="${state.previousPage||'blog'}" class="flex items-center gap-2 mb-6 px-4 py-2 rounded-xl font-semibold text-sm hover:scale-[1.02] transition-all" style="background:${a}12;color:${a}">← ${l==='bn'?`${t('blog')}-এ ফিরুন`:`Back to ${t('blog')}`}</button>
+        <article class="card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border" style="box-shadow:var(--shadow-lg)">
+            <div style="height:4px;background:linear-gradient(90deg,${a},#7c3aed,${a});border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
+            <div class="p-7 md:p-10">
+                <div class="flex items-center gap-3 mb-5 flex-wrap">
+                    <span class="text-xs px-3 py-1.5 rounded-full font-bold" style="background:${a}14;color:${a};border:1px solid ${a}22">${sanitize(post.category)}</span>
+                    <span class="text-xs ${d?'text-gray-400':'text-gray-500'}">⏱ ${sanitize(post.readTime)}</span>
+                    ${post.date?`<span class="text-xs ${d?'text-gray-500':'text-gray-400'}">📅 ${sanitize(post.date)}</span>`:''}
+                </div>
+                <h1 class="text-2xl md:text-4xl font-black mb-6 leading-tight">${sanitize(l==='bn'?post.titleBn:post.titleEn)}</h1>
+                <div style="height:2px;width:56px;background:linear-gradient(90deg,${a},transparent);margin-bottom:1.75rem;border-radius:2px"></div>
+                <div class="${d?'text-gray-300':'text-gray-700'} leading-relaxed text-base" style="white-space:pre-line">${sanitize(l==='bn'?post.contentBn:post.contentEn)}</div>
+                <div class="flex items-center gap-3 mt-8 pt-6 flex-wrap" style="border-top:1px solid ${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)'}">
+                    <button data-action="sharePost" data-param="${post.id}" class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold hover:scale-105 transition-all" style="background:${a}12;color:${a};border:1px solid ${a}20">🔗 ${l==='bn'?'শেয়ার':'Share'}</button>
+                    <button data-action="toggleBookmark" data-param="${post.id}" data-param2="post" class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold hover:scale-105 transition-all ${d?'bg-gray-700 text-gray-300':'bg-gray-100 text-gray-600'}">${isBookmarked(post.id,'post')?'🔖 '+(l==='bn'?'বুকমার্কড':'Bookmarked'):'🤍 '+(l==='bn'?'বুকমার্ক':'Bookmark')}</button>
+                </div>
+            </div>
+        </article>
+    </div>`;
+}
+
+// ============================================================================
+// PAGE: READ DUA
+// ============================================================================
+function renderReadDuaPage()
+{
+    const dua=state.currentDua; const d=state.darkMode; const l=state.language;
+    if(!dua) return renderDuaPage();
+    const isCustom=!!dua.id;
+    const hasVerses = Array.isArray(dua.verses) && dua.verses.length > 0;
+    const duaIndex = dua.id ? dua.id : duas.indexOf(dua);
+
+    // ── verse-by-verse reader (আয়াত বাই আয়াত) ──
+    const versesHtml = hasVerses ? dua.verses.map((v, i) => `
+        <div class="dua-verse-row fade-in" style="
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:0;
+            border-bottom:1px solid ${d?'rgba(255,255,255,.06)':'rgba(180,83,9,.08)'};
+            transition:background .2s;
+        "
+        onmouseenter="this.style.background='${d?'rgba(5,150,105,.07)':'rgba(5,150,105,.04)'}'"
+        onmouseleave="this.style.background='transparent'"
+        >
+            <!-- Arabic side (RTL) -->
+            <div style="
+                padding:1.4rem 1.6rem;
+                border-right:2px solid ${d?'rgba(180,83,9,.25)':'rgba(180,83,9,.15)'};
+                text-align:right;
+                direction:rtl;
+                position:relative;
+            ">
+                <span class="dua-verse-num" style="
+                    position:absolute;top:.7rem;left:.7rem;
+                    width:22px;height:22px;border-radius:50%;
+                    background:linear-gradient(135deg,#059669,#065f46);
+                    color:#fff;font-size:.6rem;font-weight:700;
+                    display:flex;align-items:center;justify-content:center;
+                    font-family:sans-serif;direction:ltr;
+                ">${i+1}</span>
+                <button class="tts-play-btn" onclick="event.stopPropagation();tts.toggle('${(v.ar||'').replace(/'/g,"\\'").replace(/"/g,'&quot;')}')"
+                    title="${l==='bn'?'শুনুন':'Listen'}"
+                    style="position:absolute;top:.6rem;right:.6rem;width:22px;height:22px;border-radius:50%;
+                           display:flex;align-items:center;justify-content:center;font-size:.65rem;
+                           background:${d?'rgba(201,162,39,.15)':'rgba(180,83,9,.1)'};
+                           color:${d?'#fcd34d':'#92400e'};border:1px solid ${d?'rgba(201,162,39,.3)':'rgba(180,83,9,.2)'};
+                           cursor:pointer;direction:ltr">
+                    <span class="tts-icon">▶</span>
+                </button>
+                <p class="arabic-text" lang="ar" style="
+                    font-size:1.45rem;
+                    line-height:2.2;
+                    color:${d?'#fde68a':'#92400e'};
+                    text-shadow:0 0 18px ${d?'rgba(253,230,138,.12)':'rgba(180,83,9,.08)'};
+                    margin:0;
+                ">${sanitize(v.ar)}</p>
+            </div>
+            <!-- Bengali side (LTR) -->
+            <div style="
+                padding:1.4rem 1.6rem;
+                display:flex;align-items:center;
+            ">
+                <p style="
+                    font-size:.95rem;
+                    line-height:1.85;
+                    color:${d?'#d1fae5':'#065f46'};
+                    margin:0;
+                    font-weight:500;
+                ">${sanitize(v.bn)}</p>
+            </div>
+        </div>`).join('') : '';
+
+    // ── single-block fallback (no verses, just arabic + meaning) ──
+    const fallbackHtml = `
+        <div class="rounded-2xl p-6 mb-4" style="background:${d?'linear-gradient(135deg,rgba(5,150,105,.1),rgba(180,83,9,.06))':'linear-gradient(135deg,#fef9e7,#ecfdf5)'};border:1px solid ${d?'rgba(180,83,9,.18)':'rgba(180,83,9,.12)'}">
+            <p class="arabic-text text-center" dir="rtl" lang="ar" style="font-size:1.9rem;line-height:2.5;color:${d?'#fde68a':'#92400e'}">${sanitize(dua.arabic)}</p>
+        </div>
+        ${dua.transliteration?`<div class="${d?'bg-gray-900/60':'bg-gray-50'} rounded-2xl p-5 mb-4" style="border-left:3px solid #7c3aed"><p class="italic text-sm leading-relaxed ${d?'text-gray-300':'text-gray-600'}">${sanitize(dua.transliteration)}</p></div>`:''}
+        <div class="${d?'bg-gray-900/60':'bg-emerald-50/60'} rounded-2xl p-5 mb-4" style="border-left:3px solid #059669">
+            <p class="text-base leading-relaxed ${d?'text-gray-200':'text-gray-700'}">${sanitize(dua.meaningBn)}</p>
+        </div>
+        ${dua.meaningEn?`<div class="${d?'bg-gray-900/60':'bg-blue-50/60'} rounded-2xl p-5 mb-4" style="border-left:3px solid #0369a1"><p class="text-base leading-relaxed ${d?'text-gray-300':'text-gray-700'}">${sanitize(dua.meaningEn)}</p></div>`:''}
+        ${dua.fullTextBn?`<div class="${d?'bg-gray-900/60':'bg-amber-50/60'} rounded-2xl p-5" style="border-left:3px solid #b45309"><p class="text-base leading-relaxed whitespace-pre-line ${d?'text-gray-300':'text-gray-700'}">${sanitize(dua.fullTextBn)}</p></div>`:''}
+    `;
+
+    return `
+    <div class="max-w-4xl mx-auto page-enter">
+
+        <!-- Back button -->
+        <button data-action="changePage" data-param="${state.previousPage||'dua'}"
+            class="flex items-center gap-2 mb-6 px-4 py-2 rounded-xl font-semibold text-sm hover:scale-[1.02] transition-all"
+            style="background:rgba(180,83,9,.1);color:#b45309">
+            ← ${l==='bn'?'দোয়ায় ফিরুন':'Back to Duas'}
+        </button>
+
+        <article style="border-radius:var(--r-xl,1rem);overflow:hidden;box-shadow:var(--shadow-lg);border:1px solid ${d?'rgba(255,255,255,.07)':'rgba(180,83,9,.12)'}">
+
+            <!-- Gradient top bar -->
+            <div style="height:5px;background:linear-gradient(90deg,#059669,#fbbf24,#b45309,#fbbf24,#059669);background-size:300%;animation:gradMove 4s linear infinite"></div>
+
+            <!-- Header card -->
+            <div style="background:${d?'linear-gradient(135deg,#1a2e24,#1c2a1c)':'linear-gradient(135deg,#fef9f0,#f0fdf4)'};padding:2rem 2rem 1.5rem">
+                <div class="flex justify-between items-start gap-4 flex-wrap">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-3 flex-wrap">
+                            <span class="text-xs px-3 py-1.5 rounded-full font-bold" style="background:rgba(5,150,105,.15);color:#059669;border:1px solid rgba(5,150,105,.3)">🤲 ${l==='bn'?'দোয়া':'Dua'}</span>
+                            ${isCustom?`<span class="${d?'gold-badge-dark':'gold-badge'}">${l==='bn'?'কাস্টম':'Custom'}</span>`:''}
+                            ${hasVerses?`<span class="text-xs px-2 py-1 rounded-full font-semibold" style="background:rgba(251,191,36,.15);color:#b45309;border:1px solid rgba(251,191,36,.3)">${dua.verses.length} ${l==='bn'?'পঙক্তি':'verses'}</span>`:''}
+                        </div>
+                        <h1 class="text-2xl md:text-3xl font-black leading-tight mb-1">${sanitize(l==='bn'?dua.titleBn:dua.titleEn)}</h1>
+                        ${dua.source?`<p class="text-sm mt-2" style="color:${d?'#6ee7b7':'#047857'}">📚 ${sanitize(dua.source)}</p>`:''}
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        ${(() => {
+                            const fullArabic = hasVerses
+                                ? dua.verses.map(v=>v.ar).join(' ۝ ')
+                                : (dua.arabic || '');
+                            if (!fullArabic) return '';
+                            const escaped = fullArabic.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+                            return `<button class="tts-play-btn" onclick="tts.toggle('${escaped}')"
+                                title="${l==='bn'?'পুরো দোয়া শুনুন':'Listen to full dua'}"
+                                style="display:flex;align-items:center;gap:6px;padding:.6rem 1rem;border-radius:.75rem;
+                                       font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s;
+                                       background:rgba(180,83,9,.1);color:#b45309;border:1px solid rgba(180,83,9,.2)">
+                                <span class="tts-icon">▶</span> ${l==='bn'?'শুনুন':'Listen'}
+                            </button>`;
+                        })()}
+                        <button data-action="shareDua" data-param="${duaIndex}"
+                            class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold hover:scale-105 transition-all"
+                            style="background:rgba(5,150,105,.1);color:#059669;border:1px solid rgba(5,150,105,.2)">
+                            🔗 ${l==='bn'?'শেয়ার':'Share'}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            ${hasVerses ? `
+            <!-- Column headers -->
+            <div style="
+                display:grid;grid-template-columns:1fr 1fr;
+                background:${d?'rgba(5,150,105,.12)':'rgba(5,150,105,.07)'};
+                border-bottom:2px solid ${d?'rgba(5,150,105,.25)':'rgba(5,150,105,.15)'};
+                padding:.6rem 1.6rem;gap:0;
+            ">
+                <div style="text-align:right;direction:rtl">
+                    <span class="text-xs font-black tracking-widest uppercase" style="color:${d?'#34d399':'#059669'}">العربية • আরবি পাঠ</span>
+                </div>
+                <div>
+                    <span class="text-xs font-black tracking-widest uppercase" style="color:${d?'#34d399':'#059669'}">বাংলা অনুবাদ</span>
+                </div>
+            </div>
+
+            <!-- Verses -->
+            <div style="background:${d?'#111a14':'#fffbf5'}">
+                ${versesHtml}
+            </div>
+
+            <!-- Footer note -->
+            <div style="padding:1.2rem 1.6rem;background:${d?'rgba(5,150,105,.06)':'rgba(5,150,105,.04)'};border-top:1px solid ${d?'rgba(255,255,255,.05)':'rgba(180,83,9,.08)'}">
+                <p class="text-xs text-center" style="color:${d?'#6b7280':'#9ca3af'}">
+                    ${l==='bn'?'মোট '+dua.verses.length+' পঙক্তি — আরবি ও বাংলা অনুবাদ সহ':'Total '+dua.verses.length+' verses with Arabic & Bengali translation'}
+                    ${dua.source?' • '+sanitize(dua.source):''}
+                </p>
+            </div>
+
+            ` : `
+            <!-- Fallback: no verses -->
+            <div style="padding:2rem;background:${d?'#111a14':'#fffbf5'}">
+                ${fallbackHtml}
+            </div>
+            `}
+
+        </article>
+
+        <!-- Extra fields if exists (fullTextBn) for verse-mode too -->
+        ${hasVerses && dua.fullTextBn ? `
+        <div class="mt-5 rounded-2xl p-5" style="background:${d?'rgba(180,83,9,.08)':'rgba(254,243,199,.6)'};border:1px solid ${d?'rgba(180,83,9,.18)':'rgba(180,83,9,.12)'}">
+            <h2 class="text-xs font-black mb-3 tracking-widest uppercase" style="color:#b45309">${l==='bn'?'বিস্তারিত পাঠ':'Full Text'}</h2>
+            <p class="text-base leading-relaxed whitespace-pre-line ${d?'text-gray-300':'text-gray-700'}">${sanitize(dua.fullTextBn)}</p>
+        </div>` : ''}
+
+        ${hasVerses && dua.meaningEn ? `
+        <div class="mt-4 rounded-2xl p-5" style="background:${d?'rgba(3,105,161,.08)':'rgba(239,246,255,.6)'};border:1px solid ${d?'rgba(56,189,248,.15)':'rgba(186,230,253,.5)'}">
+            <h2 class="text-xs font-black mb-3 tracking-widest uppercase" style="color:#0369a1">${l==='bn'?'ইংরেজি সারসংক্ষেপ':'English Summary'}</h2>
+            <p class="text-base leading-relaxed ${d?'text-gray-300':'text-gray-700'}">${sanitize(dua.meaningEn)}</p>
+        </div>` : ''}
+
+    </div>
+
+    <style>
+    @keyframes gradMove{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+    @media(max-width:640px){
+        .dua-verse-row{grid-template-columns:1fr!important}
+        .dua-verse-row>div:first-child{border-right:none!important;border-bottom:1px solid rgba(180,83,9,.12)}
+    }
+    </style>`;
+}
+
+// ============================================================================
+// PAGE: IMAMS (12 Imams List)
+// ============================================================================
+function renderImamsPage()
+{
+    const d=state.darkMode; const l=state.language;
+
+    // ── Per-imam accent colors ────────────────────────────────────────
+    const ACS =['#059669','#0d9488','#be123c','#7c3aed','#0369a1','#d97706','#166534','#be123c','#0e7490','#4f46e5','#0f766e','#c9a227'];
+    const ACS2=['#022c22','#134e4a','#500724','#3b0764','#0c2a4a','#78350f','#052e16','#500724','#083344','#1e1b4b','#042f2e','#065f46'];
+    const CONIC=[
+        'conic-gradient(from 0deg,#059669,#6ee7b7,#065f46,#34d399,#059669)',
+        'conic-gradient(from 0deg,#0d9488,#5eead4,#0f766e,#99f6e4,#0d9488)',
+        'conic-gradient(from 0deg,#be123c,#fda4af,#9f1239,#fb7185,#be123c)',
+        'conic-gradient(from 0deg,#7c3aed,#c4b5fd,#5b21b6,#a78bfa,#7c3aed)',
+        'conic-gradient(from 0deg,#0369a1,#7dd3fc,#075985,#38bdf8,#0369a1)',
+        'conic-gradient(from 0deg,#d97706,#fcd34d,#b45309,#fbbf24,#d97706)',
+        'conic-gradient(from 0deg,#166534,#86efac,#14532d,#4ade80,#166534)',
+        'conic-gradient(from 0deg,#be123c,#fda4af,#9f1239,#fb7185,#be123c)',
+        'conic-gradient(from 0deg,#0e7490,#67e8f9,#155e75,#22d3ee,#0e7490)',
+        'conic-gradient(from 0deg,#4f46e5,#a5b4fc,#4338ca,#818cf8,#4f46e5)',
+        'conic-gradient(from 0deg,#0f766e,#5eead4,#115e59,#2dd4bf,#0f766e)',
+        'conic-gradient(from 0deg,#c9a227,#fde68a,#059669,#6ee7b7,#c9a227)',
+    ];
+    const MACS =['#c9a227','#be185d'];
+    const MACS2=['#78350f','#881337'];
+    const MCONIC=[
+        'conic-gradient(from 0deg,#c9a227,#fde68a,#b45309,#fbbf24,#c9a227)',
+        'conic-gradient(from 0deg,#be185d,#fda4af,#9f1239,#fb7185,#be185d)',
+    ];
+
+    // ── Jump nav chips ────────────────────────────────────────────────
+    const CHIP_BN=['আলী','হাসান','হোসাইন','সাজ্জাদ','বাকির','সাদিক','কাযিম','রেজা','জওয়াদ','হাদি','আসকারি','মাহদি'];
+    const CHIP_EN=['Ali','Hasan','Husayn','Sajjad','Baqir','Sadiq','Kazim','Ridha','Jawad','Hadi','Askari','Mahdi'];
+    const chips=(l==='bn'?CHIP_BN:CHIP_EN).map((name,i)=>`
+        <button
+            onclick="(function(){const el=document.getElementById('imam-anchor-${i+1}');scrollToImamEl(el)})()"
+            style="flex-shrink:0;padding:5px 14px;border-radius:50px;font-size:.72rem;font-weight:700;
+                border:1.5px solid ${ACS[i]}50;color:${ACS[i]};background:${ACS[i]}12;
+                cursor:pointer;white-space:nowrap;transition:all .18s"
+            onmouseover="this.style.background='${ACS[i]}28';this.style.transform='translateY(-2px)'"
+            onmouseout="this.style.background='${ACS[i]}12';this.style.transform=''">
+            ${i+1}. ${name}
+        </button>`).join('');
+
+    // ── Shared card renderer ──────────────────────────────────────────
+    const renderCard = (im, idx, acList, ac2List, conicList) => {
+        const ac    = acList[idx % acList.length];
+        const ac2   = ac2List[idx % ac2List.length];
+        const conic = conicList[idx % conicList.length];
+        const flipId= `imam-flip-${im.id}`;
+        const quoteText   = sanitize(l==='bn'?im.quoteBn:im.quoteEn);
+        const avatarArabic= im.arabicName ? im.arabicName.split(' ')[0] : (im.icon||'✦');
+
+        // Special rings
+        const isHussain = im.id===3;
+        const isMahdi   = im.id===12;
+        let outerRing = '';
+        if (isHussain) {
+            outerRing = `
+            <div style="position:absolute;inset:-7px;border-radius:50%;border:2px solid #b91c1c;z-index:0;opacity:.78"></div>
+            <div style="position:absolute;inset:-12px;border-radius:50%;border:1.5px solid #dc2626;z-index:0;opacity:.42"></div>`;
+        } else if (isMahdi) {
+            outerRing = `<div style="position:absolute;inset:-9px;border-radius:50%;border:2.5px dashed #6366f1;z-index:0;opacity:.68;animation:avatarRotate 18s linear infinite reverse"></div>`;
+        }
+
+        return `
+        <div class="imam-flip-wrapper" style="height:100%;position:relative">
+
+            <!-- ── FRONT ── -->
+            <div class="imam-card-luxury imam-card-front border text-center p-5"
+                id="${flipId}-front"
+                style="display:flex;flex-direction:column;
+                    background:${d?'#1e2d26':'#ffffff'};
+                    border-color:${d?'rgba(52,211,153,.15)':'rgba(5,150,105,.1)'};
+                    box-shadow:var(--shadow-sm);height:100%;border-radius:var(--r-lg)"
+                onmouseenter="imamCardParticles(this,'${ac}')">
+
+                <!-- Animated top gradient bar -->
+                <div class="imam-top-bar"
+                    style="background:linear-gradient(90deg,${ac},${ac}cc,#c9a227,${ac2},${ac});background-size:300% 100%">
+                </div>
+
+                <!-- Imam number badge -->
+                ${typeof im.id==='number'
+                    ? `<div class="imam-num" style="background:linear-gradient(135deg,#c9a227,#92400e)">${im.id}</div>`
+                    : ''}
+
+                <!-- Avatar -->
+                <div style="position:relative;display:flex;justify-content:center;margin:1rem 0 1rem">
+                    <div class="imam-avatar-inner-wrap" style="width:86px;height:86px;border-radius:50%;position:relative">
+                        ${outerRing}
+                        <div class="imam-avatar-rotate"
+                            style="position:absolute;inset:-3px;border-radius:50%;background:${conic};animation:avatarRotate 8s linear infinite;z-index:1">
+                        </div>
+                        <div style="position:absolute;inset:0;border-radius:50%;
+                            background:${d?'#1e2d26':'#ffffff'};z-index:2;
+                            display:flex;align-items:center;justify-content:center;
+                            font-family:'Amiri',serif;font-size:1.5rem;font-weight:700;
+                            color:${ac};border:2.5px solid ${d?'rgba(52,211,153,.18)':'rgba(5,150,105,.12)'};
+                            text-align:center;padding:4px;line-height:1.1">
+                            ${avatarArabic}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Name -->
+                <h3 class="font-black text-base leading-snug mb-0.5" style="color:${d?'#f9fafb':'#111827'}">
+                    ${sanitize(l==='bn'?im.nameBn:im.nameEn)}
+                </h3>
+
+                <!-- Arabic name shimmer -->
+                <p class="mb-3" style="font-family:'Amiri',serif;font-size:.9rem;opacity:.85">
+                    <span class="imam-arabic-shimmer">${sanitize(im.arabicName)}</span>
+                </p>
+
+                <!-- Epithet badge -->
+                <div style="display:flex;justify-content:center;margin-bottom:1.1rem">
+                    <span class="imam-epithet-badge text-xs font-bold px-3 py-1.5 rounded-full"
+                        style="background:${ac}20;color:${ac};border:1.5px solid ${ac}38">
+                        ${sanitize(l==='bn'?im.epithetBn:im.epithetEn)}
+                    </span>
+                </div>
+
+                <!-- Quote preview -->
+                <div class="imam-quote-wrap rounded-xl p-3 mb-4 text-left"
+                    style="border-left:3px solid ${ac};background:${ac}09;flex:1;display:flex;align-items:flex-start">
+                    <p class="text-xs italic leading-relaxed" style="color:${d?'#9ca3af':'#6b7280'};margin:0;
+                        overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical">
+                        "${quoteText}"
+                    </p>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="flex gap-2">
+                    <button data-action="viewImam" data-param="${im.id}"
+                        class="imam-detail-btn flex-1 py-2.5 rounded-xl text-xs font-bold transition-all"
+                        style="background:linear-gradient(135deg,${ac},${ac2});color:white;
+                            box-shadow:0 3px 12px ${ac}42;letter-spacing:.2px">
+                        ${l==='bn'?'বিস্তারিত':'Details'}
+                        <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" style="display:inline;margin-left:4px"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+                    </button>
+                    <button data-action="shareImamQuote" data-param="${im.id}"
+                        class="px-3 py-2.5 rounded-xl text-xs font-bold hover:scale-110 transition-all flex items-center justify-center"
+                        style="background:${ac}15;color:${ac};border:1.5px solid ${ac}30"
+                        title="${l==='bn'?'শেয়ার করুন':'Share'}">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                        </svg>
+                    </button>
+                </div>
+            </div><!-- /front -->
+
+            <!-- ── BACK (quote card) ── -->
+            <div class="imam-card-back" id="${flipId}-back"
+                style="display:none;position:absolute;inset:0;
+                    background:linear-gradient(145deg,${ac2},${d?'#0a1a0e':'#022c22'});
+                    color:white;border:1px solid ${ac}40;
+                    box-shadow:var(--shadow-lg);border-radius:var(--r-lg)">
+                <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,${ac}28 0%,transparent 70%);pointer-events:none;border-radius:var(--r-lg)"></div>
+                <div style="position:relative;z-index:2;width:100%;text-align:center">
+                    <div style="font-family:'Amiri',serif;font-size:2.5rem;color:${ac};margin-bottom:.4rem;line-height:1">❝</div>
+                    <p style="font-family:'Amiri',serif;font-size:1.05rem;line-height:1.75;
+                        color:rgba(255,255,255,.92);margin-bottom:1.1rem;padding:0 .5rem">
+                        ${sanitize(l==='bn'?im.quoteBn:im.quoteEn)}
+                    </p>
+                    <div style="width:44px;height:2px;background:${ac};margin:0 auto .8rem;border-radius:2px"></div>
+                    <p style="font-size:.75rem;font-weight:700;color:${ac};letter-spacing:.5px">
+                        ${sanitize(l==='bn'?im.nameBn:im.nameEn)}
+                    </p>
+                    <button onclick="imamFlip('${flipId}')"
+                        style="margin-top:1.2rem;padding:7px 20px;border-radius:50px;
+                            background:${ac}30;border:1px solid ${ac}60;
+                            color:white;font-size:.75rem;cursor:pointer;transition:background .2s"
+                        onmouseover="this.style.background='${ac}55'"
+                        onmouseout="this.style.background='${ac}30'">
+                        ← ${l==='bn'?'ফিরে যান':'Back'}
+                    </button>
+                </div>
+            </div><!-- /back -->
+
+        </div>`;
+    };
+
+    return `
+    <div class="space-y-8 page-enter">
+
+        <!-- ── Page header ── -->
+        <div class="flex flex-wrap justify-between items-start gap-3 reveal">
+            <div>
+                <h2 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#059669,#b45309);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+                    👑 ${t('imams')}
+                </h2>
+                <p class="text-sm mt-1" style="color:${d?'#9ca3af':'#6b7280'}">
+                    ${l==='bn'?'পবিত্র নবী, মাসুমিন ও ১২ ইমামের জীবনী':'Lives of the Holy Prophet, Masumeen & 12 Imams'}
+                </p>
+            </div>
+            <button data-action="toggleTimeline"
+                class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all"
+                style="${state.showTimeline
+                    ? 'background:rgba(5,150,105,.14);color:#059669;border:1.5px solid rgba(5,150,105,.38)'
+                    : 'border:1.5px solid '+(d?'rgba(255,255,255,.12)':'rgba(0,0,0,.1)')+';color:'+(d?'#6b7280':'#9ca3af')}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                ${l==='bn'?'টাইমলাইন':'Timeline'}${state.showTimeline?' ✓':''}
+            </button>
+        </div>
+
+        <!-- ── Timeline (optional) ── -->
+        ${state.showTimeline ? renderImamTimeline(d,l) : ''}
+
+        <!-- ── Jump nav chips ── -->
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 1px 6px">
+            <div style="display:flex;gap:7px;width:max-content">${chips}</div>
+        </div>
+
+        <!-- ── মাসুমিন section ── -->
+        <div class="reveal">
+            <div class="section-heading">
+                <span style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#c9a227,#78350f);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;box-shadow:0 4px 14px rgba(201,162,39,.38)">✨</span>
+                <h3 class="font-black text-lg" style="color:${d?'#f9fafb':'#111827'}">
+                    ${l==='bn'?'নবী ও মাসুমিন (আ.)':'Prophet & Masumeen (AS)'}
+                </h3>
+                <span class="text-xs font-bold px-2.5 py-1 rounded-full"
+                    style="background:rgba(201,162,39,.15);color:#c9a227;border:1px solid rgba(201,162,39,.3)">
+                    ${l==='bn'?'২ জন':'2'}
+                </span>
+            </div>
+            <div class="grid sm:grid-cols-2 gap-5 items-stretch">
+                ${masumeen.map((im,idx)=>`
+                <div style="min-height:320px">${renderCard(im,idx,MACS,MACS2,MCONIC)}</div>`).join('')}
+            </div>
+        </div>
+
+        <!-- ── ১২ ইমাম section ── -->
+        <div class="reveal">
+            <div class="section-heading">
+                <span style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#059669,#065f46);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;box-shadow:0 4px 14px rgba(5,150,105,.4)">👑</span>
+                <h3 class="font-black text-lg" style="color:${d?'#f9fafb':'#111827'}">
+                    ${l==='bn'?'বারো ইমাম (আ.)':'The Twelve Imams (AS)'}
+                </h3>
+                <span class="text-xs font-bold px-2.5 py-1 rounded-full"
+                    style="background:rgba(5,150,105,.12);color:#059669;border:1px solid rgba(5,150,105,.25)">
+                    ${l==='bn'?'১২ জন':'12'}
+                </span>
+            </div>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
+                ${imams.map((im,idx)=>`
+                <div id="imam-anchor-${im.id}">${renderCard(im,idx,ACS,ACS2,CONIC)}</div>`).join('')}
+            </div>
+        </div>
+
+    </div>`;
+}
+
+function renderImamTimeline(d, l) {
+    const timelineImams = imams.map(im => ({
+        ...im,
+        birthYear: parseInt((im.birthEn||'').match(/\d+/)?.[0]||0),
+        deathYear: (im.martyrdomEn||'').includes('Occultation')
+            ? 'Present'
+            : parseInt((im.martyrdomEn||'').match(/\d+/)?.[0]||0),
+    }));
+    const minYear=600, maxYear=880, range=maxYear-minYear;
+    const barColors=['#059669','#0d9488','#be123c','#7c3aed','#0369a1','#d97706','#166534','#be123c','#0e7490','#4f46e5','#0f766e','#c9a227'];
+    return `
+    <div class="${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-2xl p-6 fade-in" style="box-shadow:var(--shadow-md)">
+        <div class="gold-top-bar" style="border-radius:12px 12px 0 0;margin:-24px -24px 20px"></div>
+        <h3 class="text-base font-bold mb-1 text-center">${l==='bn'?'ইমামদের জীবনকাল টাইমলাইন':'Imams Lifetime Timeline'}</h3>
+        <p class="text-center text-xs mb-5" style="color:${d?'#6b7280':'#9ca3af'}">${l==='bn'?'খ্রিস্টাব্দ ৬০০–৮৮০':'600 CE – 880 CE'}</p>
+        <div class="space-y-2.5">
+            ${timelineImams.map((im,idx)=>{
+                const startPct=Math.max(0,((im.birthYear-minYear)/range)*100);
+                const endYear=typeof im.deathYear==='number'?im.deathYear:maxYear;
+                const widthPct=Math.max(2,((endYear-im.birthYear)/range)*100);
+                const c=barColors[idx%barColors.length];
+                return `
+                <div class="flex items-center gap-3">
+                    <div class="text-right flex-shrink-0" style="width:130px">
+                        <span class="text-xs font-semibold" style="color:${d?'#d1d5db':'#374151'}">${im.icon} ${sanitize(l==='bn'?im.nameBn.replace('ইমাম ',''):im.nameEn.replace('Imam ',''))}</span>
+                    </div>
+                    <div class="flex-1 relative" style="height:26px">
+                        <div class="w-full h-full absolute rounded-full" style="background:${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)'}"></div>
+                        <div class="h-full absolute rounded-full flex items-center px-2 overflow-hidden"
+                            style="left:${startPct.toFixed(1)}%;width:${Math.min(widthPct,100-startPct).toFixed(1)}%;min-width:28px;background:${c}">
+                            <span class="text-white text-xs font-bold truncate">${im.birthYear}</span>
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0 text-xs" style="width:46px;color:${d?'#6b7280':'#9ca3af'}">${typeof im.deathYear==='string'?'—':im.deathYear}</div>
+                </div>`;
+            }).join('')}
+        </div>
+        <div class="flex justify-between mt-4 px-0" style="margin-left:142px;margin-right:58px">
+            ${[600,650,700,750,800,850].map(yr=>`<span class="text-xs" style="color:${d?'#4b5563':'#9ca3af'}">${yr}</span>`).join('')}
+        </div>
+    </div>`;
+}
+// ============================================================================
+// IMAM DETAIL PAGE
+// ============================================================================
+function renderImamDetailPage()
+{
+    const d=state.darkMode; const l=state.language;
+    const im=state.currentImam;
+    if(!im) return renderImamsPage();
+    const allList=[...masumeen,...imams];
+    const idx=allList.findIndex(x=>x.id===im.id);
+    const prev=idx>0?allList[idx-1]:null;
+    const next=idx<allList.length-1?allList[idx+1]:null;
+    const isMasumeen=masumeen.some(m=>m.id===im.id);
+    const colorIdx=isMasumeen?masumeen.findIndex(m=>m.id===im.id):imams.indexOf(im);
+    const ACS=['#059669','#0d9488','#c9a227','#7c3aed','#0369a1','#d97706','#166534','#be123c','#0e7490','#4f46e5','#0f766e','#c9a227'];
+    const ACS2=['#022c22','#134e4a','#7a5c0a','#3b0764','#0c2a4a','#78350f','#052e16','#500724','#083344','#1e1b4b','#042f2e','#065f46'];
+    const CONIC2=['conic-gradient(from 0deg,#059669,#6ee7b7,#065f46,#34d399,#059669)','conic-gradient(from 0deg,#0d9488,#5eead4,#0f766e,#99f6e4,#0d9488)','conic-gradient(from 0deg,#c9a227,#fde68a,#b45309,#fbbf24,#c9a227)','conic-gradient(from 0deg,#7c3aed,#c4b5fd,#5b21b6,#a78bfa,#7c3aed)','conic-gradient(from 0deg,#0369a1,#7dd3fc,#075985,#38bdf8,#0369a1)','conic-gradient(from 0deg,#d97706,#fcd34d,#b45309,#fbbf24,#d97706)','conic-gradient(from 0deg,#166534,#86efac,#14532d,#4ade80,#166534)','conic-gradient(from 0deg,#be123c,#fda4af,#9f1239,#fb7185,#be123c)','conic-gradient(from 0deg,#0e7490,#67e8f9,#155e75,#22d3ee,#0e7490)','conic-gradient(from 0deg,#4f46e5,#a5b4fc,#4338ca,#818cf8,#4f46e5)','conic-gradient(from 0deg,#0f766e,#5eead4,#115e59,#2dd4bf,#0f766e)','conic-gradient(from 0deg,#c9a227,#fde68a,#059669,#6ee7b7,#c9a227)'];
+    const MACS=['#c9a227','#be185d'];const MACS2=['#78350f','#881337'];const MCONIC2=['conic-gradient(from 0deg,#c9a227,#fde68a,#b45309,#fbbf24,#c9a227)','conic-gradient(from 0deg,#be185d,#fda4af,#9f1239,#fb7185,#be185d)'];
+    const ac=isMasumeen?MACS[colorIdx%2]:ACS[colorIdx%12];
+    const ac2=isMasumeen?MACS2[colorIdx%2]:ACS2[colorIdx%12];
+    const conic2=isMasumeen?MCONIC2[colorIdx%2]:CONIC2[colorIdx%12];
+    return `
+    <div class="max-w-2xl mx-auto page-enter">
+        <button data-action="changePage" data-param="imams"
+            class="flex items-center gap-2 mb-6 px-4 py-2 rounded-xl font-semibold text-sm hover:scale-[1.02] transition-all"
+            style="background:${ac}12;color:${ac}">
+            ← ${l==='bn'?'সকল ইমাম':'All Imams'}
+        </button>
+        <div class="card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border mb-6"
+            style="box-shadow:var(--shadow-lg);position:relative">
+            <div style="height:4px;background:linear-gradient(90deg,${ac},${ac2},${ac});border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
+            <div style="background:linear-gradient(135deg,${ac}10,transparent,${ac2}07);padding:2.5rem 2rem 1.5rem;text-align:center;position:relative">
+                <div style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,${ac},${ac2});display:flex;align-items:center;justify-content:center;color:white;font-size:${typeof im.id==='number'?'.75rem':'1rem'};font-weight:800;box-shadow:0 3px 10px ${ac}50">
+                    ${typeof im.id==='number'?im.id:im.icon}
+                </div>
+                <div style="position:relative;display:flex;justify-content:center;margin-bottom:1.2rem">
+                    <div style="width:96px;height:96px;border-radius:50%;position:relative">
+                        ${im.id===3?`<div style="position:absolute;inset:-8px;border-radius:50%;border:2px solid #b91c1c;z-index:0;opacity:.75"></div><div style="position:absolute;inset:-13px;border-radius:50%;border:1.5px solid #dc2626;z-index:0;opacity:.4"></div>`:''}
+                        ${im.id===12?`<div style="position:absolute;inset:-9px;border-radius:50%;border:2.5px dashed #6366f1;z-index:0;opacity:.65;animation:avatarRotate 18s linear infinite reverse"></div>`:''}
+                        <div style="position:absolute;inset:-4px;border-radius:50%;background:${conic2};animation:avatarRotate 7s linear infinite;z-index:1"></div>
+                        <div style="position:absolute;inset:0;border-radius:50%;background:${d?'#1f2937':'white'};z-index:2;display:flex;align-items:center;justify-content:center;font-family:'Amiri',serif;font-size:2rem;font-weight:700;color:${ac2}">
+                            ${im.arabicName.split(' ')[0]||im.icon}
+                        </div>
+                    </div>
+                </div>
+                <h1 class="text-2xl md:text-3xl font-black mb-2">${sanitize(l==='bn'?im.nameBn:im.nameEn)}</h1>
+                <p class="arabic-text mb-3" style="font-size:1.5rem;color:${ac}">${sanitize(im.arabicName)}</p>
+                <span class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold"
+                    style="background:${ac}18;color:${ac};border:1px solid ${ac}28">
+                    ✨ ${sanitize(l==='bn'?im.epithetBn:im.epithetEn)}
+                </span>
+            </div>
+            <div class="p-6 pt-2">
+                <div class="grid grid-cols-2 gap-3 mb-5">
+                    <div class="rounded-2xl p-4" style="background:${d?'rgba(255,255,255,.05)':'rgba(0,0,0,.03)'};border:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}">
+                        <p class="font-bold text-xs mb-1.5" style="color:${ac}">🌙 ${l==='bn'?'জন্ম':'Birth'}</p>
+                        <p class="font-semibold text-sm">${sanitize(l==='bn'?im.birthBn:im.birthEn)}</p>
+                    </div>
+                    <div class="rounded-2xl p-4" style="background:${d?'rgba(255,255,255,.05)':'rgba(0,0,0,.03)'};border:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}">
+                        <p class="font-bold text-xs mb-1.5" style="color:${ac}">⚔️ ${l==='bn'?'শাহাদাত':'Martyrdom'}</p>
+                        <p class="font-semibold text-sm">${sanitize(l==='bn'?im.martyrdomBn:im.martyrdomEn)}</p>
+                    </div>
+                </div>
+                <div class="${d?'bg-gray-900':'bg-gray-50'} rounded-2xl p-5 mb-5">
+                    <h3 class="font-bold mb-3 text-sm">📝 ${l==='bn'?'পরিচিতি':'About'}</h3>
+                    <p class="${d?'text-gray-300':'text-gray-700'} leading-relaxed text-sm">${sanitize(l==='bn'?im.descBn:im.descEn)}</p>
+                </div>
+                <div class="rounded-2xl p-5" style="background:linear-gradient(135deg,${ac}0d,${ac2}07);border-left:4px solid ${ac}">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-bold text-sm flex items-center gap-2">
+                            <span style="color:${ac}">💬</span>${l==='bn'?'বিখ্যাত উক্তি':'Famous Quote'}
+                        </h3>
+                        <button data-action="shareImamQuote" data-param="${im.id}"
+                            class="text-xs px-3 py-1.5 rounded-xl font-bold hover:scale-105 transition-all"
+                            style="background:${ac}18;color:${ac}">
+                            🔗 ${l==='bn'?'শেয়ার':'Share'}
+                        </button>
+                    </div>
+                    <p class="text-base italic leading-relaxed">"${sanitize(l==='bn'?im.quoteBn:im.quoteEn)}"</p>
+                </div>
+            </div>
+        </div>
+        <div class="flex justify-between gap-4">
+            ${prev?`<button data-action="viewImam" data-param="${prev.id}"
+                class="${d?'bg-gray-800 hover:bg-gray-700 border-gray-700':'bg-white hover:bg-gray-50 border-gray-200'} border rounded-2xl px-5 py-3 font-semibold text-sm flex items-center gap-2 hover:scale-[1.02] transition-all"
+                style="flex:1">← ${sanitize(l==='bn'?prev.nameBn:prev.nameEn)}</button>`:'<div style="flex:1"></div>'}
+            ${next?`<button data-action="viewImam" data-param="${next.id}"
+                class="${d?'bg-gray-800 hover:bg-gray-700 border-gray-700':'bg-white hover:bg-gray-50 border-gray-200'} border rounded-2xl px-5 py-3 font-semibold text-sm flex items-center gap-2 justify-end hover:scale-[1.02] transition-all"
+                style="flex:1">${sanitize(l==='bn'?next.nameBn:next.nameEn)} →</button>`:'<div style="flex:1"></div>'}
+        </div>
+    </div>`;
+}
 // ============================================================================
 // PAGE: SEARCH
 // ============================================================================
@@ -5293,29 +7278,37 @@ function renderMobileBottomNav() {
     const d=state.darkMode; const l=state.language;
     const nav=document.getElementById('mobile-bottom-nav');
     if(!nav) return;
+
     const items=[
-        {page:'home',icon:'🏠',label:t('home')},
-        {page:'imams',icon:'👑',label:l==='bn'?'ইমাম':'Imams'},
-        {page:'familyTree',icon:'🌳',label:l==='bn'?'বংশধারা':'Family'},
-        {page:'dua',icon:'🤲',label:l==='bn'?'দোয়া':'Duas'},
-        {page:'blog',icon:'📖',label:t('blog')},
+        {page:'home',    icon:'🏠', label:l==='bn'?'হোম':'Home'},
+        {page:'blog',    icon:'📝', label:l==='bn'?'ব্লগ':'Blog'},
+        {page:'library', icon:'📚', label:l==='bn'?'লাইব্রেরি':'Library'},
+        {page:'dua',     icon:'🤲', label:l==='bn'?'দোয়া':'Duas'},
+        {page:'calendar',icon:'📅', label:l==='bn'?'ক্যালেন্ডার':'Calendar'},
     ];
-    nav.style.background=d?'rgba(6,20,16,.97)':'rgba(255,255,255,.97)';
-    nav.style.borderTopColor=d?'rgba(255,255,255,.08)':'rgba(0,0,0,.08)';
-    nav.innerHTML=items.map((item)=>{
-        const isActive = state.currentPage===item.page;
+
+    nav.style.cssText = `
+        background:${d?'rgba(6,14,12,.97)':'rgba(255,255,255,.97)'};
+        border-top:1.5px solid ${d?'rgba(52,211,153,.1)':'rgba(5,150,105,.1)'};
+        display:flex;
+        padding-bottom:env(safe-area-inset-bottom,0px);
+    `;
+
+    nav.innerHTML = items.map(item => {
+        const isActive = state.currentPage === item.page;
         return `
-        <button class="bnav-btn ${isActive?'active':''}"
-            style="color:${isActive?'#059669':(d?'#9ca3af':'#6b7280')};position:relative"
+        <button
+            class="bnav-btn ${isActive?'active':''}"
+            style="color:${isActive?'#059669':(d?'#6b7280':'#9ca3af')}"
             onclick="changePage('${item.page}')"
-            title="${item.label}">
-            ${isActive?`<span style="position:absolute;top:6px;left:50%;transform:translateX(-50%);width:28px;height:3px;border-radius:3px;background:linear-gradient(90deg,#059669,#34d399);box-shadow:0 0 8px rgba(5,150,105,.5)"></span>`:''}
-            <span class="bnav-icon" style="margin-top:${isActive?'4px':'0'}">${item.icon}</span>
-            <span style="line-height:1.2;font-size:10px;font-weight:${isActive?'700':'500'}">${item.label}</span>
+            title="${item.label}"
+            aria-label="${item.label}"
+            aria-current="${isActive?'page':'false'}">
+            <span class="bnav-icon">${item.icon}</span>
+            <span style="font-size:9.5px;font-weight:${isActive?700:500};line-height:1.2;letter-spacing:${isActive?'0':'.1px'}">${item.label}</span>
         </button>`;
     }).join('');
 }
-
 
 // ============================================================================
 // MAIN RENDER (updated)
@@ -5340,9 +7333,7 @@ function renderMainContent() {
     return (pages[state.currentPage]||pages.home)();
 }
 
-function render() {
-    document.documentElement.lang = state.language==='bn'?'bn':'en';
-    // ── Dark mode: html ও body উভয়তে class ও data-theme দাও ──
+function renderDarkMode() {
     if(state.darkMode){
         document.documentElement.classList.add('dark-mode');
         document.documentElement.setAttribute('data-theme','dark');
@@ -5357,6 +7348,11 @@ function render() {
         document.body.style.removeProperty('color');
     }
     document.body.className = (state.darkMode?'bg-gray-950 text-white':'bg-gray-50 text-gray-900') + ' fs-'+state.fontSize+' islamic-pattern-bg';
+}
+
+function render() {
+    document.documentElement.lang = state.language==='bn'?'bn':'en';
+    renderDarkMode();
     
     const appDiv = document.getElementById('app');
 
@@ -5389,6 +7385,11 @@ function render() {
     // mobile bottom nav
     renderMobileBottomNav();
     if(typeof premiumAfterRender==='function') requestAnimationFrame(premiumAfterRender);
+    // re-run setup after each render
+    requestAnimationFrame(() => {
+        setupHeaderScroll();
+        setupScrollReveal();
+    });
     // close more dropdown on outside click (use replacing listener to avoid leak)
     if(window._moreDropdownHandler) document.removeEventListener('click', window._moreDropdownHandler);
     window._moreDropdownHandler = function(e){
@@ -5576,17 +7577,26 @@ function hideSplash() {
 function initScrollReveal() {
     const els = document.querySelectorAll('.reveal:not(.visible)');
     if (!els.length) return;
+    if (window._scrollRevealObs) window._scrollRevealObs.disconnect();
     const io = new IntersectionObserver(entries => {
         entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
     }, { threshold: 0.07, rootMargin: '0px 0px -20px 0px' });
     els.forEach(el => io.observe(el));
+    window._scrollRevealObs = io;
 }
 function initHeaderScroll() {
     if (window._headerScrollInit) return; // prevent duplicate listeners
     window._headerScrollInit = true;
+    let _ihsTicking = false;
     const fn = () => {
-        const h = document.querySelector('header');
-        if(h) h.classList.toggle('scrolled', window.scrollY > 10);
+        if (!_ihsTicking) {
+            requestAnimationFrame(() => {
+                const h = document.querySelector('header');
+                if(h) h.classList.toggle('scrolled', window.scrollY > 10);
+                _ihsTicking = false;
+            });
+            _ihsTicking = true;
+        }
     };
     window.addEventListener('scroll', fn, { passive: true });
     fn();
@@ -5701,6 +7711,9 @@ function init() {
         setTimeout(schedulePrayerNotifications, 3000);
     }
     setupScrollTop();
+    setupHeaderScroll();
+    setupReadingProgress();
+    setupScrollReveal();
     // Cloudinary config must be available before cloud fetches
     if (typeof CLOUDINARY_CLOUD_NAME === 'undefined') {
         window.CLOUDINARY_CLOUD_NAME    = "ahlalbayt";

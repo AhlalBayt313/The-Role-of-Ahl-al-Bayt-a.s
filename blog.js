@@ -59,6 +59,25 @@ const blogPosts = [
 // ============================================================================
 
 /**
+ * Fallback local-date helper.
+ * Bug 5 fix: openBlogEditor() called localDate() assuming it exists in the
+ * main script's global scope. If this module is loaded standalone (or the
+ * host app hasn't defined it yet), the call would throw a ReferenceError and
+ * the editor would crash on open. We only define it here if it's missing,
+ * so we never override a real implementation provided by the host app.
+ * Returns a YYYY-MM-DD string based on the LOCAL timezone (not UTC).
+ */
+if (typeof localDate !== 'function') {
+    var localDate = function() {
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth()+1).padStart(2,'0');
+        const dd = String(now.getDate()).padStart(2,'0');
+        return `${yyyy}-${mm}-${dd}`;
+    };
+}
+
+/**
  * Open blog editor for creating or editing a post
  * @param {Object|null} post - Post to edit or null for new post
  */
@@ -168,6 +187,14 @@ async function saveBlogPost() {
     } catch(e) {
         showToast(state.language==='bn'?'Cloudinary sync ব্যর্থ — locally সেভ হয়েছে':'Cloudinary sync failed — saved locally','warning');
     }
+    // Bug 4 fix: re-render after the async sync settles. closeBlogEditor()
+    // already rendered synchronously *before* the await, using the state at
+    // that moment. If anything else mutates `state` while we're waiting on
+    // the network request (e.g. another action, or customPosts being
+    // reordered), the screen could be left showing stale data even though
+    // the toast says "saved". A final render() guarantees the blog list
+    // reflects the latest state.customPosts after the operation completes.
+    render();
 }
 
 /**
@@ -216,12 +243,38 @@ function renderBlogPage() {
     };
     const catIcon = {'রমজান':'🌙','আহলে বাইত':'👑','দোয়া':'🤲','কুরআন':'📗','ইবাদত':'🕌','আখলাক':'⚖️','Ramadan':'🌙','Ahl al-Bayt':'👑','Duas':'🤲','Quran':'📗','Worship':'🕌','Ethics':'⚖️'};
     const defaultCat = {color:'#888780', bg:d?'rgba(136,135,128,.18)':'#F1EFE8', fg:d?'#B4B2A9':'#5F5E5A'};
+    // Bug 1 fix: CAT's color/bg/fg entries never had an `.en` field, so
+    // `CAT[cat]?.en` was always undefined and English mode silently fell
+    // back to the Bengali category name. We add an explicit BN→EN name map
+    // (separate from the styling map) and use that for display text.
+    const CAT_EN_NAME = {
+        'রমজান':'Ramadan',
+        'আহলে বাইত':'Ahl al-Bayt',
+        'দোয়া':'Duas',
+        'কুরআন':'Quran',
+        'ইবাদত':'Worship',
+        'আখলাক':'Ethics',
+    };
+    function catLabel(cat) {
+        return l==='bn' ? cat : (CAT_EN_NAME[cat] || cat);
+    }
 
     function getCat(cat) { return CAT[cat] || defaultCat; }
     function fmtDate(dateStr) {
         if (!dateStr) return '';
         try {
-            const dt = new Date(dateStr);
+            // Bug 2 fix: `new Date('2024-01-15')` is parsed as UTC midnight
+            // per the ES spec (date-only ISO strings are UTC, not local).
+            // In timezones behind UTC (e.g. UTC-5 or later in the day),
+            // converting that UTC instant back to local time can roll the
+            // calendar date back by one day. We avoid the ambiguity by
+            // parsing the Y/M/D components ourselves and building a Date
+            // using the *local* timezone constructor, which always keeps
+            // the calendar date exactly as written regardless of locale.
+            const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(dateStr);
+            const dt = m
+                ? new Date(Number(m[1]), Number(m[2])-1, Number(m[3]))
+                : new Date(dateStr);
             return l==='bn'
                 ? dt.toLocaleDateString('bn-BD',{year:'numeric',month:'short',day:'numeric'})
                 : dt.toLocaleDateString('en-GB',{year:'numeric',month:'short',day:'numeric'});
@@ -254,7 +307,7 @@ function renderBlogPage() {
             const c = getCat(cat);
             return `<button data-action="setBlogFilter" data-param="${cat}"
                 style="font-size:12px;font-weight:600;padding:5px 14px;border-radius:20px;border:1px solid ${isActive?c.color:cardBorder};background:${isActive?c.color:(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)')};color:${isActive?'#fff':textSecondary};cursor:pointer;transition:all .15s">
-                ${catIcon[cat]||''} ${l==='bn'?cat:(CAT[cat]?.en||cat)}
+                ${catIcon[cat]||''} ${catLabel(cat)}
             </button>`;
         }).join('')}
     </div>`;
@@ -269,7 +322,7 @@ function renderBlogPage() {
             <div style="padding:1.5rem 1.75rem">
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">
                     <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(29,158,117,.15);color:${d?'#5DCAA5':'#0F6E56'}">⭐ ${l==='bn'?'ফিচার্ড':'Featured'}</span>
-                    <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:${c.bg};color:${c.fg}">${catIcon[featured.category]||''} ${sanitize(featured.category||'')}</span>
+                    <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:${c.bg};color:${c.fg}">${catIcon[featured.category]||''} ${sanitize(catLabel(featured.category||''))}</span>
                     ${isCustom?`<span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;background:${d?'rgba(55,138,221,.2)':'#E6F1FB'};color:${d?'#85B7EB':'#0C447C'}">${l==='bn'?'কাস্টম':'Custom'}</span>`:''}
                     <span style="margin-left:auto;font-size:12px;color:${textSecondary}">🕐 ${sanitize(featured.readTime||'')}</span>
                     <span style="font-size:12px;color:${textSecondary}">📅 ${fmtDate(featured.date)}</span>
@@ -307,7 +360,7 @@ function renderBlogPage() {
                     <div style="height:3px;background:${c.color};flex-shrink:0"></div>
                     <div style="padding:1rem 1.1rem;display:flex;flex-direction:column;gap:8px;flex:1">
                         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-                            <span style="font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;background:${c.bg};color:${c.fg}">${catIcon[post.category]||''} ${sanitize(post.category||'')}</span>
+                            <span style="font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;background:${c.bg};color:${c.fg}">${catIcon[post.category]||''} ${sanitize(catLabel(post.category||''))}</span>
                             ${isCustom?`<span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;background:${d?'rgba(55,138,221,.2)':'#E6F1FB'};color:${d?'#85B7EB':'#0C447C'}">${l==='bn'?'কাস্টম':'Custom'}</span>`:''}
                             <span style="margin-left:auto;font-size:11px;color:${textSecondary}">🕐 ${sanitize(post.readTime||'')}</span>
                         </div>
@@ -383,29 +436,29 @@ function renderBlogEditorModal() {
             <div class="space-y-4">
                 <div>
                     <label class="block mb-1.5 text-sm font-medium">${l==='bn'?'শিরোনাম (বাংলা)':'Title (Bengali)'}</label>
-                    <input id="blog-editor-titleBn" type="text" value="${sanitize(p.titleBn)}"
+                    <input id="blog-editor-titleBn" type="text" value="${sanitize(p.titleBn||'')}"
                         class="${d?'bg-gray-900 border-gray-700 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-green-500" />
                 </div>
                 <div>
                     <label class="block mb-1.5 text-sm font-medium">${l==='bn'?'শিরোনাম (ইংরেজি)':'Title (English)'}</label>
-                    <input id="blog-editor-titleEn" type="text" value="${sanitize(p.titleEn)}"
+                    <input id="blog-editor-titleEn" type="text" value="${sanitize(p.titleEn||'')}"
                         class="${d?'bg-gray-900 border-gray-700 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-green-500" />
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block mb-1.5 text-sm font-medium">${l==='bn'?'ক্যাটাগরি':'Category'}</label>
-                        <input id="blog-editor-category" type="text" value="${sanitize(p.category)}"
+                        <input id="blog-editor-category" type="text" value="${sanitize(p.category||'')}"
                             class="${d?'bg-gray-900 border-gray-700 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-green-500" />
                     </div>
                     <div>
                         <label class="block mb-1.5 text-sm font-medium">${l==='bn'?'পড়ার সময়':'Read Time'}</label>
-                        <input id="blog-editor-readTime" type="text" value="${sanitize(p.readTime)}"
+                        <input id="blog-editor-readTime" type="text" value="${sanitize(p.readTime||'')}"
                             class="${d?'bg-gray-900 border-gray-700 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-green-500" />
                     </div>
                 </div>
                 <div>
                     <label class="block mb-1.5 text-sm font-medium">${l==='bn'?'সারসংক্ষেপ':'Excerpt'}</label>
-                    <input id="blog-editor-excerpt" type="text" value="${sanitize(p.excerpt)}"
+                    <input id="blog-editor-excerpt" type="text" value="${sanitize(p.excerpt||'')}"
                         class="${d?'bg-gray-900 border-gray-700 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-green-500" />
                 </div>
                 <div>
