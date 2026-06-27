@@ -729,69 +729,70 @@ const asmaulHusna = [
 const hijriMonthsBn = ['মুহাররম','সফর','রবিউল আউয়াল','রবিউস সানি','জামাদিউল আউয়াল','জামাদিউস সানি','রজব','শাবান','রমজান','শাওয়াল','জিলক্বদ','জিলহজ'];
 const hijriMonthsEn = ['Muharram','Safar','Rabi al-Awwal','Rabi al-Thani','Jumada al-Awwal','Jumada al-Thani','Rajab','Shaban','Ramadan','Shawwal','Dhu al-Qidah','Dhu al-Hijjah'];
 const hijriEvents = {
-    // ── মূল ইসলামিক দিন ──
-    '1-1':{bn:'হিজরি নববর্ষ 🌙',en:'Islamic New Year 🌙',type:'special'},
-
-    // ── মুহাররম ──
-    '1-7':{bn:'🔴 মুহাররম — ইমাম হোসাইন (আ.) শিবিরে পানি বন্ধ',en:'🔴 Muharram — Water blocked to Imam Hussain (AS) camp',type:'ashura'},
+    // ── মুহাররম (মাস ১) ──
+    '1-1' :{bn:'হিজরি নববর্ষ 🌙',en:'Islamic New Year 🌙',type:'special'},
+    '1-7' :{bn:'🔴 মুহাররম — ইমাম হোসাইন (আ.) শিবিরে পানি বন্ধ',en:'🔴 Muharram — Water blocked to Imam Hussain (AS) camp',type:'ashura'},
     '1-10':{bn:'🔴 আশুরা — ইমাম হোসাইন (আ.)-এর শাহাদাত দিবস',en:'🔴 Ashura — Imam Hussain (AS) Martyrdom Day',type:'ashura'},
+    '1-25':{bn:'🕊️ ইমাম সাজ্জাদ (আ.) শাহাদাত দিবস — ২৫ মুহাররম ৯৫ হি.',en:'🕊️ Imam Sajjad (AS) Martyrdom Day — 25 Muharram 95 AH',type:'martyrdom'},
 
-    // ── সফর ──
-    '2-1':{bn:'ইমাম সাজ্জাদ (আ.) ও বন্দিরা কারবালা ছাড়েন',en:'Imam Sajjad (AS) & captives leave Karbala',type:'martyrdom'},
-    '2-7':{bn:'ইমাম হাসান (আ.) শাহাদাত দিবস 🕊️ — ২৮ সফর ৫০ হি.',en:'Imam Hasan (AS) Martyrdom Day 🕊️ — 28 Safar 50 AH',type:'martyrdom'},
+    // ── সফর (মাস ২) ──
+    '2-1' :{bn:'ইমাম সাজ্জাদ (আ.) ও বন্দিরা কারবালা ছাড়েন',en:'Imam Sajjad (AS) & captives leave Karbala',type:'martyrdom'},
+    '2-17':{bn:'🕊️ ইমাম রেজা (আ.) শাহাদাত দিবস — ১৭ সফর ২০৩ হি.',en:'🕊️ Imam Ridha (AS) Martyrdom Day — 17 Safar 203 AH',type:'martyrdom'},
     '2-20':{bn:'🌹 চেহলুম — আরবাঈন — ইমাম হোসাইন (আ.) চল্লিশতম দিন',en:'🌹 Chehlum — Arbaeen — 40th day of Imam Hussain (AS)',type:'martyrdom'},
-    '2-28':{bn:'🕊️ রাসূলুল্লাহ (সা.) শাহাদাত দিবস — ২৮ সফর ১১ হি.',en:'🕊️ Prophet Muhammad (SAW) Martyrdom Day — 28 Safar 11 AH',type:'martyrdom'},
+    // ✅ FIX: '2-7' (ভুল — বর্ণনায় ছিল "২৮ সফর") মুছে '2-28' এ দুটো ঘটনা একত্রে
+    '2-28':{bn:'🕊️ রাসূলুল্লাহ (সা.) ও ইমাম হাসান (আ.) শাহাদাত দিবস — ২৮ সফর',en:'🕊️ Prophet Muhammad (SAW) & Imam Hasan (AS) Martyrdom — 28 Safar',type:'martyrdom'},
 
-    // ── রবিউল আউয়াল ──
-    '3-8':{bn:'🕊️ ইমাম হাসান আসকারি (আ.) শাহাদাত দিবস — ৮ রবিউল আউয়াল ২৬০ হি.',en:'🕊️ Imam Hasan al-Askari (AS) Martyrdom Day — 8 Rabi al-Awwal 260 AH',type:'martyrdom'},
+    // ── রবিউল আউয়াল (মাস ৩) ──
+    '3-8' :{bn:'🕊️ ইমাম হাসান আসকারি (আ.) শাহাদাত দিবস — ৮ রবিউল আউয়াল ২৬০ হি.',en:'🕊️ Imam Hasan al-Askari (AS) Martyrdom Day — 8 Rabi al-Awwal 260 AH',type:'martyrdom'},
     '3-12':{bn:'ঈদে মিলাদুন্নবী (সা.) — রাসূলের জন্মদিন 🌸',en:'Mawlid al-Nabi — Prophet\'s Birthday 🌸',type:'eid'},
-    '3-15':{bn:'ইমাম হাসান (আ.) জন্মদিন 🌸 — ১৫ রমাযান ৩ হি.',en:'Imam Hasan (AS) Birthday 🌸 — 15 Ramadan 3 AH',type:'birth'},
     '3-17':{bn:'ইমাম সাদিক (আ.) জন্মদিন 🌟 — ১৭ রবিউল আউয়াল ৮৩ হি.',en:'Imam Sadiq (AS) Birthday 🌟 — 17 Rabi al-Awwal 83 AH',type:'birth'},
 
-    // ── জমাদিউল আখিরা ──
-    '6-3':{bn:'🌹 ফাতেমা যাহরা (আ.) শাহাদাত দিবস — ৩ জমাদিউল আখিরা ১১ হি.',en:'🌹 Fatima al-Zahra (AS) Martyrdom Day — 3 Jumada al-Thani 11 AH',type:'martyrdom'},
+    // ── রবিউস সানি (মাস ৪) ──
+    '4-3' :{bn:'🕊️ ইমাম হাদি (আ.) শাহাদাত দিবস — ৩ রজব ২৫৪ হি.',en:'🕊️ Imam Hadi (AS) Martyrdom Day — 3 Rajab 254 AH',type:'martyrdom'},
+
+    // ── জমাদিউল আউয়াল (মাস ৫) ──
+    '5-25':{bn:'🕊️ ইমাম কাযিম (আ.) শাহাদাত দিবস — ২৫ রজব ১৮৩ হি.',en:'🕊️ Imam Kazim (AS) Martyrdom Day — 25 Rajab 183 AH',type:'martyrdom'},
+
+    // ── জমাদিউল আখিরা (মাস ৬) ──
+    '6-3' :{bn:'🌹 ফাতেমা যাহরা (আ.) শাহাদাত দিবস — ৩ জমাদিউল আখিরা ১১ হি.',en:'🌹 Fatima al-Zahra (AS) Martyrdom Day — 3 Jumada al-Thani 11 AH',type:'martyrdom'},
     '6-20':{bn:'ফাতেমা যাহরা (আ.) জন্মদিন 🌷 — ২০ জমাদিউল আখিরা ৫ বি.হি.',en:'Fatima al-Zahra (AS) Birthday 🌷 — 20 Jumada al-Thani 5 BH',type:'birth'},
 
-    // ── রজব ──
-    '7-3':{bn:'🕊️ ইমাম আলী ইবনে হোসাইন সাজ্জাদ (আ.) শাহাদাত দিবস — ২৫ মুহাররম ৯৫ হি.',en:'🕊️ Imam Sajjad (AS) Martyrdom Day — 25 Muharram 95 AH',type:'martyrdom'},
-    '7-7':{bn:'ইমাম কাযিম (আ.) জন্মদিন / ইমাম বাকির (আ.) শাহাদাত 🕊️',en:'Imam Kazim (AS) Birthday / Imam Baqir (AS) Martyrdom 🕊️',type:'mixed'},
+    // ── রজব (মাস ৭) ──
+    // ✅ FIX: '7-3' (ভুল মাস — ইমাম সাজ্জাদ শাহাদাত মুহাররমে, '1-25' এ আছে) বাদ দেওয়া হয়েছে
+    // ✅ FIX: '7-7' ডুপ্লিকেট — একটাই রাখা হয়েছে (mixed: কাযিম জন্ম + বাকির শাহাদাত)
+    '7-7' :{bn:'ইমাম কাযিম (আ.) জন্মদিন 🌸 / ইমাম বাকির (আ.) শাহাদাত দিবস 🕊️ — ৭ রজব',en:'Imam Kazim (AS) Birthday 🌸 / Imam Baqir (AS) Martyrdom 🕊️ — 7 Rajab',type:'mixed'},
     '7-13':{bn:'ইমাম আলী (আ.) জন্মদিন 🦁 — ১৩ রজব ৩০ বি.হি.',en:'Imam Ali (AS) Birthday 🦁 — 13 Rajab 30 BH',type:'birth'},
     '7-27':{bn:'শবে মেরাজ ✨',en:'Laylat al-Miraj ✨',type:'special'},
-    '7-28':{bn:'🕊️ ইমাম হাসান (আ.) শাহাদাত দিবস — ২৮ সফর ৫০ হি.',en:'🕊️ Imam Hasan (AS) Martyrdom Day — 28 Safar 50 AH',type:'martyrdom'},
+    // ✅ FIX: '7-28' (ভুল — ইমাম হাসান শাহাদাত সফরে, '2-28' এ সংযুক্ত) বাদ দেওয়া হয়েছে
 
-    // ── শাবান ──
-    '8-3':{bn:'ইমাম হোসাইন (আ.) জন্মদিন 🌸 — ৩ শাবান ৪ হি.',en:'Imam Hussain (AS) Birthday 🌸 — 3 Shaban 4 AH',type:'birth'},
+    // ── শাবান (মাস ৮) ──
+    '8-3' :{bn:'ইমাম হোসাইন (আ.) জন্মদিন 🌸 — ৩ শাবান ৪ হি.',en:'Imam Hussain (AS) Birthday 🌸 — 3 Shaban 4 AH',type:'birth'},
     '8-10':{bn:'ইমাম হাসান আসকারি (আ.) জন্মদিন 🌟 — ১০ রবিউল আউয়াল ২৩২ হি.',en:'Imam Askari (AS) Birthday 🌟 — 10 Rabi al-Awwal 232 AH',type:'birth'},
     '8-15':{bn:'নিমে শাবান — ইমাম মাহদি (আ.) জন্মদিন 🌙 — ১৫ শাবান ২৫৫ হি.',en:'Mid-Shaban — Imam Mahdi (AS) Birthday 🌙 — 15 Shaban 255 AH',type:'birth'},
 
-    // ── রমজান ──
-    '9-1':{bn:'রমজান শুরু 🌙',en:'Ramadan begins 🌙',type:'special'},
+    // ── রমজান (মাস ৯) ──
+    '9-1' :{bn:'রমজান শুরু 🌙',en:'Ramadan begins 🌙',type:'special'},
+    // ✅ FIX: '3-15' (ভুল মাস — বর্ণনায় "১৫ রমাযান") → সঠিক key '9-15'
+    '9-15':{bn:'ইমাম হাসান (আ.) জন্মদিন 🌸 — ১৫ রমাযান ৩ হি.',en:'Imam Hasan (AS) Birthday 🌸 — 15 Ramadan 3 AH',type:'birth'},
     '9-19':{bn:'শবে ক্বদর (১৯) — ইমাম আলী (আ.) আঘাতপ্রাপ্ত ⚔️',en:'Laylat al-Qadr (19) — Imam Ali (AS) struck ⚔️',type:'martyrdom'},
     '9-21':{bn:'🕊️ ইমাম আলী (আ.) শাহাদাত দিবস — ২১ রমজান ৪০ হি. / শবে ক্বদর',en:'🕊️ Imam Ali (AS) Martyrdom Day — 21 Ramadan 40 AH / Laylat al-Qadr',type:'martyrdom'},
     '9-23':{bn:'শবে ক্বদর (২৩ রমজান) ⭐',en:'Laylat al-Qadr (23 Ramadan) ⭐',type:'special'},
     '9-27':{bn:'শবে কদর (২৭ রমজান) ⭐',en:'Laylat al-Qadr (27 Ramadan) ⭐',type:'special'},
 
-    // ── শাওয়াল ──
-    '10-1':{bn:'ঈদুল ফিতর 🎉',en:'Eid al-Fitr 🎉',type:'eid'},
+    // ── শাওয়াল (মাস ১০) ──
+    '10-1' :{bn:'ঈদুল ফিতর 🎉',en:'Eid al-Fitr 🎉',type:'eid'},
     '10-25':{bn:'🕊️ ইমাম সাদিক (আ.) শাহাদাত দিবস — ২৫ শাওয়াল ১৪৮ হি.',en:'🕊️ Imam Sadiq (AS) Martyrdom Day — 25 Shawwal 148 AH',type:'martyrdom'},
 
-    // ── জিলকদ ──
+    // ── জিলকদ (মাস ১১) ──
     '11-11':{bn:'ইমাম রেজা (আ.) জন্মদিন 🌹 — ১১ যিলকদ ১৪৮ হি.',en:'Imam Ridha (AS) Birthday 🌹 — 11 Dhu al-Qadah 148 AH',type:'birth'},
     '11-23':{bn:'🕊️ ইমাম জওয়াদ (আ.) শাহাদাত দিবস — ২৩ জিলকদ ২২০ হি.',en:'🕊️ Imam Jawad (AS) Martyrdom Day — 23 Dhu al-Qadah 220 AH',type:'martyrdom'},
 
-    // ── জিলহজ্ব ──
-    '12-5':{bn:'ইমাম জওয়াদ (আ.) জন্মদিন ✨ — ১০ রজব ১৯৫ হি.',en:'Imam Jawad (AS) Birthday ✨ — 10 Rajab 195 AH',type:'birth'},
+    // ── জিলহজ্ব (মাস ১২) ──
+    '12-5' :{bn:'ইমাম জওয়াদ (আ.) জন্মদিন ✨ — ১০ রজব ১৯৫ হি.',en:'Imam Jawad (AS) Birthday ✨ — 10 Rajab 195 AH',type:'birth'},
     '12-10':{bn:'ঈদুল আযহা 🎉',en:'Eid al-Adha 🎉',type:'eid'},
     '12-15':{bn:'ইমাম হাদি (আ.) জন্মদিন 💎 — ১৫ যিলহজ্ব ২১২ হি.',en:'Imam Hadi (AS) Birthday 💎 — 15 Dhu al-Hijjah 212 AH',type:'birth'},
     '12-18':{bn:'🎊 ঈদে গাদির খুম — ইমাম আলী (আ.) মনোনয়ন দিবস',en:'🎊 Eid al-Ghadeer — Imam Ali (AS) Designation Day',type:'eid'},
     '12-24':{bn:'ঈদে মুবাহিলা ✨',en:'Eid al-Mubahila ✨',type:'eid'},
-
-    // ── বিভিন্ন মাসে শাহাদাত ──
-    '2-17':{bn:'🕊️ ইমাম রেজা (আ.) শাহাদাত দিবস — ১৭ সফর ২০৩ হি.',en:'🕊️ Imam Ridha (AS) Martyrdom Day — 17 Safar 203 AH',type:'martyrdom'},
-    '4-3':{bn:'🕊️ ইমাম হাদি (আ.) শাহাদাত দিবস — ৩ রজব ২৫৪ হি.',en:'🕊️ Imam Hadi (AS) Martyrdom Day — 3 Rajab 254 AH',type:'martyrdom'},
-    '5-25':{bn:'🕊️ ইমাম কাযিম (আ.) শাহাদাত দিবস — ২৫ রজব ১৮৩ হি.',en:'🕊️ Imam Kazim (AS) Martyrdom Day — 25 Rajab 183 AH',type:'martyrdom'},
-    '1-25':{bn:'🕊️ ইমাম সাজ্জাদ (আ.) শাহাদাত দিবস — ২৫ মুহাররম ৯৫ হি.',en:'🕊️ Imam Sajjad (AS) Martyrdom Day — 25 Muharram 95 AH',type:'martyrdom'},
-    '7-7':{bn:'🕊️ ইমাম বাকির (আ.) শাহাদাত দিবস — ৭ যিলহজ্ব ১১৪ হি.',en:'🕊️ Imam Baqir (AS) Martyrdom Day — 7 Dhu al-Hijjah 114 AH',type:'martyrdom'},
 };
 
 // ============================================================================
@@ -972,24 +973,8 @@ function setupHeaderScroll() {
 }
 
 // ── Reading progress bar ──────────────────────────────────────────────────
-function setupReadingProgress() {
-    const bar = document.getElementById('reading-progress');
-    if (!bar) return;
-    let _rpTicking = false;
-    let _cachedDocH = document.documentElement.scrollHeight - window.innerHeight;
-    window.addEventListener('resize', () => {
-        _cachedDocH = document.documentElement.scrollHeight - window.innerHeight;
-    }, {passive:true});
-    window.addEventListener('scroll', () => {
-        if (!_rpTicking) {
-            requestAnimationFrame(() => {
-                bar.style.width = (_cachedDocH > 0 ? (window.scrollY / _cachedDocH * 100) : 0) + '%';
-                _rpTicking = false;
-            });
-            _rpTicking = true;
-        }
-    }, {passive:true});
-}
+// setupReadingProgress মুছে দেওয়া হয়েছে — initReadingProgress ব্যবহার করুন
+// (initReadingProgress-এ removeEventListener guard আছে, একাধিক listener leak হয় না)
 
 // ── Scroll Reveal (IntersectionObserver) ────────────────────────────────
 function setupScrollReveal() {
@@ -1079,7 +1064,16 @@ async function fetchPrayerTimes(lat, lon, city=null) {
         } else throw new Error('Bad response');
     } catch(e) {
         state.prayerTimesError = state.language==='bn'?'নামাজের সময় লোড করতে ব্যর্থ':'Failed to load prayer times';
-    } finally { state.prayerTimesLoading=false; render(); }
+    } finally {
+        state.prayerTimesLoading = false;
+        // শুধু prayer widget আপডেট করো — পুরো পেজ রি-রেন্ডার এড়াও
+        const widget = document.getElementById('prayer-widget-root');
+        if (widget) {
+            widget.innerHTML = renderPrayerWidget();
+        } else {
+            render(); // widget DOM-এ না থাকলে fallback
+        }
+    }
 }
 
 function localDate() {
@@ -1322,14 +1316,14 @@ async function downloadFile(id, name) {
 
 async function openViewer(item, type) {
     state.viewerItem = item; state.viewerType = type;
-    state.viewerData = null; state.viewerLoading = true;
-    state.currentPage = 'viewer'; render();
-    // Cloudinary files (all types): use URL directly
+    state.viewerLoading = true; state.viewerData = null;
+    // Cloudinary files: resolve data before first render (avoids double render)
     if (item.cloudUrl) {
         state.viewerData = item.cloudUrl;
-        state.viewerLoading = false; render();
-        return;
+        state.viewerLoading = false;
     }
+    state.currentPage = 'viewer'; render();
+    if (item.cloudUrl) return;
     // Local files: load from IndexedDB
     try {
         const data = await dbGet(item.id);
@@ -1417,11 +1411,10 @@ async function fetchMediaFromCloud() {
 function toggleDarkMode() {
     state.darkMode = !state.darkMode;
     saveState();
-    renderDarkMode();
-    // Only update header icon + body class — no full DOM rebuild needed
+    renderDarkMode(); // body class, data-theme, CSS vars আপডেট করে
+    // শুধু icon আপডেট — পুরো পেজ রি-রেন্ডার দরকার নেই
     const iconEl = document.getElementById('dark-mode-icon');
     if (iconEl) iconEl.textContent = state.darkMode ? '☀️' : '🌙';
-    render(); // keep for now — header re-render picks up icon state
 }
 function toggleLanguage() {
     state.language=state.language==='bn'?'en':'bn';
@@ -1442,9 +1435,19 @@ function cycleFontSize() {
     const idx = fontSizes.indexOf(state.fontSize);
     state.fontSize = fontSizes[(idx+1)%fontSizes.length];
     applyFontSize();
-    saveState(); render();
+    saveState();
+    // পুরো পেজ রি-রেন্ডার এড়াও — শুধু font label টা আপডেট করো
+    const lblEl = document.getElementById('font-size-label');
+    if (lblEl) lblEl.textContent = fontSizeLabels[state.language][state.fontSize];
 }
-function setFontSize(size) { state.fontSize=size; applyFontSize(); saveState(); render(); }
+function setFontSize(size) {
+    state.fontSize = size;
+    applyFontSize();
+    saveState();
+    // পুরো পেজ রি-রেন্ডার এড়াও — শুধু font label টা আপডেট করো
+    const lblEl = document.getElementById('font-size-label');
+    if (lblEl) lblEl.textContent = fontSizeLabels[state.language][state.fontSize];
+}
 function applyFontSize() {
     document.body.classList.remove('fs-small','fs-medium','fs-large','fs-xlarge');
     document.body.classList.add('fs-'+state.fontSize);
@@ -1452,18 +1455,55 @@ function applyFontSize() {
 
 // Share
 function shareContent(title, text, url) {
-    const shareText = title + '\n' + text + '\n\n' + (url||window.location.href);
+    const shareUrl = url || window.location.href;
+    const shareText = title + '\n' + text + '\n\n' + shareUrl;
+
+    // ── clipboard fallback (textarea trick — HTTP/Android সহ সব জায়গায় কাজ করে) ──
+    function copyViaTextarea() {
+        try {
+            const ta = document.createElement('textarea');
+            ta.value = shareText;
+            ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            const ok = document.execCommand('copy');
+            document.body.removeChild(ta);
+            if (ok) {
+                showToast(state.language==='bn'?'✅ কপি হয়েছে! পেস্ট করুন':'✅ Copied! Paste to share', 'success');
+                return true;
+            }
+        } catch(_) {}
+        return false;
+    }
+
+    // ── WhatsApp fallback (last resort) ──
+    function openWhatsApp() {
+        window.open('https://wa.me/?text=' + encodeURIComponent(shareText), '_blank');
+    }
+
     if (navigator.share) {
-        navigator.share({ title, text: shareText, url: url||window.location.href }).catch(()=>{});
+        // navigator.share — AbortError (user cancel) ও NotAllowedError আলাদা handle করো
+        navigator.share({ title, text: shareText, url: shareUrl })
+            .catch(err => {
+                if (err && err.name === 'AbortError') return; // user নিজে বাতিল করেছে — কিছু করার নেই
+                // অন্য error (NotAllowedError, DataError) → clipboard-এ fallback
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(shareText)
+                        .then(() => showToast(state.language==='bn'?'✅ কপি হয়েছে! পেস্ট করুন':'✅ Copied! Paste to share', 'success'))
+                        .catch(() => { if (!copyViaTextarea()) openWhatsApp(); });
+                } else {
+                    if (!copyViaTextarea()) openWhatsApp();
+                }
+            });
+    } else if (navigator.clipboard && window.isSecureContext) {
+        // HTTPS + modern clipboard API
+        navigator.clipboard.writeText(shareText)
+            .then(() => showToast(state.language==='bn'?'✅ কপি হয়েছে! পেস্ট করুন':'✅ Copied! Paste to share', 'success'))
+            .catch(() => { if (!copyViaTextarea()) openWhatsApp(); });
     } else {
-        // Fallback: copy to clipboard
-        navigator.clipboard.writeText(shareText).then(()=>{
-            showToast(state.language==='bn'?'কপি হয়েছে! পেস্ট করুন':'Copied! Paste to share','success');
-        }).catch(()=>{
-            // Last resort: open whatsapp
-            const wa = 'https://wa.me/?text='+encodeURIComponent(shareText);
-            window.open(wa,'_blank');
-        });
+        // HTTP বা পুরনো Android ব্রাউজার → textarea trick
+        if (!copyViaTextarea()) openWhatsApp();
     }
 }
 function sharePost(post, l) {
@@ -1571,8 +1611,11 @@ function tasbeehTap() {
     const pct = Math.min(1, state.tasbeehCount / state.tasbeehTarget);
     const circumference = 2*Math.PI*54;
     const OFF = circumference*(1-pct);
-    const rings = document.querySelectorAll('svg circle');
-    if(rings.length >= 2) rings[rings.length-1].setAttribute('stroke-dashoffset', OFF.toFixed(1));
+    // Bug #11 fix: document.querySelectorAll('svg circle') grabs every circle on the
+    // page (navigation icons, other SVGs), so rings[rings.length-1] is unpredictable.
+    // Target the specific progress circle by ID instead.
+    const progressCircle = document.getElementById('tasbeeh-ring');
+    if(progressCircle) progressCircle.setAttribute('stroke-dashoffset', OFF.toFixed(1));
     // Update rem counter in the SVG center
     const rem = state.tasbeehCount % state.tasbeehTarget;
     const centerSpan = document.querySelector('.tasbeeh-center-count');
@@ -1626,9 +1669,27 @@ function quizRestart() {
 // ============================================================================
 // SEARCH ACTIONS
 // ============================================================================
+// ── Search debounce timer ──────────────────────────────────────────────────
+let _searchDebounceTimer = null;
+
 function doSearch(query) {
     state.searchQuery = query;
-    if (!query.trim()) { state.searchResults=[]; render(); return; }
+    // খালি হলে সরাসরি clear — debounce দরকার নেই
+    if (!query.trim()) {
+        if (_searchDebounceTimer) { clearTimeout(_searchDebounceTimer); _searchDebounceTimer = null; }
+        state.searchResults = [];
+        render();
+        return;
+    }
+    // 300ms debounce — প্রতি কী-স্ট্রোকে render() এড়াও
+    if (_searchDebounceTimer) clearTimeout(_searchDebounceTimer);
+    _searchDebounceTimer = setTimeout(() => {
+        _searchDebounceTimer = null;
+        _performSearch(query);
+    }, 300);
+}
+
+function _performSearch(query) {
     const q = query.toLowerCase();
     const results = [];
     // search blog posts
@@ -1869,7 +1930,11 @@ function readDua(index) {
 // ============================================================================
 function getHijriMonthDays(month,year) {
     if(month%2===1) return 30;
-    if(month===12) return ([2,5,7,10,13,15,18,21,24,26,29].includes(year%30))?30:29;
+    // Bug #29 fix: standard 30-year tabular cycle leap years are
+    // 2,5,7,10,13,16,18,21,24,26,29 (Type IIa / "Kuwaiti algorithm").
+    // This had 15 instead of 16, misclassifying leap/common status for
+    // two years in every 30-year cycle (e.g. AH 1425 and 1426).
+    if(month===12) return ([2,5,7,10,13,16,18,21,24,26,29].includes(year%30))?30:29;
     return 29;
 }
 function getHijriStartDay(month, year) {
@@ -1986,8 +2051,13 @@ function setupEventListeners() {
                 case 'sharePost': { const allP=[...(typeof blogPosts!=='undefined'?blogPosts:[]),...state.customPosts]; const p=allP.find(x=>String(x.id)===String(param)); if(p) sharePost(p,state.language); break; }
                 case 'shareHadith': shareHadith(getDailyHadith(),state.language); break;
                 case 'shareDua': {
-                    const allDuas2=[...duas,...state.customDuas];
-                    const duaItem=isNaN(param)?allDuas2.find(x=>x.id===param):duas[parseInt(param)];
+                    let duaItem;
+                    if (typeof param === 'string' && param.startsWith('c')) {
+                        const cid = param.slice(1);
+                        duaItem = state.customDuas.find(x => x.id === cid);
+                    } else {
+                        duaItem = isNaN(param) ? duas.find(x => x.id === param) : duas[parseInt(param)];
+                    }
                     if(duaItem) shareDua(duaItem,state.language); break;
                 }
                 case 'shareImamQuote': { const im2=imams.find(x=>x.id===parseInt(param))||masumeen.find(x=>x.id===param); if(im2) shareImamQuote(im2,state.language); break; }
@@ -2239,12 +2309,22 @@ function setupEventListeners() {
                 case 'saveMuharramEvent': {
                     if(!state.editingMuharramEvent) break;
                     const me = state.editingMuharramEvent;
-                    me.icon = document.getElementById('mev-icon')?.value?.trim() || '🕌';
-                    me.date = document.getElementById('mev-date')?.value?.trim() || '';
+                    me.icon    = document.getElementById('mev-icon')?.value?.trim() || '🕌';
+                    me.date    = document.getElementById('mev-date')?.value?.trim() || '';
                     me.titleBn = document.getElementById('mev-title')?.value?.trim() || '';
-                    me.descBn = document.getElementById('mev-desc')?.value?.trim() || '';
-                    me.color = document.getElementById('mev-color')?.value || '#dc2626';
-                    if(!me.titleBn){alert('শিরোনাম লিখুন');break;}
+                    me.descBn  = document.getElementById('mev-desc')?.value?.trim() || '';
+                    me.color   = document.getElementById('mev-color')?.value || '#dc2626';
+                    // ✅ FIX: দুটো required field ভ্যালিডেট করো, alert() → showToast()
+                    if (!me.date) {
+                        showToast(state.language==='bn'?'⚠️ তারিখ (হিজরি) লিখুন':'⚠️ Please enter the Hijri date', 'error');
+                        document.getElementById('mev-date')?.focus();
+                        break;
+                    }
+                    if (!me.titleBn) {
+                        showToast(state.language==='bn'?'⚠️ বাংলা শিরোনাম লিখুন':'⚠️ Please enter a title', 'error');
+                        document.getElementById('mev-title')?.focus();
+                        break;
+                    }
                     const idx=state.muharramEvents.findIndex(x=>x.id===me.id);
                     if(idx>-1) state.muharramEvents[idx]=me; else state.muharramEvents.push(me);
                     state.showMuharramEditor=false; state.editingMuharramEvent=null;
@@ -2265,16 +2345,26 @@ function setupEventListeners() {
                 case 'saveShiaDay': {
                     if(!state.editingShiaDay) break;
                     const sd = state.editingShiaDay;
-                    sd.icon = document.getElementById('sd-icon')?.value?.trim() || '✨';
-                    sd.type = document.getElementById('sd-type')?.value || 'eid';
-                    sd.hijriDate = document.getElementById('sd-hijridate')?.value?.trim() || '';
-                    sd.titleBn = document.getElementById('sd-title')?.value?.trim() || '';
+                    sd.icon        = document.getElementById('sd-icon')?.value?.trim() || '✨';
+                    sd.type        = document.getElementById('sd-type')?.value || 'eid';
+                    sd.hijriDate   = document.getElementById('sd-hijridate')?.value?.trim() || '';
+                    sd.titleBn     = document.getElementById('sd-title')?.value?.trim() || '';
                     sd.arabicTitle = document.getElementById('sd-arabic')?.value?.trim() || '';
-                    sd.descBn = document.getElementById('sd-desc')?.value?.trim() || '';
-                    sd.amaal = document.getElementById('sd-amaal')?.value?.trim() || '';
-                    sd.importance = document.getElementById('sd-importance')?.value?.trim() || '';
+                    sd.descBn      = document.getElementById('sd-desc')?.value?.trim() || '';
+                    sd.amaal       = document.getElementById('sd-amaal')?.value?.trim() || '';
+                    sd.importance  = document.getElementById('sd-importance')?.value?.trim() || '';
                     sd.color = sd.type==='eid'?'#059669':sd.type==='martyrdom'?'#dc2626':'#b45309';
-                    if(!sd.titleBn){alert('শিরোনাম লিখুন');break;}
+                    // ✅ FIX: title + hijriDate ভ্যালিডেট করো, alert() → showToast()
+                    if (!sd.titleBn) {
+                        showToast(state.language==='bn'?'⚠️ বাংলা শিরোনাম লিখুন':'⚠️ Please enter a title', 'error');
+                        document.getElementById('sd-title')?.focus();
+                        break;
+                    }
+                    if (!sd.hijriDate) {
+                        showToast(state.language==='bn'?'⚠️ হিজরি তারিখ লিখুন':'⚠️ Please enter the Hijri date', 'error');
+                        document.getElementById('sd-hijridate')?.focus();
+                        break;
+                    }
                     const idx=state.shiaSpecialDays.findIndex(x=>x.id===sd.id);
                     if(idx>-1) state.shiaSpecialDays[idx]=sd; else state.shiaSpecialDays.push(sd);
                     state.showShiaDayEditor=false; state.editingShiaDay=null;
@@ -2663,11 +2753,11 @@ function renderHeader()
 {
     const d=state.darkMode; const l=state.language;
     const mainPages=['home','blog','library','dua','calendar'];
-    const morePages=['imams','tasbeeh','media','quiz','familyTree','bookmarks','about','contact'];
+    const morePages=['imams','tasbeeh','media','quiz','qibla','familyTree','bookmarks','about','contact'];
     const bg   = d ? 'rgba(6,20,16,.95)'      : 'rgba(255,255,255,.90)';
     const border = d ? 'rgba(52,211,153,.08)' : 'rgba(5,150,105,.10)';
     const pageIcons={home:'🏠',imams:'👑',dua:'🤲',library:'📚',blog:'📝',tasbeeh:'📿',
-        media:'🎬',calendar:'📅',quiz:'🧠',familyTree:'🌳',bookmarks:'🔖',about:'ℹ️',contact:'📞'};
+        media:'🎬',calendar:'📅',quiz:'🧠',qibla:'🧭',familyTree:'🌳',bookmarks:'🔖',about:'ℹ️',contact:'📞'};
     return `
     <header style="background:${bg};border-bottom:1.5px solid ${border};" class="sticky top-0 z-30" id="main-header">
         <div class="max-w-7xl mx-auto px-4" style="padding-top:10px;padding-bottom:10px">
@@ -3904,7 +3994,12 @@ function renderDuaPage() {
             </div>`:
             filteredDuas.map((dua,i)=>{
                 const isCustom=!!dua.id;
-                const idx=isCustom?i:(i-state.customDuas.length);
+                // Bug #8 fix: `i` is the position in filteredDuas (which may be a
+                // category-filtered subset). When a non-custom dua is opened via
+                // readDua, the param must be its index in the global `duas[]` array,
+                // not its position in the filtered list. Using `duas.indexOf(dua)`
+                // gives the correct stable index regardless of any active filter.
+                const idx=isCustom?('c'+dua.id):duas.indexOf(dua);
                 return `
                 <article class="card-luxury border reveal"
                     style="background:${d?'#1e2a22':'#ffffff'};
@@ -3940,7 +4035,7 @@ function renderDuaPage() {
                             <p class="text-center text-sm leading-relaxed" style="color:${d?'#d1d5db':'#374151'}">${sanitize(l==='bn'?dua.meaningBn:dua.meaningEn)}</p>
                         </div>
                         <!-- Read more -->
-                        <button data-action="readDua" data-param="${isCustom?'c'+dua.id:idx}"
+                        <button data-action="readDua" data-param="${idx}"
                             style="font-size:12.5px;font-weight:700;padding:8px 20px;border-radius:50px;
                             background:rgba(5,150,105,.12);color:${d?'#34d399':'#059669'};
                             border:1.5px solid rgba(5,150,105,.25);cursor:pointer;
@@ -4109,17 +4204,17 @@ function renderCalendarPage() {
                     const bnHijriDay=toBengaliDigits(day);
                     const bnHijriMon=hijriMonthsBn[month-1];
 
-                    // Colors
+                    // Colors — dark mode contrast উন্নত করা হয়েছে
                     const enBigColor = isTodayGreg ? 'white'
-                        : isFri ? '#dc2626'
-                        : isSat ? '#1d4ed8'
-                        : (d?'#f3f4f6':'#111827');
+                        : isFri ? '#fca5a5'   // dark: হালকা লাল (was #dc2626 — কম কনট্রাস্ট)
+                        : isSat ? '#93c5fd'   // dark: হালকা নীল (was #1d4ed8 — কম কনট্রাস্ট)
+                        : (d?'#f9fafb':'#111827');
                     const bnGregColor = isTodayGreg ? 'rgba(255,255,255,.9)'
-                        : isFri ? '#b91c1c'
-                        : isSat ? '#1e40af'
-                        : (d?'#93c5fd':'#1d4ed8');
+                        : isFri ? (d?'#fca5a5':'#b91c1c')
+                        : isSat ? (d?'#93c5fd':'#1e40af')
+                        : (d?'#bfdbfe':'#1d4ed8');  // dark: আরো উজ্জ্বল নীল
                     const bnHijriColor = isTodayGreg ? 'rgba(255,255,255,.85)'
-                        : (d?'#86efac':'#15803d');
+                        : (d?'#6ee7b7':'#15803d');  // dark: আরো উজ্জ্বল সবুজ
 
                     // ইমাম তারিখ হাইলাইট
                     const evType = ev ? ev.type : null;
@@ -4130,12 +4225,12 @@ function renderCalendarPage() {
 
                     const cellBg = isTodayGreg
                         ? '#059669'
-                        : isAshura ? (d?'#3b0000':'#fff0f0')
-                        : isMartyr ? (d?'#2d1515':'#fff5f5')
+                        : isAshura ? (d?'#4c0519':'#fff0f0')   // dark: আরো গাঢ় লাল
+                        : isMartyr ? (d?'#3b0f0f':'#fff5f5')   // dark: আরো গাঢ় মেরুন
                         : isBirth  ? (d?'#052e16':'#f0fdf4')
                         : isEid    ? (d?'#1a2e1a':'#f0fff4')
-                        : ev       ? (d?'#292524':'#fef3c7')
-                        : (d?'#1f2937':'#ffffff');
+                        : ev       ? (d?'#2d2006':'#fef3c7')   // dark: আরো গাঢ় অ্যাম্বার
+                        : (d?'#111827':'#ffffff');
 
                     const dotColor = isAshura ? '#dc2626' : isMartyr ? '#f87171' : isBirth ? '#059669' : isEid ? '#059669' : '#f59e0b';
 
@@ -4196,11 +4291,11 @@ function renderCalendarPage() {
                                     <p style="color:${d?'#f3f4f6':'#111827'};font-size:1.2rem;font-weight:900;line-height:1">${evGreg.getDate()}</p>
                                     <p style="color:${d?'#9ca3af':'#6b7280'};font-size:.52rem;font-weight:600;line-height:1.2">${gregMonthsEnFull[evGreg.getMonth()]}</p>
                                     <!-- 2nd: Bengali (বঙ্গাব্দ) date -->
-                                    <p style="color:#1d4ed8;font-size:.62rem;font-weight:700;line-height:1.3">${_evBd.str}</p>
+                                    <p style="color:${d?'#bfdbfe':'#1d4ed8'};font-size:.62rem;font-weight:700;line-height:1.3">${_evBd.str}</p>
 
 
                                     <!-- 3rd: Hijri in Bengali language -->
-                                    <p style="color:#15803d;font-size:.62rem;font-weight:700;line-height:1.3">${toBengaliDigits(evDay)} ${hijriMonthsBn[month-1]}</p>
+                                    <p style="color:${d?'#6ee7b7':'#15803d'};font-size:.62rem;font-weight:700;line-height:1.3">${toBengaliDigits(evDay)} ${hijriMonthsBn[month-1]}</p>
                                 </div>
                                 <div>
                                     <p class="font-bold text-sm">${l==='bn'?v.bn:v.en}</p>
@@ -4312,94 +4407,16 @@ function renderContactPage() {
 // ============================================================================
 // PAGE: ABOUT
 // ============================================================================
-function renderAboutPage() {
-    const d=state.darkMode; const l=state.language;
-    return `
-    <div class="space-y-8">
-        <h2 class="text-3xl font-bold">ℹ️ ${t('about')}</h2>
-        <article class="${d?'bg-gray-800':'bg-white'} border rounded-xl p-8">
-            <p class="text-lg mb-6">${l==='bn'?'আহলে বাইত (আ.) ওয়েবসাইটে আপনাকে স্বাগতম। আমরা ইসলামিক জ্ঞান ছড়িয়ে দিতে প্রতিশ্রুতিবদ্ধ।':'Welcome to the Ahl al-Bayt (a.s) website. We are committed to spreading authentic Islamic knowledge.'}</p>
-            <div class="space-y-4">
-                <h3 class="text-xl font-bold">${l==='bn'?'আমাদের লক্ষ্য':'Our Mission'}</h3>
-                <p>${l==='bn'?'কুরআন, হাদিস এবং আহলে বাইতের শিক্ষা প্রচার করা।':'To promote the teachings of Quran, Hadith, and Ahl al-Bayt.'}</p>
-            </div>
-        </article>
-    </div>`;
-}
-
-// ============================================================================
-// PAGE: BOOKMARKS
-// ============================================================================
-function renderBookmarksPage() {
-    const d=state.darkMode; const l=state.language;
-    const allPosts=[...(typeof blogPosts!=='undefined'?blogPosts:[]),...state.customPosts];
-    const bkPosts=allPosts.filter(p=>state.bookmarks.includes('post-'+p.id));
-    return `
-    <div class="space-y-8">
-        <h2 class="text-3xl font-bold">🔖 ${t('bookmarks')}</h2>
-        ${bkPosts.length===0?`
-            <div class="text-center py-16 ${d?'text-gray-500':'text-gray-400'}">
-                <div class="text-6xl mb-4">🔖</div>
-                <p class="text-lg">${l==='bn'?'কোনো বুকমার্ক নেই':'No bookmarks yet'}</p>
-                <p class="text-sm mt-2">${l==='bn'?'ব্লগ পোস্টে 🤍 চাপলে বুকমার্ক হবে':'Press 🤍 on any blog post to bookmark it'}</p>
-            </div>`:`
-            <div class="grid md:grid-cols-2 gap-6">
-                ${bkPosts.map(post=>`
-                    <article class="${d?'bg-gray-800':'bg-white'} border rounded-xl p-6 fade-in">
-                        <span class="text-xs px-3 py-1 rounded-full ${d?'bg-green-900 text-green-300':'bg-green-100 text-green-700'} mb-3 inline-block">${sanitize(post.category)}</span>
-                        <h3 class="text-xl font-bold mb-2">${sanitize(l==='bn'?post.titleBn:post.titleEn)}</h3>
-                        <p class="text-sm ${d?'text-gray-400':'text-gray-600'} mb-4">${sanitize(post.excerpt)}</p>
-                        <div class="flex gap-3">
-                            <button data-action="readPost" data-param="${post.id}" class="${d?'text-green-400':'text-green-600'} font-medium hover:underline">${t('readMore')} →</button>
-                            <button data-action="toggleBookmark" data-param="${post.id}" data-param2="post" class="ml-auto" aria-pressed="${isBookmarked(post.id,'post')?'true':'false'}">🔖</button>
-                        </div>
-                    </article>`).join('')}
-            </div>`}
-    </div>`;
-}
-
-// ============================================================================
-// PAGE: READ POST
-// ============================================================================
-function renderReadPostPage()
-{
-    const post=state.currentPost; const d=state.darkMode; const l=state.language;
-    if(!post) return renderBlogPage();
-    const ac=['#059669','#7c3aed','#b45309','#0369a1','#be185d','#dc2626'];
-    const idx2=(typeof blogPosts!=='undefined'?blogPosts:[]).indexOf(post); const a=ac[idx2>=0?idx2%ac.length:0];
-    return `
-    <div class="max-w-3xl mx-auto page-enter">
-        <button data-action="changePage" data-param="${state.previousPage||'blog'}" class="flex items-center gap-2 mb-6 px-4 py-2 rounded-xl font-semibold text-sm hover:scale-[1.02] transition-all" style="background:${a}12;color:${a}">← ${l==='bn'?`${t('blog')}-এ ফিরুন`:`Back to ${t('blog')}`}</button>
-        <article class="card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border" style="box-shadow:var(--shadow-lg)">
-            <div style="height:4px;background:linear-gradient(90deg,${a},#7c3aed,${a});border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
-            <div class="p-7 md:p-10">
-                <div class="flex items-center gap-3 mb-5 flex-wrap">
-                    <span class="text-xs px-3 py-1.5 rounded-full font-bold" style="background:${a}14;color:${a};border:1px solid ${a}22">${sanitize(post.category)}</span>
-                    <span class="text-xs ${d?'text-gray-400':'text-gray-500'}">⏱ ${sanitize(post.readTime)}</span>
-                    ${post.date?`<span class="text-xs ${d?'text-gray-500':'text-gray-400'}">📅 ${sanitize(post.date)}</span>`:''}
-                </div>
-                <h1 class="text-2xl md:text-4xl font-black mb-6 leading-tight">${sanitize(l==='bn'?post.titleBn:post.titleEn)}</h1>
-                <div style="height:2px;width:56px;background:linear-gradient(90deg,${a},transparent);margin-bottom:1.75rem;border-radius:2px"></div>
-                <div class="${d?'text-gray-300':'text-gray-700'} leading-relaxed text-base" style="white-space:pre-line">${sanitize(l==='bn'?post.contentBn:post.contentEn)}</div>
-                <div class="flex items-center gap-3 mt-8 pt-6 flex-wrap" style="border-top:1px solid ${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)'}">
-                    <button data-action="sharePost" data-param="${post.id}" class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold hover:scale-105 transition-all" style="background:${a}12;color:${a};border:1px solid ${a}20">🔗 ${l==='bn'?'শেয়ার':'Share'}</button>
-                    <button data-action="toggleBookmark" data-param="${post.id}" data-param2="post" class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold hover:scale-105 transition-all ${d?'bg-gray-700 text-gray-300':'bg-gray-100 text-gray-600'}">${isBookmarked(post.id,'post')?'🔖 '+(l==='bn'?'বুকমার্কড':'Bookmarked'):'🤍 '+(l==='bn'?'বুকমার্ক':'Bookmark')}</button>
-                </div>
-            </div>
-        </article>
-    </div>`;
-}
-
-// ============================================================================
-// PAGE: READ DUA
-// ============================================================================
 function renderReadDuaPage()
 {
     const dua=state.currentDua; const d=state.darkMode; const l=state.language;
     if(!dua) return renderDuaPage();
-    const isCustom=!!dua.id;
+    // Bug fix: use object identity / id prefix to determine if dua is custom
+    // (avoids false positives if a built-in dua happens to have an id-like property)
+    const isCustom = state.customDuas.some(x => x === dua) || (typeof dua.id === 'string' && dua.id.startsWith('cd_'));
     const hasVerses = Array.isArray(dua.verses) && dua.verses.length > 0;
-    const duaIndex = dua.id ? dua.id : duas.indexOf(dua);
+    // Prefix custom dua id with "c" so shareDua handler finds it correctly
+    const duaIndex = isCustom ? ("c" + dua.id) : duas.indexOf(dua);
 
     // ── verse-by-verse reader (আয়াত বাই আয়াত) ──
     const versesHtml = hasVerses ? dua.verses.map((v, i) => `
@@ -5089,323 +5106,6 @@ function performSearch(q) {
     return results.slice(0,30);
 }
 
-function renderSearchPage() {
-    const d=state.darkMode; const l=state.language;
-    const q=state.searchQuery; const results=state.searchResults;
-    function hl(text) {
-        if(!q||!text) return sanitize(text||'');
-        const safe = sanitize(text);
-        const escaped = sanitize(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-        if(!escaped) return safe;
-        return safe.replace(new RegExp(escaped,'gi'), m=>`<mark>${m}</mark>`);
-    }
-    // Real-time suggestions from content titles
-    function getSuggestions(query) {
-        if (!query || query.length < 2) return [];
-        const q2 = query.toLowerCase();
-        const sugg = [];
-        const allPosts = [...(typeof blogPosts!=='undefined'?blogPosts:[]), ...(state.customPosts||[])];
-        allPosts.forEach(p => { if((p.titleBn||'').toLowerCase().includes(q2)||(p.titleEn||'').toLowerCase().includes(q2)) sugg.push({label:l==='bn'?(p.titleBn||p.titleEn):(p.titleEn||p.titleBn), icon:'📝'}); });
-        if(typeof duas!=='undefined') duas.forEach(dua => { if((dua.titleBn||'').toLowerCase().includes(q2)||(dua.titleEn||'').toLowerCase().includes(q2)) sugg.push({label:l==='bn'?(dua.titleBn||dua.titleEn):(dua.titleEn||dua.titleBn), icon:'🤲'}); });
-        if(typeof imams!=='undefined') imams.forEach(im => { if((im.nameBn||'').toLowerCase().includes(q2)||(im.nameEn||'').toLowerCase().includes(q2)) sugg.push({label:l==='bn'?(im.nameBn||im.nameEn):(im.nameEn||im.nameBn), icon:'👑'}); });
-        if(typeof hadiths!=='undefined') hadiths.forEach(h => { const txt=(l==='bn'?h.textBn:h.textEn)||''; if(txt.toLowerCase().includes(q2)) sugg.push({label:txt.slice(0,55)+'…', icon:'📜'}); });
-        return sugg.slice(0,6);
-    }
-    const suggestions = getSuggestions(q);
-    return `
-    <div class="space-y-6 page-slide-in">
-        <div>
-            <h2 class="text-3xl font-black mb-1" style="background:linear-gradient(135deg,#059669,#c9a227);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">🔍 ${t('searchPage')}</h2>
-            <p class="text-sm ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?'ব্লগ, দোয়া, হাদিস, ইমাম, পিডিএফ — সব এক জায়গায়':'Blog, Duas, Hadiths, Imams, PDFs — all in one place'}</p>
-        </div>
-        <div class="${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-2xl p-5 relative" style="box-shadow:var(--shadow-md)">
-            <div class="flex gap-3 items-center">
-                <div class="relative flex-1">
-                    <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:1.1rem;pointer-events:none">🔍</span>
-                    <input id="search-input" type="search" value="${sanitize(q)}"
-                        placeholder="${l==='bn'?'ব্লগ, দোয়া, হাদিস, ইমাম, পিডিএফ খুঁজুন...':'Search posts, duas, hadiths, imams, PDFs...'}"
-                        class="${d?'bg-gray-900 border-gray-600 text-white placeholder-gray-500':'bg-gray-50 border-gray-200 text-gray-900'} border rounded-xl pl-10 pr-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base transition-all"
-                        oninput="doSearch(this.value)"
-                        autofocus />
-                </div>
-                ${q?`<button onclick="doSearch('');document.getElementById('search-input').value=''" class="${d?'bg-gray-700 text-gray-300':'bg-gray-100 text-gray-600'} px-3 py-3 rounded-xl text-sm font-medium hover:opacity-80 flex-shrink-0">✕</button>`:''}
-            </div>
-            ${q && q.length>=2 && suggestions.length>0?`
-            <div class="mt-3">
-                <p class="text-xs ${d?'text-gray-500':'text-gray-400'} mb-2 px-1">${l==='bn'?'পরামর্শ:':'Suggestions:'}</p>
-                <div class="flex flex-wrap gap-2">
-                    ${suggestions.map(s=>`
-                        <button onclick="doSearch(${JSON.stringify(s.label.replace(/…$/,''))});document.getElementById('search-input').value=${JSON.stringify(s.label.replace(/…$/,''))}"
-                            class="${d?'bg-gray-700 hover:bg-gray-600 text-gray-200 border-gray-600':'bg-gray-100 hover:bg-emerald-50 text-gray-700 border-gray-200'} text-xs px-3 py-1.5 rounded-lg border hover:border-emerald-400 transition-all text-left max-w-xs truncate">
-                            ${s.icon} ${sanitize(s.label)}
-                        </button>`).join('')}
-                </div>
-            </div>`:''}
-        </div>
-        ${q?`
-        <div class="flex items-center justify-between flex-wrap gap-2">
-            <p class="text-sm ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?`"${sanitize(q)}" — ${results.length}টি ফলাফল`:`"${sanitize(q)}" — ${results.length} result${results.length!==1?'s':''}`}</p>
-            ${results.length>0?`<div class="flex gap-1 flex-wrap">
-                ${[['সব/All',null],['📝',`post`],['🤲','dua'],['👑','imam'],['📜','hadith'],['📄','pdf']].map(([label,type])=>{
-                    const count = type?results.filter(r=>r.type===type).length:results.length;
-                    if(count===0&&type) return '';
-                    const dispLabel = l==='bn'?label.split('/')[0]:label.split('/').pop();
-                    return `<button onclick="window._sf='${type||''}';document.querySelectorAll('.search-result-item').forEach(el=>el.style.display=(!window._sf||el.dataset.type===window._sf)?'':'none')"
-                        class="${d?'bg-gray-700 text-gray-300 hover:bg-gray-600':'bg-gray-100 text-gray-600 hover:bg-gray-200'} text-xs px-2.5 py-1 rounded-lg font-medium transition-colors">${dispLabel} ${count}</button>`;
-                }).join('')}
-            </div>`:''}
-        </div>
-        ${results.length===0?`
-            <div class="text-center py-16">
-                <div class="text-6xl mb-4">🔍</div>
-                <p class="font-semibold ${d?'text-gray-400':'text-gray-500'} text-lg">${l==='bn'?'কোনো ফলাফল পাওয়া যায়নি':'No results found'}</p>
-                <p class="text-sm ${d?'text-gray-500':'text-gray-400'} mt-2">${l==='bn'?'অন্য কীওয়ার্ড দিয়ে চেষ্টা করুন':'Try a different keyword'}</p>
-            </div>`:
-        `<div class="space-y-3">
-            ${results.map(r=>{
-                if (r.type==='post') return `
-                    <div class="search-result-item ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl p-5 fade-in" data-type="post" style="box-shadow:var(--shadow-sm)">
-                        <span class="text-xs px-2 py-0.5 rounded-lg ${d?'bg-blue-900 text-blue-300':'bg-blue-100 text-blue-600'} mb-2 inline-block font-medium">📝 ${t('blog')}</span>
-                        <h3 class="font-bold text-base mb-1 leading-snug">${hl(l==='bn'?r.item.titleBn:r.item.titleEn)}</h3>
-                        <p class="text-sm ${d?'text-gray-400':'text-gray-600'} line-clamp-2">${hl(r.item.excerpt||'')}</p>
-                        <button data-action="readPost" data-param="${r.item.id}" class="${d?'text-emerald-400':'text-emerald-600'} text-sm font-bold mt-3 hover:underline">${t('readMore')} →</button>
-                    </div>`;
-                if (r.type==='dua') return `
-                    <div class="search-result-item ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl p-5 fade-in" data-type="dua" style="box-shadow:var(--shadow-sm)">
-                        <span class="text-xs px-2 py-0.5 rounded-lg ${d?'bg-purple-900 text-purple-300':'bg-purple-100 text-purple-600'} mb-2 inline-block font-medium">🤲 ${l==='bn'?'দোয়া':'Dua'}</span>
-                        <h3 class="font-bold text-base mb-1">${hl(l==='bn'?r.item.titleBn:r.item.titleEn)}</h3>
-                        <p class="text-sm ${d?'text-gray-400':'text-gray-600'} line-clamp-2">${hl(l==='bn'?r.item.meaningBn:r.item.meaningEn)}</p>
-                        <button data-action="readDua" data-param="${r.index}" class="${d?'text-purple-400':'text-purple-600'} text-sm font-bold mt-3 hover:underline">${t('readMore')} →</button>
-                    </div>`;
-                if (r.type==='imam') return `
-                    <div class="search-result-item ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl p-5 fade-in" data-type="imam" style="box-shadow:var(--shadow-sm)">
-                        <span class="text-xs px-2 py-0.5 rounded-lg ${d?'bg-green-900 text-green-300':'bg-green-100 text-green-600'} mb-2 inline-block font-medium">👑 ${l==='bn'?'ইমাম':'Imam'}</span>
-                        <h3 class="font-bold text-base mb-1">${r.item.icon||''} ${hl(l==='bn'?r.item.nameBn:r.item.nameEn)}</h3>
-                        <p class="text-sm ${d?'text-gray-400':'text-gray-600'} line-clamp-2">${hl(l==='bn'?r.item.descBn:r.item.descEn)}</p>
-                        <button data-action="viewImam" data-param="${r.item.id}" class="${d?'text-emerald-400':'text-emerald-600'} text-sm font-bold mt-3 hover:underline">${l==='bn'?'বিস্তারিত →':'Details →'}</button>
-                    </div>`;
-                if (r.type==='pdf') return `
-                    <div class="search-result-item ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl p-5 fade-in" data-type="pdf" style="box-shadow:var(--shadow-sm)">
-                        <span class="text-xs px-2 py-0.5 rounded-lg ${d?'bg-amber-900 text-amber-300':'bg-amber-100 text-amber-700'} mb-2 inline-block font-medium">📄 ${l==='bn'?'পিডিএফ':'PDF'}</span>
-                        <h3 class="font-bold text-base">${hl(r.item.name)}</h3>
-                        <p class="text-xs ${d?'text-gray-500':'text-gray-400'} mt-1">${sanitize(r.item.sizeFmt||'')}</p>
-                    </div>`;
-                if (r.type==='hadith') return `
-                    <div class="search-result-item ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl p-5 fade-in" data-type="hadith" style="box-shadow:var(--shadow-sm)">
-                        <span class="text-xs px-2 py-0.5 rounded-lg ${d?'bg-teal-900 text-teal-300':'bg-teal-100 text-teal-700'} mb-2 inline-block font-medium">📜 ${l==='bn'?'হাদিস':'Hadith'}</span>
-                        <p class="text-sm ${d?'text-gray-300':'text-gray-700'} line-clamp-3 leading-relaxed">${hl(l==='bn'?r.item.textBn:r.item.textEn)}</p>
-                        <p class="text-xs ${d?'text-gray-500':'text-gray-400'} mt-2 font-medium">— ${sanitize(l==='bn'?r.item.sourceBn:r.item.sourceEn)}</p>
-                    </div>`;
-                if (r.type==='ziyarat') return `
-                    <div class="search-result-item ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl p-5 fade-in" data-type="ziyarat" style="box-shadow:var(--shadow-sm)">
-                        <span class="text-xs px-2 py-0.5 rounded-lg ${d?'bg-amber-900 text-amber-300':'bg-amber-100 text-amber-700'} mb-2 inline-block font-medium">🕌 ${l==='bn'?'যিয়ারত':'Ziyarat'}</span>
-                        <h3 class="font-bold text-base mb-1">${hl(l==='bn'?r.item.titleBn:r.item.titleEn)}</h3>
-                        <button data-action="readZiyarat" data-param="${r.item.id}" class="${d?'text-amber-400':'text-amber-700'} text-sm font-bold mt-1 hover:underline">${t('readMore')} →</button>
-                    </div>`;
-                return '';
-            }).join('')}
-        </div>`}`:''}
-    </div>`;
-}
-
-// ============================================================================
-// PAGE: ANALYTICS (Admin)
-// ============================================================================
-function renderAnalyticsPage() {
-    const d=state.darkMode; const l=state.language;
-    if (!state.isAdmin) return `<div class="text-center py-16">
-        <div class="text-6xl mb-4">🔒</div>
-        <p>${l==='bn'?'শুধুমাত্র অ্যাডমিনের জন্য':'Admin only'}</p>
-    </div>`;
-    const views = state.pageViews;
-    const sorted = Object.entries(views).sort((a,b)=>b[1]-a[1]);
-    const total = Object.values(views).reduce((s,v)=>s+v,0);
-    const maxV = sorted[0]?.[1]||1;
-    return `
-    <div class="space-y-8">
-        <h2 class="text-3xl font-bold">📊 ${t('analytics')}</h2>
-        <div class="grid sm:grid-cols-3 gap-6">
-            <div class="${d?'bg-gray-800':'bg-white'} border rounded-xl p-6 text-center">
-                <p class="text-4xl font-bold ${d?'text-green-400':'text-green-600'} stat-badge">${total}</p>
-                <p class="text-sm ${d?'text-gray-400':'text-gray-500'} mt-2">${l==='bn'?'মোট পেজ ভিউ':'Total Page Views'}</p>
-            </div>
-            <div class="${d?'bg-gray-800':'bg-white'} border rounded-xl p-6 text-center">
-                <p class="text-4xl font-bold ${d?'text-blue-400':'text-blue-600'} stat-badge">${sorted.length}</p>
-                <p class="text-sm ${d?'text-gray-400':'text-gray-500'} mt-2">${l==='bn'?'ভিজিট করা পেজ':'Pages Visited'}</p>
-            </div>
-            <div class="${d?'bg-gray-800':'bg-white'} border rounded-xl p-6 text-center">
-                <p class="text-4xl font-bold ${d?'text-purple-400':'text-purple-600'} stat-badge">${state.customPosts.length}</p>
-                <p class="text-sm ${d?'text-gray-400':'text-gray-500'} mt-2">${l==='bn'?'কাস্টম পোস্ট':'Custom Posts'}</p>
-            </div>
-        </div>
-        <div class="${d?'bg-gray-800':'bg-white'} border rounded-2xl p-6">
-            <h3 class="font-bold text-lg mb-6">${l==='bn'?'পেজ ভিউ রিপোর্ট':'Page View Report'}</h3>
-            ${sorted.length===0?`<p class="${d?'text-gray-500':'text-gray-400'}">${l==='bn'?'এখনো কোনো তথ্য নেই':'No data yet'}</p>`:`
-            <div class="space-y-4">
-                ${sorted.map(([page,count])=>{
-                    const pct=Math.round(count/maxV*100);
-                    return `<div>
-                        <div class="flex justify-between text-sm mb-1">
-                            <span class="font-medium">${t(page)||page}</span>
-                            <span class="${d?'text-green-400':'text-green-600'} font-bold stat-badge">${count}</span>
-                        </div>
-                        <div class="${d?'bg-gray-900':'bg-gray-100'} rounded-full h-2 overflow-hidden">
-                            <div class="bg-green-500 h-2 rounded-full transition-all" style="width:${pct}%"></div>
-                        </div>
-                    </div>`;}).join('')}
-            </div>`}
-        </div>
-
-        <!-- DUA / ZIYARAT MANAGEMENT -->
-        <div class="${d?'bg-gray-800':'bg-white'} border rounded-2xl p-6">
-            <div class="flex justify-between items-center mb-5">
-                <div>
-                    <h3 class="font-bold text-lg">🤲 ${l==='bn'?'দোয়া ও যিয়ারত ব্যবস্থাপনা':'Dua & Ziyarat Management'}</h3>
-                    <p class="text-sm ${d?'text-gray-400':'text-gray-500'} mt-0.5">${l==='bn'?'কাস্টম দোয়া ও যিয়ারত যোগ, সম্পাদনা বা মুছুন':'Add, edit or delete custom duas and ziyarats'}</p>
-                </div>
-                <button data-action="changePage" data-param="dua" class="${d?'text-green-400':'text-green-600'} text-sm font-semibold hover:underline">${l==='bn'?'পেজে যান →':'Go to page →'}</button>
-            </div>
-            <div class="grid sm:grid-cols-2 gap-4 mb-5">
-                <!-- Duas count card -->
-                <div class="${d?'bg-gray-900':'bg-green-50'} rounded-xl p-4 flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-xl bg-green-600 flex items-center justify-center text-2xl flex-shrink-0">🤲</div>
-                    <div>
-                        <p class="text-2xl font-bold">${state.customDuas.length}</p>
-                        <p class="text-sm ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?'কাস্টম দোয়া':'Custom Duas'}</p>
-                    </div>
-                    <button data-action="openDuaEditor" data-param="dua"
-                        class="ml-auto bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors">
-                        + ${l==='bn'?'যোগ':'Add'}
-                    </button>
-                </div>
-                <!-- Ziyarat count card -->
-                <div class="${d?'bg-gray-900':'bg-amber-50'} rounded-xl p-4 flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-xl bg-amber-600 flex items-center justify-center text-2xl flex-shrink-0">☪️</div>
-                    <div>
-                        <p class="text-2xl font-bold">${state.customZiyarat.length}</p>
-                        <p class="text-sm ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?'কাস্টম যিয়ারত':'Custom Ziyarat'}</p>
-                    </div>
-                    <button data-action="openDuaEditor" data-param="ziyarat"
-                        class="ml-auto bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors">
-                        + ${l==='bn'?'যোগ':'Add'}
-                    </button>
-                </div>
-            </div>
-            <!-- Recent custom duas list -->
-            ${state.customDuas.length>0?`
-            <div class="mb-4">
-                <h4 class="text-sm font-bold mb-3 ${d?'text-green-400':'text-green-700'}">${l==='bn'?'সাম্প্রতিক দোয়া':'Recent Duas'}</h4>
-                <div class="space-y-2">
-                    ${state.customDuas.slice(0,3).map(dua=>`
-                    <div class="flex items-center gap-3 ${d?'bg-gray-900':'bg-gray-50'} rounded-xl px-4 py-3">
-                        <span class="flex-1 font-medium text-sm truncate">${sanitize(dua.titleBn||dua.titleEn||'-')}</span>
-                        <button data-action="editCustomDua" data-param="${dua.id}" data-dtype="dua"
-                            class="${d?'text-blue-400 hover:text-blue-300':'text-blue-600 hover:text-blue-800'} text-sm p-1 rounded transition-colors">✏️</button>
-                        <button data-action="deleteCustomDua" data-param="${dua.id}" data-dtype="dua"
-                            class="${d?'text-red-400 hover:text-red-300':'text-red-500 hover:text-red-700'} text-sm p-1 rounded transition-colors">🗑</button>
-                    </div>`).join('')}
-                </div>
-            </div>`:''}
-            <!-- Recent custom ziyarat list -->
-            ${state.customZiyarat.length>0?`
-            <div>
-                <h4 class="text-sm font-bold mb-3 ${d?'text-amber-400':'text-amber-700'}">${l==='bn'?'সাম্প্রতিক যিয়ারত':'Recent Ziyarat'}</h4>
-                <div class="space-y-2">
-                    ${state.customZiyarat.slice(0,3).map(z=>`
-                    <div class="flex items-center gap-3 ${d?'bg-gray-900':'bg-gray-50'} rounded-xl px-4 py-3">
-                        <span class="flex-1 font-medium text-sm truncate">${sanitize(z.titleBn||z.titleEn||'-')}</span>
-                        ${z.occasion?`<span class="text-xs ${d?'text-amber-400':'text-amber-600'} px-2 py-0.5 rounded-full ${d?'bg-amber-900/40':'bg-amber-100'}">${sanitize(z.occasion)}</span>`:''}
-                        <button data-action="editCustomDua" data-param="${z.id}" data-dtype="ziyarat"
-                            class="${d?'text-blue-400 hover:text-blue-300':'text-blue-600 hover:text-blue-800'} text-sm p-1 rounded transition-colors">✏️</button>
-                        <button data-action="deleteCustomDua" data-param="${z.id}" data-dtype="ziyarat"
-                            class="${d?'text-red-400 hover:text-red-300':'text-red-500 hover:text-red-700'} text-sm p-1 rounded transition-colors">🗑</button>
-                    </div>`).join('')}
-                </div>
-            </div>`:''}
-        </div>
-        <!-- HADITH & AYAH MANAGEMENT -->
-        <div class="${d?'bg-gray-800':'bg-white'} border rounded-2xl p-6">
-            <div class="flex justify-between items-center mb-5">
-                <div>
-                    <h3 class="font-bold text-lg">📜 ${l==='bn'?'হাদিস ও আয়াত ব্যবস্থাপনা':'Hadith & Ayah Management'}</h3>
-                    <p class="text-sm ${d?'text-gray-400':'text-gray-500'} mt-0.5">${l==='bn'?'প্রতিদিন নতুন হাদিস ও আয়াত যোগ করুন':'Add new hadiths and ayahs shown daily'}</p>
-                </div>
-            </div>
-            <div class="grid sm:grid-cols-2 gap-4 mb-5">
-                <div class="${d?'bg-gray-900':'bg-emerald-50'} rounded-xl p-4 flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center text-2xl flex-shrink-0">📜</div>
-                    <div>
-                        <p class="text-2xl font-bold">${state.customHadiths.length}</p>
-                        <p class="text-sm ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?'কাস্টম হাদিস':'Custom Hadiths'}</p>
-                    </div>
-                    <button data-action="openHadithEditor"
-                        class="ml-auto bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors">
-                        + ${l==='bn'?'যোগ':'Add'}
-                    </button>
-                </div>
-                <div class="${d?'bg-gray-900':'bg-amber-50'} rounded-xl p-4 flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-xl bg-amber-600 flex items-center justify-center text-2xl flex-shrink-0">🌙</div>
-                    <div>
-                        <p class="text-2xl font-bold">${state.customAyahs.length}</p>
-                        <p class="text-sm ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?'কাস্টম আয়াত':'Custom Ayahs'}</p>
-                    </div>
-                    <button data-action="openAyahEditor"
-                        class="ml-auto bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors">
-                        + ${l==='bn'?'যোগ':'Add'}
-                    </button>
-                </div>
-            </div>
-            ${state.customHadiths.length>0?`
-            <div class="mb-4">
-                <h4 class="text-sm font-bold mb-3 ${d?'text-emerald-400':'text-emerald-700'}">${l==='bn'?'হাদিস তালিকা':'Hadith List'}</h4>
-                <div class="space-y-2">
-                    ${state.customHadiths.map((h,i)=>`
-                    <div class="flex items-center gap-3 ${d?'bg-gray-900':'bg-gray-50'} rounded-xl px-4 py-3">
-                        <span class="flex-1 text-sm truncate italic">"${sanitize(h.textBn||h.textEn||'-')}"</span>
-                        <span class="text-xs ${d?'text-gray-400':'text-gray-500'} shrink-0">${sanitize(h.sourceBn||h.sourceEn||'')}</span>
-                        <button data-action="editHadith" data-param="${i}"
-                            class="${d?'text-blue-400':'text-blue-600'} text-sm p-1 rounded transition-colors">✏️</button>
-                        <button data-action="deleteHadith" data-param="${i}"
-                            class="${d?'text-red-400':'text-red-500'} text-sm p-1 rounded transition-colors">🗑</button>
-                    </div>`).join('')}
-                </div>
-            </div>`:''}
-            ${state.customAyahs.length>0?`
-            <div>
-                <h4 class="text-sm font-bold mb-3 ${d?'text-amber-400':'text-amber-700'}">${l==='bn'?'আয়াত তালিকা':'Ayah List'}</h4>
-                <div class="space-y-2">
-                    ${state.customAyahs.map((a,i)=>`
-                    <div class="flex items-center gap-3 ${d?'bg-gray-900':'bg-gray-50'} rounded-xl px-4 py-3">
-                        <span class="flex-1 text-sm truncate font-arabic" dir="rtl">${sanitize(a.arabic||'-')}</span>
-                        <span class="text-xs ${d?'text-gray-400':'text-gray-500'} shrink-0">${sanitize(a.ref||a.refEn||'')}</span>
-                        <button data-action="editAyah" data-param="${i}"
-                            class="${d?'text-blue-400':'text-blue-600'} text-sm p-1 rounded transition-colors">✏️</button>
-                        <button data-action="deleteAyah" data-param="${i}"
-                            class="${d?'text-red-400':'text-red-500'} text-sm p-1 rounded transition-colors">🗑</button>
-                    </div>`).join('')}
-                </div>
-            </div>`:''}
-        </div>
-        <div class="${d?'bg-gray-800':'bg-white'} border rounded-2xl p-6">
-            <h3 class="font-bold text-lg mb-4">${l==='bn'?'ফন্ট সাইজ সেটিং':'Font Size Settings'}</h3>
-            <p class="${d?'text-gray-400':'text-gray-600'} text-sm mb-4">${l==='bn'?'বয়স্ক ও দৃষ্টি প্রতিবন্ধীদের জন্য ফন্ট বড় করুন:':'Increase font size for elderly or visually impaired users:'}</p>
-            <div class="flex flex-wrap gap-3">
-                ${[['small',l==='bn'?'ছোট':'Small'],['medium',l==='bn'?'স্বাভাবিক':'Normal'],['large',l==='bn'?'বড়':'Large'],['xlarge',l==='bn'?'অতিবড়':'X-Large']].map(([sz,lbl])=>`
-                    <button data-action="setFontSize" data-param="${sz}"
-                        class="${state.fontSize===sz?(d?'bg-green-700 text-white border-green-500':'bg-green-600 text-white border-green-600'):(d?'bg-gray-700 text-gray-300 border-gray-600':'bg-gray-100 text-gray-700 border-gray-300')} border-2 px-5 py-2.5 rounded-xl font-semibold transition-colors">
-                        ${lbl}
-                    </button>`).join('')}
-            </div>
-            <p class="text-sm mt-4 ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?'বর্তমান সাইজ:':'Current size:'} <span class="font-bold ${d?'text-green-400':'text-green-600'}">${l==='bn'?fontSizeLabels.bn[state.fontSize]:fontSizeLabels.en[state.fontSize]}</span></p>
-        </div>
-        <div class="${d?'bg-gray-800':'bg-white'} border rounded-2xl p-6">
-            <h3 class="font-bold text-lg mb-4">${l==='bn'?'নামাজের রিমাইন্ডার':'Prayer Reminder'}</h3>
-            <p class="${d?'text-gray-400':'text-gray-600'} text-sm mb-4">${l==='bn'?'নামাজের সময় ব্রাউজার নোটিফিকেশন পেতে নিচের বোতামে চাপুন।':'Press the button below to receive browser notifications at prayer times.'}</p>
-            <button data-action="requestNotify" class="${d?'bg-green-900 text-green-300':'bg-green-600 text-white'} px-6 py-2.5 rounded-xl font-semibold hover:opacity-90">🔔 ${t('enableNotify')}</button>
-        </div>
-    </div>`;
-}
-
 function renderTasbeehPage()
 {
     const d=state.darkMode; const l=state.language;
@@ -5472,6 +5172,7 @@ function renderTasbeehPage()
                     <svg width="154" height="154" style="transform:rotate(-90deg)">
                         <circle cx="77" cy="77" r="54" fill="none" stroke="${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.07)'}" stroke-width="10"/>
                         <circle cx="77" cy="77" r="54" fill="none" stroke="${ac}" stroke-width="10"
+                            id="tasbeeh-ring"
                             stroke-linecap="round"
                             stroke-dasharray="${circumference}"
                             stroke-dashoffset="${dashOff}"
@@ -5552,6 +5253,14 @@ function renderSearchPage() {
     const d=state.darkMode; const l=state.language;
     const q=(state.searchQuery||'').trim();
     const results=q?performSearch(q):[];
+    // Bug fix: highlight matching query text in results
+    function hl(text) {
+        if(!q||!text) return sanitize(text||'');
+        const safe = sanitize(text);
+        const escaped = q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+        if(!escaped) return safe;
+        return safe.replace(new RegExp(escaped,'gi'), m=>`<mark style="background:rgba(5,150,105,.25);color:inherit;border-radius:2px;padding:0 1px">${m}</mark>`);
+    }
 
     return `
     <div class="space-y-6 page-enter">
@@ -5629,8 +5338,8 @@ function renderSearchPage() {
                         ${r.icon||'📄'}
                     </span>
                     <div class="flex-1 min-w-0">
-                        <p class="font-bold text-sm truncate" style="color:${d?'#f9fafb':'#111827'}">${sanitize(r.title)}</p>
-                        ${r.subtitle?`<p class="text-xs mt-0.5 truncate" style="color:${d?'#6b7280':'#9ca3af'}">${sanitize(r.subtitle)}</p>`:''}
+                        <p class="font-bold text-sm truncate" style="color:${d?'#f9fafb':'#111827'}">${hl(r.title)}</p>
+                        ${r.subtitle?`<p class="text-xs mt-0.5 truncate" style="color:${d?'#6b7280':'#9ca3af'}">${hl(r.subtitle)}</p>`:''}
                     </div>
                     <span style="font-size:10px;font-weight:700;padding:2px 9px;border-radius:50px;flex-shrink:0;
                         background:${r.color||'#059669'}12;color:${r.color||'#059669'};
@@ -5725,715 +5434,6 @@ function renderReadPostPage()
 
 // ============================================================================
 // PAGE: READ DUA
-// ============================================================================
-function renderReadDuaPage()
-{
-    const dua=state.currentDua; const d=state.darkMode; const l=state.language;
-    if(!dua) return renderDuaPage();
-    const isCustom=!!dua.id;
-    const hasVerses = Array.isArray(dua.verses) && dua.verses.length > 0;
-    const duaIndex = dua.id ? dua.id : duas.indexOf(dua);
-
-    // ── verse-by-verse reader (আয়াত বাই আয়াত) ──
-    const versesHtml = hasVerses ? dua.verses.map((v, i) => `
-        <div class="dua-verse-row fade-in" style="
-            display:grid;
-            grid-template-columns:1fr 1fr;
-            gap:0;
-            border-bottom:1px solid ${d?'rgba(255,255,255,.06)':'rgba(180,83,9,.08)'};
-            transition:background .2s;
-        "
-        onmouseenter="this.style.background='${d?'rgba(5,150,105,.07)':'rgba(5,150,105,.04)'}'"
-        onmouseleave="this.style.background='transparent'"
-        >
-            <!-- Arabic side (RTL) -->
-            <div style="
-                padding:1.4rem 1.6rem;
-                border-right:2px solid ${d?'rgba(180,83,9,.25)':'rgba(180,83,9,.15)'};
-                text-align:right;
-                direction:rtl;
-                position:relative;
-            ">
-                <span class="dua-verse-num" style="
-                    position:absolute;top:.7rem;left:.7rem;
-                    width:22px;height:22px;border-radius:50%;
-                    background:linear-gradient(135deg,#059669,#065f46);
-                    color:#fff;font-size:.6rem;font-weight:700;
-                    display:flex;align-items:center;justify-content:center;
-                    font-family:sans-serif;direction:ltr;
-                ">${i+1}</span>
-                <button class="tts-play-btn" onclick="event.stopPropagation();tts.toggle('${(v.ar||'').replace(/'/g,"\\'").replace(/"/g,'&quot;')}')"
-                    title="${l==='bn'?'শুনুন':'Listen'}"
-                    style="position:absolute;top:.6rem;right:.6rem;width:22px;height:22px;border-radius:50%;
-                           display:flex;align-items:center;justify-content:center;font-size:.65rem;
-                           background:${d?'rgba(201,162,39,.15)':'rgba(180,83,9,.1)'};
-                           color:${d?'#fcd34d':'#92400e'};border:1px solid ${d?'rgba(201,162,39,.3)':'rgba(180,83,9,.2)'};
-                           cursor:pointer;direction:ltr">
-                    <span class="tts-icon">▶</span>
-                </button>
-                <p class="arabic-text" lang="ar" style="
-                    font-size:1.45rem;
-                    line-height:2.2;
-                    color:${d?'#fde68a':'#92400e'};
-                    text-shadow:0 0 18px ${d?'rgba(253,230,138,.12)':'rgba(180,83,9,.08)'};
-                    margin:0;
-                ">${sanitize(v.ar)}</p>
-            </div>
-            <!-- Bengali side (LTR) -->
-            <div style="
-                padding:1.4rem 1.6rem;
-                display:flex;align-items:center;
-            ">
-                <p style="
-                    font-size:.95rem;
-                    line-height:1.85;
-                    color:${d?'#d1fae5':'#065f46'};
-                    margin:0;
-                    font-weight:500;
-                ">${sanitize(v.bn)}</p>
-            </div>
-        </div>`).join('') : '';
-
-    // ── single-block fallback (no verses, just arabic + meaning) ──
-    const fallbackHtml = `
-        <div class="rounded-2xl p-6 mb-4" style="background:${d?'linear-gradient(135deg,rgba(5,150,105,.1),rgba(180,83,9,.06))':'linear-gradient(135deg,#fef9e7,#ecfdf5)'};border:1px solid ${d?'rgba(180,83,9,.18)':'rgba(180,83,9,.12)'}">
-            <p class="arabic-text text-center" dir="rtl" lang="ar" style="font-size:1.9rem;line-height:2.5;color:${d?'#fde68a':'#92400e'}">${sanitize(dua.arabic)}</p>
-        </div>
-        ${dua.transliteration?`<div class="${d?'bg-gray-900/60':'bg-gray-50'} rounded-2xl p-5 mb-4" style="border-left:3px solid #7c3aed"><p class="italic text-sm leading-relaxed ${d?'text-gray-300':'text-gray-600'}">${sanitize(dua.transliteration)}</p></div>`:''}
-        <div class="${d?'bg-gray-900/60':'bg-emerald-50/60'} rounded-2xl p-5 mb-4" style="border-left:3px solid #059669">
-            <p class="text-base leading-relaxed ${d?'text-gray-200':'text-gray-700'}">${sanitize(dua.meaningBn)}</p>
-        </div>
-        ${dua.meaningEn?`<div class="${d?'bg-gray-900/60':'bg-blue-50/60'} rounded-2xl p-5 mb-4" style="border-left:3px solid #0369a1"><p class="text-base leading-relaxed ${d?'text-gray-300':'text-gray-700'}">${sanitize(dua.meaningEn)}</p></div>`:''}
-        ${dua.fullTextBn?`<div class="${d?'bg-gray-900/60':'bg-amber-50/60'} rounded-2xl p-5" style="border-left:3px solid #b45309"><p class="text-base leading-relaxed whitespace-pre-line ${d?'text-gray-300':'text-gray-700'}">${sanitize(dua.fullTextBn)}</p></div>`:''}
-    `;
-
-    return `
-    <div class="max-w-4xl mx-auto page-enter">
-
-        <!-- Back button -->
-        <button data-action="changePage" data-param="${state.previousPage||'dua'}"
-            class="flex items-center gap-2 mb-6 px-4 py-2 rounded-xl font-semibold text-sm hover:scale-[1.02] transition-all"
-            style="background:rgba(180,83,9,.1);color:#b45309">
-            ← ${l==='bn'?'দোয়ায় ফিরুন':'Back to Duas'}
-        </button>
-
-        <article style="border-radius:var(--r-xl,1rem);overflow:hidden;box-shadow:var(--shadow-lg);border:1px solid ${d?'rgba(255,255,255,.07)':'rgba(180,83,9,.12)'}">
-
-            <!-- Gradient top bar -->
-            <div style="height:5px;background:linear-gradient(90deg,#059669,#fbbf24,#b45309,#fbbf24,#059669);background-size:300%;animation:gradMove 4s linear infinite"></div>
-
-            <!-- Header card -->
-            <div style="background:${d?'linear-gradient(135deg,#1a2e24,#1c2a1c)':'linear-gradient(135deg,#fef9f0,#f0fdf4)'};padding:2rem 2rem 1.5rem">
-                <div class="flex justify-between items-start gap-4 flex-wrap">
-                    <div class="flex-1">
-                        <div class="flex items-center gap-2 mb-3 flex-wrap">
-                            <span class="text-xs px-3 py-1.5 rounded-full font-bold" style="background:rgba(5,150,105,.15);color:#059669;border:1px solid rgba(5,150,105,.3)">🤲 ${l==='bn'?'দোয়া':'Dua'}</span>
-                            ${isCustom?`<span class="${d?'gold-badge-dark':'gold-badge'}">${l==='bn'?'কাস্টম':'Custom'}</span>`:''}
-                            ${hasVerses?`<span class="text-xs px-2 py-1 rounded-full font-semibold" style="background:rgba(251,191,36,.15);color:#b45309;border:1px solid rgba(251,191,36,.3)">${dua.verses.length} ${l==='bn'?'পঙক্তি':'verses'}</span>`:''}
-                        </div>
-                        <h1 class="text-2xl md:text-3xl font-black leading-tight mb-1">${sanitize(l==='bn'?dua.titleBn:dua.titleEn)}</h1>
-                        ${dua.source?`<p class="text-sm mt-2" style="color:${d?'#6ee7b7':'#047857'}">📚 ${sanitize(dua.source)}</p>`:''}
-                    </div>
-                    <div class="flex items-center gap-2 flex-shrink-0">
-                        ${(() => {
-                            const fullArabic = hasVerses
-                                ? dua.verses.map(v=>v.ar).join(' ۝ ')
-                                : (dua.arabic || '');
-                            if (!fullArabic) return '';
-                            const escaped = fullArabic.replace(/'/g,"\\'").replace(/"/g,'&quot;');
-                            return `<button class="tts-play-btn" onclick="tts.toggle('${escaped}')"
-                                title="${l==='bn'?'পুরো দোয়া শুনুন':'Listen to full dua'}"
-                                style="display:flex;align-items:center;gap:6px;padding:.6rem 1rem;border-radius:.75rem;
-                                       font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s;
-                                       background:rgba(180,83,9,.1);color:#b45309;border:1px solid rgba(180,83,9,.2)">
-                                <span class="tts-icon">▶</span> ${l==='bn'?'শুনুন':'Listen'}
-                            </button>`;
-                        })()}
-                        <button data-action="shareDua" data-param="${duaIndex}"
-                            class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold hover:scale-105 transition-all"
-                            style="background:rgba(5,150,105,.1);color:#059669;border:1px solid rgba(5,150,105,.2)">
-                            🔗 ${l==='bn'?'শেয়ার':'Share'}
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            ${hasVerses ? `
-            <!-- Column headers -->
-            <div style="
-                display:grid;grid-template-columns:1fr 1fr;
-                background:${d?'rgba(5,150,105,.12)':'rgba(5,150,105,.07)'};
-                border-bottom:2px solid ${d?'rgba(5,150,105,.25)':'rgba(5,150,105,.15)'};
-                padding:.6rem 1.6rem;gap:0;
-            ">
-                <div style="text-align:right;direction:rtl">
-                    <span class="text-xs font-black tracking-widest uppercase" style="color:${d?'#34d399':'#059669'}">العربية • আরবি পাঠ</span>
-                </div>
-                <div>
-                    <span class="text-xs font-black tracking-widest uppercase" style="color:${d?'#34d399':'#059669'}">বাংলা অনুবাদ</span>
-                </div>
-            </div>
-
-            <!-- Verses -->
-            <div style="background:${d?'#111a14':'#fffbf5'}">
-                ${versesHtml}
-            </div>
-
-            <!-- Footer note -->
-            <div style="padding:1.2rem 1.6rem;background:${d?'rgba(5,150,105,.06)':'rgba(5,150,105,.04)'};border-top:1px solid ${d?'rgba(255,255,255,.05)':'rgba(180,83,9,.08)'}">
-                <p class="text-xs text-center" style="color:${d?'#6b7280':'#9ca3af'}">
-                    ${l==='bn'?'মোট '+dua.verses.length+' পঙক্তি — আরবি ও বাংলা অনুবাদ সহ':'Total '+dua.verses.length+' verses with Arabic & Bengali translation'}
-                    ${dua.source?' • '+sanitize(dua.source):''}
-                </p>
-            </div>
-
-            ` : `
-            <!-- Fallback: no verses -->
-            <div style="padding:2rem;background:${d?'#111a14':'#fffbf5'}">
-                ${fallbackHtml}
-            </div>
-            `}
-
-        </article>
-
-        <!-- Extra fields if exists (fullTextBn) for verse-mode too -->
-        ${hasVerses && dua.fullTextBn ? `
-        <div class="mt-5 rounded-2xl p-5" style="background:${d?'rgba(180,83,9,.08)':'rgba(254,243,199,.6)'};border:1px solid ${d?'rgba(180,83,9,.18)':'rgba(180,83,9,.12)'}">
-            <h2 class="text-xs font-black mb-3 tracking-widest uppercase" style="color:#b45309">${l==='bn'?'বিস্তারিত পাঠ':'Full Text'}</h2>
-            <p class="text-base leading-relaxed whitespace-pre-line ${d?'text-gray-300':'text-gray-700'}">${sanitize(dua.fullTextBn)}</p>
-        </div>` : ''}
-
-        ${hasVerses && dua.meaningEn ? `
-        <div class="mt-4 rounded-2xl p-5" style="background:${d?'rgba(3,105,161,.08)':'rgba(239,246,255,.6)'};border:1px solid ${d?'rgba(56,189,248,.15)':'rgba(186,230,253,.5)'}">
-            <h2 class="text-xs font-black mb-3 tracking-widest uppercase" style="color:#0369a1">${l==='bn'?'ইংরেজি সারসংক্ষেপ':'English Summary'}</h2>
-            <p class="text-base leading-relaxed ${d?'text-gray-300':'text-gray-700'}">${sanitize(dua.meaningEn)}</p>
-        </div>` : ''}
-
-    </div>
-
-    <style>
-    @keyframes gradMove{0%{background-position:0% 50%}100%{background-position:300% 50%}}
-    @media(max-width:640px){
-        .dua-verse-row{grid-template-columns:1fr!important}
-        .dua-verse-row>div:first-child{border-right:none!important;border-bottom:1px solid rgba(180,83,9,.12)}
-    }
-    </style>`;
-}
-
-// ============================================================================
-// PAGE: IMAMS (12 Imams List)
-// ============================================================================
-function renderImamsPage()
-{
-    const d=state.darkMode; const l=state.language;
-
-    // ── Per-imam accent colors ────────────────────────────────────────
-    const ACS =['#059669','#0d9488','#be123c','#7c3aed','#0369a1','#d97706','#166534','#be123c','#0e7490','#4f46e5','#0f766e','#c9a227'];
-    const ACS2=['#022c22','#134e4a','#500724','#3b0764','#0c2a4a','#78350f','#052e16','#500724','#083344','#1e1b4b','#042f2e','#065f46'];
-    const CONIC=[
-        'conic-gradient(from 0deg,#059669,#6ee7b7,#065f46,#34d399,#059669)',
-        'conic-gradient(from 0deg,#0d9488,#5eead4,#0f766e,#99f6e4,#0d9488)',
-        'conic-gradient(from 0deg,#be123c,#fda4af,#9f1239,#fb7185,#be123c)',
-        'conic-gradient(from 0deg,#7c3aed,#c4b5fd,#5b21b6,#a78bfa,#7c3aed)',
-        'conic-gradient(from 0deg,#0369a1,#7dd3fc,#075985,#38bdf8,#0369a1)',
-        'conic-gradient(from 0deg,#d97706,#fcd34d,#b45309,#fbbf24,#d97706)',
-        'conic-gradient(from 0deg,#166534,#86efac,#14532d,#4ade80,#166534)',
-        'conic-gradient(from 0deg,#be123c,#fda4af,#9f1239,#fb7185,#be123c)',
-        'conic-gradient(from 0deg,#0e7490,#67e8f9,#155e75,#22d3ee,#0e7490)',
-        'conic-gradient(from 0deg,#4f46e5,#a5b4fc,#4338ca,#818cf8,#4f46e5)',
-        'conic-gradient(from 0deg,#0f766e,#5eead4,#115e59,#2dd4bf,#0f766e)',
-        'conic-gradient(from 0deg,#c9a227,#fde68a,#059669,#6ee7b7,#c9a227)',
-    ];
-    const MACS =['#c9a227','#be185d'];
-    const MACS2=['#78350f','#881337'];
-    const MCONIC=[
-        'conic-gradient(from 0deg,#c9a227,#fde68a,#b45309,#fbbf24,#c9a227)',
-        'conic-gradient(from 0deg,#be185d,#fda4af,#9f1239,#fb7185,#be185d)',
-    ];
-
-    // ── Jump nav chips ────────────────────────────────────────────────
-    const CHIP_BN=['আলী','হাসান','হোসাইন','সাজ্জাদ','বাকির','সাদিক','কাযিম','রেজা','জওয়াদ','হাদি','আসকারি','মাহদি'];
-    const CHIP_EN=['Ali','Hasan','Husayn','Sajjad','Baqir','Sadiq','Kazim','Ridha','Jawad','Hadi','Askari','Mahdi'];
-    const chips=(l==='bn'?CHIP_BN:CHIP_EN).map((name,i)=>`
-        <button
-            onclick="(function(){const el=document.getElementById('imam-anchor-${i+1}');scrollToImamEl(el)})()"
-            style="flex-shrink:0;padding:5px 14px;border-radius:50px;font-size:.72rem;font-weight:700;
-                border:1.5px solid ${ACS[i]}50;color:${ACS[i]};background:${ACS[i]}12;
-                cursor:pointer;white-space:nowrap;transition:all .18s"
-            onmouseover="this.style.background='${ACS[i]}28';this.style.transform='translateY(-2px)'"
-            onmouseout="this.style.background='${ACS[i]}12';this.style.transform=''">
-            ${i+1}. ${name}
-        </button>`).join('');
-
-    // ── Shared card renderer ──────────────────────────────────────────
-    const renderCard = (im, idx, acList, ac2List, conicList) => {
-        const ac    = acList[idx % acList.length];
-        const ac2   = ac2List[idx % ac2List.length];
-        const conic = conicList[idx % conicList.length];
-        const flipId= `imam-flip-${im.id}`;
-        const quoteText   = sanitize(l==='bn'?im.quoteBn:im.quoteEn);
-        const avatarArabic= im.arabicName ? im.arabicName.split(' ')[0] : (im.icon||'✦');
-
-        // Special rings
-        const isHussain = im.id===3;
-        const isMahdi   = im.id===12;
-        let outerRing = '';
-        if (isHussain) {
-            outerRing = `
-            <div style="position:absolute;inset:-7px;border-radius:50%;border:2px solid #b91c1c;z-index:0;opacity:.78"></div>
-            <div style="position:absolute;inset:-12px;border-radius:50%;border:1.5px solid #dc2626;z-index:0;opacity:.42"></div>`;
-        } else if (isMahdi) {
-            outerRing = `<div style="position:absolute;inset:-9px;border-radius:50%;border:2.5px dashed #6366f1;z-index:0;opacity:.68;animation:avatarRotate 18s linear infinite reverse"></div>`;
-        }
-
-        return `
-        <div class="imam-flip-wrapper" style="height:100%;position:relative">
-
-            <!-- ── FRONT ── -->
-            <div class="imam-card-luxury imam-card-front border text-center p-5"
-                id="${flipId}-front"
-                style="display:flex;flex-direction:column;
-                    background:${d?'#1e2d26':'#ffffff'};
-                    border-color:${d?'rgba(52,211,153,.15)':'rgba(5,150,105,.1)'};
-                    box-shadow:var(--shadow-sm);height:100%;border-radius:var(--r-lg)"
-                onmouseenter="imamCardParticles(this,'${ac}')">
-
-                <!-- Animated top gradient bar -->
-                <div class="imam-top-bar"
-                    style="background:linear-gradient(90deg,${ac},${ac}cc,#c9a227,${ac2},${ac});background-size:300% 100%">
-                </div>
-
-                <!-- Imam number badge -->
-                ${typeof im.id==='number'
-                    ? `<div class="imam-num" style="background:linear-gradient(135deg,#c9a227,#92400e)">${im.id}</div>`
-                    : ''}
-
-                <!-- Avatar -->
-                <div style="position:relative;display:flex;justify-content:center;margin:1rem 0 1rem">
-                    <div class="imam-avatar-inner-wrap" style="width:86px;height:86px;border-radius:50%;position:relative">
-                        ${outerRing}
-                        <div class="imam-avatar-rotate"
-                            style="position:absolute;inset:-3px;border-radius:50%;background:${conic};animation:avatarRotate 8s linear infinite;z-index:1">
-                        </div>
-                        <div style="position:absolute;inset:0;border-radius:50%;
-                            background:${d?'#1e2d26':'#ffffff'};z-index:2;
-                            display:flex;align-items:center;justify-content:center;
-                            font-family:'Amiri',serif;font-size:1.5rem;font-weight:700;
-                            color:${ac};border:2.5px solid ${d?'rgba(52,211,153,.18)':'rgba(5,150,105,.12)'};
-                            text-align:center;padding:4px;line-height:1.1">
-                            ${avatarArabic}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Name -->
-                <h3 class="font-black text-base leading-snug mb-0.5" style="color:${d?'#f9fafb':'#111827'}">
-                    ${sanitize(l==='bn'?im.nameBn:im.nameEn)}
-                </h3>
-
-                <!-- Arabic name shimmer -->
-                <p class="mb-3" style="font-family:'Amiri',serif;font-size:.9rem;opacity:.85">
-                    <span class="imam-arabic-shimmer">${sanitize(im.arabicName)}</span>
-                </p>
-
-                <!-- Epithet badge -->
-                <div style="display:flex;justify-content:center;margin-bottom:1.1rem">
-                    <span class="imam-epithet-badge text-xs font-bold px-3 py-1.5 rounded-full"
-                        style="background:${ac}20;color:${ac};border:1.5px solid ${ac}38">
-                        ${sanitize(l==='bn'?im.epithetBn:im.epithetEn)}
-                    </span>
-                </div>
-
-                <!-- Quote preview -->
-                <div class="imam-quote-wrap rounded-xl p-3 mb-4 text-left"
-                    style="border-left:3px solid ${ac};background:${ac}09;flex:1;display:flex;align-items:flex-start">
-                    <p class="text-xs italic leading-relaxed" style="color:${d?'#9ca3af':'#6b7280'};margin:0;
-                        overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical">
-                        "${quoteText}"
-                    </p>
-                </div>
-
-                <!-- Action buttons -->
-                <div class="flex gap-2">
-                    <button data-action="viewImam" data-param="${im.id}"
-                        class="imam-detail-btn flex-1 py-2.5 rounded-xl text-xs font-bold transition-all"
-                        style="background:linear-gradient(135deg,${ac},${ac2});color:white;
-                            box-shadow:0 3px 12px ${ac}42;letter-spacing:.2px">
-                        ${l==='bn'?'বিস্তারিত':'Details'}
-                        <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" style="display:inline;margin-left:4px"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
-                    </button>
-                    <button data-action="shareImamQuote" data-param="${im.id}"
-                        class="px-3 py-2.5 rounded-xl text-xs font-bold hover:scale-110 transition-all flex items-center justify-center"
-                        style="background:${ac}15;color:${ac};border:1.5px solid ${ac}30"
-                        title="${l==='bn'?'শেয়ার করুন':'Share'}">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-                            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-                        </svg>
-                    </button>
-                </div>
-            </div><!-- /front -->
-
-            <!-- ── BACK (quote card) ── -->
-            <div class="imam-card-back" id="${flipId}-back"
-                style="display:none;position:absolute;inset:0;
-                    background:linear-gradient(145deg,${ac2},${d?'#0a1a0e':'#022c22'});
-                    color:white;border:1px solid ${ac}40;
-                    box-shadow:var(--shadow-lg);border-radius:var(--r-lg)">
-                <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,${ac}28 0%,transparent 70%);pointer-events:none;border-radius:var(--r-lg)"></div>
-                <div style="position:relative;z-index:2;width:100%;text-align:center">
-                    <div style="font-family:'Amiri',serif;font-size:2.5rem;color:${ac};margin-bottom:.4rem;line-height:1">❝</div>
-                    <p style="font-family:'Amiri',serif;font-size:1.05rem;line-height:1.75;
-                        color:rgba(255,255,255,.92);margin-bottom:1.1rem;padding:0 .5rem">
-                        ${sanitize(l==='bn'?im.quoteBn:im.quoteEn)}
-                    </p>
-                    <div style="width:44px;height:2px;background:${ac};margin:0 auto .8rem;border-radius:2px"></div>
-                    <p style="font-size:.75rem;font-weight:700;color:${ac};letter-spacing:.5px">
-                        ${sanitize(l==='bn'?im.nameBn:im.nameEn)}
-                    </p>
-                    <button onclick="imamFlip('${flipId}')"
-                        style="margin-top:1.2rem;padding:7px 20px;border-radius:50px;
-                            background:${ac}30;border:1px solid ${ac}60;
-                            color:white;font-size:.75rem;cursor:pointer;transition:background .2s"
-                        onmouseover="this.style.background='${ac}55'"
-                        onmouseout="this.style.background='${ac}30'">
-                        ← ${l==='bn'?'ফিরে যান':'Back'}
-                    </button>
-                </div>
-            </div><!-- /back -->
-
-        </div>`;
-    };
-
-    return `
-    <div class="space-y-8 page-enter">
-
-        <!-- ── Page header ── -->
-        <div class="flex flex-wrap justify-between items-start gap-3 reveal">
-            <div>
-                <h2 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#059669,#b45309);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
-                    👑 ${t('imams')}
-                </h2>
-                <p class="text-sm mt-1" style="color:${d?'#9ca3af':'#6b7280'}">
-                    ${l==='bn'?'পবিত্র নবী, মাসুমিন ও ১২ ইমামের জীবনী':'Lives of the Holy Prophet, Masumeen & 12 Imams'}
-                </p>
-            </div>
-            <button data-action="toggleTimeline"
-                class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all"
-                style="${state.showTimeline
-                    ? 'background:rgba(5,150,105,.14);color:#059669;border:1.5px solid rgba(5,150,105,.38)'
-                    : 'border:1.5px solid '+(d?'rgba(255,255,255,.12)':'rgba(0,0,0,.1)')+';color:'+(d?'#6b7280':'#9ca3af')}">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-                ${l==='bn'?'টাইমলাইন':'Timeline'}${state.showTimeline?' ✓':''}
-            </button>
-        </div>
-
-        <!-- ── Timeline (optional) ── -->
-        ${state.showTimeline ? renderImamTimeline(d,l) : ''}
-
-        <!-- ── Jump nav chips ── -->
-        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 1px 6px">
-            <div style="display:flex;gap:7px;width:max-content">${chips}</div>
-        </div>
-
-        <!-- ── মাসুমিন section ── -->
-        <div class="reveal">
-            <div class="section-heading">
-                <span style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#c9a227,#78350f);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;box-shadow:0 4px 14px rgba(201,162,39,.38)">✨</span>
-                <h3 class="font-black text-lg" style="color:${d?'#f9fafb':'#111827'}">
-                    ${l==='bn'?'নবী ও মাসুমিন (আ.)':'Prophet & Masumeen (AS)'}
-                </h3>
-                <span class="text-xs font-bold px-2.5 py-1 rounded-full"
-                    style="background:rgba(201,162,39,.15);color:#c9a227;border:1px solid rgba(201,162,39,.3)">
-                    ${l==='bn'?'২ জন':'2'}
-                </span>
-            </div>
-            <div class="grid sm:grid-cols-2 gap-5 items-stretch">
-                ${masumeen.map((im,idx)=>`
-                <div style="min-height:320px">${renderCard(im,idx,MACS,MACS2,MCONIC)}</div>`).join('')}
-            </div>
-        </div>
-
-        <!-- ── ১২ ইমাম section ── -->
-        <div class="reveal">
-            <div class="section-heading">
-                <span style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#059669,#065f46);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;box-shadow:0 4px 14px rgba(5,150,105,.4)">👑</span>
-                <h3 class="font-black text-lg" style="color:${d?'#f9fafb':'#111827'}">
-                    ${l==='bn'?'বারো ইমাম (আ.)':'The Twelve Imams (AS)'}
-                </h3>
-                <span class="text-xs font-bold px-2.5 py-1 rounded-full"
-                    style="background:rgba(5,150,105,.12);color:#059669;border:1px solid rgba(5,150,105,.25)">
-                    ${l==='bn'?'১২ জন':'12'}
-                </span>
-            </div>
-            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
-                ${imams.map((im,idx)=>`
-                <div id="imam-anchor-${im.id}">${renderCard(im,idx,ACS,ACS2,CONIC)}</div>`).join('')}
-            </div>
-        </div>
-
-    </div>`;
-}
-
-function renderImamTimeline(d, l) {
-    const timelineImams = imams.map(im => ({
-        ...im,
-        birthYear: parseInt((im.birthEn||'').match(/\d+/)?.[0]||0),
-        deathYear: (im.martyrdomEn||'').includes('Occultation')
-            ? 'Present'
-            : parseInt((im.martyrdomEn||'').match(/\d+/)?.[0]||0),
-    }));
-    const minYear=600, maxYear=880, range=maxYear-minYear;
-    const barColors=['#059669','#0d9488','#be123c','#7c3aed','#0369a1','#d97706','#166534','#be123c','#0e7490','#4f46e5','#0f766e','#c9a227'];
-    return `
-    <div class="${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-2xl p-6 fade-in" style="box-shadow:var(--shadow-md)">
-        <div class="gold-top-bar" style="border-radius:12px 12px 0 0;margin:-24px -24px 20px"></div>
-        <h3 class="text-base font-bold mb-1 text-center">${l==='bn'?'ইমামদের জীবনকাল টাইমলাইন':'Imams Lifetime Timeline'}</h3>
-        <p class="text-center text-xs mb-5" style="color:${d?'#6b7280':'#9ca3af'}">${l==='bn'?'খ্রিস্টাব্দ ৬০০–৮৮০':'600 CE – 880 CE'}</p>
-        <div class="space-y-2.5">
-            ${timelineImams.map((im,idx)=>{
-                const startPct=Math.max(0,((im.birthYear-minYear)/range)*100);
-                const endYear=typeof im.deathYear==='number'?im.deathYear:maxYear;
-                const widthPct=Math.max(2,((endYear-im.birthYear)/range)*100);
-                const c=barColors[idx%barColors.length];
-                return `
-                <div class="flex items-center gap-3">
-                    <div class="text-right flex-shrink-0" style="width:130px">
-                        <span class="text-xs font-semibold" style="color:${d?'#d1d5db':'#374151'}">${im.icon} ${sanitize(l==='bn'?im.nameBn.replace('ইমাম ',''):im.nameEn.replace('Imam ',''))}</span>
-                    </div>
-                    <div class="flex-1 relative" style="height:26px">
-                        <div class="w-full h-full absolute rounded-full" style="background:${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)'}"></div>
-                        <div class="h-full absolute rounded-full flex items-center px-2 overflow-hidden"
-                            style="left:${startPct.toFixed(1)}%;width:${Math.min(widthPct,100-startPct).toFixed(1)}%;min-width:28px;background:${c}">
-                            <span class="text-white text-xs font-bold truncate">${im.birthYear}</span>
-                        </div>
-                    </div>
-                    <div class="flex-shrink-0 text-xs" style="width:46px;color:${d?'#6b7280':'#9ca3af'}">${typeof im.deathYear==='string'?'—':im.deathYear}</div>
-                </div>`;
-            }).join('')}
-        </div>
-        <div class="flex justify-between mt-4 px-0" style="margin-left:142px;margin-right:58px">
-            ${[600,650,700,750,800,850].map(yr=>`<span class="text-xs" style="color:${d?'#4b5563':'#9ca3af'}">${yr}</span>`).join('')}
-        </div>
-    </div>`;
-}
-// ============================================================================
-// IMAM DETAIL PAGE
-// ============================================================================
-function renderImamDetailPage()
-{
-    const d=state.darkMode; const l=state.language;
-    const im=state.currentImam;
-    if(!im) return renderImamsPage();
-    const allList=[...masumeen,...imams];
-    const idx=allList.findIndex(x=>x.id===im.id);
-    const prev=idx>0?allList[idx-1]:null;
-    const next=idx<allList.length-1?allList[idx+1]:null;
-    const isMasumeen=masumeen.some(m=>m.id===im.id);
-    const colorIdx=isMasumeen?masumeen.findIndex(m=>m.id===im.id):imams.indexOf(im);
-    const ACS=['#059669','#0d9488','#c9a227','#7c3aed','#0369a1','#d97706','#166534','#be123c','#0e7490','#4f46e5','#0f766e','#c9a227'];
-    const ACS2=['#022c22','#134e4a','#7a5c0a','#3b0764','#0c2a4a','#78350f','#052e16','#500724','#083344','#1e1b4b','#042f2e','#065f46'];
-    const CONIC2=['conic-gradient(from 0deg,#059669,#6ee7b7,#065f46,#34d399,#059669)','conic-gradient(from 0deg,#0d9488,#5eead4,#0f766e,#99f6e4,#0d9488)','conic-gradient(from 0deg,#c9a227,#fde68a,#b45309,#fbbf24,#c9a227)','conic-gradient(from 0deg,#7c3aed,#c4b5fd,#5b21b6,#a78bfa,#7c3aed)','conic-gradient(from 0deg,#0369a1,#7dd3fc,#075985,#38bdf8,#0369a1)','conic-gradient(from 0deg,#d97706,#fcd34d,#b45309,#fbbf24,#d97706)','conic-gradient(from 0deg,#166534,#86efac,#14532d,#4ade80,#166534)','conic-gradient(from 0deg,#be123c,#fda4af,#9f1239,#fb7185,#be123c)','conic-gradient(from 0deg,#0e7490,#67e8f9,#155e75,#22d3ee,#0e7490)','conic-gradient(from 0deg,#4f46e5,#a5b4fc,#4338ca,#818cf8,#4f46e5)','conic-gradient(from 0deg,#0f766e,#5eead4,#115e59,#2dd4bf,#0f766e)','conic-gradient(from 0deg,#c9a227,#fde68a,#059669,#6ee7b7,#c9a227)'];
-    const MACS=['#c9a227','#be185d'];const MACS2=['#78350f','#881337'];const MCONIC2=['conic-gradient(from 0deg,#c9a227,#fde68a,#b45309,#fbbf24,#c9a227)','conic-gradient(from 0deg,#be185d,#fda4af,#9f1239,#fb7185,#be185d)'];
-    const ac=isMasumeen?MACS[colorIdx%2]:ACS[colorIdx%12];
-    const ac2=isMasumeen?MACS2[colorIdx%2]:ACS2[colorIdx%12];
-    const conic2=isMasumeen?MCONIC2[colorIdx%2]:CONIC2[colorIdx%12];
-    return `
-    <div class="max-w-2xl mx-auto page-enter">
-        <button data-action="changePage" data-param="imams"
-            class="flex items-center gap-2 mb-6 px-4 py-2 rounded-xl font-semibold text-sm hover:scale-[1.02] transition-all"
-            style="background:${ac}12;color:${ac}">
-            ← ${l==='bn'?'সকল ইমাম':'All Imams'}
-        </button>
-        <div class="card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border mb-6"
-            style="box-shadow:var(--shadow-lg);position:relative">
-            <div style="height:4px;background:linear-gradient(90deg,${ac},${ac2},${ac});border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
-            <div style="background:linear-gradient(135deg,${ac}10,transparent,${ac2}07);padding:2.5rem 2rem 1.5rem;text-align:center;position:relative">
-                <div style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,${ac},${ac2});display:flex;align-items:center;justify-content:center;color:white;font-size:${typeof im.id==='number'?'.75rem':'1rem'};font-weight:800;box-shadow:0 3px 10px ${ac}50">
-                    ${typeof im.id==='number'?im.id:im.icon}
-                </div>
-                <div style="position:relative;display:flex;justify-content:center;margin-bottom:1.2rem">
-                    <div style="width:96px;height:96px;border-radius:50%;position:relative">
-                        ${im.id===3?`<div style="position:absolute;inset:-8px;border-radius:50%;border:2px solid #b91c1c;z-index:0;opacity:.75"></div><div style="position:absolute;inset:-13px;border-radius:50%;border:1.5px solid #dc2626;z-index:0;opacity:.4"></div>`:''}
-                        ${im.id===12?`<div style="position:absolute;inset:-9px;border-radius:50%;border:2.5px dashed #6366f1;z-index:0;opacity:.65;animation:avatarRotate 18s linear infinite reverse"></div>`:''}
-                        <div style="position:absolute;inset:-4px;border-radius:50%;background:${conic2};animation:avatarRotate 7s linear infinite;z-index:1"></div>
-                        <div style="position:absolute;inset:0;border-radius:50%;background:${d?'#1f2937':'white'};z-index:2;display:flex;align-items:center;justify-content:center;font-family:'Amiri',serif;font-size:2rem;font-weight:700;color:${ac2}">
-                            ${im.arabicName.split(' ')[0]||im.icon}
-                        </div>
-                    </div>
-                </div>
-                <h1 class="text-2xl md:text-3xl font-black mb-2">${sanitize(l==='bn'?im.nameBn:im.nameEn)}</h1>
-                <p class="arabic-text mb-3" style="font-size:1.5rem;color:${ac}">${sanitize(im.arabicName)}</p>
-                <span class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold"
-                    style="background:${ac}18;color:${ac};border:1px solid ${ac}28">
-                    ✨ ${sanitize(l==='bn'?im.epithetBn:im.epithetEn)}
-                </span>
-            </div>
-            <div class="p-6 pt-2">
-                <div class="grid grid-cols-2 gap-3 mb-5">
-                    <div class="rounded-2xl p-4" style="background:${d?'rgba(255,255,255,.05)':'rgba(0,0,0,.03)'};border:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}">
-                        <p class="font-bold text-xs mb-1.5" style="color:${ac}">🌙 ${l==='bn'?'জন্ম':'Birth'}</p>
-                        <p class="font-semibold text-sm">${sanitize(l==='bn'?im.birthBn:im.birthEn)}</p>
-                    </div>
-                    <div class="rounded-2xl p-4" style="background:${d?'rgba(255,255,255,.05)':'rgba(0,0,0,.03)'};border:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}">
-                        <p class="font-bold text-xs mb-1.5" style="color:${ac}">⚔️ ${l==='bn'?'শাহাদাত':'Martyrdom'}</p>
-                        <p class="font-semibold text-sm">${sanitize(l==='bn'?im.martyrdomBn:im.martyrdomEn)}</p>
-                    </div>
-                </div>
-                <div class="${d?'bg-gray-900':'bg-gray-50'} rounded-2xl p-5 mb-5">
-                    <h3 class="font-bold mb-3 text-sm">📝 ${l==='bn'?'পরিচিতি':'About'}</h3>
-                    <p class="${d?'text-gray-300':'text-gray-700'} leading-relaxed text-sm">${sanitize(l==='bn'?im.descBn:im.descEn)}</p>
-                </div>
-                <div class="rounded-2xl p-5" style="background:linear-gradient(135deg,${ac}0d,${ac2}07);border-left:4px solid ${ac}">
-                    <div class="flex justify-between items-center mb-3">
-                        <h3 class="font-bold text-sm flex items-center gap-2">
-                            <span style="color:${ac}">💬</span>${l==='bn'?'বিখ্যাত উক্তি':'Famous Quote'}
-                        </h3>
-                        <button data-action="shareImamQuote" data-param="${im.id}"
-                            class="text-xs px-3 py-1.5 rounded-xl font-bold hover:scale-105 transition-all"
-                            style="background:${ac}18;color:${ac}">
-                            🔗 ${l==='bn'?'শেয়ার':'Share'}
-                        </button>
-                    </div>
-                    <p class="text-base italic leading-relaxed">"${sanitize(l==='bn'?im.quoteBn:im.quoteEn)}"</p>
-                </div>
-            </div>
-        </div>
-        <div class="flex justify-between gap-4">
-            ${prev?`<button data-action="viewImam" data-param="${prev.id}"
-                class="${d?'bg-gray-800 hover:bg-gray-700 border-gray-700':'bg-white hover:bg-gray-50 border-gray-200'} border rounded-2xl px-5 py-3 font-semibold text-sm flex items-center gap-2 hover:scale-[1.02] transition-all"
-                style="flex:1">← ${sanitize(l==='bn'?prev.nameBn:prev.nameEn)}</button>`:'<div style="flex:1"></div>'}
-            ${next?`<button data-action="viewImam" data-param="${next.id}"
-                class="${d?'bg-gray-800 hover:bg-gray-700 border-gray-700':'bg-white hover:bg-gray-50 border-gray-200'} border rounded-2xl px-5 py-3 font-semibold text-sm flex items-center gap-2 justify-end hover:scale-[1.02] transition-all"
-                style="flex:1">${sanitize(l==='bn'?next.nameBn:next.nameEn)} →</button>`:'<div style="flex:1"></div>'}
-        </div>
-    </div>`;
-}
-// ============================================================================
-// PAGE: SEARCH
-// ============================================================================
-function renderSearchPage() {
-    const d=state.darkMode; const l=state.language;
-    const q=state.searchQuery; const results=state.searchResults;
-    function hl(text) {
-        if(!q||!text) return sanitize(text||'');
-        const safe = sanitize(text);
-        const escaped = sanitize(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-        if(!escaped) return safe;
-        return safe.replace(new RegExp(escaped,'gi'), m=>`<mark>${m}</mark>`);
-    }
-    // Real-time suggestions from content titles
-    function getSuggestions(query) {
-        if (!query || query.length < 2) return [];
-        const q2 = query.toLowerCase();
-        const sugg = [];
-        const allPosts = [...(typeof blogPosts!=='undefined'?blogPosts:[]), ...(state.customPosts||[])];
-        allPosts.forEach(p => { if((p.titleBn||'').toLowerCase().includes(q2)||(p.titleEn||'').toLowerCase().includes(q2)) sugg.push({label:l==='bn'?(p.titleBn||p.titleEn):(p.titleEn||p.titleBn), icon:'📝'}); });
-        if(typeof duas!=='undefined') duas.forEach(dua => { if((dua.titleBn||'').toLowerCase().includes(q2)||(dua.titleEn||'').toLowerCase().includes(q2)) sugg.push({label:l==='bn'?(dua.titleBn||dua.titleEn):(dua.titleEn||dua.titleBn), icon:'🤲'}); });
-        if(typeof imams!=='undefined') imams.forEach(im => { if((im.nameBn||'').toLowerCase().includes(q2)||(im.nameEn||'').toLowerCase().includes(q2)) sugg.push({label:l==='bn'?(im.nameBn||im.nameEn):(im.nameEn||im.nameBn), icon:'👑'}); });
-        if(typeof hadiths!=='undefined') hadiths.forEach(h => { const txt=(l==='bn'?h.textBn:h.textEn)||''; if(txt.toLowerCase().includes(q2)) sugg.push({label:txt.slice(0,55)+'…', icon:'📜'}); });
-        return sugg.slice(0,6);
-    }
-    const suggestions = getSuggestions(q);
-    return `
-    <div class="space-y-6 page-slide-in">
-        <div>
-            <h2 class="text-3xl font-black mb-1" style="background:linear-gradient(135deg,#059669,#c9a227);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">🔍 ${t('searchPage')}</h2>
-            <p class="text-sm ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?'ব্লগ, দোয়া, হাদিস, ইমাম, পিডিএফ — সব এক জায়গায়':'Blog, Duas, Hadiths, Imams, PDFs — all in one place'}</p>
-        </div>
-        <div class="${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-2xl p-5 relative" style="box-shadow:var(--shadow-md)">
-            <div class="flex gap-3 items-center">
-                <div class="relative flex-1">
-                    <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:1.1rem;pointer-events:none">🔍</span>
-                    <input id="search-input" type="search" value="${sanitize(q)}"
-                        placeholder="${l==='bn'?'ব্লগ, দোয়া, হাদিস, ইমাম, পিডিএফ খুঁজুন...':'Search posts, duas, hadiths, imams, PDFs...'}"
-                        class="${d?'bg-gray-900 border-gray-600 text-white placeholder-gray-500':'bg-gray-50 border-gray-200 text-gray-900'} border rounded-xl pl-10 pr-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base transition-all"
-                        oninput="doSearch(this.value)"
-                        autofocus />
-                </div>
-                ${q?`<button onclick="doSearch('');document.getElementById('search-input').value=''" class="${d?'bg-gray-700 text-gray-300':'bg-gray-100 text-gray-600'} px-3 py-3 rounded-xl text-sm font-medium hover:opacity-80 flex-shrink-0">✕</button>`:''}
-            </div>
-            ${q && q.length>=2 && suggestions.length>0?`
-            <div class="mt-3">
-                <p class="text-xs ${d?'text-gray-500':'text-gray-400'} mb-2 px-1">${l==='bn'?'পরামর্শ:':'Suggestions:'}</p>
-                <div class="flex flex-wrap gap-2">
-                    ${suggestions.map(s=>`
-                        <button onclick="doSearch(${JSON.stringify(s.label.replace(/…$/,''))});document.getElementById('search-input').value=${JSON.stringify(s.label.replace(/…$/,''))}"
-                            class="${d?'bg-gray-700 hover:bg-gray-600 text-gray-200 border-gray-600':'bg-gray-100 hover:bg-emerald-50 text-gray-700 border-gray-200'} text-xs px-3 py-1.5 rounded-lg border hover:border-emerald-400 transition-all text-left max-w-xs truncate">
-                            ${s.icon} ${sanitize(s.label)}
-                        </button>`).join('')}
-                </div>
-            </div>`:''}
-        </div>
-        ${q?`
-        <div class="flex items-center justify-between flex-wrap gap-2">
-            <p class="text-sm ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?`"${sanitize(q)}" — ${results.length}টি ফলাফল`:`"${sanitize(q)}" — ${results.length} result${results.length!==1?'s':''}`}</p>
-            ${results.length>0?`<div class="flex gap-1 flex-wrap">
-                ${[['সব/All',null],['📝',`post`],['🤲','dua'],['👑','imam'],['📜','hadith'],['📄','pdf']].map(([label,type])=>{
-                    const count = type?results.filter(r=>r.type===type).length:results.length;
-                    if(count===0&&type) return '';
-                    const dispLabel = l==='bn'?label.split('/')[0]:label.split('/').pop();
-                    return `<button onclick="window._sf='${type||''}';document.querySelectorAll('.search-result-item').forEach(el=>el.style.display=(!window._sf||el.dataset.type===window._sf)?'':'none')"
-                        class="${d?'bg-gray-700 text-gray-300 hover:bg-gray-600':'bg-gray-100 text-gray-600 hover:bg-gray-200'} text-xs px-2.5 py-1 rounded-lg font-medium transition-colors">${dispLabel} ${count}</button>`;
-                }).join('')}
-            </div>`:''}
-        </div>
-        ${results.length===0?`
-            <div class="text-center py-16">
-                <div class="text-6xl mb-4">🔍</div>
-                <p class="font-semibold ${d?'text-gray-400':'text-gray-500'} text-lg">${l==='bn'?'কোনো ফলাফল পাওয়া যায়নি':'No results found'}</p>
-                <p class="text-sm ${d?'text-gray-500':'text-gray-400'} mt-2">${l==='bn'?'অন্য কীওয়ার্ড দিয়ে চেষ্টা করুন':'Try a different keyword'}</p>
-            </div>`:
-        `<div class="space-y-3">
-            ${results.map(r=>{
-                if (r.type==='post') return `
-                    <div class="search-result-item ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl p-5 fade-in" data-type="post" style="box-shadow:var(--shadow-sm)">
-                        <span class="text-xs px-2 py-0.5 rounded-lg ${d?'bg-blue-900 text-blue-300':'bg-blue-100 text-blue-600'} mb-2 inline-block font-medium">📝 ${t('blog')}</span>
-                        <h3 class="font-bold text-base mb-1 leading-snug">${hl(l==='bn'?r.item.titleBn:r.item.titleEn)}</h3>
-                        <p class="text-sm ${d?'text-gray-400':'text-gray-600'} line-clamp-2">${hl(r.item.excerpt||'')}</p>
-                        <button data-action="readPost" data-param="${r.item.id}" class="${d?'text-emerald-400':'text-emerald-600'} text-sm font-bold mt-3 hover:underline">${t('readMore')} →</button>
-                    </div>`;
-                if (r.type==='dua') return `
-                    <div class="search-result-item ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl p-5 fade-in" data-type="dua" style="box-shadow:var(--shadow-sm)">
-                        <span class="text-xs px-2 py-0.5 rounded-lg ${d?'bg-purple-900 text-purple-300':'bg-purple-100 text-purple-600'} mb-2 inline-block font-medium">🤲 ${l==='bn'?'দোয়া':'Dua'}</span>
-                        <h3 class="font-bold text-base mb-1">${hl(l==='bn'?r.item.titleBn:r.item.titleEn)}</h3>
-                        <p class="text-sm ${d?'text-gray-400':'text-gray-600'} line-clamp-2">${hl(l==='bn'?r.item.meaningBn:r.item.meaningEn)}</p>
-                        <button data-action="readDua" data-param="${r.index}" class="${d?'text-purple-400':'text-purple-600'} text-sm font-bold mt-3 hover:underline">${t('readMore')} →</button>
-                    </div>`;
-                if (r.type==='imam') return `
-                    <div class="search-result-item ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl p-5 fade-in" data-type="imam" style="box-shadow:var(--shadow-sm)">
-                        <span class="text-xs px-2 py-0.5 rounded-lg ${d?'bg-green-900 text-green-300':'bg-green-100 text-green-600'} mb-2 inline-block font-medium">👑 ${l==='bn'?'ইমাম':'Imam'}</span>
-                        <h3 class="font-bold text-base mb-1">${r.item.icon||''} ${hl(l==='bn'?r.item.nameBn:r.item.nameEn)}</h3>
-                        <p class="text-sm ${d?'text-gray-400':'text-gray-600'} line-clamp-2">${hl(l==='bn'?r.item.descBn:r.item.descEn)}</p>
-                        <button data-action="viewImam" data-param="${r.item.id}" class="${d?'text-emerald-400':'text-emerald-600'} text-sm font-bold mt-3 hover:underline">${l==='bn'?'বিস্তারিত →':'Details →'}</button>
-                    </div>`;
-                if (r.type==='pdf') return `
-                    <div class="search-result-item ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl p-5 fade-in" data-type="pdf" style="box-shadow:var(--shadow-sm)">
-                        <span class="text-xs px-2 py-0.5 rounded-lg ${d?'bg-amber-900 text-amber-300':'bg-amber-100 text-amber-700'} mb-2 inline-block font-medium">📄 ${l==='bn'?'পিডিএফ':'PDF'}</span>
-                        <h3 class="font-bold text-base">${hl(r.item.name)}</h3>
-                        <p class="text-xs ${d?'text-gray-500':'text-gray-400'} mt-1">${sanitize(r.item.sizeFmt||'')}</p>
-                    </div>`;
-                if (r.type==='hadith') return `
-                    <div class="search-result-item ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl p-5 fade-in" data-type="hadith" style="box-shadow:var(--shadow-sm)">
-                        <span class="text-xs px-2 py-0.5 rounded-lg ${d?'bg-teal-900 text-teal-300':'bg-teal-100 text-teal-700'} mb-2 inline-block font-medium">📜 ${l==='bn'?'হাদিস':'Hadith'}</span>
-                        <p class="text-sm ${d?'text-gray-300':'text-gray-700'} line-clamp-3 leading-relaxed">${hl(l==='bn'?r.item.textBn:r.item.textEn)}</p>
-                        <p class="text-xs ${d?'text-gray-500':'text-gray-400'} mt-2 font-medium">— ${sanitize(l==='bn'?r.item.sourceBn:r.item.sourceEn)}</p>
-                    </div>`;
-                if (r.type==='ziyarat') return `
-                    <div class="search-result-item ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-xl p-5 fade-in" data-type="ziyarat" style="box-shadow:var(--shadow-sm)">
-                        <span class="text-xs px-2 py-0.5 rounded-lg ${d?'bg-amber-900 text-amber-300':'bg-amber-100 text-amber-700'} mb-2 inline-block font-medium">🕌 ${l==='bn'?'যিয়ারত':'Ziyarat'}</span>
-                        <h3 class="font-bold text-base mb-1">${hl(l==='bn'?r.item.titleBn:r.item.titleEn)}</h3>
-                        <button data-action="readZiyarat" data-param="${r.item.id}" class="${d?'text-amber-400':'text-amber-700'} text-sm font-bold mt-1 hover:underline">${t('readMore')} →</button>
-                    </div>`;
-                return '';
-            }).join('')}
-        </div>`}`:''}
-    </div>`;
-}
-
-// ============================================================================
-// PAGE: ANALYTICS (Admin)
 // ============================================================================
 function renderAnalyticsPage() {
     const d=state.darkMode; const l=state.language;
@@ -6666,7 +5666,7 @@ function renderAsmaulHusnaPage() {
 // PAGE: QIBLA FINDER
 // ============================================================================
 function initQiblaCompass() {
-    if (!window._qiblaOrientBound && typeof qiblaAngleForCompass !== 'undefined') {
+    if (!window._qiblaOrientBound && window.qiblaAngleForCompass != null) {
         window._qiblaOrientBound = true;
         window.addEventListener('deviceorientationabsolute', _handleQiblaOrient, true);
         window.addEventListener('deviceorientation', _handleQiblaOrient, true);
@@ -7712,7 +6712,7 @@ function init() {
     }
     setupScrollTop();
     setupHeaderScroll();
-    setupReadingProgress();
+    initReadingProgress(); // একটাই reading progress listener (leak-safe)
     setupScrollReveal();
     // Cloudinary config must be available before cloud fetches
     if (typeof CLOUDINARY_CLOUD_NAME === 'undefined') {
@@ -8282,7 +7282,7 @@ function renderShiaDaysPage() {
         {id:'st14',icon:'🕊️', color:'#dc2626', type:'martyrdom', hijriDate:l==='bn'?'৭ যিলহজ্ব, ১১৪ হি.':'7 Dhu al-Hijjah, 114 AH', titleBn:l==='bn'?'ইমাম বাকির (আ.) শাহাদাত দিবস':'Martyrdom of Imam Muhammad al-Baqir (AS)', arabicTitle:'شهادة محمد بن علي الباقر', descBn:l==='bn'?'১১৪ হিজরিতে হিশাম বিন আব্দুল মালিকের নির্দেশে বিষ প্রয়োগে শহীদ হন। ইমাম বাকির ইসলামি জ্ঞান ও ফিকহে যুগান্তকারী অবদান রাখেন।':'In 114 AH, martyred by poison on the orders of Hisham ibn Abd al-Malik. Imam Baqir made epoch-making contributions to Islamic knowledge and jurisprudence.', amaal:l==='bn'?'শোক পালন, ইলম অর্জন, যিয়ারত ইমাম বাকির':'Mourning, seeking knowledge, Ziyarat of Imam Baqir', importance:l==='bn'?'পঞ্চম ইমামের শাহাদাত — বাকিরুল উলুম':'Martyrdom of the 5th Imam — Splitter of Knowledge'},
         {id:'sm1', icon:'🕊️', color:'#7c3aed', type:'martyrdom', hijriDate:l==='bn'?'৯ জিলহজ, ৬০ হি.':'9 Dhu al-Hijjah, 60 AH', titleBn:l==='bn'?'হযরত মুসলিম ইবনে আকিল শাহাদাত':'Martyrdom of Muslim ibn Aqil (AS)', arabicTitle:'شهادة مسلم بن عقيل', descBn:l==='bn'?'৬০ হিজরিতে ইমাম হোসাইনের দূত মুসলিম ইবনে আকিল কুফায় ইবনে যিয়াদের নির্দেশে শহীদ হন। তিনি ইমামের পক্ষে বাইয়াত নেওয়ার জন্য কুফায় গিয়েছিলেন। তাঁর সাথে হানি ইবনে উরওয়াও শহীদ হন।':'In 60 AH, Muslim ibn Aqil, the envoy of Imam Husayn, was martyred in Kufa on the orders of Ibn Ziyad. He had gone to Kufa to take pledges of allegiance on behalf of the Imam. Hani ibn Urwa was also martyred alongside him.', amaal:l==='bn'?'শোক পালন, মুসলিম ইবনে আকিলের যিয়ারত, কুফায় যিয়ারত':'Mourning, Ziyarat of Muslim ibn Aqil, visiting Kufa', importance:l==='bn'?'ইমামের বিশ্বস্ত দূতের শাহাদাত — কারবালার পটভূমি':'Martyrdom of the Imam\'s trusted envoy — prelude to Karbala'},
         {id:'sm2', icon:'🕊️', color:'#7c3aed', type:'martyrdom', hijriDate:l==='bn'?'৯ জিলহজ, ৬০ হি.':'9 Dhu al-Hijjah, 60 AH', titleBn:l==='bn'?'হযরত হানি ইবনে উরওয়া শাহাদাত':'Martyrdom of Hani ibn Urwa', arabicTitle:'شهادة هاني بن عروة', descBn:l==='bn'?'৬০ হিজরিতে কুফার বিশিষ্ট নেতা হানি ইবনে উরওয়া মুসলিম ইবনে আকিলকে আশ্রয় দেওয়ার কারণে ইবনে যিয়াদের নির্দেশে শহীদ হন। শিয়াদের শ্রদ্ধেয় ব্যক্তিত্ব।':'In 60 AH, Hani ibn Urwa, a prominent leader of Kufa, was martyred on the orders of Ibn Ziyad for sheltering Muslim ibn Aqil. A revered figure among the Shia.', amaal:l==='bn'?'শোক পালন, যিয়ারত, কুফায় স্মরণ':'Mourning, Ziyarat, remembrance in Kufa', importance:l==='bn'?'কুফার বিশ্বস্ত সমর্থকের শাহাদাত':'Martyrdom of a loyal supporter in Kufa'},
-    ];;
+    ];
     const allDays = [...staticDays, ...state.shiaSpecialDays];
 
     const isStatic = id => id && id.startsWith('st');
@@ -8368,6 +7368,17 @@ console.log('✅ ফিচার লোড: মুহাররম, বিশে�
 
 function renderFamilyTreePage() {
   const d = state.darkMode; const l = state.language;
+
+  // Bug #12 fix: familyTreeDatabase lives in family-tree-data.js which may not
+  // have loaded yet (slow network, load-order issue). Crashing here with
+  // "Cannot read property 'prophet' of undefined" takes down the whole page.
+  if (typeof familyTreeDatabase === 'undefined' || !familyTreeDatabase) {
+    return `<div class="space-y-6 page-enter">
+      <h2 class="text-3xl font-black" style="color:${d?'#f9fafb':'#111827'}">🌳 ${l==='bn'?'আহলুল বাইত বংশধারা':'Ahl al-Bayt Family Tree'}</h2>
+      <p style="color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?'ডেটা লোড হচ্ছে... একটু অপেক্ষা করুন।':'Loading data… please wait.'}</p>
+    </div>`;
+  }
+
   const p = familyTreeDatabase.prophet;
 
   // Populate the imams grid + wire up modal after the markup is inserted into the DOM

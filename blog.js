@@ -65,7 +65,7 @@ const blogPosts = [
 function openBlogEditor(post=null) {
     if (!state.isAdmin) return;
     state.editingPost = post ? {...post} : {
-        id:'custom_'+Date.now(),
+        id:'custom_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),
         date:localDate(),
         titleBn:'',
         titleEn:'',
@@ -132,6 +132,15 @@ async function fetchBlogFromCloud() {
 // BLOG POST CRUD OPERATIONS
 // ============================================================================
 
+// Bug #3 fix: if saveBlogPost() is triggered twice in quick succession
+// (double-click, or saving a second post before the first sync finishes),
+// two syncBlogToCloud() calls run concurrently. Network responses can
+// arrive out of order, so the toast/UI state from the SLOWER (older)
+// request could land after the newer one and show misleading feedback.
+// _blogSyncVersion lets each saveBlogPost() call check "am I still the
+// most recent save?" before acting on its own network result.
+let _blogSyncVersion = 0;
+
 /**
  * Save blog post (create or update)
  */
@@ -162,10 +171,14 @@ async function saveBlogPost() {
     else state.customPosts.unshift(state.editingPost);
     saveState(); closeBlogEditor();
     showToast(state.language==='bn'?'পোস্ট সংরক্ষিত হচ্ছে...':'Saving post...','info');
+
+    const mySyncVersion = ++_blogSyncVersion;
     try {
         await syncBlogToCloud(state.customPosts);
+        if (mySyncVersion !== _blogSyncVersion) return; // a newer save has since taken over; don't report stale success
         showToast(state.language==='bn'?'পোস্ট Cloudinary-তে সেভ হয়েছে ✨':'Post saved to Cloudinary ✨','success');
     } catch(e) {
+        if (mySyncVersion !== _blogSyncVersion) return; // a newer save is in flight/finished; don't show a stale failure
         showToast(state.language==='bn'?'Cloudinary sync ব্যর্থ — locally সেভ হয়েছে':'Cloudinary sync failed — saved locally','warning');
     }
     // Fix: closeBlogEditor() rendered synchronously *before* this await,
@@ -175,23 +188,40 @@ async function saveBlogPost() {
     // screen would keep showing that stale snapshot even though the toast
     // says "saved". A final render() here guarantees the UI reflects the
     // latest state.customPosts once the sync attempt has actually finished.
-    render();
+    if (mySyncVersion === _blogSyncVersion) render();
 }
 
 /**
  * Delete custom blog post
  * @param {string|number} id - Post ID to delete
+ * Bug #8 fix: Save backup before deleting, rollback if sync fails
  */
 async function deleteCustomPost(id) {
     if (!state.isAdmin) return;
     if (!confirm(state.language==='bn'?'পোস্টটি মুছবেন?':'Delete this post?')) return;
+    
+    // Keep a backup in case cloud sync fails
+    const backup = [...state.customPosts];
+    const postToDelete = backup.find(p=>p.id===id);
+    
     state.customPosts = state.customPosts.filter(p=>p.id!==id);
     saveState(); render();
+    showToast(state.language==='bn'?'পোস্ট মুছছি...':'Deleting post...','info');
+    
     try {
         await syncBlogToCloud(state.customPosts);
         showToast(state.language==='bn'?'পোস্ট মুছে ফেলা হয়েছে ✓':'Post deleted ✓','success');
     } catch(e) {
-        showToast(state.language==='bn'?'Cloudinary sync ব্যর্থ':'Cloudinary sync failed','warning');
+        // Rollback: restore the deleted post if sync fails
+        console.error('[Blog] Delete sync failed, rolling back:', e);
+        state.customPosts = backup;
+        saveState(); render();
+        showToast(
+            state.language==='bn'
+                ?'ক্লাউড সিঙ্ক ব্যর্থ — মুছা বাতিল করা হয়েছে'
+                :'Cloud sync failed — deletion cancelled',
+            'warning'
+        );
     }
 }
 
@@ -208,28 +238,37 @@ function renderBlogPage() {
     const allPosts=[...state.customPosts,...blogPosts];
 
     // Category → accent color & badge style
+    // Bug #6 fix: added `en` field so filter bar & badges show English names when l==='en'
+    // Bug #5 fix: removed duplicate English keys (Ramadan, Ahl al-Bayt, etc.)
+    // Store only Bengali keys with `en` field for translations
     const CAT = {
-        'রমজান':    {color:'#1D9E75', bg:d?'rgba(29,158,117,.18)':'#E1F5EE', fg:d?'#5DCAA5':'#0F6E56'},
-        'আহলে বাইত':{color:'#7F77DD', bg:d?'rgba(127,119,221,.18)':'#EEEDFE', fg:d?'#AFA9EC':'#3C3489'},
-        'দোয়া':     {color:'#378ADD', bg:d?'rgba(55,138,221,.18)':'#E6F1FB', fg:d?'#85B7EB':'#0C447C'},
-        'কুরআন':    {color:'#EF9F27', bg:d?'rgba(239,159,39,.18)':'#FAEEDA', fg:d?'#FAC775':'#854F0B'},
-        'ইবাদত':    {color:'#1D9E75', bg:d?'rgba(29,158,117,.18)':'#E1F5EE', fg:d?'#5DCAA5':'#0F6E56'},
-        'আখলাক':    {color:'#D4537E', bg:d?'rgba(212,83,126,.18)':'#FBEAF0', fg:d?'#ED93B1':'#72243E'},
-        'Ramadan':   {color:'#1D9E75', bg:d?'rgba(29,158,117,.18)':'#E1F5EE', fg:d?'#5DCAA5':'#0F6E56'},
-        'Ahl al-Bayt':{color:'#7F77DD',bg:d?'rgba(127,119,221,.18)':'#EEEDFE', fg:d?'#AFA9EC':'#3C3489'},
-        'Duas':      {color:'#378ADD', bg:d?'rgba(55,138,221,.18)':'#E6F1FB', fg:d?'#85B7EB':'#0C447C'},
-        'Quran':     {color:'#EF9F27', bg:d?'rgba(239,159,39,.18)':'#FAEEDA', fg:d?'#FAC775':'#854F0B'},
-        'Worship':   {color:'#1D9E75', bg:d?'rgba(29,158,117,.18)':'#E1F5EE', fg:d?'#5DCAA5':'#0F6E56'},
-        'Ethics':    {color:'#D4537E', bg:d?'rgba(212,83,126,.18)':'#FBEAF0', fg:d?'#ED93B1':'#72243E'},
+        'রমজান':    {color:'#1D9E75', bg:d?'rgba(29,158,117,.18)':'#E1F5EE', fg:d?'#5DCAA5':'#0F6E56', en:'Ramadan'},
+        'আহলে বাইত':{color:'#7F77DD', bg:d?'rgba(127,119,221,.18)':'#EEEDFE', fg:d?'#AFA9EC':'#3C3489', en:'Ahl al-Bayt'},
+        'দোয়া':     {color:'#378ADD', bg:d?'rgba(55,138,221,.18)':'#E6F1FB', fg:d?'#85B7EB':'#0C447C', en:'Duas'},
+        'কুরআন':    {color:'#EF9F27', bg:d?'rgba(239,159,39,.18)':'#FAEEDA', fg:d?'#FAC775':'#854F0B', en:'Quran'},
+        'ইবাদত':    {color:'#1D9E75', bg:d?'rgba(29,158,117,.18)':'#E1F5EE', fg:d?'#5DCAA5':'#0F6E56', en:'Worship'},
+        'আখলাক':    {color:'#D4537E', bg:d?'rgba(212,83,126,.18)':'#FBEAF0', fg:d?'#ED93B1':'#72243E', en:'Ethics'},
     };
-    const catIcon = {'রমজান':'🌙','আহলে বাইত':'👑','দোয়া':'🤲','কুরআন':'📗','ইবাদত':'🕌','আখলাক':'⚖️','Ramadan':'🌙','Ahl al-Bayt':'👑','Duas':'🤲','Quran':'📗','Worship':'🕌','Ethics':'⚖️'};
+    const catIcon = {'রমজান':'🌙','আহলে বাইত':'👑','দোয়া':'🤲','কুরআন':'📗','ইবাদত':'🕌','আখলাক':'⚖️'};
     const defaultCat = {color:'#888780', bg:d?'rgba(136,135,128,.18)':'#F1EFE8', fg:d?'#B4B2A9':'#5F5E5A'};
 
-    function getCat(cat) { return CAT[cat] || defaultCat; }
+    // Bug #4 fix: custom posts (added via the admin editor's free-text category
+    // field) may have category stored in English ("Ramadan") while the filter
+    // bar's data-param is always the Bengali key ("রমজান"), or vice versa.
+    // p.category===activeFilter then misses real matches. canonicalCat()
+    // normalizes either form to the Bengali key so filtering works regardless
+    // of which language a post's category was saved in.
+    const EN_TO_BN = {'Ramadan':'রমজান','Ahl al-Bayt':'আহলে বাইত','Duas':'দোয়া','Quran':'কুরআন','Worship':'ইবাদত','Ethics':'আখলাক'};
+    function canonicalCat(cat) { return EN_TO_BN[cat] || cat; }
+
+    function getCat(cat) { return CAT[canonicalCat(cat)] || defaultCat; }
     function fmtDate(dateStr) {
         if (!dateStr) return '';
         try {
-            const dt = new Date(dateStr);
+            // Bug #7 fix: 'YYYY-MM-DD' strings are parsed as UTC by Date(),
+            // which shifts the displayed date back by 1 day in UTC+ timezones.
+            // Appending T00:00:00 forces local-timezone parsing.
+            const dt = new Date(dateStr.length === 10 ? dateStr + 'T00:00:00' : dateStr);
             return l==='bn'
                 ? dt.toLocaleDateString('bn-BD',{year:'numeric',month:'short',day:'numeric'})
                 : dt.toLocaleDateString('en-GB',{year:'numeric',month:'short',day:'numeric'});
@@ -238,7 +277,7 @@ function renderBlogPage() {
 
     // Active filter
     const activeFilter = state.blogFilter || '';
-    const filtered = activeFilter ? allPosts.filter(p=>p.category===activeFilter) : allPosts;
+    const filtered = activeFilter ? allPosts.filter(p=>canonicalCat(p.category)===canonicalCat(activeFilter)) : allPosts;
     const featured = filtered[0];
     const rest = filtered.slice(1);
 
@@ -250,7 +289,8 @@ function renderBlogPage() {
     const dividerColor = d?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)';
 
     // Category filter bar
-    const categories = Object.keys(CAT).filter(k=>!['Ramadan','Ahl al-Bayt','Duas','Quran','Worship','Ethics'].includes(k));
+    // Bug #5 fix: removed English keys from CAT, so no need to filter them out anymore
+    const categories = Object.keys(CAT);
     const filterBar = `
     <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button data-action="setBlogFilter" data-param=""
@@ -277,7 +317,7 @@ function renderBlogPage() {
             <div style="padding:1.5rem 1.75rem">
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">
                     <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(29,158,117,.15);color:${d?'#5DCAA5':'#0F6E56'}">⭐ ${l==='bn'?'ফিচার্ড':'Featured'}</span>
-                    <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:${c.bg};color:${c.fg}">${catIcon[featured.category]||''} ${sanitize(featured.category||'')}</span>
+                    <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:${c.bg};color:${c.fg}">${catIcon[featured.category]||''} ${sanitize(l==='en'?(CAT[featured.category]?.en||featured.category):(featured.category||''))}</span>
                     ${isCustom?`<span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;background:${d?'rgba(55,138,221,.2)':'#E6F1FB'};color:${d?'#85B7EB':'#0C447C'}">${l==='bn'?'কাস্টম':'Custom'}</span>`:''}
                     <span style="margin-left:auto;font-size:12px;color:${textSecondary}">🕐 ${sanitize(featured.readTime||'')}</span>
                     <span style="font-size:12px;color:${textSecondary}">📅 ${fmtDate(featured.date)}</span>
@@ -315,7 +355,7 @@ function renderBlogPage() {
                     <div style="height:3px;background:${c.color};flex-shrink:0"></div>
                     <div style="padding:1rem 1.1rem;display:flex;flex-direction:column;gap:8px;flex:1">
                         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-                            <span style="font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;background:${c.bg};color:${c.fg}">${catIcon[post.category]||''} ${sanitize(post.category||'')}</span>
+                            <span style="font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;background:${c.bg};color:${c.fg}">${catIcon[post.category]||''} ${sanitize(l==='en'?(CAT[post.category]?.en||post.category):(post.category||''))}</span>
                             ${isCustom?`<span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;background:${d?'rgba(55,138,221,.2)':'#E6F1FB'};color:${d?'#85B7EB':'#0C447C'}">${l==='bn'?'কাস্টম':'Custom'}</span>`:''}
                             <span style="margin-left:auto;font-size:11px;color:${textSecondary}">🕐 ${sanitize(post.readTime||'')}</span>
                         </div>
@@ -380,7 +420,14 @@ function renderBlogEditorModal() {
     const d=state.darkMode; const l=state.language;
     const p=state.editingPost;
     const isNew=String(p.id).startsWith('custom_')&&!state.customPosts.find(cp=>cp.id===p.id);
-    
+    // Bug #1 fix: sanitize() (via escapeHtml/innerHTML round-trip) does not
+    // escape double quotes. That's fine for text *content*, but these values
+    // are placed inside value="..." attributes — a literal " in the title
+    // closes the attribute early and corrupts the rest of the modal's HTML.
+    // attrSafe() escapes & and " (and < > for good measure) so the attribute
+    // always stays intact, regardless of what the admin typed.
+    const attrSafe = v => sanitize(v).replace(/"/g,'&quot;');
+
     return `
     <div class="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4 overflow-y-auto">
         <div class="${d?'bg-gray-800':'bg-white'} rounded-2xl p-8 w-full max-w-2xl shadow-2xl fade-in my-4">
@@ -391,29 +438,30 @@ function renderBlogEditorModal() {
             <div class="space-y-4">
                 <div>
                     <label class="block mb-1.5 text-sm font-medium">${l==='bn'?'শিরোনাম (বাংলা)':'Title (Bengali)'}</label>
-                    <input id="blog-editor-titleBn" type="text" value="${sanitize(p.titleBn)}"
+                    <input id="blog-editor-titleBn" type="text" value="${attrSafe(p.titleBn)}"
                         class="${d?'bg-gray-900 border-gray-700 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-green-500" />
                 </div>
+
                 <div>
                     <label class="block mb-1.5 text-sm font-medium">${l==='bn'?'শিরোনাম (ইংরেজি)':'Title (English)'}</label>
-                    <input id="blog-editor-titleEn" type="text" value="${sanitize(p.titleEn)}"
+                    <input id="blog-editor-titleEn" type="text" value="${attrSafe(p.titleEn)}"
                         class="${d?'bg-gray-900 border-gray-700 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-green-500" />
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block mb-1.5 text-sm font-medium">${l==='bn'?'ক্যাটাগরি':'Category'}</label>
-                        <input id="blog-editor-category" type="text" value="${sanitize(p.category)}"
+                        <input id="blog-editor-category" type="text" value="${attrSafe(p.category)}"
                             class="${d?'bg-gray-900 border-gray-700 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-green-500" />
                     </div>
                     <div>
                         <label class="block mb-1.5 text-sm font-medium">${l==='bn'?'পড়ার সময়':'Read Time'}</label>
-                        <input id="blog-editor-readTime" type="text" value="${sanitize(p.readTime)}"
+                        <input id="blog-editor-readTime" type="text" value="${attrSafe(p.readTime)}"
                             class="${d?'bg-gray-900 border-gray-700 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-green-500" />
                     </div>
                 </div>
                 <div>
                     <label class="block mb-1.5 text-sm font-medium">${l==='bn'?'সারসংক্ষেপ':'Excerpt'}</label>
-                    <input id="blog-editor-excerpt" type="text" value="${sanitize(p.excerpt)}"
+                    <input id="blog-editor-excerpt" type="text" value="${attrSafe(p.excerpt)}"
                         class="${d?'bg-gray-900 border-gray-700 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-green-500" />
                 </div>
                 <div>
