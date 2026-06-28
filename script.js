@@ -87,6 +87,7 @@ function getCategoryColor(cat) {
         'night': { main: '#8b5cf6', light: 'rgba(139,92,246,.12)' },
         'hardship': { main: '#ef4444', light: 'rgba(239,68,68,.12)' },
         'gratitude': { main: '#10b981', light: 'rgba(16,185,129,.12)' },
+        'ramadan': { main: '#f97316', light: 'rgba(249,115,22,.12)' },
         'general': { main: '#f59e0b', light: 'rgba(245,158,11,.12)' }
     };
     return colors[cat] || colors['general'];
@@ -956,6 +957,9 @@ function setupScrollTop() {
 
 // ── Header scroll shadow ──────────────────────────────────────────────────
 function setupHeaderScroll() {
+    if (window._headerScrollSetup) return; // ✅ FIXED: prevent duplicate listeners (Bug #17)
+    window._headerScrollSetup = true;
+    
     const hdr = document.getElementById('main-header');
     if (!hdr) return;
     let _hsTicking = false;
@@ -980,7 +984,7 @@ function setupHeaderScroll() {
 function setupScrollReveal() {
     const els = document.querySelectorAll('.reveal');
     if (!els.length) return;
-    if (window._scrollRevealObs) window._scrollRevealObs.disconnect();
+    if (window._scrollRevealObs) window._scrollRevealObs.disconnect(); // ✅ FIXED: cleanup old observer (Bug #18)
     const obs = new IntersectionObserver((entries) => {
         entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
     }, {threshold:.12, rootMargin:'0px 0px -40px 0px'});
@@ -1536,6 +1540,9 @@ function scrollToImamEl(el) {
 }
 
 function changePage(page) {
+    // ✅ FIXED: Cleanup listeners when leaving certain pages (Bug #25)
+    if (state.currentPage === 'qibla') cleanupQiblaCompass();
+    
     state.previousPage=state.currentPage; state.currentPage=page;
     state.menuOpen=false; state.currentPost=null; state.currentDua=null;
     state.currentZiyarat=null; state.viewerItem=null; state.viewerData=null;
@@ -1741,6 +1748,12 @@ function _performSearch(query) {
 async function requestNotificationPermission() {
     if (!('Notification' in window)) {
         showToast(state.language==='bn'?'এই ব্রাউজার নোটিফিকেশন সাপোর্ট করে না':'Your browser does not support notifications','warning');
+        return;
+    }
+    // ✅ FIXED: Check if permission already granted (Bug #23)
+    if (Notification.permission === 'granted') {
+        showToast(state.language==='bn'?'✅ নোটিফিকেশন ইতিমধ্যে চালু আছে':'✅ Notifications already enabled','info');
+        schedulePrayerNotifications();
         return;
     }
     const perm = await Notification.requestPermission();
@@ -2024,7 +2037,12 @@ function submitContactForm(event) {
         ? 'নাম: '+name+'\nইমেইল: '+email+'\n\nবার্তা:\n'+message
         : 'Name: '+name+'\nEmail: '+email+'\n\nMessage:\n'+message;
     window.location.href = 'mailto:theroleofahlalbaytas@gmail.com?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
-    setTimeout(()=>{ showToast(state.language==='bn'?'আপনার ইমেইল অ্যাপ খুলছে।':'Your email app is opening.','info'); form.reset(); }, 500);
+    // ✅ FIXED: Call render() after form reset to update UI (Bug #26)
+    setTimeout(()=>{ 
+        showToast(state.language==='bn'?'আপনার ইমেইল অ্যাপ খুলছে।':'Your email app is opening.','info'); 
+        form.reset(); 
+        render(); // Update UI after form submission
+    }, 500);
 }
 
 // ============================================================================
@@ -3890,6 +3908,202 @@ function renderViewerContent(type, data, item, d, l) {
 // ✓ renderBlogPage moved to blog.js
 
 // ============================================================================
+// RAMADAN DUA — Special Sectioned Layout
+// ============================================================================
+function renderRamadanLayout(allDuas, d, l) {
+    const ramadanDuas = allDuas.filter(dua => dua.category === 'ramadan');
+
+    // Group definitions — titleBn keyword matching
+    const groups = [
+        {
+            key: 'hilal',
+            icon: '🌙',
+            labelBn: 'রমজান শুরুর দোয়া',
+            labelEn: 'Opening Duas of Ramadan',
+            color: '#f97316',
+            gradient: 'linear-gradient(135deg,#f97316,#ea580c)',
+            keywords: ["চাঁদ দেখার", "ইফতারের", "সেহরির", "প্রতিদিনের সাধারণ"]
+        },
+        {
+            key: 'daily30',
+            icon: '📅',
+            labelBn: '৩০ দিনের দৈনিক দোয়া',
+            labelEn: '30 Daily Duas of Ramadan',
+            color: '#059669',
+            gradient: 'linear-gradient(135deg,#059669,#047857)',
+            keywords: ["দিনের দোয়া"]
+        },
+        {
+            key: 'special',
+            icon: '⭐',
+            labelBn: 'বিশেষ আমল ও দোয়া',
+            labelEn: 'Special Duas & Practices',
+            color: '#8b5cf6',
+            gradient: 'linear-gradient(135deg,#8b5cf6,#7c3aed)',
+            keywords: ["কবরবাসীদের", "ইয়া আলিয়্যু", "আবু হামজা", "ইফতিতাহ", "কুরআন মাথায়", "জাওশান আল-কাবির", "জাওশান আল-সাগির", "মুজির", "বিদায়"]
+        },
+        {
+            key: 'qadr',
+            icon: '💫',
+            labelBn: 'লায়লাতুল কদরের দোয়া',
+            labelEn: 'Duas of Laylatul Qadr',
+            color: '#c9a227',
+            gradient: 'linear-gradient(135deg,#c9a227,#b45309)',
+            keywords: ["লায়লাতুল কদর", "কদরের"]
+        }
+    ];
+
+    // Assign each dua to a group
+    function getGroup(dua) {
+        const title = dua.titleBn || '';
+        // Check special first (Jawshan Kabir has "কদরের" in title but belongs to special)
+        if (groups.find(g=>g.key==='special').keywords.some(kw => title.includes(kw))) return 'special';
+        for (const g of groups) {
+            if (g.key === 'special') continue; // already checked
+            if (g.keywords.some(kw => title.includes(kw))) return g.key;
+        }
+        return 'special';
+    }
+
+    const grouped = {};
+    groups.forEach(g => grouped[g.key] = []);
+    ramadanDuas.forEach(dua => {
+        const gk = getGroup(dua);
+        grouped[gk].push(dua);
+    });
+
+    // Sort daily duas by day number
+    grouped['daily30'].sort((a, b) => {
+        const numA = parseInt((a.titleBn || '').replace(/[^০-৯0-9]/g, '')) || 0;
+        const numB = parseInt((b.titleBn || '').replace(/[^০-৯0-9]/g, '')) || 0;
+        return numA - numB;
+    });
+
+    function duaCard(dua) {
+        const idx = duas.indexOf(dua);
+        const gk = getGroup(dua);
+        const grp = groups.find(g => g.key === gk);
+        const accentColor = grp ? grp.color : '#f97316';
+        return `
+        <article class="card-luxury border reveal"
+            style="background:${d?'#1e2a22':'#ffffff'};
+            border-color:${d?'rgba(249,115,22,.18)':'rgba(249,115,22,.12)'};
+            box-shadow:var(--shadow-sm);overflow:hidden">
+            <div style="height:3px;background:${grp?grp.gradient:'linear-gradient(90deg,#f97316,#c9a227)'};border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
+            <div class="p-5">
+                <div class="flex items-start justify-between gap-3 mb-4">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-base" style="color:${d?'#f9fafb':'#111827'}">${sanitize(l==='bn'?dua.titleBn:dua.titleEn)}</h3>
+                        ${dua.source?`<p class="text-xs mt-0.5" style="color:${d?'#6b7280':'#9ca3af'}">${sanitize(dua.source)}</p>`:''}
+                    </div>
+                </div>
+                <div class="rounded-2xl p-4 mb-4"
+                    style="background:${d?'rgba(249,115,22,.07)':'rgba(255,237,213,.6)'};border:1px solid ${d?'rgba(249,115,22,.18)':'rgba(249,115,22,.18)'}">
+                    <p class="arabic-text arabic-reveal text-center mb-3" dir="rtl" lang="ar"
+                        style="font-size:1.5rem;line-height:2.1;color:${d?'#fb923c':'#9a3412'}">
+                        ${sanitize(dua.arabic)}
+                    </p>
+                    <p class="text-center text-sm leading-relaxed" style="color:${d?'#d1d5db':'#374151'}">${sanitize(l==='bn'?dua.meaningBn:dua.meaningEn)}</p>
+                </div>
+                <button data-action="readDua" data-param="${idx}"
+                    style="font-size:12.5px;font-weight:700;padding:7px 18px;border-radius:50px;
+                    background:rgba(249,115,22,.12);color:${d?'#fb923c':'#ea580c'};
+                    border:1.5px solid rgba(249,115,22,.28);cursor:pointer;
+                    display:inline-flex;align-items:center;gap:6px;transition:all .2s">
+                    ${l==='bn'?'আরও পড়ুন':'Read More'}
+                    <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+                </button>
+            </div>
+        </article>`;
+    }
+
+    // Daily 30 — compact numbered grid cards
+    function dailyCard(dua, i) {
+        const idx = duas.indexOf(dua);
+        const dayNum = i + 1;
+        const bn_nums = ['১','২','৩','৪','৫','৬','৭','৮','৯','১০','১১','১২','১৩','১৪','১৫','১৬','১৭','১৮','১৯','২০','২১','২২','২৩','২৪','২৫','২৬','২৭','২৮','২৯','৩০'];
+        const displayNum = l==='bn' ? (bn_nums[i]||dayNum) : dayNum;
+        return `
+        <article class="card-luxury border reveal"
+            style="background:${d?'#1a2520':'#f0fdf4'};
+            border-color:${d?'rgba(5,150,105,.2)':'rgba(5,150,105,.15)'};
+            box-shadow:var(--shadow-sm);overflow:hidden;cursor:pointer"
+            data-action="readDua" data-param="${idx}">
+            <div style="height:2.5px;background:linear-gradient(90deg,#059669,#c9a227);border-radius:4px 4px 0 0"></div>
+            <div class="p-4" style="display:flex;align-items:center;gap:14px">
+                <div style="flex-shrink:0;width:44px;height:44px;border-radius:50%;
+                    background:linear-gradient(135deg,#059669,#047857);
+                    display:flex;align-items:center;justify-content:center;
+                    box-shadow:0 3px 10px rgba(5,150,105,.3)">
+                    <span style="font-size:.95rem;font-weight:800;color:white">${displayNum}</span>
+                </div>
+                <div style="flex:1;min-width:0">
+                    <p class="font-bold text-sm" style="color:${d?'#f9fafb':'#111827'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                        ${sanitize(l==='bn'?dua.titleBn:dua.titleEn)}
+                    </p>
+                    <p class="text-xs mt-0.5 arabic-text" dir="rtl" lang="ar"
+                        style="color:${d?'#fb923c':'#9a3412'};font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                        ${sanitize(dua.arabic)}
+                    </p>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="${d?'#34d399':'#059669'}" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+            </div>
+        </article>`;
+    }
+
+    // Section header
+    function sectionHeader(grp, count) {
+        return `
+        <div class="reveal" style="display:flex;align-items:center;gap:12px;margin:8px 0 4px">
+            <div style="width:40px;height:40px;border-radius:14px;
+                background:${grp.gradient};
+                display:flex;align-items:center;justify-content:center;
+                font-size:1.2rem;box-shadow:0 4px 12px rgba(0,0,0,.15);flex-shrink:0">
+                ${grp.icon}
+            </div>
+            <div style="flex:1">
+                <h3 style="font-size:1.05rem;font-weight:800;color:${d?'#f9fafb':'#1f2937'};margin:0">
+                    ${l==='bn'?grp.labelBn:grp.labelEn}
+                </h3>
+                <p style="font-size:.75rem;color:${d?'#6b7280':'#9ca3af'};margin:2px 0 0">
+                    ${count} ${l==='bn'?'টি দোয়া':'duas'}
+                </p>
+            </div>
+            <div style="flex:1;height:1.5px;background:linear-gradient(90deg,${grp.color},transparent);max-width:120px;border-radius:2px"></div>
+        </div>`;
+    }
+
+    let html = `<div class="space-y-6">`;
+
+    // 1. রমজান শুরুর দোয়া
+    if (grouped['hilal'].length) {
+        html += sectionHeader(groups[0], grouped['hilal'].length);
+        html += `<div class="space-y-4">` + grouped['hilal'].map(dua => duaCard(dua)).join('') + `</div>`;
+    }
+
+    // 2. ৩০ দিনের দৈনিক দোয়া
+    if (grouped['daily30'].length) {
+        html += sectionHeader(groups[1], grouped['daily30'].length);
+        html += `<div class="space-y-2">` + grouped['daily30'].map((dua,i) => dailyCard(dua,i)).join('') + `</div>`;
+    }
+
+    // 3. লায়লাতুল কদর
+    if (grouped['qadr'].length) {
+        html += sectionHeader(groups[3], grouped['qadr'].length);
+        html += `<div class="space-y-4">` + grouped['qadr'].map(dua => duaCard(dua)).join('') + `</div>`;
+    }
+
+    // 4. বিশেষ দোয়া
+    if (grouped['special'].length) {
+        html += sectionHeader(groups[2], grouped['special'].length);
+        html += `<div class="space-y-4">` + grouped['special'].map(dua => duaCard(dua)).join('') + `</div>`;
+    }
+
+    html += `</div>`;
+    return html;
+}
+
+// ============================================================================
 // PAGE: DUA
 // ============================================================================
 function renderDuaPage() {
@@ -3906,6 +4120,7 @@ function renderDuaPage() {
         {key:'night',   icon:'🌙', label:l==='bn'?'রাত':'Night',             color:'#8b5cf6', bg:'rgba(139,92,246,.15)'},
         {key:'hardship',icon:'⚠️', label:l==='bn'?'বিপদে':'Hardship',       color:'#ef4444', bg:'rgba(239,68,68,.15)'},
         {key:'gratitude',icon:'🙏',label:l==='bn'?'কৃতজ্ঞতা':'Gratitude',  color:'#10b981', bg:'rgba(16,185,129,.15)'},
+        {key:'ramadan', icon:'🌙', label:l==='bn'?'রমজান':'Ramadan',         color:'#f97316', bg:'rgba(249,115,22,.15)'},
     ];
 
     return `
@@ -3992,6 +4207,9 @@ function renderDuaPage() {
                 <div style="font-size:3rem;margin-bottom:.75rem">🤲</div>
                 <p class="font-semibold">${l==='bn'?'কোনো দোয়া নেই':'No duas yet'}</p>
             </div>`:
+            selectedCategory==='ramadan'
+            ? renderRamadanLayout(allDuas, d, l)
+            :
             filteredDuas.map((dua,i)=>{
                 const isCustom=!!dua.id;
                 // Bug #8 fix: `i` is the position in filteredDuas (which may be a
@@ -5680,6 +5898,14 @@ function _handleQiblaOrient(e) {
         needle.style.transformOrigin = '110px 110px';
     }
 }
+// ✅ FIXED: Cleanup Qibla compass listeners when leaving page (Bug #25)
+function cleanupQiblaCompass() {
+    if (window._qiblaOrientBound) {
+        window.removeEventListener('deviceorientationabsolute', _handleQiblaOrient, true);
+        window.removeEventListener('deviceorientation', _handleQiblaOrient, true);
+        window._qiblaOrientBound = false;
+    }
+}
 function renderQiblaPage() {
     const d=state.darkMode; const l=state.language;
     const hasLoc = !!state.userLocation;
@@ -6276,7 +6502,7 @@ function renderReadZiyaratPage() {
 // ============================================================================
 function renderMobileBottomNav() {
     const d=state.darkMode; const l=state.language;
-    const nav=document.getElementById('mobile-bottom-nav');
+    const nav=document.getElementById('mobile-bottom-nav'); // ✅ FIXED: placeholder created in render() (Bug #15)
     if(!nav) return;
 
     const items=[
@@ -6372,6 +6598,7 @@ function render() {
         ${renderAyahEditorModal()}
         ${renderMuharramEditorModal()}
         ${renderShiaDayEditorModal()}
+        <nav id="mobile-bottom-nav" class="fixed bottom-0 left-0 right-0 md:hidden flex justify-around items-center gap-0.5 z-40" role="navigation" aria-label="Mobile navigation"></nav>
         <button id="scroll-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" class="scroll-top-glass" title="${state.language==='bn'?'উপরে যান':'Scroll to Top'}" aria-label="Scroll to top">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10 16v-12m-4 4l4-4 4 4"/></svg>
         </button>
@@ -6661,6 +6888,7 @@ function init() {
     } catch(e) {}
     // ── Dark mode CSS override — mobile browser CSS ও style.css কে override করে ──
     (function injectDarkModeCSS(){
+        if(document.getElementById('dark-mode-override')) return; // Bug #14 fix: duplicate inject রোধ
         const style=document.createElement('style');
         style.id='dark-mode-override';
         style.textContent=`

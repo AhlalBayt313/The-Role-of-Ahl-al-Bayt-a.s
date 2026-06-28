@@ -96,7 +96,14 @@ function closeBlogEditor() {
  * Sync blog posts to Cloudinary
  * @param {Array} posts - Blog posts array
  */
+// Bug #11 fix: পুরনো in-flight sync request abort করার জন্য controller
+// Bug #28: এই variable টাই "sync চলছে" indicator — fetchBlogFromCloud() এটা চেক করবে
+let _blogSyncAbortCtrl = null;
+
 async function syncBlogToCloud(posts) {
+    if (_blogSyncAbortCtrl) { _blogSyncAbortCtrl.abort(); }
+    _blogSyncAbortCtrl = new AbortController();
+    const signal = _blogSyncAbortCtrl.signal;
     try {
         const blob = new Blob([JSON.stringify(posts)], { type:'application/json' });
         const file = new File([blob], 'posts_index.json', { type:'application/json' });
@@ -107,24 +114,51 @@ async function syncBlogToCloud(posts) {
         fd.append('resource_type', 'raw');
         fd.append('use_filename', 'true');
         fd.append('unique_filename', 'false');
-        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/raw/upload`, { method:'POST', body:fd });
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/raw/upload`, { method:'POST', body:fd, signal });
         if (!res.ok) throw new Error(await res.text());
         const data = await res.json();
         console.log('[Blog] Synced →', data.secure_url);
-    } catch(e) { console.error('[Blog] sync error:', e); throw e; }
+    } catch(e) {
+        if (e.name === 'AbortError') { console.log('[Blog] sync aborted — superseded by newer save'); return; }
+        console.error('[Blog] sync error:', e); throw e;
+    } finally {
+        // sync শেষ হলে (success বা error) controller clear করো
+        if (_blogSyncAbortCtrl && signal === _blogSyncAbortCtrl.signal) _blogSyncAbortCtrl = null;
+    }
 }
 
 /**
  * Fetch blog posts from Cloudinary
+ * Bug #28 fix: sync চলাকালীন fetch block করো এবং blindly overwrite না করে
+ * merge করো — local এ নতুন posts থাকলে সেগুলো হারাবে না
  */
 async function fetchBlogFromCloud() {
+    // sync in-progress থাকলে fetch বাতিল — cloud এ এখনো পুরনো data আছে
+    if (_blogSyncAbortCtrl) {
+        console.log('[Blog] fetch skipped — sync in progress');
+        return;
+    }
     try {
         const _cn = window.CLOUDINARY_CLOUD_NAME || "ahlalbayt";
         const url = `https://res.cloudinary.com/${_cn}/raw/upload/blog/posts_index.json?cb=${Date.now()}`;
         const res = await fetch(url);
         if (!res.ok) return;
-        const posts = await res.json();
-        if (Array.isArray(posts) && posts.length) { state.customPosts = posts; saveState(); render(); }
+        const cloudPosts = await res.json();
+        if (!Array.isArray(cloudPosts) || !cloudPosts.length) return;
+
+        // sync আবার শুরু হলে (fetch await এর মাঝে) এখানেও বাতিল করো
+        if (_blogSyncAbortCtrl) {
+            console.log('[Blog] fetch discarded — sync started during request');
+            return;
+        }
+
+        // Bug #28 core fix: merge — cloud এ নেই কিন্তু local এ আছে এমন posts রাখো
+        // (local-only posts হলো সেগুলো যা sync হওয়ার আগেই এই fetch চলে এসেছে)
+        const cloudIds = new Set(cloudPosts.map(p => p.id));
+        const localOnly = state.customPosts.filter(p => !cloudIds.has(p.id));
+        state.customPosts = [...localOnly, ...cloudPosts];
+
+        saveState(); render();
     } catch(e) { console.warn('[Blog] fetch error:', e.message); }
 }
 
@@ -166,9 +200,12 @@ async function saveBlogPost() {
         showToast(state.language==='bn'?'বাংলা শিরোনাম দিন':'Please enter Bengali title','warning');
         return;
     }
-    const idx = state.customPosts.findIndex(p=>p.id===state.editingPost.id);
-    if (idx>-1) state.customPosts[idx]=state.editingPost;
-    else state.customPosts.unshift(state.editingPost);
+    // Bug #9 fix: snapshot copy — live reference রাখলে state.editingPost পরে null/mutate
+    // হলে customPosts[idx]-ও silently change হয়ে যেত
+    const savedPost = {...state.editingPost};
+    const idx = state.customPosts.findIndex(p=>p.id===savedPost.id);
+    if (idx>-1) state.customPosts[idx]=savedPost;
+    else state.customPosts.unshift(savedPost);
     saveState(); closeBlogEditor();
     showToast(state.language==='bn'?'পোস্ট সংরক্ষিত হচ্ছে...':'Saving post...','info');
 
@@ -200,9 +237,9 @@ async function deleteCustomPost(id) {
     if (!state.isAdmin) return;
     if (!confirm(state.language==='bn'?'পোস্টটি মুছবেন?':'Delete this post?')) return;
     
-    // Keep a backup in case cloud sync fails
-    const backup = [...state.customPosts];
-    const postToDelete = backup.find(p=>p.id===id);
+    // Bug #10 fix: deep copy — shallow copy ([...]) তে object references shared,
+    // rollback এ corrupt data ফিরে আসত
+    const backup = state.customPosts.map(p=>({...p}));
     
     state.customPosts = state.customPosts.filter(p=>p.id!==id);
     saveState(); render();
@@ -258,8 +295,9 @@ function renderBlogPage() {
     // p.category===activeFilter then misses real matches. canonicalCat()
     // normalizes either form to the Bengali key so filtering works regardless
     // of which language a post's category was saved in.
-    const EN_TO_BN = {'Ramadan':'রমজান','Ahl al-Bayt':'আহলে বাইত','Duas':'দোয়া','Quran':'কুরআন','Worship':'ইবাদত','Ethics':'আখলাক'};
-    function canonicalCat(cat) { return EN_TO_BN[cat] || cat; }
+    // Bug #12 fix: keys lowercase — "ramadan"/"Ramadan"/"RAMADAN" সব "রমজান" দেবে
+    const EN_TO_BN = {'ramadan':'রমজান','ahl al-bayt':'আহলে বাইত','duas':'দোয়া','quran':'কুরআন','worship':'ইবাদত','ethics':'আখলাক'};
+    function canonicalCat(cat) { if (!cat) return cat; return EN_TO_BN[cat.toLowerCase()] || cat; }
 
     function getCat(cat) { return CAT[canonicalCat(cat)] || defaultCat; }
     function fmtDate(dateStr) {
