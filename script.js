@@ -2495,6 +2495,35 @@ const tts = {
     _speaking: false,
     _utterance: null,
 
+    /**
+     * পুরুষ আরবি কণ্ঠ বেছে নেয় — তেলাওয়াতের স্টাইলে।
+     * অগ্রাধিকার: ১) পুরুষ-নামযুক্ত ar-SA ভয়েস, ২) যেকোনো ar-SA (female বাদে),
+     * ৩) যেকোনো আরবি (female বাদে), ৪) যেকোনো আরবি।
+     */
+    _pickMaleArabicVoice() {
+        const voices = window.speechSynthesis.getVoices();
+        if (!voices.length) return null;
+
+        // পুরুষ-নামের কীওয়ার্ড (বিভিন্ন ব্রাউজারে ভয়েসের নাম ভিন্ন)
+        const maleKw   = /khalid|omar|majed|ali|hassan|ibrahim|male|man|محمد|خالد|عمر|ماجد/i;
+        const femaleKw = /female|woman|girl|layla|leila|salma|amira|nora|zainab|ليلى|سلمى|نورا/i;
+
+        // ১. ar-SA পুরুষ ভয়েস
+        const saMale = voices.find(v => v.lang === 'ar-SA' && maleKw.test(v.name));
+        if (saMale) return saMale;
+
+        // ২. ar-SA (female নয়)
+        const saAny = voices.find(v => v.lang === 'ar-SA' && !femaleKw.test(v.name));
+        if (saAny) return saAny;
+
+        // ৩. যেকোনো আরবি (female নয়)
+        const arAny = voices.find(v => v.lang.startsWith('ar') && !femaleKw.test(v.name));
+        if (arAny) return arAny;
+
+        // ৪. শেষ চেষ্টা — যেকোনো আরবি ভয়েস
+        return voices.find(v => v.lang.startsWith('ar')) || null;
+    },
+
     speak(text, lang='ar-SA', onEnd=null) {
         if (!('speechSynthesis' in window)) {
             showToast(state.language==='bn'?'❌ আপনার ব্রাউজারে TTS সাপোর্ট নেই':'❌ TTS not supported', 'error');
@@ -2502,16 +2531,21 @@ const tts = {
         }
         window.speechSynthesis.cancel();
         const utt = new SpeechSynthesisUtterance(text);
-        utt.lang = lang;
-        utt.rate = 0.82;
-        utt.pitch = 1;
+        utt.lang   = lang;
+        // ── তেলাওয়াত স্টাইল: ধীর গতি, গভীর পুরুষ কণ্ঠ ──
+        utt.rate   = 0.72;   // ধীর — তেলাওয়াতের মতো
+        utt.pitch  = 0.85;   // গভীর পিচ — পুরুষ কণ্ঠ
         utt.volume = 1;
-        // Try to pick an Arabic voice
-        const voices = window.speechSynthesis.getVoices();
-        const arabicVoice = voices.find(v => v.lang.startsWith('ar'));
-        if (arabicVoice) utt.voice = arabicVoice;
+        // ────────────────────────────────────────────────────
+        const maleVoice = this._pickMaleArabicVoice();
+        if (maleVoice) {
+            utt.voice = maleVoice;
+            console.log('[TTS] ভয়েস:', maleVoice.name, '|', maleVoice.lang);
+        } else {
+            console.warn('[TTS] আরবি পুরুষ ভয়েস পাওয়া যায়নি — ডিফল্ট ব্যবহার হচ্ছে');
+        }
         utt.onstart = () => { tts._speaking = true; tts._updateBtn(true); };
-        utt.onend = () => { tts._speaking = false; tts._updateBtn(false); if (onEnd) onEnd(); };
+        utt.onend   = () => { tts._speaking = false; tts._updateBtn(false); if (onEnd) onEnd(); };
         utt.onerror = () => { tts._speaking = false; tts._updateBtn(false); };
         this._utterance = utt;
         window.speechSynthesis.speak(utt);
@@ -2539,9 +2573,15 @@ const tts = {
     }
 };
 
-// Voices load asynchronously in some browsers
+// Voices load asynchronously in some browsers — preload & log করি
 if ('speechSynthesis' in window) {
-    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+    window.speechSynthesis.onvoiceschanged = () => {
+        const voices = window.speechSynthesis.getVoices();
+        const arVoices = voices.filter(v => v.lang.startsWith('ar'));
+        if (arVoices.length) {
+            console.log('[TTS] উপলব্ধ আরবি ভয়েস:', arVoices.map(v => `${v.name} (${v.lang})`).join(', '));
+        }
+    };
 }
 
 function renderTTSBtn(arabicText, d) {
