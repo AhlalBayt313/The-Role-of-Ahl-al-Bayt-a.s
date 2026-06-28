@@ -801,21 +801,155 @@ const familyTreeDatabase = {
 };
 
 // ===============================================
-// Function to validate data structure
+// Validation errors storage (accessible for UI)
+// ===============================================
+let familyTreeValidationErrors = [];
+
+// ===============================================
+// Function to validate data structure comprehensively
 // ===============================================
 function validateFamilyTreeData() {
+  familyTreeValidationErrors = [];
+  
   console.log('✅ Family Tree Database loaded successfully');
   console.log(`   Prophet: ${familyTreeDatabase.prophet.bengaliName}`);
   console.log(`   Imams: ${familyTreeDatabase.imams.length} total`);
   
-  // Verify all imams have required fields
-  familyTreeDatabase.imams.forEach(imam => {
+  // Critical fields that must exist for safe rendering
+  const CRITICAL_FIELDS = ['id', 'arabicName', 'bengaliName', 'birth', 'death', 'parents', 'spouse', 'children', 'color', 'textColor', 'description'];
+  const RECOMMENDED_FIELDS = ['birthPlace', 'deathPlace', 'reignYears', 'significance', 'features'];
+  
+  // Validate Prophet object
+  if (!familyTreeDatabase.prophet) {
+    familyTreeValidationErrors.push('Prophet object is missing entirely');
+    console.error('❌ Prophet object is missing entirely');
+    return false;
+  }
+
+  // Bug fix: guard the array itself (not just individual entries — see fix
+  // below) in case familyTreeDatabase.imams is missing or not an array.
+  if (!Array.isArray(familyTreeDatabase.imams)) {
+    familyTreeValidationErrors.push('Imams array is missing or not an array');
+    console.error('❌ Imams array is missing or not an array');
+    return false;
+  }
+  
+  // Validate each imam's data
+  const imamErrors = [];
+  familyTreeDatabase.imams.forEach((imam, index) => {
+    const imamNumber = index + 1;
+
+    // Bug fix: if the array has a hole (a missing entry — null/undefined,
+    // e.g. from a bad edit or merge), `imam` itself is missing here. Every
+    // check below assumes `imam` is an object and reads imam[field] /
+    // imam.bengaliName directly, which throws a TypeError and aborts the
+    // whole forEach (so even the OTHER, perfectly fine imams never get
+    // validated or logged). Catch this case first and skip safely instead.
+    if (!imam) {
+      const errorMsg = `ইমাম #${imamNumber}: ইমামের ডেটা সম্পূর্ণ অনুপস্থিত (null/undefined)`;
+      imamErrors.push(errorMsg);
+      console.error(`❌ ${errorMsg}`);
+      return; // skip remaining checks for this entry — nothing to read
+    }
+
+    // Check critical fields
+    CRITICAL_FIELDS.forEach(field => {
+      if (imam[field] === undefined || imam[field] === null || imam[field] === '') {
+        const errorMsg = `ইমাম #${imamNumber} ${imam.bengaliName || '(নাম অজানা)'}: "${field}" ফিল্ড অনুপস্থিত`;
+        imamErrors.push(errorMsg);
+        console.warn(`⚠️  ${errorMsg}`);
+      }
+    });
+    
+    // Check if imam has any basic data
     if (!imam.id || !imam.arabicName || !imam.bengaliName) {
-      console.warn(`⚠️  Imam missing data: ${imam.bengaliName}`);
+      const errorMsg = `ইমাম #${imamNumber}: প্রয়োজনীয় নাম/আইডি ফিল্ড অনুপস্থিত`;
+      imamErrors.push(errorMsg);
+      console.error(`❌ ${errorMsg}`);
+    }
+    
+    // Validate data types
+    if (imam.id && typeof imam.id !== 'number') {
+      console.warn(`⚠️  ইমাম #${imamNumber}: ID সংখ্যা নয়`);
+    }
+    
+    if (typeof imam.children !== 'undefined' && !Array.isArray(imam.children) && typeof imam.children !== 'string') {
+      imamErrors.push(`ইমাম #${imamNumber}: children ফিল্ড গঠন ভুল (array বা string হওয়া উচিত)`);
+    }
+    
+    if (typeof imam.features !== 'undefined' && !Array.isArray(imam.features)) {
+      imamErrors.push(`ইমাম #${imamNumber}: features ফিল্ড array হওয়া উচিত`);
     }
   });
   
-  return true;
+  if (imamErrors.length > 0) {
+    familyTreeValidationErrors.push(...imamErrors);
+  }
+  
+  // Summary log
+  if (familyTreeValidationErrors.length === 0) {
+    console.log('✅ সকল ইমাম ডেটা সফলভাবে যাচাই করা হয়েছে');
+    return true;
+  } else {
+    console.error(`❌ মোট ${familyTreeValidationErrors.length}টি ডেটা ত্রুটি পাওয়া গেছে`);
+    return false;
+  }
+}
+
+// ===============================================
+// Safe data access function with fallbacks
+// ===============================================
+function getSafeImamData(imam) {
+  if (!imam) {
+    return {
+      bengaliName: 'অজানা ইমাম',
+      arabicName: 'Unknown',
+      englishName: 'Unknown',
+      birth: 'তথ্য অনুপলব্ধ',
+      death: 'তথ্য অনুপলব্ধ',
+      parents: 'তথ্য অনুপলব্ধ',
+      spouse: 'তথ্য অনুপলব্ধ',
+      children: 'তথ্য অনুপলব্ধ',
+      description: 'এই ইমামের তথ্য বর্তমানে উপলব্ধ নয়',
+      color: '#6B7280',
+      textColor: '#FFFFFF'
+    };
+  }
+  
+  // Return imam data with fallbacks for missing critical fields
+  return {
+    id: imam.id || 'Unknown',
+    arabicName: imam.arabicName || 'غير معروف',
+    bengaliName: imam.bengaliName || 'অজানা ইমাম',
+    englishName: imam.englishName || 'Unknown Imam',
+    birth: imam.birth || 'তথ্য অনুপলব্ধ',
+    birthPlace: imam.birthPlace || 'অজানা',
+    death: imam.death || 'তথ্য অনুপলব্ধ',
+    deathPlace: imam.deathPlace || 'অজানা',
+    parents: imam.parents || 'তথ্য অনুপলব্ধ',
+    spouse: imam.spouse || 'তথ্য অনুপলব্ধ',
+    children: imam.children || 'তথ্য অনুপলব্ধ',
+    description: imam.description || 'এই ইমামের বিস্তারিত তথ্য বর্তমানে উপলব্ধ নয়',
+    color: imam.color || '#6B7280',
+    textColor: imam.textColor || '#FFFFFF',
+    reignYears: imam.reignYears || 'তথ্য অনুপলব্ধ',
+    significance: imam.significance || 'অনন্য গুরুত্ব',
+    features: Array.isArray(imam.features) ? imam.features : (imam.features ? [imam.features] : [])
+  };
+}
+
+// ===============================================
+// Get validation errors for UI display
+// ===============================================
+function getFamilyTreeValidationErrors() {
+  return familyTreeValidationErrors;
+}
+
+// ===============================================
+// Check if data is valid
+// ===============================================
+function isFamilyTreeDataValid() {
+  return familyTreeValidationErrors.length === 0;
 }
 
 // Load and validate on script load

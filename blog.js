@@ -355,7 +355,7 @@ function renderBlogPage() {
             <div style="padding:1.5rem 1.75rem">
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">
                     <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(29,158,117,.15);color:${d?'#5DCAA5':'#0F6E56'}">⭐ ${l==='bn'?'ফিচার্ড':'Featured'}</span>
-                    <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:${c.bg};color:${c.fg}">${catIcon[featured.category]||''} ${sanitize(l==='en'?(CAT[featured.category]?.en||featured.category):(featured.category||''))}</span>
+                    <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:${c.bg};color:${c.fg}">${catIcon[canonicalCat(featured.category)]||''} ${sanitize(l==='en'?(CAT[canonicalCat(featured.category)]?.en||featured.category):(canonicalCat(featured.category)||''))}</span>
                     ${isCustom?`<span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;background:${d?'rgba(55,138,221,.2)':'#E6F1FB'};color:${d?'#85B7EB':'#0C447C'}">${l==='bn'?'কাস্টম':'Custom'}</span>`:''}
                     <span style="margin-left:auto;font-size:12px;color:${textSecondary}">🕐 ${sanitize(featured.readTime||'')}</span>
                     <span style="font-size:12px;color:${textSecondary}">📅 ${fmtDate(featured.date)}</span>
@@ -393,7 +393,7 @@ function renderBlogPage() {
                     <div style="height:3px;background:${c.color};flex-shrink:0"></div>
                     <div style="padding:1rem 1.1rem;display:flex;flex-direction:column;gap:8px;flex:1">
                         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-                            <span style="font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;background:${c.bg};color:${c.fg}">${catIcon[post.category]||''} ${sanitize(l==='en'?(CAT[post.category]?.en||post.category):(post.category||''))}</span>
+                            <span style="font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;background:${c.bg};color:${c.fg}">${catIcon[canonicalCat(post.category)]||''} ${sanitize(l==='en'?(CAT[canonicalCat(post.category)]?.en||post.category):(canonicalCat(post.category)||''))}</span>
                             ${isCustom?`<span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;background:${d?'rgba(55,138,221,.2)':'#E6F1FB'};color:${d?'#85B7EB':'#0C447C'}">${l==='bn'?'কাস্টম':'Custom'}</span>`:''}
                             <span style="margin-left:auto;font-size:11px;color:${textSecondary}">🕐 ${sanitize(post.readTime||'')}</span>
                         </div>

@@ -1,3 +1,8 @@
+// Bug fix: category values here must match the filter keys in renderDuaPage()
+// (script.js). This file previously used category:'distress' while the page's
+// category filter button used key:'hardship' — an exact-string-match filter
+// (dua.category===selectedCategory), so those duas never appeared when that
+// filter was selected. Renamed to 'hardship' to match script.js's convention.
 const duas = [
   // ═══════════════════════════════════════════════
   // ১. দোয়ায়ে কুমাইল
@@ -244,7 +249,7 @@ const duas = [
   {
     titleBn:'দোয়ায়ে মাশলুল',
     titleEn:'Dua Mashlool',
-    category:'distress',
+    category:'hardship',
     arabic:'اللَّهُمَّ إِنِّي أَسْأَلُكَ بِاسْمِكَ الَّذِي وَضَعْتَهُ عَلَى السَّمَاءِ',
     meaningBn:'হে আল্লাহ! আমি তোমার সেই নামের ওসিলায় চাই যা তুমি আকাশে রেখেছ',
     meaningEn:'O Allah! I ask You by Your name which You placed upon the heavens',
@@ -722,7 +727,7 @@ const duas = [
   {
     titleBn:'দোয়ায়ে ফারাজ',
     titleEn:'Dua al-Faraj',
-    category:'distress',
+    category:'hardship',
     arabic:'اللَّهُمَّ عَظُمَ الْبَلَاءُ وَبَرِحَ الْخَفَاءُ',
     meaningBn:'হে আল্লাহ! বিপদ বিশাল হয়ে গেছে এবং গোপন বিষয় প্রকাশ পেয়ে গেছে',
     meaningEn:'O Allah! The tribulation is great and the hidden has been revealed',
@@ -1791,7 +1796,7 @@ const duas = [
   {
     titleBn:'দোয়ায়ে হাজত',
     titleEn:'Dua al-Hajat',
-    category:'distress',
+    category:'hardship',
     arabic:'يَا مَنْ تَكَشَّفُ بِهِ الْغُمُومُ',
     meaningBn:'হে সেই সত্তা — যাঁর মাধ্যমে যাবতীয় দুঃখ-কষ্ট দূরীভূত হয়',
     meaningEn:'O the One through whom all sorrows are removed',
@@ -1826,7 +1831,7 @@ const duas = [
   {
     titleBn:'দোয়ায়ে ইউনুস',
     titleEn:'Dua Yunus',
-    category:'distress',
+    category:'hardship',
     arabic:'لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ',
     meaningBn:'তুমি ছাড়া কোনো উপাস্য নেই, তুমি পবিত্র, নিশ্চয় আমি জালিমদের অন্তর্ভুক্ত হয়েছিলাম',
     meaningEn:'There is no god but You, glory be to You, indeed I was among the wrongdoers',
