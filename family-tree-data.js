@@ -193,7 +193,7 @@ const familyTreeDatabase = {
       age_at_death: '৪৫ বছর',
       
       parents: 'ইমাম আলী এবং ফাতিমা আজ-জাহরা',
-      spouse: 'খাওলা বিনত মনসুর এবং অন্যান্য',
+      spouse: 'খাওলা বিনত মনসুর (প্রথম স্ত্রী) এবং অন্যান্য',
       children: '১৫ সন্তান (বিভিন্ন স্ত্রীদের)',
       
       color: '#EC4899',
@@ -243,7 +243,7 @@ const familyTreeDatabase = {
       age_at_death: '৫৪ বছর',
       
       parents: 'ইমাম আলী এবং ফাতিমা আজ-জাহরা',
-      spouse: 'শাহরবানু (যাজ্জারি), উম্মে ইসহাক ও অন্যান্য',
+      spouse: 'শাহরবানু (যাজ্জারি, প্রধান স্ত্রী - ইমাম জয়নুল আবিদীনের মা), উম্মে ইসহাক ও অন্যান্য',
       children: [
         'আলী আজগার (চার বছর বয়সী)',
         'ইমাম জয়নুল আবিদীন',
@@ -310,7 +310,7 @@ const familyTreeDatabase = {
       age_at_death: '৫৮ বছর',
       
       parents: 'ইমাম হুসাইন এবং শাহরবানু (পারস্যের রাজকন্যা)',
-      spouse: 'লায়লা বিনত আবা হেরা',
+      spouse: 'লায়লা বিনত আবা হেরা (মুহাম্মদ বাকিরের মা)',
       children: [
         'ইমাম মুহাম্মদ বাকির (প্রধান)',
         'আবদুল্লাহ',
@@ -368,7 +368,7 @@ const familyTreeDatabase = {
       age_at_death: '৫৫ বছর',
       
       parents: 'ইমাম জয়নুল আবিদীন এবং লায়লা',
-      spouse: 'উম্মে আবদিল্লাহ ফাতিমা',
+      spouse: 'উম্মে আবদিল্লাহ ফাতিমা (জাফর সাদেকের মা)',
       children: [
         'ইমাম জাফর সাদেক (প্রধান)',
         'আবদুল্লাহ',
@@ -420,7 +420,7 @@ const familyTreeDatabase = {
       age_at_death: '৬৩ বছর',
       
       parents: 'ইমাম মুহাম্মদ বাকির এবং উম্মে আবদিল্লাহ',
-      spouse: 'উম্মে ফারওয়া (এবং অন্যান্য)',
+      spouse: 'উম্মে ফারওয়া (মুসা কাজিমের মা) এবং অন্যান্য',
       children: [
         'ইমাম মুসা কাজিম (প্রধান)',
         'ইসমাইল (মৃত)',
@@ -480,7 +480,7 @@ const familyTreeDatabase = {
       age_at_death: '৫৪ বছর',
       
       parents: 'ইমাম জাফর সাদেক এবং নজমা',
-      spouse: 'নজমা (এবং অন্যান্য)',
+      spouse: 'নজমা (আলী রেজার মা) এবং অন্যান্য',
       children: [
         'ইমাম আলী রেজা (প্রধান)',
         'মুহাম্মদ',
@@ -539,7 +539,7 @@ const familyTreeDatabase = {
       age_at_death: '৫৩ বছর',
       
       parents: 'ইমাম মুসা কাজিম এবং নজমা',
-      spouse: 'উম্মে আবদিল্লাহ (এবং অন্যান্য)',
+      spouse: 'উম্মে আবদিল্লাহ (মুহাম্মদ তাকীর মা) এবং অন্যান্য',
       children: [
         'ইমাম মুহাম্মদ তাকী',
         'ফাতিমা',
@@ -593,7 +593,7 @@ const familyTreeDatabase = {
       age_at_death: '২৫ বছর',
       
       parents: 'ইমাম আলী রেজা এবং উম্মে আবদিল্লাহ',
-      spouse: 'উম্মে ফাজল (এবং অন্যান্য)',
+      spouse: 'উম্মে ফাজল (আলী হাদীর মা) এবং অন্যান্য',
       children: [
         'ইমাম আলী হাদী',
         'ফাতিমা',
@@ -645,7 +645,7 @@ const familyTreeDatabase = {
       age_at_death: '৪৬ বছর',
       
       parents: 'ইমাম মুহাম্মদ তাকী এবং উম্মে ফাজল',
-      spouse: 'সুমান্যা (এবং অন্যান্য)',
+      spouse: 'সুমান্যা (হাসান আসকারীর মা) এবং অন্যান্য',
       children: [
         'ইমাম হাসান আসকারী',
         'মুহাম্মদ',
@@ -697,7 +697,7 @@ const familyTreeDatabase = {
       age_at_death: '২৮ বছর',
       
       parents: 'ইমাম আলী হাদী এবং সুমান্যা',
-      spouse: 'নারজিস',
+      spouse: 'নারজিস (মুহাম্মদ মেহদীর মা)',
       children: [
         'ইমাম মুহাম্মদ মেহদী (একমাত্র সন্তান)'
       ],
@@ -899,6 +899,17 @@ function validateFamilyTreeData() {
 // ===============================================
 // Safe data access function with fallbacks
 // ===============================================
+/**
+ * getSafeImamData() - একটি ইমামের ডেটা নিরাপদে এক্সেস করে
+ * @param {Object} imam - ইমামের অবজেক্ট
+ * @returns {Object} নিরাপদ ডেটা যেখানে সব প্রয়োজনীয় ফিল্ড আছে
+ * 
+ * ব্যবহার: 
+ *   const safeData = getSafeImamData(imams[0]);
+ *   console.log(safeData.bengaliName); // সবসময় একটি স্ট্রিং রিটার্ন করে
+ * 
+ * উদ্দেশ্য: UI rendering এ undefined/null এরর এড়ানো
+ */
 function getSafeImamData(imam) {
   if (!imam) {
     return {
@@ -936,6 +947,19 @@ function getSafeImamData(imam) {
     significance: imam.significance || 'অনন্য গুরুত্ব',
     features: Array.isArray(imam.features) ? imam.features : (imam.features ? [imam.features] : [])
   };
+}
+
+// ===============================================
+// Get imam by ID using safe data access
+// ===============================================
+/**
+ * getImamById() - ID দ্বারা ইমাম খুঁজে বের করে এবং নিরাপদ ডেটা রিটার্ন করে
+ * @param {number} id - ইমামের ID (1-12)
+ * @returns {Object} নিরাপদ ইমাম ডেটা
+ */
+function getImamById(id) {
+  const imam = familyTreeDatabase.imams.find(i => i && i.id === id);
+  return getSafeImamData(imam);
 }
 
 // ===============================================

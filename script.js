@@ -825,6 +825,8 @@ const KEYS = {
     SAHIFA_PDFS:'ahlbayt_sahifa_pdfs',
     IMAM_HADITH_PDFS:'ahlbayt_imam_hadith_pdfs',
     SPECIAL_DAY_PDFS:'ahlbayt_special_day_pdfs',
+    PRAYER_NOTIFY_PREFS:'ahlbayt_prayer_notify_prefs',
+    QAZA_TRACKER:'ahlbayt_qaza_tracker',
 };
 
 function lsGet(key, fallback=null) {
@@ -1745,6 +1747,61 @@ function _performSearch(query) {
 // ============================================================================
 // NOTIFICATION ACTIONS
 // ============================================================================
+function getPrayerNotifyPrefs() {
+    return lsGet(KEYS.PRAYER_NOTIFY_PREFS, { fajr:false, dhuhr:false, asr:false, maghrib:false, isha:false });
+}
+function setPrayerNotifyPrefs(prefs) {
+    lsSet(KEYS.PRAYER_NOTIFY_PREFS, prefs);
+}
+function getTodayKey() {
+    const t = new Date();
+    return t.getFullYear() + '-' + String(t.getMonth()+1).padStart(2,'0') + '-' + String(t.getDate()).padStart(2,'0');
+}
+function getQazaTracker() {
+    return lsGet(KEYS.QAZA_TRACKER, {});
+}
+function isPrayerMarkedDone(prayerKey) {
+    const tracker = getQazaTracker();
+    const today = tracker[getTodayKey()] || {};
+    return !!today[prayerKey];
+}
+function toggleQazaMark(prayerKey) {
+    const tracker = getQazaTracker();
+    const key = getTodayKey();
+    if (!tracker[key]) tracker[key] = {};
+    tracker[key][prayerKey] = !tracker[key][prayerKey];
+    lsSet(KEYS.QAZA_TRACKER, tracker);
+    render();
+}
+
+async function togglePrayerNotify(prayerKey) {
+    if (!('Notification' in window)) {
+        showToast(state.language==='bn'?'এই ব্রাউজার নোটিফিকেশন সাপোর্ট করে না':'Your browser does not support notifications','warning');
+        return;
+    }
+    const prefs = getPrayerNotifyPrefs();
+    const turningOn = !prefs[prayerKey];
+    if (turningOn && Notification.permission !== 'granted') {
+        const perm = await Notification.requestPermission();
+        if (perm !== 'granted') {
+            showToast(state.language==='bn'?'নোটিফিকেশন অনুমতি দেওয়া হয়নি':'Notification permission denied','warning');
+            return;
+        }
+    }
+    prefs[prayerKey] = turningOn;
+    setPrayerNotifyPrefs(prefs);
+    const prayerNamesBn3={fajr:'ফজর',dhuhr:'যোহর',asr:'আসর',maghrib:'মাগরিব',isha:'ইশা'};
+    const prayerNamesEn3={fajr:'Fajr',dhuhr:'Dhuhr',asr:'Asr',maghrib:'Maghrib',isha:'Isha'};
+    const displayName = state.language==='bn'?prayerNamesBn3[prayerKey]:prayerNamesEn3[prayerKey];
+    showToast(
+        turningOn
+            ? (state.language==='bn'?`🔔 ${displayName} নামাজের নোটিফিকেশন চালু হয়েছে`:`🔔 ${displayName} notifications enabled`)
+            : (state.language==='bn'?`🔕 ${displayName} নামাজের নোটিফিকেশন বন্ধ হয়েছে`:`🔕 ${displayName} notifications disabled`),
+        turningOn?'success':'info'
+    );
+    schedulePrayerNotifications();
+    render();
+}
 async function requestNotificationPermission() {
     if (!('Notification' in window)) {
         showToast(state.language==='bn'?'এই ব্রাউজার নোটিফিকেশন সাপোর্ট করে না':'Your browser does not support notifications','warning');
@@ -1769,9 +1826,11 @@ function schedulePrayerNotifications() {
     if (!state.prayerTimes || Notification.permission!=='granted') return;
     _notifTimers.forEach(id => clearTimeout(id));
     _notifTimers = [];
+    const prefs = getPrayerNotifyPrefs();
     const prayerNamesBn2={fajr:'ফজর',dhuhr:'যোহর',asr:'আসর',maghrib:'মাগরিব',isha:'ইশা'};
     const prayerNamesEn2={fajr:'Fajr',dhuhr:'Dhuhr',asr:'Asr',maghrib:'Maghrib',isha:'Isha'};
     Object.entries(state.prayerTimes).forEach(([key, time])=>{
+        if (!prefs[key]) return;
         const displayName=state.language==='bn'?(prayerNamesBn2[key]||key):(prayerNamesEn2[key]||key);
         const [timePart, ampm] = time.split(' ');
         let [h,m] = timePart.split(':').map(Number);
@@ -2198,6 +2257,8 @@ function setupEventListeners() {
                 }
                 // NOTIFICATIONS
                 case 'requestNotify': requestNotificationPermission(); break;
+                case 'togglePrayerNotify': togglePrayerNotify(param); break;
+                case 'toggleQazaMark': toggleQazaMark(param); break;
                 // BLOG EDITOR
                 case 'openBlogEditor': openBlogEditor(); break;
                 case 'openBlogEditorEdit': {
@@ -2488,41 +2549,32 @@ function renderHijriBanner(d, l) {
         + '</div>';
 }
 
+// ── Ramadan progress bar — shown only during Hijri month 9 (Ramadan) ──
+function renderRamadanProgressBar(d, l) {
+    const h = approxHijriNow();
+    if (h.month !== 9) return '';
+    const totalDays = getHijriMonthDays(9, h.year);
+    const dayNum = Math.min(h.day, totalDays);
+    const pct = Math.round((dayNum / totalDays) * 100);
+    const dayLabel = l === 'bn'
+        ? `রমজানের ${toBengaliDigits(dayNum)} তম দিন · ${toBengaliDigits(pct)}% সম্পন্ন`
+        : `Day ${dayNum} of Ramadan · ${pct}% complete`;
+    return '<div class="reveal" style="margin-bottom:1.1rem;padding:0 .25rem">'
+        + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">'
+        + '<span style="font-size:.72rem;font-weight:700;color:' + (d?'#fcd34d':'#92400e') + '">🌙 ' + dayLabel + '</span>'
+        + '</div>'
+        + '<div style="width:100%;height:5px;border-radius:999px;background:' + (d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)') + ';overflow:hidden">'
+        + '<div style="height:100%;width:' + pct + '%;border-radius:999px;background:linear-gradient(90deg,#f97316,#fbbf24);transition:width .4s ease"></div>'
+        + '</div>'
+        + '</div>';
+}
+
 // ============================================================================
 // ARABIC TEXT-TO-SPEECH ENGINE
 // ============================================================================
 const tts = {
     _speaking: false,
     _utterance: null,
-
-    /**
-     * পুরুষ আরবি কণ্ঠ বেছে নেয় — তেলাওয়াতের স্টাইলে।
-     * অগ্রাধিকার: ১) পুরুষ-নামযুক্ত ar-SA ভয়েস, ২) যেকোনো ar-SA (female বাদে),
-     * ৩) যেকোনো আরবি (female বাদে), ৪) যেকোনো আরবি।
-     */
-    _pickMaleArabicVoice() {
-        const voices = window.speechSynthesis.getVoices();
-        if (!voices.length) return null;
-
-        // পুরুষ-নামের কীওয়ার্ড (বিভিন্ন ব্রাউজারে ভয়েসের নাম ভিন্ন)
-        const maleKw   = /khalid|omar|majed|ali|hassan|ibrahim|male|man|محمد|خالد|عمر|ماجد/i;
-        const femaleKw = /female|woman|girl|layla|leila|salma|amira|nora|zainab|ليلى|سلمى|نورا/i;
-
-        // ১. ar-SA পুরুষ ভয়েস
-        const saMale = voices.find(v => v.lang === 'ar-SA' && maleKw.test(v.name));
-        if (saMale) return saMale;
-
-        // ২. ar-SA (female নয়)
-        const saAny = voices.find(v => v.lang === 'ar-SA' && !femaleKw.test(v.name));
-        if (saAny) return saAny;
-
-        // ৩. যেকোনো আরবি (female নয়)
-        const arAny = voices.find(v => v.lang.startsWith('ar') && !femaleKw.test(v.name));
-        if (arAny) return arAny;
-
-        // ৪. শেষ চেষ্টা — যেকোনো আরবি ভয়েস
-        return voices.find(v => v.lang.startsWith('ar')) || null;
-    },
 
     speak(text, lang='ar-SA', onEnd=null) {
         if (!('speechSynthesis' in window)) {
@@ -2531,21 +2583,16 @@ const tts = {
         }
         window.speechSynthesis.cancel();
         const utt = new SpeechSynthesisUtterance(text);
-        utt.lang   = lang;
-        // ── তেলাওয়াত স্টাইল: ধীর গতি, গভীর পুরুষ কণ্ঠ ──
-        utt.rate   = 0.72;   // ধীর — তেলাওয়াতের মতো
-        utt.pitch  = 0.85;   // গভীর পিচ — পুরুষ কণ্ঠ
+        utt.lang = lang;
+        utt.rate = 0.82;
+        utt.pitch = 1;
         utt.volume = 1;
-        // ────────────────────────────────────────────────────
-        const maleVoice = this._pickMaleArabicVoice();
-        if (maleVoice) {
-            utt.voice = maleVoice;
-            console.log('[TTS] ভয়েস:', maleVoice.name, '|', maleVoice.lang);
-        } else {
-            console.warn('[TTS] আরবি পুরুষ ভয়েস পাওয়া যায়নি — ডিফল্ট ব্যবহার হচ্ছে');
-        }
+        // Try to pick an Arabic voice
+        const voices = window.speechSynthesis.getVoices();
+        const arabicVoice = voices.find(v => v.lang.startsWith('ar'));
+        if (arabicVoice) utt.voice = arabicVoice;
         utt.onstart = () => { tts._speaking = true; tts._updateBtn(true); };
-        utt.onend   = () => { tts._speaking = false; tts._updateBtn(false); if (onEnd) onEnd(); };
+        utt.onend = () => { tts._speaking = false; tts._updateBtn(false); if (onEnd) onEnd(); };
         utt.onerror = () => { tts._speaking = false; tts._updateBtn(false); };
         this._utterance = utt;
         window.speechSynthesis.speak(utt);
@@ -2573,15 +2620,9 @@ const tts = {
     }
 };
 
-// Voices load asynchronously in some browsers — preload & log করি
+// Voices load asynchronously in some browsers
 if ('speechSynthesis' in window) {
-    window.speechSynthesis.onvoiceschanged = () => {
-        const voices = window.speechSynthesis.getVoices();
-        const arVoices = voices.filter(v => v.lang.startsWith('ar'));
-        if (arVoices.length) {
-            console.log('[TTS] উপলব্ধ আরবি ভয়েস:', arVoices.map(v => `${v.name} (${v.lang})`).join(', '));
-        }
-    };
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
 }
 
 function renderTTSBtn(arabicText, d) {
@@ -2606,7 +2647,7 @@ function renderDailyAyahInner(d, l) {
     const ref = l==='bn' ? (ay.ref||ay.refEn||'') : (ay.refEn||ay.ref||'');
     return '<div class="' + (d?'bg-black/20':'bg-white/70') + ' rounded-2xl p-4 mb-3">'
         + '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px">'
-        + '<p class="arabic-text arabic-reveal text-center flex-1 mb-0" dir="rtl" style="font-size:1.4rem;line-height:2;color:' + (d?'#c9a227':'#92400e') + '">' + arabic + '</p>'
+        + '<p class="arabic-text arabic-reveal text-center flex-1 mb-0" dir="rtl" style="font-size:clamp(1.4rem, 4vw, 1.8rem);line-height:2;color:' + (d?'#c9a227':'#92400e') + '">' + arabic + '</p>'
         + (arabic ? renderTTSBtn(arabic, d) : '')
         + '</div>'
         + '<p class="text-xs text-center ' + (d?'text-gray-300':'text-gray-700') + ' leading-relaxed italic">' + meaning + '</p>'
@@ -3200,6 +3241,13 @@ function renderPrayerWidget()
         maghrib:'linear-gradient(135deg,#7f1d1d,#dc2626)',
         isha:   'linear-gradient(135deg,#1e1b4b,#4c1d95)',
     };
+    const prayerSoftBg={
+        fajr:   d?'rgba(30,64,175,.22)':'rgba(30,64,175,.1)',
+        dhuhr:  d?'rgba(180,83,9,.22)':'rgba(180,83,9,.1)',
+        asr:    d?'rgba(5,150,105,.22)':'rgba(5,150,105,.1)',
+        maghrib:d?'rgba(220,38,38,.22)':'rgba(220,38,38,.1)',
+        isha:   d?'rgba(76,29,149,.26)':'rgba(76,29,149,.1)',
+    };
     function getActive(){
         const keys=['fajr','dhuhr','asr','maghrib','isha'];
         const now=new Date();
@@ -3238,16 +3286,16 @@ function renderPrayerWidget()
                     <button onclick="requestGPSPrayerTimes()"
                         style="display:flex;align-items:center;gap:5px;font-size:.68rem;font-weight:700;
                         padding:5px 11px;border-radius:50px;cursor:pointer;transition:all .2s;
-                        background:${hasGPS?(d?'rgba(5,150,105,.2)':'rgba(5,150,105,.1)'):(d?'rgba(255,255,255,.07)':'rgba(0,0,0,.04)')};
-                        color:${hasGPS?'#059669':(d?'#9ca3af':'#6b7280')};
-                        border:1.5px solid ${hasGPS?'rgba(5,150,105,.35)':(d?'rgba(255,255,255,.12)':'rgba(0,0,0,.08)')}">
-                        <span style="width:7px;height:7px;border-radius:50%;background:${hasGPS?'#10b981':'#9ca3af'};${hasGPS?'animation:gpsPulseDot 2s ease-in-out infinite':''}"></span>
+                        background:${hasGPS?(d?'rgba(5,150,105,.22)':'rgba(5,150,105,.12)'):(d?'rgba(37,99,235,.16)':'rgba(37,99,235,.08)')};
+                        color:${hasGPS?'#059669':(d?'#60a5fa':'#2563eb')};
+                        border:1.5px solid ${hasGPS?'rgba(5,150,105,.4)':(d?'rgba(96,165,250,.4)':'rgba(37,99,235,.3)')}">
+                        <span style="width:7px;height:7px;border-radius:50%;background:${hasGPS?'#10b981':'#3b82f6'};${hasGPS?'animation:gpsPulseDot 2s ease-in-out infinite':''}"></span>
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                         ${hasGPS?(l==='bn'?'GPS সক্রিয়':'GPS Live'):(l==='bn'?'আমার লোকেশন':'My Location')}
                     </button>
                     <button data-action="changePage" data-param="prayer"
                         style="font-size:.68rem;font-weight:700;padding:5px 11px;border-radius:50px;cursor:pointer;
-                        background:${d?'rgba(255,255,255,.07)':'rgba(0,0,0,.04)'};
+                        background:${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.03)'};
                         color:${d?'#9ca3af':'#6b7280'};
                         border:1.5px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}">
                         ${l==='bn'?'বিস্তারিত':'Details'}
@@ -3268,32 +3316,55 @@ function renderPrayerWidget()
                     ${Object.entries(state.prayerTimes).map(([k,v])=>{
                         const isActive = k===activePrayer;
                         const isNext   = k===nextPrayer;
+                        const notifyOn = !!getPrayerNotifyPrefs()[k];
+                        const prayedDone = isPrayerMarkedDone(k);
                         return `
                         <div class="prayer-row flex justify-between items-center px-3 py-2.5 rounded-xl
                             ${d?'bg-gray-900/60':'bg-gray-50'}
                             ${isActive?'prayer-row-active':''}"
-                            style="${isActive?'background:linear-gradient(135deg,rgba(5,150,105,.14),rgba(5,150,105,.06)) !important':''}">
-                            <div class="flex items-center gap-3">
+                            style="${isActive?'background:linear-gradient(135deg,rgba(5,150,105,.14),rgba(5,150,105,.06)) !important':''}border-left:3px solid ${isActive?'transparent':(d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)')}">
+                        <div class="flex items-center gap-3">
                                 <span style="width:32px;height:32px;border-radius:10px;
-                                    background:${isActive?prayerBg[k]:(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.05)')};
+                                    background:${isActive?prayerBg[k]:prayerSoftBg[k]};
                                     display:flex;align-items:center;justify-content:center;
                                     font-size:.9rem;flex-shrink:0;
                                     transition:all var(--t-base)">
                                     ${prayerIcons[k]||'🕌'}
                                 </span>
-                                <div>
-                                    <p class="font-semibold text-sm leading-tight
-                                        ${isActive?(d?'text-emerald-300':'text-emerald-700'):''}">
-                                        ${t(k)}
-                                    </p>
+                                <div style="flex:1">
+                                    <div style="display:flex;align-items:center;gap:4px">
+                                        <p class="font-semibold text-sm leading-tight
+                                            ${isActive?(d?'text-emerald-300':'text-emerald-700'):''}">
+                                            ${t(k)}
+                                        </p>
+                                        ${isActive?`<span style="font-size:0.65rem;font-weight:700;padding:2px 5px;border-radius:4px;background:${d?'rgba(16,185,129,.25)':'rgba(16,185,129,.15)'};color:${d?'#6ee7b7':'#059669'}">${state.language==='bn'?'চলছে':'Active'}</span>`:''}
+                                    </div>
                                     ${isNext?`<p class="prayer-countdown text-xs" id="pclock-${k}" style="color:#c9a227;font-weight:700">…</p>`:''}
                                 </div>
-                                ${isActive?`<span class="prayer-pulse" style="width:7px;height:7px;border-radius:50%;background:#10b981;margin-left:2px"></span>`:''}
+                                ${isActive?`<span class="prayer-pulse" style="width:7px;height:7px;border-radius:50%;background:#10b981"></span>`:''}
                             </div>
-                            <span class="font-bold text-sm tabular-nums
-                                ${isActive?(d?'text-emerald-300':'text-emerald-600'):(d?'text-gray-300':'text-gray-700')}">
-                                ${sanitize(v)}
-                            </span>
+                            <div class="flex items-center gap-2">
+                                <button data-action="togglePrayerNotify" data-param="${k}"
+                                    aria-label="${notifyOn?(l==='bn'?'নোটিফিকেশন বন্ধ করুন':'Disable notification'):(l==='bn'?'নোটিফিকেশন চালু করুন':'Enable notification')}"
+                                    style="width:30px;height:30px;min-width:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;border:1.5px solid ${notifyOn?'transparent':(d?'rgba(245,158,11,.3)':'rgba(245,158,11,.35)')};transition:all var(--t-base);
+                                    background:${notifyOn?'linear-gradient(135deg,#f59e0b,#d97706)':(d?'rgba(245,158,11,.1)':'rgba(245,158,11,.08)')}">
+                                    ${notifyOn
+                                        ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/><path d="M9 17v1a3 3 0 0 0 6 0v-1"/></svg>`
+                                        : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/><path d="M9 17v1a3 3 0 0 0 6 0v-1"/><path d="M3 3l18 18"/></svg>`}
+                                </button>
+                                <button data-action="toggleQazaMark" data-param="${k}"
+                                    aria-label="${prayedDone?(l==='bn'?'নামাজ পড়া হয়েছে — চিহ্নিত':'Marked as prayed'):(l==='bn'?'নামাজ পড়েছেন? চিহ্নিত করুন':'Mark as prayed')}"
+                                    style="width:30px;height:30px;min-width:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;border:1.5px solid ${prayedDone?'transparent':(d?'rgba(16,185,129,.35)':'rgba(16,185,129,.4)')};transition:all var(--t-base);
+                                    background:${prayedDone?'linear-gradient(135deg,#10b981,#059669)':(d?'rgba(16,185,129,.1)':'rgba(16,185,129,.08)')}">
+                                    ${prayedDone
+                                        ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5l10 -10"/></svg>`
+                                        : ''}
+                                </button>
+                                <span class="font-bold text-sm tabular-nums
+                                    ${isActive?(d?'text-emerald-300':'text-emerald-600'):(d?'text-gray-300':'text-gray-700')}">
+                                    ${sanitize(v)}
+                                </span>
+                            </div>
                         </div>`;
                     }).join('')}
                 </div>
@@ -3301,10 +3372,117 @@ function renderPrayerWidget()
                     ${hasGPS
                         ? `📍 ${state.userLocation.latitude.toFixed(2)}°, ${state.userLocation.longitude.toFixed(2)}° ${l==='bn'?'থেকে সঠিক সময়':'precise'}`
                         : (l==='bn'?'ঢাকার আনুমানিক সময় — সঠিক সময়ের জন্য GPS চালু করুন':'Approximate Dhaka time — enable GPS for precision')}
-                </p>`}
+                </p>
+
+                <!-- ── সেহরি ও ইফতারের সময় ── -->
+                <div style="margin-top:12px;border-top:1px solid ${d?'rgba(255,255,255,.07)':'rgba(0,0,0,.07)'};padding-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+
+                    <!-- সেহরি -->
+                    <div style="border-radius:14px;padding:11px 13px;
+                        background:${d?'#1e3a8a':'#eff6ff'};
+                        border:1px solid ${d?'rgba(96,165,250,.45)':'rgba(59,130,246,.45)'};
+                        box-shadow:${d?'0 4px 14px rgba(30,58,138,.35)':'0 4px 14px rgba(59,130,246,.12)'}">
+                        <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
+                            <span style="font-size:.9rem" aria-hidden="true">🌙</span>
+                            <span style="font-size:10.5px;font-weight:700;color:${d?'#93c5fd':'#1d4ed8'}">
+                                ${l==='bn'?'সেহরির শেষ সময়':'Sehri Ends'}
+                            </span>
+                        </div>
+                        <p style="font-size:1.05rem;font-weight:800;letter-spacing:.3px;
+                            color:${d?'#bfdbfe':'#1e3a8a'};margin:0;line-height:1.2">
+                            ${sanitize(state.prayerTimes.fajr||'--:--')}
+                        </p>
+                        <p style="font-size:9.5px;margin-top:3px;color:${d?'rgba(147,197,253,.65)':'rgba(30,58,138,.65)'}">
+                            ${l==='bn'?'ফজরের আজানের আগে':'Before Fajr Adhan'}
+                        </p>
+                        <p style="font-size:8.5px;margin-top:4px;color:${d?'rgba(147,197,253,.5)':'rgba(30,58,138,.5)'};font-weight:600" id="sehri-countdown">—</p>
+                    </div>
+
+                    <!-- ইফতার -->
+                    <div style="border-radius:14px;padding:11px 13px;
+                        background:${d?'#92400e':'#fff7ed'};
+                        border:1px solid ${d?'rgba(249,115,22,.45)':'rgba(249,115,22,.55)'};
+                        box-shadow:${d?'0 4px 14px rgba(146,64,14,.35)':'0 4px 14px rgba(249,115,22,.12)'}">
+                        <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
+                            <span style="font-size:.9rem" aria-hidden="true">🌇</span>
+                            <span style="font-size:10.5px;font-weight:700;color:${d?'#fb923c':'#c2410c'}">
+                                ${l==='bn'?'ইফতারের সময়':'Iftar Time'}
+                            </span>
+                        </div>
+                        <p style="font-size:1.05rem;font-weight:800;letter-spacing:.3px;
+                            color:${d?'#fed7aa':'#9a3412'};margin:0;line-height:1.2">
+                            ${sanitize(state.prayerTimes.maghrib||'--:--')}
+                        </p>
+                        <p style="font-size:9.5px;margin-top:3px;color:${d?'rgba(249,115,22,.65)':'rgba(154,52,18,.65)'}">
+                            ${l==='bn'?'মাগরিবের আজানে':'At Maghrib Adhan'}
+                        </p>
+                        <p style="font-size:8.5px;margin-top:4px;color:${d?'rgba(249,115,22,.5)':'rgba(154,52,18,.5)'};font-weight:600" id="iftar-countdown">—</p>
+                    </div>
+
+                </div>`}
         </div>
     </div>`;
 }
+// ============================================================================
+// COUNTDOWN TIMER: Sehri/Iftar
+// ============================================================================
+function updateIffarCountdown() {
+    const fajrEl = document.getElementById('sehri-countdown');
+    const iffarEl = document.getElementById('iftar-countdown');
+    
+    if (!fajrEl && !iffarEl) return; // Not on prayer page
+    
+    const now = new Date();
+    const fajrTime = state.prayerTimes.fajr;
+    const maghribTime = state.prayerTimes.maghrib;
+    
+    // Parse "HH:MM" format
+    const parseTime = (timeStr) => {
+        if (!timeStr || timeStr === '--:--') return null;
+        const [h, m] = timeStr.split(':').map(Number);
+        const d = new Date();
+        d.setHours(h, m, 0, 0);
+        if (d < now) d.setDate(d.getDate() + 1); // Next day if time passed
+        return d;
+    };
+    
+    const fajrDate = parseTime(fajrTime);
+    const maghribDate = parseTime(maghribTime);
+    
+    // Update Sehri countdown
+    if (fajrEl && fajrDate) {
+        const diff = fajrDate - now;
+        if (diff > 0) {
+            const h = Math.floor(diff / 3600000);
+            const m = Math.floor((diff % 3600000) / 60000);
+            const s = Math.floor((diff % 60000) / 1000);
+            const bn = state.language === 'bn';
+            const hTxt = bn ? (h + '').padStart(2, '০').replace(/\d/g, d => '০১२३४५६७८९'[d]) : (h + '').padStart(2, '0');
+            const mTxt = bn ? (m + '').padStart(2, '०').replace(/\d/g, d => '०१२३४५६७८९'[d]) : (m + '').padStart(2, '0');
+            const sTxt = bn ? (s + '').padStart(2, '०').replace(/\d/g, d => '०१२३४५६७८९'[d]) : (s + '').padStart(2, '0');
+            fajrEl.textContent = bn ? `${hTxt}ঘ ${mTxt}মি ${sTxt}সে বাকি` : `${hTxt}h ${mTxt}m ${sTxt}s left`;
+        }
+    }
+    
+    // Update Iftar countdown
+    if (iffarEl && maghribDate) {
+        const diff = maghribDate - now;
+        if (diff > 0) {
+            const h = Math.floor(diff / 3600000);
+            const m = Math.floor((diff % 3600000) / 60000);
+            const s = Math.floor((diff % 60000) / 1000);
+            const bn = state.language === 'bn';
+            const hTxt = bn ? (h + '').padStart(2, '०').replace(/\d/g, d => '०१२३४५६७८९'[d]) : (h + '').padStart(2, '0');
+            const mTxt = bn ? (m + '').padStart(2, '०').replace(/\d/g, d => '०१२३४५६७८९'[d]) : (m + '').padStart(2, '0');
+            const sTxt = bn ? (s + '').padStart(2, '०').replace(/\d/g, d => '०१२३४५६७८९'[d]) : (s + '').padStart(2, '0');
+            iffarEl.textContent = bn ? `${hTxt}ঘ ${mTxt}মি ${sTxt}সে বাকি` : `${hTxt}h ${mTxt}m ${sTxt}s left`;
+        }
+    }
+}
+
+// Start countdown timer when prayer page is visible
+setInterval(() => updateIffarCountdown(), 1000);
+
 // ============================================================================
 // PAGE: HOME
 // ============================================================================
@@ -3338,6 +3516,7 @@ function renderHomePage()
 
     return `
     <!-- ① Hijri banner -->
+    ${renderRamadanProgressBar(d,l)}
     ${renderHijriBanner(d,l)}
 
     <!-- ② Next prayer countdown -->
@@ -3547,19 +3726,19 @@ function renderHomePage()
         <div class="card-luxury ${d?'bg-gradient-to-br from-purple-950 to-blue-950 border-purple-900':'bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200'} border p-5 reveal" style="box-shadow:var(--shadow-md)">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-bold flex items-center gap-2">
-                    <span style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#4f46e5);display:flex;align-items:center;justify-content:center;font-size:.8rem">📜</span>
+                    <span style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#4f46e5);display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(124,58,237,.4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0"/><path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0"/><path d="M3 6l0 13"/><path d="M12 6l0 13"/><path d="M21 6l0 13"/></svg></span>
                     ${t('hadithOfDay')}
                 </h3>
                 ${state.isAdmin?`<button data-action="openHadithEditor" class="${d?'bg-purple-800 text-purple-200':'bg-purple-100 text-purple-700'} text-xs px-3 py-1 rounded-lg font-semibold hover:opacity-80">✏️ ${l==='bn'?'এডিট':'Edit'}</button>`:''}
             </div>
-            <div class="${d?'bg-black/20':'bg-white/60'} rounded-2xl p-4">
+            <div class="${d?'bg-black/20':'bg-white/60'} rounded-2xl p-4" style="border-left:3px solid ${d?'#a78bfa':'#7c3aed'}">
                 <p class="text-sm leading-relaxed mb-3 italic">"${sanitize(l==='bn'?getDailyHadith().textBn:getDailyHadith().textEn)}"</p>
                 <p class="text-xs font-bold" style="${d?'color:#fbbf24':'color:#7c3aed'}">— ${sanitize(l==='bn'?getDailyHadith().sourceBn:getDailyHadith().sourceEn)}</p>
             </div>
             <div class="flex items-center justify-between mt-3 gap-2">
                 <div class="flex gap-1">
-                    <button data-action="hadithPrev" class="${d?'bg-purple-900 text-purple-200 hover:bg-purple-800':'bg-purple-100 text-purple-700 hover:bg-purple-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors">‹ ${l==='bn'?'আগে':'Prev'}</button>
-                    <button data-action="hadithNext" class="${d?'bg-purple-900 text-purple-200 hover:bg-purple-800':'bg-purple-100 text-purple-700 hover:bg-purple-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors">${l==='bn'?'পরে':'Next'} ›</button>
+                    <button data-action="hadithPrev" class="${d?'bg-purple-900 text-purple-200 hover:bg-purple-800':'bg-purple-100 text-purple-700 hover:bg-purple-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors" style="min-height:36px;display:inline-flex;align-items:center">‹ ${l==='bn'?'আগে':'Prev'}</button>
+                    <button data-action="hadithNext" class="${d?'bg-purple-900 text-purple-200 hover:bg-purple-800':'bg-purple-100 text-purple-700 hover:bg-purple-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors" style="min-height:36px;display:inline-flex;align-items:center">${l==='bn'?'পরে':'Next'} ›</button>
                 </div>
                 <button data-action="shareHadith" class="${d?'bg-emerald-900/60 text-emerald-300 hover:bg-emerald-800':'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors flex items-center gap-1">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
@@ -3572,7 +3751,7 @@ function renderHomePage()
         <div class="ayah-widget p-5 reveal" style="box-shadow:var(--shadow-md)">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-bold flex items-center gap-2">
-                    <span style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#c9a227,#b45309);display:flex;align-items:center;justify-content:center;font-size:.8rem">📖</span>
+                    <span style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#c9a227,#b45309);display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(180,83,9,.4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5a2 2 0 0 1 2 -2h4a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0 -2.5 -2.5h-6.5"/><path d="M21 5a2 2 0 0 0 -2 -2h-4a3 3 0 0 0 -3 3v13a2.5 2.5 0 0 1 2.5 -2.5h6.5"/></svg></span>
                     ${l==='bn'?'আজকের আয়াত':"Today's Verse"}
                 </h3>
                 ${state.isAdmin?`<button data-action="openAyahEditor" class="${d?'bg-amber-900 text-amber-200':'bg-amber-100 text-amber-700'} text-xs px-3 py-1 rounded-lg font-semibold hover:opacity-80">✏️ ${l==='bn'?'এডিট':'Edit'}</button>`:''}
@@ -3580,8 +3759,8 @@ function renderHomePage()
             ${renderDailyAyahInner(d,l)}
             <div class="flex items-center justify-between mt-3 gap-2">
                 <div class="flex gap-1">
-                    <button data-action="ayahPrev" class="${d?'bg-amber-900 text-amber-200 hover:bg-amber-800':'bg-amber-100 text-amber-700 hover:bg-amber-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors">‹ ${l==='bn'?'আগে':'Prev'}</button>
-                    <button data-action="ayahNext" class="${d?'bg-amber-900 text-amber-200 hover:bg-amber-800':'bg-amber-100 text-amber-700 hover:bg-amber-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors">${l==='bn'?'পরে':'Next'} ›</button>
+                    <button data-action="ayahPrev" class="${d?'bg-amber-900 text-amber-200 hover:bg-amber-800':'bg-amber-100 text-amber-700 hover:bg-amber-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors" style="min-height:36px;display:inline-flex;align-items:center">‹ ${l==='bn'?'আগে':'Prev'}</button>
+                    <button data-action="ayahNext" class="${d?'bg-amber-900 text-amber-200 hover:bg-amber-800':'bg-amber-100 text-amber-700 hover:bg-amber-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors" style="min-height:36px;display:inline-flex;align-items:center">${l==='bn'?'পরে':'Next'} ›</button>
                 </div>
                 <button data-action="shareAyah" class="${d?'bg-emerald-900/60 text-emerald-300 hover:bg-emerald-800':'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors flex items-center gap-1">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>

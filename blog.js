@@ -101,6 +101,7 @@ function closeBlogEditor() {
 let _blogSyncAbortCtrl = null;
 
 async function syncBlogToCloud(posts) {
+    if (location.protocol === 'file:') return;
     if (_blogSyncAbortCtrl) { _blogSyncAbortCtrl.abort(); }
     _blogSyncAbortCtrl = new AbortController();
     const signal = _blogSyncAbortCtrl.signal;
@@ -133,6 +134,8 @@ async function syncBlogToCloud(posts) {
  * merge করো — local এ নতুন posts থাকলে সেগুলো হারাবে না
  */
 async function fetchBlogFromCloud() {
+    // file:// protocol এ Cloudinary fetch করা যায় না — skip
+    if (location.protocol === 'file:') return;
     // sync in-progress থাকলে fetch বাতিল — cloud এ এখনো পুরনো data আছে
     if (_blogSyncAbortCtrl) {
         console.log('[Blog] fetch skipped — sync in progress');

@@ -85,23 +85,21 @@ header, footer, main, .bg-white, .bg-gray-50, .bg-gray-800,
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #a7f3d0; border-radius: 99px; }
+::-webkit-scrollbar-thumb { background: var(--emerald-600); border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--gold-600); }
-html[data-theme="dark"] ::-webkit-scrollbar-thumb { background: var(--emerald-600); }
-html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: var(--gold-600); }
 
 /* ══════════════════════════════════════════
    3. ISLAMIC GEOMETRIC PAGE BACKGROUND
    ══════════════════════════════════════════ */
 .islamic-pattern-bg {
-    background-color: #f0fdf8;
+    background-color: #eafdf6;
     background-image:
-        radial-gradient(ellipse at 15% 15%, rgba(5,150,105,.08) 0%, transparent 55%),
-        radial-gradient(ellipse at 85% 85%, rgba(201,162,39,.07) 0%, transparent 55%),
-        radial-gradient(ellipse at 85% 15%, rgba(5,150,105,.05) 0%, transparent 45%),
-        radial-gradient(ellipse at 15% 85%, rgba(201,162,39,.05) 0%, transparent 45%),
-        repeating-linear-gradient(45deg,  rgba(5,150,105,.04) 0px, rgba(5,150,105,.04) 1px, transparent 0px, transparent 24px),
-        repeating-linear-gradient(-45deg, rgba(5,150,105,.04) 0px, rgba(5,150,105,.04) 1px, transparent 0px, transparent 24px);
+        radial-gradient(ellipse at 15% 15%, rgba(5,150,105,.13) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 85%, rgba(201,162,39,.12) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 15%, rgba(5,150,105,.08) 0%, transparent 45%),
+        radial-gradient(ellipse at 15% 85%, rgba(201,162,39,.08) 0%, transparent 45%),
+        repeating-linear-gradient(45deg,  rgba(5,150,105,.05) 0px, rgba(5,150,105,.05) 1px, transparent 0px, transparent 24px),
+        repeating-linear-gradient(-45deg, rgba(5,150,105,.05) 0px, rgba(5,150,105,.05) 1px, transparent 0px, transparent 24px);
 }
 
 /* Dark mode page background */
@@ -309,7 +307,7 @@ header.scrolled { box-shadow: 0 4px 40px rgba(0,0,0,.14) !important; }
    9. SCROLL TO TOP BUTTON
    ══════════════════════════════════════════ */
 #scroll-top-btn {
-    position: fixed; bottom: calc(var(--mobile-nav-height, 0px) + 72px); right: 20px; z-index: 999;
+    position: fixed; bottom: 152px; right: 20px; z-index: 999;
     width: 52px; height: 52px; border-radius: 50%;
     background: linear-gradient(135deg, rgba(5,150,105,.2), rgba(52,211,153,.1));
     border: 1.5px solid rgba(5,150,105,.35) !important;
@@ -332,7 +330,7 @@ header.scrolled { box-shadow: 0 4px 40px rgba(0,0,0,.14) !important; }
    10. TOAST NOTIFICATIONS
    ══════════════════════════════════════════ */
 #toast-container {
-    position: fixed; bottom: calc(var(--mobile-nav-height, 0px) + 16px); right: 20px; z-index: 10000;
+    position: fixed; bottom: 90px; right: 20px; z-index: 10000;
     display: flex; flex-direction: column; gap: 10px; pointer-events: none;
 }
 .toast {
@@ -561,7 +559,7 @@ header.scrolled { box-shadow: 0 4px 40px rgba(0,0,0,.14) !important; }
 .hero-stat-item { text-align: center; min-width: 68px; }
 .hero-stat-num { font-size: 1.2rem; font-weight: 900; color: #059669; display: block; line-height: 1; }
 .hero-luxury .hero-stat-num { color: #10b981; }
-.hero-stat-label { font-size: .72rem; color: rgba(2,44,34,.5); margin-top: 4px; letter-spacing: .3px; }
+.hero-stat-label { font-size: .62rem; color: rgba(2,44,34,.5); margin-top: 4px; letter-spacing: .3px; }
 .hero-luxury .hero-stat-label { color: rgba(255,255,255,.62); }
 
 /* ══════════════════════════════════════════
@@ -631,11 +629,11 @@ header.scrolled { box-shadow: 0 4px 40px rgba(0,0,0,.14) !important; }
     transition: transform var(--t-spring);
     border: 1px solid var(--fc-accent-faint, rgba(5,150,105,.2));
 }
-.feature-card-luxury:hover .feature-icon-wrap { transform: scale(1.1) rotate(-4deg); }
+.feature-card-luxury:hover .feature-icon-wrap { transform: scale(1.22) rotate(-6deg); }
 
 .feature-card-badge {
     position: absolute; top: 14px; right: 14px;
-    font-size: .68rem; font-weight: 700; padding: 2px 10px; border-radius: 50px;
+    font-size: .58rem; font-weight: 700; padding: 2px 10px; border-radius: 50px;
     background: var(--fc-accent-bg, rgba(5,150,105,.1));
     color: var(--fc-accent, #059669);
     border: 1px solid var(--fc-accent-faint, rgba(5,150,105,.25));
@@ -717,9 +715,9 @@ header.scrolled { box-shadow: 0 4px 40px rgba(0,0,0,.14) !important; }
     width: 100%; height: 2px;
     background: linear-gradient(90deg, transparent 0%, rgba(201,162,39,.9) 40%, rgba(5,150,105,.7) 65%, transparent 100%);
     transform: translateX(-100%);
-    animation: none; pointer-events: none; z-index: 10;
+    animation: imam-shimmer 3.8s ease-in-out infinite; pointer-events: none; z-index: 10;
 }
-.imam-card-luxury:hover::after { animation: imam-shimmer 1.8s ease-in-out; }
+.imam-card-luxury:hover::after { animation-duration: 1.6s; }
 @keyframes imam-shimmer {
     0%   {transform:translateX(-100%);opacity:0}
     10%  {opacity:1} 90%  {opacity:1}
@@ -740,23 +738,17 @@ header.scrolled { box-shadow: 0 4px 40px rgba(0,0,0,.14) !important; }
     width: 82px; height: 82px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     margin: 0 auto; position: relative; z-index: 1;
+    animation: avatarGlow 4.5s ease-in-out infinite alternate;
 }
 .imam-avatar-luxury::before {
     content: ''; position: absolute; inset: -3px; border-radius: 50%;
     background: conic-gradient(#34d399, #f59e0b, #34d399); z-index: -1;
     animation: avatarRotate 4.5s linear infinite;
-    animation-play-state: paused;
 }
 .imam-avatar-luxury::after {
     content: ''; position: absolute; inset: -8px; border-radius: 50%;
     background: conic-gradient(transparent 60%, rgba(180,83,9,.28) 80%, transparent 90%);
     animation: avatarRotate 8s linear infinite reverse;
-    animation-play-state: paused;
-}
-.imam-card-luxury:hover .imam-avatar-luxury::before { animation-play-state: running; }
-.imam-card-luxury:hover .imam-avatar-luxury::after  { animation-play-state: running; }
-.imam-card-luxury:hover .imam-avatar-luxury {
-    animation: avatarGlow 4.5s ease-in-out infinite alternate;
 }
 @keyframes avatarGlow {
     from { filter: drop-shadow(0 0 6px rgba(5,150,105,.45)); }
@@ -846,7 +838,7 @@ header.scrolled { box-shadow: 0 4px 40px rgba(0,0,0,.14) !important; }
     transition: transform var(--t-base), box-shadow var(--t-base);
 }
 .blog-card-luxury:hover {
-    transform: translateY(-6px);
+    transform: translateY(-7px) scale(1.012);
     box-shadow: 0 18px 36px rgba(5,150,105,.22) !important;
 }
 
@@ -856,7 +848,6 @@ header.scrolled { box-shadow: 0 4px 40px rgba(0,0,0,.14) !important; }
 .prayer-row {
     transition: all var(--t-base); border-radius: 12px;
     border-left: 3px solid transparent;
-    border-radius: 0 12px 12px 0;
 }
 .prayer-row:hover { border-left-color: var(--emerald-500); background: rgba(5,150,105,.04); }
 .prayer-row-active {
@@ -881,7 +872,7 @@ header.scrolled { box-shadow: 0 4px 40px rgba(0,0,0,.14) !important; }
 
 .dua-verse-row { transition: background .18s ease; }
 .dua-verse-row:last-child { border-bottom: none !important; }
-.dua-verse-row p.arabic-text { font-family: 'Amiri', 'Traditional Arabic', serif; font-size: clamp(1.3rem, 3.5vw, 1.6rem); line-height: 2.25; }
+.dua-verse-row p.arabic-text { font-family: 'Amiri', 'Traditional Arabic', serif; font-size: 1.48rem; line-height: 2.25; }
 .dua-verse-num { font-family: sans-serif; font-size: .6rem; font-weight: 700; }
 @media (max-width: 640px) {
     .dua-verse-row { grid-template-columns: 1fr !important; }
@@ -892,7 +883,7 @@ header.scrolled { box-shadow: 0 4px 40px rgba(0,0,0,.14) !important; }
    23. TASBEEH COUNTER
    ══════════════════════════════════════════ */
 .tasbeeh-btn {
-    width: clamp(160px, 52vw, 220px); height: clamp(160px, 52vw, 220px); border-radius: 50%;
+    width: 204px; height: 204px; border-radius: 50%;
     background: linear-gradient(145deg, #10b981, #047857);
     box-shadow: 0 8px 0 #036b4a, 0 14px 28px rgba(5,150,105,.55), inset 0 3px 8px rgba(255,255,255,.28);
     transition: transform .1s, box-shadow .1s; border: none;
@@ -916,7 +907,7 @@ header.scrolled { box-shadow: 0 4px 40px rgba(0,0,0,.14) !important; }
 /* ══════════════════════════════════════════
    24. ARABIC TEXT
    ══════════════════════════════════════════ */
-.arabic-text { font-family: 'Amiri', 'Traditional Arabic', 'Arabic Typesetting', serif; font-size: clamp(1.45rem, 4vw, 2.1rem); line-height: 2.3; }
+.arabic-text { font-family: 'Amiri', 'Traditional Arabic', 'Arabic Typesetting', serif; font-size: 1.8rem; line-height: 2.3; }
 
 /* ══════════════════════════════════════════
    25. SECTION HEADINGS
@@ -962,7 +953,7 @@ mark { background: linear-gradient(135deg, #fef08a, #fde68a); padding: 0 3px; bo
     height: 4px;
     background: linear-gradient(90deg, #059669, #c9a227, #059669);
     background-size: 200% 100%;
-    /* shimmer removed — reading-progress bar already has it */
+    animation: goldShimmer 2.5s linear infinite;
     transition: width .3s;
 }
 
@@ -978,12 +969,6 @@ mark { background: linear-gradient(135deg, #fef08a, #fde68a); padding: 0 3px; bo
    ══════════════════════════════════════════ */
 .footer-luxury { background: linear-gradient(180deg, #022c22 0%, #011a14 60%, #0f172a 100%); position: relative; overflow: hidden; }
 .footer-dark    { background: linear-gradient(180deg, #022c22 0%, #011a14 100%); }
-
-/* Light mode footer — softer, not jarring */
-html[data-theme="light"] .footer-luxury,
-html[data-theme="light"] .footer-dark {
-    background: linear-gradient(180deg, #064e3b 0%, #022c22 60%, #1e2d62 100%) !important;
-}
 
 /* Mosque silhouette */
 .mosque-silhouette { fill: rgba(5,150,105,.18); }
@@ -1027,7 +1012,7 @@ html[data-theme="light"] .footer-dark {
 /* ══════════════════════════════════════════
    37. AYAH / HADITH WIDGETS
    ══════════════════════════════════════════ */
-.ayah-widget { background: linear-gradient(135deg, rgba(201,162,39,.09), rgba(5,150,105,.07)); border: 1px solid rgba(201,162,39,.22); border-radius: 22px; }
+.ayah-widget { background: linear-gradient(135deg, rgba(201,162,39,.1), rgba(5,150,105,.08)); border: 1px solid rgba(201,162,39,.35); border-radius: 22px; }
 
 /* ══════════════════════════════════════════
    38. TASBEEH HISTORY BARS
@@ -1039,7 +1024,6 @@ html[data-theme="light"] .footer-dark {
    39. MOBILE PADDING FOR BOTTOM NAV
    ══════════════════════════════════════════ */
 @media (max-width: 767px) { :root { --mobile-nav-height: 84px; } main { padding-bottom: calc(var(--mobile-nav-height) + 1rem) !important; } }
-@media (min-width: 768px) { :root { --mobile-nav-height: 0px; } }
 
 /* ══════════════════════════════════════════
    40. DARK MODE LIGHT-OVERRIDE (system dark, user light)
@@ -1069,7 +1053,7 @@ html[data-theme="dark"] #mobile-bottom-nav { background: rgba(6,20,16,.97) !impo
 html[data-theme="dark"] .mobile-menu { background: rgba(6,20,16,.98) !important; }
 html[data-theme="dark"] .bg-white { background-color: #111827 !important; color: #f9fafb !important; }
 html[data-theme="dark"] .bg-gray-50 { background-color: #111827 !important; }
-html[data-theme="dark"] .imam-card-luxury { background-color: #1e2d26 !important; color: #f1f5f0 !important; }
+html[data-theme="dark"] .imam-card-luxury { background-color: #1e2d26 !important; color: #f9fafb !important; }
 html[data-theme="dark"] .imam-card-back { color: #e5e7eb !important; }
 html[data-theme="dark"] .border-gray-100 { border-color: rgba(255,255,255,.08) !important; }
 html[data-theme="dark"] .border-gray-200 { border-color: rgba(255,255,255,.10) !important; }
@@ -1077,10 +1061,6 @@ html[data-theme="dark"] .text-gray-900 { color: #f9fafb !important; }
 html[data-theme="dark"] .text-gray-700 { color: #d1d5db !important; }
 html[data-theme="dark"] .text-gray-600 { color: #9ca3af !important; }
 html[data-theme="dark"] .text-gray-500 { color: #6b7280 !important; }
-
-/* Dark mode imam card — improved WCAG AA contrast */
-html[data-theme="dark"] .imam-card-luxury .text-gray-600 { color: #b0b7c3 !important; }
-html[data-theme="dark"] .imam-card-luxury .text-gray-500 { color: #9ca3af !important; }
 
 /* ══════════════════════════════════════════
    42. FAMILY TREE STYLES
@@ -1140,10 +1120,6 @@ button:focus-visible, a:focus-visible {
     outline: 2px solid #059669;
     outline-offset: 2px;
     border-radius: 6px;
-}
-html[data-theme="dark"] button:focus-visible,
-html[data-theme="dark"] a:focus-visible {
-    outline-color: #34d399;
 }
 
 /* Reduced motion */
@@ -1499,142 +1475,3 @@ html[data-theme="light"] .feature-badge {
 /* dark-mode overrides for modal */
 html[data-theme="dark"] .modal-content { background: #1a2520; color: #f9fafb; }
 html[data-theme="dark"] .info-box { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.08); }
-
-/* ══════════════════════════════════════════
-   46. DESIGN IMPROVEMENTS v3.1
-   — Performance, Accessibility, Responsive
-   ══════════════════════════════════════════ */
-
-/* ── Scroll-top: desktop placement ── */
-@media (min-width: 768px) {
-    #scroll-top-btn { bottom: 28px; right: 28px; }
-}
-
-/* ── Toast: desktop placement ── */
-@media (min-width: 768px) {
-    #toast-container { bottom: 28px; right: 28px; }
-}
-
-/* ── Fatima card — dark mode fix ── */
-html[data-theme="dark"] .fatima-card {
-    background: rgba(255,255,255,.08);
-    border-color: rgba(217,119,6,.5);
-    color: #f9fafb;
-}
-html[data-theme="dark"] .fatima-card .fatima-arabic { color: #34d399; }
-html[data-theme="dark"] .fatima-card .fatima-role { color: #fbbf24; }
-
-/* ── Imam num badge — larger tap target ── */
-.imam-num {
-    width: 32px; height: 32px;
-}
-
-/* ── Prayer row active — fix radius for single-sided border ── */
-.prayer-row-active {
-    background: linear-gradient(135deg, rgba(5,150,105,.14), rgba(180,83,9,.05)) !important;
-    border-left: 3px solid var(--emerald-500) !important;
-    border-radius: 0 12px 12px 0;
-}
-
-/* ── Blog card — prevent overlap on touch screens ── */
-@media (hover: none) {
-    .blog-card-luxury:hover,
-    .feature-card-luxury:hover,
-    .card-luxury:hover,
-    .imam-card-luxury:hover {
-        transform: none !important;
-    }
-}
-
-/* ── Minaret animation — pause when not in viewport ── */
-.minaret-crescent {
-    animation-play-state: paused;
-}
-.footer-mosque-svg:hover .minaret-crescent {
-    animation-play-state: running;
-}
-
-/* ── Splash dots — reduce from 3 to subtle ── */
-.splash-dot {
-    width: 8px; height: 8px;
-}
-
-/* ── Gold shimmer — only on primary reading progress bar ── */
-.gold-top-bar {
-    animation: goldShimmer 4s linear infinite; /* slowed from 3s */
-}
-.imam-top-bar {
-    animation: barSlide 5s linear infinite; /* slowed from 3.8s */
-}
-
-/* ── Feature card hover — smoother, less jarring ── */
-.feature-card-luxury:hover {
-    transform: translateY(-5px) scale(1.008);
-}
-
-/* ── Hero stat numbers — better responsive sizing ── */
-.hero-stat-num {
-    font-size: clamp(1rem, 2.5vw, 1.2rem);
-}
-
-/* ── Section heading line — subtle in dark mode ── */
-html[data-theme="dark"] .section-heading::after {
-    background: linear-gradient(90deg, rgba(52,211,153,.25), rgba(201,162,39,.08), transparent);
-}
-
-/* ── Dua card top accent ── */
-.dua-card-accent { border-top: 3px solid var(--gold-600); }
-
-/* ── Splash calligraphy — slightly smaller on small phones ── */
-@media (max-width: 380px) {
-    .splash-calligraphy { font-size: 2.6rem; }
-    .splash-title { font-size: 1.5rem; }
-}
-
-/* ── Feature card link text — min size ── */
-.feature-card-link {
-    font-size: .75rem; /* was .72rem */
-}
-
-/* ── Asma card hover — less aggressive scale ── */
-.asma-card:hover { transform: translateY(-4px) scale(1.015); }
-
-/* ── Mobile: disable will-change on inactive cards to save memory ── */
-@media (max-width: 767px) {
-    .card-luxury, .feature-card-luxury, .imam-card-luxury, .blog-card-luxury {
-        will-change: auto;
-    }
-    .card-luxury:hover, .feature-card-luxury:hover,
-    .imam-card-luxury:hover, .blog-card-luxury:hover {
-        will-change: transform;
-    }
-}
-
-/* ── Imam card stagger: cap at reasonable delay ── */
-.imam-card-luxury:nth-of-type(n+9) { animation-delay: .55s; }
-
-/* ── Reading progress bar — thinner on desktop ── */
-@media (min-width: 768px) {
-    #reading-progress { height: 2.5px; }
-}
-
-/* ── Bismillah pill — tighter on small screens ── */
-@media (max-width: 380px) {
-    .hero-bismillah-pill { padding: 7px 16px; gap: 8px; }
-}
-
-/* ── Prayer countdown — better visibility in dark mode ── */
-html[data-theme="dark"] .prayer-countdown { color: #f59e0b; }
-
-/* ── Family tree modal — safe area for notched phones ── */
-.modal-content {
-    padding-bottom: max(32px, env(safe-area-inset-bottom, 32px));
-}
-
-/* ── Mobile bottom nav safe area ── */
-#mobile-bottom-nav {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-@media (max-width: 767px) {
-    :root { --mobile-nav-height: calc(84px + env(safe-area-inset-bottom, 0px)); }
-}
