@@ -6659,10 +6659,6 @@ function render() {
         ${renderAyahEditorModal()}
         ${renderMuharramEditorModal()}
         ${renderShiaDayEditorModal()}
-        <nav id="mobile-bottom-nav" class="fixed bottom-0 left-0 right-0 md:hidden flex justify-around items-center gap-0.5 z-40" role="navigation" aria-label="Mobile navigation"></nav>
-        <button id="scroll-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" class="scroll-top-glass" title="${state.language==='bn'?'উপরে যান':'Scroll to Top'}" aria-label="Scroll to top">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10 16v-12m-4 4l4-4 4 4"/></svg>
-        </button>
     `;
 
     // load lazy images after render
