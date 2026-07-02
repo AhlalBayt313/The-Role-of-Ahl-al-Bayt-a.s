@@ -3,8 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#022c22">
+
+    <!-- Theme color: matches light/dark hero gradients so mobile browser chrome doesn't clash -->
+    <meta name="theme-color" content="#022c22" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#ecfdf5" media="(prefers-color-scheme: light)">
+
     <meta name="description" content="আহলে বাইত (আ.) - ইসলামিক জ্ঞান ও শিক্ষার জন্য আপনার বিশ্বস্ত উৎস | Ahl al-Bayt (a.s) — Islamic Knowledge">
+    <meta name="author" content="MD Baker Ali">
+    <meta name="robots" content="index, follow">
+
+    <!-- ⚠️ Replace with your real production domain before deploying -->
+    <link rel="canonical" href="https://REPLACE-WITH-YOUR-DOMAIN.com/">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="আহলে বাইত (আ.) | Ahl al-Bayt (a.s)">
+    <meta property="og:title" content="আহলে বাইত (আ.) | Ahl al-Bayt (a.s) — Islamic Knowledge">
+    <meta property="og:description" content="আহলে বাইত (আ.) - ইসলামিক জ্ঞান ও শিক্ষার জন্য আপনার বিশ্বস্ত উৎস | Ahl al-Bayt (a.s) — Islamic Knowledge">
+    <!-- ⚠️ Replace with your real domain + a real 1200x630 share image -->
+    <meta property="og:url" content="https://REPLACE-WITH-YOUR-DOMAIN.com/">
+    <meta property="og:image" content="https://REPLACE-WITH-YOUR-DOMAIN.com/og-image.jpg">
+    <meta property="og:locale" content="bn_BD">
+    <meta property="og:locale:alternate" content="en_US">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="আহলে বাইত (আ.) | Ahl al-Bayt (a.s) — Islamic Knowledge">
+    <meta name="twitter:description" content="আহলে বাইত (আ.) - ইসলামিক জ্ঞান ও শিক্ষার জন্য আপনার বিশ্বস্ত উৎস | Ahl al-Bayt (a.s) — Islamic Knowledge">
+    <meta name="twitter:image" content="https://REPLACE-WITH-YOUR-DOMAIN.com/og-image.jpg">
+
+    <!-- ⚠️ Verify these filenames exist in your project root, or update paths to match your actual icon assets -->
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="আহলে বাইত">
@@ -17,26 +48,52 @@
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Amiri:wght@400;700&display=swap"></noscript>
     <title>আহলে বাইত (আ.) | Ahl al-Bayt (a.s) — Islamic Knowledge</title>
     <link rel="stylesheet" href="style.css">
+
+    <!-- Structured data: helps search engines understand this is a bilingual Islamic knowledge PWA -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "আহলে বাইত (আ.) | Ahl al-Bayt (a.s)",
+      "alternateName": "Ahl al-Bayt",
+      "description": "ইসলামিক জ্ঞান ও শিক্ষার জন্য আপনার বিশ্বস্ত উৎস — prayer times, duas, ziyarat, imam biographies, Islamic calendar, and more, in Bengali and English.",
+      "applicationCategory": "LifestyleApplication",
+      "operatingSystem": "Any",
+      "inLanguage": ["bn", "en"],
+      "author": {
+        "@type": "Person",
+        "name": "MD Baker Ali"
+      }
+    }
+    </script>
 </head>
 <body class="bg-gray-50 text-gray-900 fs-medium islamic-pattern-bg">
+
+<!-- Fallback for users/crawlers without JavaScript — the app itself is entirely JS-rendered -->
+<noscript>
+    <div style="padding:2rem;text-align:center;font-family:sans-serif;">
+        এই অ্যাপ্লিকেশনটি চালাতে জাভাস্ক্রিপ্ট প্রয়োজন। অনুগ্রহ করে আপনার ব্রাউজারে জাভাস্ক্রিপ্ট সক্রিয় করুন।<br>
+        This application requires JavaScript. Please enable JavaScript in your browser to continue.
+    </div>
+</noscript>
 
 <!-- ══════════════════════════════════════════════════════════
      SPLASH SCREEN — Premium Moon · Stars · Particles
      ══════════════════════════════════════════════════════════ -->
-<div id="splash-screen">
+<div id="splash-screen" role="status" aria-live="polite" aria-label="আহলে বাইত অ্যাপ লোড হচ্ছে — Loading">
     <!-- Geometric grid overlay -->
-    <div class="splash-geo"></div>
+    <div class="splash-geo" aria-hidden="true"></div>
 
     <!-- Concentric rings -->
-    <div class="splash-ring" style="width:340px;height:340px;top:50%;left:50%;margin:-170px 0 0 -170px"></div>
-    <div class="splash-ring" style="width:230px;height:230px;top:50%;left:50%;margin:-115px 0 0 -115px"></div>
-    <div class="splash-ring" style="width:130px;height:130px;top:50%;left:50%;margin:-65px 0 0 -65px"></div>
+    <div class="splash-ring" style="width:340px;height:340px;top:50%;left:50%;margin:-170px 0 0 -170px" aria-hidden="true"></div>
+    <div class="splash-ring" style="width:230px;height:230px;top:50%;left:50%;margin:-115px 0 0 -115px" aria-hidden="true"></div>
+    <div class="splash-ring" style="width:130px;height:130px;top:50%;left:50%;margin:-65px 0 0 -65px" aria-hidden="true"></div>
 
     <!-- Floating particle dots -->
-    <div id="splash-particles"></div>
+    <div id="splash-particles" aria-hidden="true"></div>
 
     <!-- Star field (CSS) -->
-    <div style="position:absolute;inset:0;pointer-events:none;overflow:hidden">
+    <div style="position:absolute;inset:0;pointer-events:none;overflow:hidden" aria-hidden="true">
         <div style="position:absolute;width:2px;height:2px;border-radius:50%;background:rgba(255,255,255,.8);top:12%;left:18%;animation:starTwinkle 2.1s ease-in-out infinite"></div>
         <div style="position:absolute;width:1.5px;height:1.5px;border-radius:50%;background:rgba(201,162,39,.9);top:28%;left:72%;animation:starTwinkle 2.8s ease-in-out .4s infinite"></div>
         <div style="position:absolute;width:2.5px;height:2.5px;border-radius:50%;background:rgba(255,255,255,.7);top:68%;left:85%;animation:starTwinkle 1.9s ease-in-out .8s infinite"></div>
@@ -51,7 +108,7 @@
     <div style="position:relative;z-index:2;text-align:center;padding:0 24px">
 
         <!-- Moon + Stars SVG -->
-        <div style="position:relative;margin-bottom:1.2rem">
+        <div style="position:relative;margin-bottom:1.2rem" aria-hidden="true">
             <svg width="96" height="96" viewBox="0 0 96 96" style="display:block;margin:0 auto;filter:drop-shadow(0 0 20px rgba(201,162,39,.5))">
                 <g class="crescent-anim">
                     <path d="M45 10 C28 10 15 24 15 42 C15 60 28 74 45 74 C37 65 34 55 34 45 C34 30 40 18 52 12 C49.8 10.7 47.4 10 45 10Z" fill="#c9a227" opacity=".92"/>
@@ -65,7 +122,7 @@
 
         <!-- Bismillah -->
         <div class="splash-calligraphy calli-glow">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
-        <div class="splash-gold-line"></div>
+        <div class="splash-gold-line" aria-hidden="true"></div>
 
         <!-- Arabic title -->
         <div class="splash-title" style="font-family:'Amiri',serif;letter-spacing:2px">آلُ بَيْتِ النَّبِيِّ</div>
@@ -73,7 +130,7 @@
         <div class="splash-subtitle" style="margin-top:.5rem">Ahl al-Bayt · a.s</div>
 
         <!-- Loading dots -->
-        <div class="splash-dots" style="justify-content:center">
+        <div class="splash-dots" style="justify-content:center" aria-hidden="true">
             <div class="splash-dot"></div>
             <div class="splash-dot"></div>
             <div class="splash-dot"></div>
@@ -86,17 +143,26 @@
 <div id="reading-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="পড়ার অগ্রগতি"></div>
 
 <!-- Toast notifications -->
-<div id="toast-container"></div>
+<div id="toast-container" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <!-- Scroll to top -->
 <button type="button" id="scroll-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="উপরে যান" aria-label="Scroll to top">
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
         <path d="M10 16v-12m-4 4l4-4 4 4"/>
     </svg>
 </button>
 
+<!--
+  NOTE: script.js's render() (line ~6644) also creates a *second*
+  #mobile-bottom-nav and #scroll-top-btn inside #app on every render.
+  Since getElementById() returns the first DOM match, THIS element
+  below is the one actually populated/used — the JS-created copy is
+  an orphaned duplicate, recreated and discarded every render() call.
+  Recommend removing that duplicate markup from render()'s template
+  in a future script.js pass; not changed here per scope.
+-->
 <!-- Mobile bottom navigation -->
-<div id="mobile-bottom-nav"></div>
+<nav id="mobile-bottom-nav" class="fixed bottom-0 left-0 right-0 md:hidden flex justify-around items-center gap-0.5 z-40" role="navigation" aria-label="মোবাইল নেভিগেশন"></nav>
 
 <!-- App root -->
 <div id="app"></div>

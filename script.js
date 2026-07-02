@@ -825,8 +825,6 @@ const KEYS = {
     SAHIFA_PDFS:'ahlbayt_sahifa_pdfs',
     IMAM_HADITH_PDFS:'ahlbayt_imam_hadith_pdfs',
     SPECIAL_DAY_PDFS:'ahlbayt_special_day_pdfs',
-    PRAYER_NOTIFY_PREFS:'ahlbayt_prayer_notify_prefs',
-    QAZA_TRACKER:'ahlbayt_qaza_tracker',
 };
 
 function lsGet(key, fallback=null) {
@@ -928,10 +926,16 @@ function saveState() {
 function showToast(msg, type='success', duration=2800) {
     const container = document.getElementById('toast-container');
     if (!container) return;
-    const icons = {success:'✅', info:'ℹ️', warning:'⚠️'};
+    // Screen readers announce toasts as they're added (role="status" is
+    // announced without stealing focus; "assertive" for errors so they
+    // aren't missed).
+    container.setAttribute('role', 'status');
+    container.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
+    // ✅ FIXED: 'error' icon was missing, so error toasts wrongly showed ✅
+    const icons = {success:'✅', info:'ℹ️', warning:'⚠️', error:'❌'};
     const el = document.createElement('div');
     el.className = `toast toast-${type}`;
-    el.innerHTML = `<span>${icons[type]||'✅'}</span><span>${msg}</span>`;
+    el.innerHTML = `<span aria-hidden="true">${icons[type]||'✅'}</span><span>${escapeHtml(msg)}</span>`;
     container.appendChild(el);
     setTimeout(() => {
         el.classList.add('hide');
@@ -1747,61 +1751,6 @@ function _performSearch(query) {
 // ============================================================================
 // NOTIFICATION ACTIONS
 // ============================================================================
-function getPrayerNotifyPrefs() {
-    return lsGet(KEYS.PRAYER_NOTIFY_PREFS, { fajr:false, dhuhr:false, asr:false, maghrib:false, isha:false });
-}
-function setPrayerNotifyPrefs(prefs) {
-    lsSet(KEYS.PRAYER_NOTIFY_PREFS, prefs);
-}
-function getTodayKey() {
-    const t = new Date();
-    return t.getFullYear() + '-' + String(t.getMonth()+1).padStart(2,'0') + '-' + String(t.getDate()).padStart(2,'0');
-}
-function getQazaTracker() {
-    return lsGet(KEYS.QAZA_TRACKER, {});
-}
-function isPrayerMarkedDone(prayerKey) {
-    const tracker = getQazaTracker();
-    const today = tracker[getTodayKey()] || {};
-    return !!today[prayerKey];
-}
-function toggleQazaMark(prayerKey) {
-    const tracker = getQazaTracker();
-    const key = getTodayKey();
-    if (!tracker[key]) tracker[key] = {};
-    tracker[key][prayerKey] = !tracker[key][prayerKey];
-    lsSet(KEYS.QAZA_TRACKER, tracker);
-    render();
-}
-
-async function togglePrayerNotify(prayerKey) {
-    if (!('Notification' in window)) {
-        showToast(state.language==='bn'?'এই ব্রাউজার নোটিফিকেশন সাপোর্ট করে না':'Your browser does not support notifications','warning');
-        return;
-    }
-    const prefs = getPrayerNotifyPrefs();
-    const turningOn = !prefs[prayerKey];
-    if (turningOn && Notification.permission !== 'granted') {
-        const perm = await Notification.requestPermission();
-        if (perm !== 'granted') {
-            showToast(state.language==='bn'?'নোটিফিকেশন অনুমতি দেওয়া হয়নি':'Notification permission denied','warning');
-            return;
-        }
-    }
-    prefs[prayerKey] = turningOn;
-    setPrayerNotifyPrefs(prefs);
-    const prayerNamesBn3={fajr:'ফজর',dhuhr:'যোহর',asr:'আসর',maghrib:'মাগরিব',isha:'ইশা'};
-    const prayerNamesEn3={fajr:'Fajr',dhuhr:'Dhuhr',asr:'Asr',maghrib:'Maghrib',isha:'Isha'};
-    const displayName = state.language==='bn'?prayerNamesBn3[prayerKey]:prayerNamesEn3[prayerKey];
-    showToast(
-        turningOn
-            ? (state.language==='bn'?`🔔 ${displayName} নামাজের নোটিফিকেশন চালু হয়েছে`:`🔔 ${displayName} notifications enabled`)
-            : (state.language==='bn'?`🔕 ${displayName} নামাজের নোটিফিকেশন বন্ধ হয়েছে`:`🔕 ${displayName} notifications disabled`),
-        turningOn?'success':'info'
-    );
-    schedulePrayerNotifications();
-    render();
-}
 async function requestNotificationPermission() {
     if (!('Notification' in window)) {
         showToast(state.language==='bn'?'এই ব্রাউজার নোটিফিকেশন সাপোর্ট করে না':'Your browser does not support notifications','warning');
@@ -1826,11 +1775,9 @@ function schedulePrayerNotifications() {
     if (!state.prayerTimes || Notification.permission!=='granted') return;
     _notifTimers.forEach(id => clearTimeout(id));
     _notifTimers = [];
-    const prefs = getPrayerNotifyPrefs();
     const prayerNamesBn2={fajr:'ফজর',dhuhr:'যোহর',asr:'আসর',maghrib:'মাগরিব',isha:'ইশা'};
     const prayerNamesEn2={fajr:'Fajr',dhuhr:'Dhuhr',asr:'Asr',maghrib:'Maghrib',isha:'Isha'};
     Object.entries(state.prayerTimes).forEach(([key, time])=>{
-        if (!prefs[key]) return;
         const displayName=state.language==='bn'?(prayerNamesBn2[key]||key):(prayerNamesEn2[key]||key);
         const [timePart, ampm] = time.split(' ');
         let [h,m] = timePart.split(':').map(Number);
@@ -2210,14 +2157,10 @@ function setupEventListeners() {
                     state.hadithIndex = (current - 1 + pool) % pool;
                     render(); break;
                 }
-                case 'shareHadith': {
-                    const h = getDailyHadith();
-                    const l = state.language;
-                    const text = '"' + (l==='bn' ? (h.textBn||h.textEn||'') : (h.textEn||h.textBn||'')) + '"\n— ' + (l==='bn' ? (h.sourceBn||h.sourceEn||'') : (h.sourceEn||h.sourceBn||''));
-                    if (navigator.share) { navigator.share({ title: l==='bn'?'হাদিস':'Hadith', text }); }
-                    else { navigator.clipboard && navigator.clipboard.writeText(text).then(()=>alert(l==='bn'?'কপি হয়েছে!':'Copied!')); }
-                    break;
-                }
+                // ✅ REMOVED: duplicate 'shareHadith' case (dead code — the
+                // earlier case above always matched first in the switch, so
+                // this block never ran; it also duplicated logic already in
+                // shareHadith()/shareContent()).
                 // TASBEEH
                 case 'tasbeehTap': tasbeehTap(); break;
                 case 'tasbeehReset': tasbeehReset(); break;
@@ -2257,8 +2200,6 @@ function setupEventListeners() {
                 }
                 // NOTIFICATIONS
                 case 'requestNotify': requestNotificationPermission(); break;
-                case 'togglePrayerNotify': togglePrayerNotify(param); break;
-                case 'toggleQazaMark': toggleQazaMark(param); break;
                 // BLOG EDITOR
                 case 'openBlogEditor': openBlogEditor(); break;
                 case 'openBlogEditorEdit': {
@@ -2273,7 +2214,8 @@ function setupEventListeners() {
                 case 'deleteCustomPost': deleteCustomPost(param); break;
                 case 'setBlogFilter': state.blogFilter=param; render(); break;
                 // DUA / ZIYARAT
-                case 'setDuaTab': state.duaTab=param; render(); break;
+                // ✅ REMOVED: duplicate 'setDuaTab' case (identical to the
+                // one defined earlier in this switch; unreachable dead code).
                 case 'setLibraryTab': state.libraryTab=param; render(); break;
                 case 'openKnowledgeEditor':
                     if(!state.isAdmin) { state.showAdminLogin=true; render(); break; }
@@ -2496,8 +2438,6 @@ function setupEventListeners() {
         if(e.target.id==='admin-pw-input'&&e.key==='Enter'){
             e.preventDefault(); tryAdminLogin(e.target.value);
         }
-    });
-    document.addEventListener('keydown', e => {
         if(e.key==='Escape'){
             if(state.menuOpen) toggleMenu();
             else if(state.showUploadModal) closeUploadModal();
@@ -2546,26 +2486,6 @@ function renderHijriBanner(d, l) {
     return '<div class="flex flex-wrap items-center justify-between gap-3 mb-6 px-1">'
         + badgeHtml
         + evHtml
-        + '</div>';
-}
-
-// ── Ramadan progress bar — shown only during Hijri month 9 (Ramadan) ──
-function renderRamadanProgressBar(d, l) {
-    const h = approxHijriNow();
-    if (h.month !== 9) return '';
-    const totalDays = getHijriMonthDays(9, h.year);
-    const dayNum = Math.min(h.day, totalDays);
-    const pct = Math.round((dayNum / totalDays) * 100);
-    const dayLabel = l === 'bn'
-        ? `রমজানের ${toBengaliDigits(dayNum)} তম দিন · ${toBengaliDigits(pct)}% সম্পন্ন`
-        : `Day ${dayNum} of Ramadan · ${pct}% complete`;
-    return '<div class="reveal" style="margin-bottom:1.1rem;padding:0 .25rem">'
-        + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">'
-        + '<span style="font-size:.72rem;font-weight:700;color:' + (d?'#fcd34d':'#92400e') + '">🌙 ' + dayLabel + '</span>'
-        + '</div>'
-        + '<div style="width:100%;height:5px;border-radius:999px;background:' + (d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)') + ';overflow:hidden">'
-        + '<div style="height:100%;width:' + pct + '%;border-radius:999px;background:linear-gradient(90deg,#f97316,#fbbf24);transition:width .4s ease"></div>'
-        + '</div>'
         + '</div>';
 }
 
@@ -2647,7 +2567,7 @@ function renderDailyAyahInner(d, l) {
     const ref = l==='bn' ? (ay.ref||ay.refEn||'') : (ay.refEn||ay.ref||'');
     return '<div class="' + (d?'bg-black/20':'bg-white/70') + ' rounded-2xl p-4 mb-3">'
         + '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px">'
-        + '<p class="arabic-text arabic-reveal text-center flex-1 mb-0" dir="rtl" style="font-size:clamp(1.4rem, 4vw, 1.8rem);line-height:2;color:' + (d?'#c9a227':'#92400e') + '">' + arabic + '</p>'
+        + '<p class="arabic-text arabic-reveal text-center flex-1 mb-0" dir="rtl" style="font-size:1.4rem;line-height:2;color:' + (d?'#c9a227':'#92400e') + '">' + arabic + '</p>'
         + (arabic ? renderTTSBtn(arabic, d) : '')
         + '</div>'
         + '<p class="text-xs text-center ' + (d?'text-gray-300':'text-gray-700') + ' leading-relaxed italic">' + meaning + '</p>'
@@ -2784,18 +2704,18 @@ function renderAdminLoginModal() {
     const d=state.darkMode;
     const l=state.language;
     return `
-    <div class="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+    <div class="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="admin-login-title">
         <div class="${d?'bg-gray-800':'bg-white'} rounded-2xl p-8 max-w-sm w-full shadow-2xl fade-in">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold">🔐 ${l==='bn'?'অ্যাডমিন লগইন':'Admin Login'}</h3>
-                <button data-action="closeAdminLogin" class="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700">✕</button>
+                <h3 id="admin-login-title" class="text-xl font-bold">🔐 ${l==='bn'?'অ্যাডমিন লগইন':'Admin Login'}</h3>
+                <button data-action="closeAdminLogin" aria-label="${l==='bn'?'বন্ধ করুন':'Close'}" class="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700">✕</button>
             </div>
             <form id="admin-login-form">
-                <label class="block mb-2 text-sm font-medium">${l==='bn'?'পাসওয়ার্ড':'Password'}</label>
+                <label for="admin-pw-input" class="block mb-2 text-sm font-medium">${l==='bn'?'পাসওয়ার্ড':'Password'}</label>
                 <input id="admin-pw-input" type="password" autocomplete="current-password"
                     class="${d?'bg-gray-900 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-green-500"
                     placeholder="${l==='bn'?'পাসওয়ার্ড দিন':'Enter password'}" autofocus />
-                ${state.adminLoginError?`<p class="text-red-500 text-sm mb-3">${sanitize(state.adminLoginError)}</p>`:''}
+                ${state.adminLoginError?`<p class="text-red-500 text-sm mb-3" role="alert">${sanitize(state.adminLoginError)}</p>`:''}
                 <button type="submit" data-action="adminLogin"
                     class="w-full bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
                 >${l==='bn'?'প্রবেশ করুন':'Login'}</button>
@@ -2816,19 +2736,19 @@ function renderUploadModal() {
     };
     const info = typeLabels[state.uploadType]||typeLabels.pdf;
     return `
-    <div class="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="upload-modal-title">
         <div class="${d?'bg-gray-800':'bg-white'} rounded-2xl p-8 max-w-md w-full shadow-2xl fade-in">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold">${info.icon} ${l==='bn'?info.bn:info.en} ${l==='bn'?'আপলোড':'Upload'}</h3>
-                ${!state.isUploading?`<button data-action="closeUploadModal" class="p-1 rounded hover:bg-gray-200">✕</button>`:''}
+                <h3 id="upload-modal-title" class="text-xl font-bold">${info.icon} ${l==='bn'?info.bn:info.en} ${l==='bn'?'আপলোড':'Upload'}</h3>
+                ${!state.isUploading?`<button data-action="closeUploadModal" aria-label="${l==='bn'?'বন্ধ করুন':'Close'}" class="p-1 rounded hover:bg-gray-200">✕</button>`:''}
             </div>
             ${state.isUploading ? `
                 <div class="text-center py-4">
                     <div class="mb-4">
-                        <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
+                        <div class="w-full bg-gray-200 rounded-full h-3 mb-2" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${state.uploadProgress}" aria-label="${l==='bn'?'আপলোড অগ্রগতি':'Upload progress'}">
                             <div id="upload-progress-bar" class="progress-bar rounded-full" style="width:${state.uploadProgress}%"></div>
                         </div>
-                        <p class="text-sm ${d?'text-gray-300':'text-gray-600'}">
+                        <p class="text-sm ${d?'text-gray-300':'text-gray-600'}" aria-live="polite">
                             ${state.uploadProgress < 100
                                 ? `<span id='upload-progress-text'>${l==='bn'?'আপলোড হচ্ছে':'Uploading'}... ${state.uploadProgress}%</span>`
                                 : (l==='bn'?'✅ সম্পন্ন!':'✅ Done!')}
@@ -2836,8 +2756,8 @@ function renderUploadModal() {
                     </div>
                 </div>
             ` : `
-                <label class="block mb-2 font-medium">${l==='bn'?'ফাইল নির্বাচন করুন':'Select file'}</label>
-                <input type="file" id="fileUploadInput" accept="${info.accept}"
+                <label for="fileUploadInput" class="block mb-2 font-medium">${l==='bn'?'ফাইল নির্বাচন করুন':'Select file'}</label>
+                <input type="file" id="fileUploadInput" accept="${info.accept}" autofocus
                     class="${d?'bg-gray-900 border-gray-700':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-green-500" />
                 <p class="mt-2 text-sm ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?`সর্বোচ্চ ${info.maxMB}MB`:`Max ${info.maxMB}MB`}</p>
             `}
@@ -2865,10 +2785,11 @@ function renderHeader()
                 <!-- LEFT: Hamburger + Logo -->
                 <div class="flex items-center gap-3">
                     <!-- Hamburger (mobile) -->
-                    <button data-action="toggleMenu" aria-label="মেনু"
+                    <button data-action="toggleMenu" aria-label="${t('menu')}"
+                        aria-haspopup="true" aria-expanded="${state.menuOpen?'true':'false'}" aria-controls="mobile-menu-drawer"
                         class="md:hidden focus:outline-none transition-all hover:scale-110"
                         style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:${d?'rgba(255,255,255,.07)':'rgba(0,0,0,.05)'}">
-                        <svg width="18" height="14" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <svg width="18" height="14" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
                             <line x1="0" y1="1" x2="18" y2="1"/>
                             <line x1="3" y1="7" x2="18" y2="7"/>
                             <line x1="6" y1="13" x2="18" y2="13"/>
@@ -2877,9 +2798,9 @@ function renderHeader()
 
                     <!-- Logo -->
                     <button data-action="changePage" data-param="home"
-                        class="flex items-center gap-2.5 focus:outline-none group" aria-label="হোম">
+                        class="flex items-center gap-2.5 focus:outline-none group" aria-label="${t('home')}">
                         <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#059669,#065f46);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 16px rgba(5,150,105,.45);transition:transform var(--t-spring),box-shadow var(--t-base)" class="group-hover:scale-110">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                 <path d="M12 3C8 3 4.5 6.5 4.5 11C4.5 15.5 8 19 12 19C10 16.5 9 14 9 11C9 7.5 10.5 4.5 14 3.5C13.4 3.2 12.7 3 12 3Z" fill="#fbbf24" opacity=".95"/>
                                 <circle cx="16" cy="6" r="2" fill="white" opacity=".9"/>
                                 <circle cx="13.5" cy="3" r="1.2" fill="#fde68a" opacity=".85"/>
@@ -2893,9 +2814,10 @@ function renderHeader()
                 </div>
 
                 <!-- CENTER: Desktop nav -->
-                <nav class="hidden md:flex items-center gap-0.5">
+                <nav class="hidden md:flex items-center gap-0.5" aria-label="${l==='bn'?'প্রধান মেনু':'Main navigation'}">
                     ${mainPages.map(page=>`
                     <button data-action="changePage" data-param="${page}"
+                        ${state.currentPage===page?'aria-current="page"':''}
                         class="nav-pill px-3.5 py-2 rounded-xl text-sm focus:outline-none transition-all
                         ${state.currentPage===page
                             ?(d?'bg-emerald-900/60 text-emerald-300 font-bold':'bg-emerald-50 text-emerald-700 font-bold')
@@ -2906,19 +2828,21 @@ function renderHeader()
 
                     <!-- More dropdown -->
                     <div class="relative" id="more-menu-wrap">
-                        <button onclick="const dd=document.getElementById('more-dropdown');dd.classList.toggle('hidden')"
+                        <button onclick="const dd=document.getElementById('more-dropdown');const willOpen=dd.classList.contains('hidden');dd.classList.toggle('hidden');this.setAttribute('aria-expanded',String(willOpen))"
                             class="px-3.5 py-2 rounded-xl text-sm font-medium flex items-center gap-1 focus:outline-none transition-all"
+                            aria-haspopup="true" aria-expanded="false" aria-controls="more-dropdown"
                             style="color:${d?'#9ca3af':'#6b7280'}">
                             ${l==='bn'?'আরো':'More'}
-                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 3.5l3 3 3-3"/></svg>
+                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M2 3.5l3 3 3-3"/></svg>
                         </button>
                         <div id="more-dropdown" class="hidden absolute right-0 top-full mt-2 w-48 rounded-2xl shadow-2xl z-50 py-2 overflow-hidden"
                             style="background:${d?'rgba(6,20,16,.97)':'rgba(255,255,255,.97)'};backdrop-filter:blur(24px);border:1px solid ${border}">
                             ${morePages.map(page=>`
                             <button data-action="changePage" data-param="${page}"
+                                ${state.currentPage===page?'aria-current="page"':''}
                                 class="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm transition-all
                                 ${state.currentPage===page?(d?'bg-emerald-900/50 text-emerald-300 font-semibold':'bg-emerald-50 text-emerald-700 font-semibold'):(d?'text-gray-300 hover:bg-white/5':'text-gray-700 hover:bg-gray-50')}"
-                            ><span style="font-size:.95rem">${pageIcons[page]??'📄'}</span>${t(page)}</button>`).join('')}
+                            ><span style="font-size:.95rem" aria-hidden="true">${pageIcons[page]??'📄'}</span>${t(page)}</button>`).join('')}
                         </div>
                     </div>
                 </nav>
@@ -2926,19 +2850,21 @@ function renderHeader()
                 <!-- RIGHT: Utility buttons -->
                 <div class="flex items-center gap-1">
                     <!-- Search -->
-                    <button data-action="changePage" data-param="searchPage" aria-label="সার্চ"
+                    <button data-action="changePage" data-param="searchPage" aria-label="${t('search')}"
                         class="focus:outline-none transition-all hover:scale-110"
                         style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:${d?'rgba(255,255,255,.07)':'rgba(0,0,0,.05)'};color:${d?'#9ca3af':'#6b7280'}">
-                        <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="9" cy="9" r="6"/><path d="M13.5 13.5L18 18"/></svg>
+                        <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="6"/><path d="M13.5 13.5L18 18"/></svg>
                     </button>
 
                     <!-- Font size +/- -->
                     <div class="flex items-center gap-0.5 rounded-xl px-1 py-1" style="background:${d?'rgba(255,255,255,.07)':'rgba(0,0,0,.05)'}">
                         <button data-action="setFontSize" data-param="${fontSizes[Math.max(0,fontSizes.indexOf(state.fontSize)-1)]}"
+                            aria-label="${l==='bn'?'হরফের আকার কমান':'Decrease font size'}"
                             class="w-6 h-6 rounded-lg flex items-center justify-center font-bold focus:outline-none hover:scale-110 transition-all"
                             style="color:${d?'#9ca3af':'#6b7280'}">−</button>
-                        <span class="text-xs font-bold px-0.5 select-none" style="color:${d?'#6b7280':'#9ca3af'}">A</span>
+                        <span class="text-xs font-bold px-0.5 select-none" style="color:${d?'#6b7280':'#9ca3af'}" aria-hidden="true">A</span>
                         <button data-action="setFontSize" data-param="${fontSizes[Math.min(fontSizes.length-1,fontSizes.indexOf(state.fontSize)+1)]}"
+                            aria-label="${l==='bn'?'হরফের আকার বাড়ান':'Increase font size'}"
                             class="w-6 h-6 rounded-lg flex items-center justify-center font-bold focus:outline-none hover:scale-110 transition-all"
                             style="color:${d?'#9ca3af':'#6b7280'}">+</button>
                     </div>
@@ -2954,12 +2880,12 @@ function renderHeader()
                     </button>
 
                     <!-- Dark mode -->
-                    <button data-action="toggleDarkMode" aria-label="থিম পরিবর্তন"
+                    <button data-action="toggleDarkMode" aria-label="${l==='bn'?'থিম পরিবর্তন':'Toggle theme'}" aria-pressed="${d?'true':'false'}"
                         class="focus:outline-none hover:scale-110 transition-all"
                         style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:${d?'rgba(251,191,36,.12)':'rgba(0,0,0,.05)'}">
                         ${d
-                            ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
-                            : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>'
+                            ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+                            : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>'
                         }
                     </button>
                 </div>
@@ -2984,17 +2910,17 @@ function renderMobileMenu()
     <div id="mobile-menu-backdrop"
         class="fixed inset-0 z-40 ${state.menuOpen?'show':'hidden'}"
         style="background:rgba(0,0,0,.6);backdrop-filter:blur(6px)"
-        data-action="toggleMenu"></div>
+        data-action="toggleMenu" aria-hidden="true"></div>
 
     <!-- Drawer -->
-    <div class="mobile-menu ${state.menuOpen?'open':''} fixed top-0 left-0 bottom-0 z-50 w-72 overflow-y-auto flex flex-col"
+    <div id="mobile-menu-drawer" class="mobile-menu ${state.menuOpen?'open':''} fixed top-0 left-0 bottom-0 z-50 w-72 overflow-y-auto flex flex-col"
         style="background:${d?'rgba(6,18,14,.98)':'rgba(255,255,255,.98)'};backdrop-filter:blur(24px);box-shadow:12px 0 48px rgba(0,0,0,.25);border-right:1px solid ${border}">
 
         <!-- Header -->
         <div class="flex items-center justify-between p-5" style="border-bottom:1px solid ${border};flex-shrink:0">
             <div class="flex items-center gap-3">
                 <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#059669,#065f46);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(5,150,105,.4)">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <path d="M12 3C8 3 4.5 6.5 4.5 11C4.5 15.5 8 19 12 19C10 16.5 9 14 9 11C9 7.5 10.5 4.5 14 3.5C13.4 3.2 12.7 3 12 3Z" fill="#fbbf24"/>
                         <circle cx="16" cy="6" r="1.8" fill="white" opacity=".9"/>
                     </svg>
@@ -3004,30 +2930,30 @@ function renderMobileMenu()
                     <div class="text-xs" style="color:${d?'#34d399':'#059669'};opacity:.8">${l==='bn'?'ইসলামিক জ্ঞান':'Islamic Knowledge'}</div>
                 </div>
             </div>
-            <button data-action="toggleMenu" aria-label="বন্ধ"
+            <button data-action="toggleMenu" aria-label="${l==='bn'?'বন্ধ করুন':'Close menu'}"
                 style="width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'};color:${d?'#9ca3af':'#6b7280'}"
                 class="hover:scale-110 transition-all focus:outline-none">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
                     <path d="M1 1l12 12M13 1L1 13"/>
                 </svg>
             </button>
         </div>
 
         <!-- Nav items -->
-        <nav class="p-3 flex-1 space-y-1" style="overflow-y:auto">
+        <nav class="p-3 flex-1 space-y-1" style="overflow-y:auto" aria-label="${l==='bn'?'মেনু নেভিগেশন':'Menu navigation'}">
             ${allPages.map(page=>{
                 const active = state.currentPage===page;
                 return `
-                <button data-action="changePage" data-param="${page}"
+                <button data-action="changePage" data-param="${page}" ${active?'aria-current="page"':''}
                     class="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-2xl text-sm transition-all focus:outline-none text-left"
                     style="${active
                         ? 'background:linear-gradient(135deg,rgba(5,150,105,.18),rgba(5,150,105,.08));color:#059669;border:1.5px solid rgba(5,150,105,.22);font-weight:700'
                         : 'border:1.5px solid transparent;color:'+(d?'#d1d5db':'#374151')+';font-weight:500'}">
-                    <span style="width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;${active?'background:rgba(5,150,105,.16)':'background:'+(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.05)')}">
+                    <span style="width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;${active?'background:rgba(5,150,105,.16)':'background:'+(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.05)')}" aria-hidden="true">
                         ${icons[page]||'📄'}
                     </span>
                     <span class="flex-1">${t(page)}</span>
-                    ${active?'<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round"><path d="M2 6h8M6 2l4 4-4 4"/></svg>':''}
+                    ${active?'<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M2 6h8M6 2l4 4-4 4"/></svg>':''}
                 </button>`;
             }).join('')}
         </nav>
@@ -3039,8 +2965,8 @@ function renderMobileMenu()
                     class="py-3 rounded-2xl text-sm font-bold hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
                     style="background:${d?'rgba(251,191,36,.12)':'rgba(0,0,0,.05)'};color:${d?'#fbbf24':'#6b7280'}">
                     ${d
-                        ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2"/></svg> Light'
-                        : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg> Dark'
+                        ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2"/></svg> Light'
+                        : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg> Dark'
                     }
                 </button>
                 <button data-action="toggleLanguage"
@@ -3075,7 +3001,7 @@ function renderFooter()
         <div style="height:2px;background:linear-gradient(90deg,transparent,#059669,#c9a227,#059669,transparent);background-size:200% 100%;animation:goldShimmer 3s linear infinite"></div>
 
         <!-- Mosque silhouette -->
-        <div style="width:100%;overflow:hidden;line-height:0;opacity:.22;margin-bottom:-2px">
+        <div style="width:100%;overflow:hidden;line-height:0;opacity:.22;margin-bottom:-2px" aria-hidden="true">
             <svg viewBox="0 0 1200 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:110px">
                 <rect x="150" y="118" width="900" height="12" rx="2" fill="#065f46" opacity=".8"/>
                 <rect x="430" y="110" width="340" height="8" rx="2" fill="#059669" opacity=".6"/>
@@ -3116,7 +3042,7 @@ function renderFooter()
         </div>
 
         <!-- Islamic geometric divider -->
-        <div style="width:100%;height:24px;overflow:hidden;opacity:.18">
+        <div style="width:100%;height:24px;overflow:hidden;opacity:.18" aria-hidden="true">
             <svg width="100%" height="24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
                 <defs><pattern id="fp2" x="0" y="0" width="48" height="24" patternUnits="userSpaceOnUse">
                     <path d="M0 12 L12 0 L24 12 L36 0 L48 12 L36 24 L24 12 L12 24Z" fill="none" stroke="#B45309" stroke-width="1"/>
@@ -3134,13 +3060,13 @@ function renderFooter()
                 <div>
                     <div class="flex items-center gap-3 mb-5">
                         <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#059669,#065f46);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(5,150,105,.45);flex-shrink:0">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                 <path d="M12 3C8 3 4.5 6.5 4.5 11C4.5 15.5 8 19 12 19C10 16.5 9 14 9 11C9 7.5 10.5 4.5 14 3.5C13.4 3.2 12.7 3 12 3Z" fill="#fbbf24" opacity=".95"/>
                                 <circle cx="16" cy="6" r="2" fill="white" opacity=".9"/>
                             </svg>
                         </div>
                         <div>
-                            <h3 class="font-bold text-lg text-white leading-tight">${l==='bn'?'আহলে বাইত (আ.)':'Ahl al-Bayt (a.s)'}</h3>
+                            <h2 class="font-bold text-lg text-white leading-tight">${l==='bn'?'আহলে বাইত (আ.)':'Ahl al-Bayt (a.s)'}</h2>
                             <p class="text-xs" style="color:rgba(52,211,153,.7)">${l==='bn'?'ইসলামিক জ্ঞান কেন্দ্র':'Islamic Knowledge Center'}</p>
                         </div>
                     </div>
@@ -3152,23 +3078,23 @@ function renderFooter()
                     <!-- Social links -->
                     <div class="flex gap-2 flex-wrap">
                         ${socialLinks.map(([href,color,label,svg])=>`
-                        <a href="${href}" target="_blank" rel="noopener noreferrer" title="${label}"
+                        <a href="${href}" target="_blank" rel="noopener noreferrer" title="${label}" aria-label="${label}"
                             style="width:40px;height:40px;border-radius:12px;background:${color}20;border:1px solid ${color}35;
                             display:flex;align-items:center;justify-content:center;color:${color};
                             transition:transform var(--t-spring),box-shadow var(--t-base)"
                             onmouseover="this.style.transform='scale(1.18) translateY(-3px)';this.style.boxShadow='0 8px 20px ${color}45'"
                             onmouseout="this.style.transform='';this.style.boxShadow=''">
-                            ${svg}
+                            <span aria-hidden="true">${svg}</span>
                         </a>`).join('')}
                     </div>
                 </div>
 
                 <!-- Quick links -->
                 <div>
-                    <h4 class="font-bold text-white mb-4 flex items-center gap-2">
-                        <span style="width:20px;height:2px;background:linear-gradient(90deg,#059669,#c9a227);border-radius:2px"></span>
+                    <h3 class="font-bold text-white mb-4 flex items-center gap-2">
+                        <span style="width:20px;height:2px;background:linear-gradient(90deg,#059669,#c9a227);border-radius:2px" aria-hidden="true"></span>
                         ${l==='bn'?'দ্রুত লিংক':'Quick Links'}
-                    </h4>
+                    </h3>
                     <div class="grid grid-cols-2 gap-y-2 gap-x-3">
                         ${quickLinks.map(p=>`
                         <button data-action="changePage" data-param="${p}"
@@ -3176,7 +3102,7 @@ function renderFooter()
                             style="color:rgba(255,255,255,.5);display:flex;align-items:center;gap:5px"
                             onmouseover="this.style.color='#34d399'"
                             onmouseout="this.style.color='rgba(255,255,255,.5)'">
-                            <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+                            <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
                             ${t(p)}
                         </button>`).join('')}
                     </div>
@@ -3184,17 +3110,17 @@ function renderFooter()
 
                 <!-- Contact -->
                 <div>
-                    <h4 class="font-bold text-white mb-4 flex items-center gap-2">
-                        <span style="width:20px;height:2px;background:linear-gradient(90deg,#059669,#c9a227);border-radius:2px"></span>
+                    <h3 class="font-bold text-white mb-4 flex items-center gap-2">
+                        <span style="width:20px;height:2px;background:linear-gradient(90deg,#059669,#c9a227);border-radius:2px" aria-hidden="true"></span>
                         ${l==='bn'?'যোগাযোগ':'Contact'}
-                    </h4>
+                    </h3>
                     <div class="space-y-3">
                         <a href="mailto:theroleofahlalbaytas@gmail.com"
                             class="flex items-center gap-3 text-sm transition-all"
                             style="color:rgba(255,255,255,.5)"
                             onmouseover="this.style.color='#34d399'"
                             onmouseout="this.style.color='rgba(255,255,255,.5)'">
-                            <span style="width:32px;height:32px;border-radius:10px;background:rgba(5,150,105,.15);border:1px solid rgba(5,150,105,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                            <span style="width:32px;height:32px;border-radius:10px;background:rgba(5,150,105,.15);border:1px solid rgba(5,150,105,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0" aria-hidden="true">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                             </span>
                             theroleofahlalbaytas@gmail.com
@@ -3204,7 +3130,7 @@ function renderFooter()
                             style="color:rgba(255,255,255,.5)"
                             onmouseover="this.style.color='#34d399'"
                             onmouseout="this.style.color='rgba(255,255,255,.5)'">
-                            <span style="width:32px;height:32px;border-radius:10px;background:rgba(5,150,105,.15);border:1px solid rgba(5,150,105,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                            <span style="width:32px;height:32px;border-radius:10px;background:rgba(5,150,105,.15);border:1px solid rgba(5,150,105,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0" aria-hidden="true">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.5a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .82h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
                             </span>
                             +880 1636428274
@@ -3240,13 +3166,6 @@ function renderPrayerWidget()
         asr:    'linear-gradient(135deg,#065f46,#059669)',
         maghrib:'linear-gradient(135deg,#7f1d1d,#dc2626)',
         isha:   'linear-gradient(135deg,#1e1b4b,#4c1d95)',
-    };
-    const prayerSoftBg={
-        fajr:   d?'rgba(30,64,175,.22)':'rgba(30,64,175,.1)',
-        dhuhr:  d?'rgba(180,83,9,.22)':'rgba(180,83,9,.1)',
-        asr:    d?'rgba(5,150,105,.22)':'rgba(5,150,105,.1)',
-        maghrib:d?'rgba(220,38,38,.22)':'rgba(220,38,38,.1)',
-        isha:   d?'rgba(76,29,149,.26)':'rgba(76,29,149,.1)',
     };
     function getActive(){
         const keys=['fajr','dhuhr','asr','maghrib','isha'];
@@ -3286,16 +3205,16 @@ function renderPrayerWidget()
                     <button onclick="requestGPSPrayerTimes()"
                         style="display:flex;align-items:center;gap:5px;font-size:.68rem;font-weight:700;
                         padding:5px 11px;border-radius:50px;cursor:pointer;transition:all .2s;
-                        background:${hasGPS?(d?'rgba(5,150,105,.22)':'rgba(5,150,105,.12)'):(d?'rgba(37,99,235,.16)':'rgba(37,99,235,.08)')};
-                        color:${hasGPS?'#059669':(d?'#60a5fa':'#2563eb')};
-                        border:1.5px solid ${hasGPS?'rgba(5,150,105,.4)':(d?'rgba(96,165,250,.4)':'rgba(37,99,235,.3)')}">
-                        <span style="width:7px;height:7px;border-radius:50%;background:${hasGPS?'#10b981':'#3b82f6'};${hasGPS?'animation:gpsPulseDot 2s ease-in-out infinite':''}"></span>
+                        background:${hasGPS?(d?'rgba(5,150,105,.2)':'rgba(5,150,105,.1)'):(d?'rgba(255,255,255,.07)':'rgba(0,0,0,.04)')};
+                        color:${hasGPS?'#059669':(d?'#9ca3af':'#6b7280')};
+                        border:1.5px solid ${hasGPS?'rgba(5,150,105,.35)':(d?'rgba(255,255,255,.12)':'rgba(0,0,0,.08)')}">
+                        <span style="width:7px;height:7px;border-radius:50%;background:${hasGPS?'#10b981':'#9ca3af'};${hasGPS?'animation:gpsPulseDot 2s ease-in-out infinite':''}"></span>
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                         ${hasGPS?(l==='bn'?'GPS সক্রিয়':'GPS Live'):(l==='bn'?'আমার লোকেশন':'My Location')}
                     </button>
                     <button data-action="changePage" data-param="prayer"
                         style="font-size:.68rem;font-weight:700;padding:5px 11px;border-radius:50px;cursor:pointer;
-                        background:${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.03)'};
+                        background:${d?'rgba(255,255,255,.07)':'rgba(0,0,0,.04)'};
                         color:${d?'#9ca3af':'#6b7280'};
                         border:1.5px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}">
                         ${l==='bn'?'বিস্তারিত':'Details'}
@@ -3316,55 +3235,32 @@ function renderPrayerWidget()
                     ${Object.entries(state.prayerTimes).map(([k,v])=>{
                         const isActive = k===activePrayer;
                         const isNext   = k===nextPrayer;
-                        const notifyOn = !!getPrayerNotifyPrefs()[k];
-                        const prayedDone = isPrayerMarkedDone(k);
                         return `
                         <div class="prayer-row flex justify-between items-center px-3 py-2.5 rounded-xl
                             ${d?'bg-gray-900/60':'bg-gray-50'}
                             ${isActive?'prayer-row-active':''}"
-                            style="${isActive?'background:linear-gradient(135deg,rgba(5,150,105,.14),rgba(5,150,105,.06)) !important':''}border-left:3px solid ${isActive?'transparent':(d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)')}">
-                        <div class="flex items-center gap-3">
+                            style="${isActive?'background:linear-gradient(135deg,rgba(5,150,105,.14),rgba(5,150,105,.06)) !important':''}">
+                            <div class="flex items-center gap-3">
                                 <span style="width:32px;height:32px;border-radius:10px;
-                                    background:${isActive?prayerBg[k]:prayerSoftBg[k]};
+                                    background:${isActive?prayerBg[k]:(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.05)')};
                                     display:flex;align-items:center;justify-content:center;
                                     font-size:.9rem;flex-shrink:0;
                                     transition:all var(--t-base)">
                                     ${prayerIcons[k]||'🕌'}
                                 </span>
-                                <div style="flex:1">
-                                    <div style="display:flex;align-items:center;gap:4px">
-                                        <p class="font-semibold text-sm leading-tight
-                                            ${isActive?(d?'text-emerald-300':'text-emerald-700'):''}">
-                                            ${t(k)}
-                                        </p>
-                                        ${isActive?`<span style="font-size:0.65rem;font-weight:700;padding:2px 5px;border-radius:4px;background:${d?'rgba(16,185,129,.25)':'rgba(16,185,129,.15)'};color:${d?'#6ee7b7':'#059669'}">${state.language==='bn'?'চলছে':'Active'}</span>`:''}
-                                    </div>
+                                <div>
+                                    <p class="font-semibold text-sm leading-tight
+                                        ${isActive?(d?'text-emerald-300':'text-emerald-700'):''}">
+                                        ${t(k)}
+                                    </p>
                                     ${isNext?`<p class="prayer-countdown text-xs" id="pclock-${k}" style="color:#c9a227;font-weight:700">…</p>`:''}
                                 </div>
-                                ${isActive?`<span class="prayer-pulse" style="width:7px;height:7px;border-radius:50%;background:#10b981"></span>`:''}
+                                ${isActive?`<span class="prayer-pulse" style="width:7px;height:7px;border-radius:50%;background:#10b981;margin-left:2px"></span>`:''}
                             </div>
-                            <div class="flex items-center gap-2">
-                                <button data-action="togglePrayerNotify" data-param="${k}"
-                                    aria-label="${notifyOn?(l==='bn'?'নোটিফিকেশন বন্ধ করুন':'Disable notification'):(l==='bn'?'নোটিফিকেশন চালু করুন':'Enable notification')}"
-                                    style="width:30px;height:30px;min-width:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;border:1.5px solid ${notifyOn?'transparent':(d?'rgba(245,158,11,.3)':'rgba(245,158,11,.35)')};transition:all var(--t-base);
-                                    background:${notifyOn?'linear-gradient(135deg,#f59e0b,#d97706)':(d?'rgba(245,158,11,.1)':'rgba(245,158,11,.08)')}">
-                                    ${notifyOn
-                                        ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/><path d="M9 17v1a3 3 0 0 0 6 0v-1"/></svg>`
-                                        : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/><path d="M9 17v1a3 3 0 0 0 6 0v-1"/><path d="M3 3l18 18"/></svg>`}
-                                </button>
-                                <button data-action="toggleQazaMark" data-param="${k}"
-                                    aria-label="${prayedDone?(l==='bn'?'নামাজ পড়া হয়েছে — চিহ্নিত':'Marked as prayed'):(l==='bn'?'নামাজ পড়েছেন? চিহ্নিত করুন':'Mark as prayed')}"
-                                    style="width:30px;height:30px;min-width:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;border:1.5px solid ${prayedDone?'transparent':(d?'rgba(16,185,129,.35)':'rgba(16,185,129,.4)')};transition:all var(--t-base);
-                                    background:${prayedDone?'linear-gradient(135deg,#10b981,#059669)':(d?'rgba(16,185,129,.1)':'rgba(16,185,129,.08)')}">
-                                    ${prayedDone
-                                        ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5l10 -10"/></svg>`
-                                        : ''}
-                                </button>
-                                <span class="font-bold text-sm tabular-nums
-                                    ${isActive?(d?'text-emerald-300':'text-emerald-600'):(d?'text-gray-300':'text-gray-700')}">
-                                    ${sanitize(v)}
-                                </span>
-                            </div>
+                            <span class="font-bold text-sm tabular-nums
+                                ${isActive?(d?'text-emerald-300':'text-emerald-600'):(d?'text-gray-300':'text-gray-700')}">
+                                ${sanitize(v)}
+                            </span>
                         </div>`;
                     }).join('')}
                 </div>
@@ -3379,9 +3275,8 @@ function renderPrayerWidget()
 
                     <!-- সেহরি -->
                     <div style="border-radius:14px;padding:11px 13px;
-                        background:${d?'#1e3a8a':'#eff6ff'};
-                        border:1px solid ${d?'rgba(96,165,250,.45)':'rgba(59,130,246,.45)'};
-                        box-shadow:${d?'0 4px 14px rgba(30,58,138,.35)':'0 4px 14px rgba(59,130,246,.12)'}">
+                        background:${d?'linear-gradient(135deg,rgba(15,23,42,.8),rgba(30,64,175,.25))':'linear-gradient(135deg,rgba(239,246,255,.9),rgba(219,234,254,.7))'};
+                        border:1px solid ${d?'rgba(96,165,250,.2)':'rgba(147,197,253,.5)'}">
                         <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
                             <span style="font-size:.9rem" aria-hidden="true">🌙</span>
                             <span style="font-size:10.5px;font-weight:700;color:${d?'#93c5fd':'#1d4ed8'}">
@@ -3392,20 +3287,18 @@ function renderPrayerWidget()
                             color:${d?'#bfdbfe':'#1e3a8a'};margin:0;line-height:1.2">
                             ${sanitize(state.prayerTimes.fajr||'--:--')}
                         </p>
-                        <p style="font-size:9.5px;margin-top:3px;color:${d?'rgba(147,197,253,.65)':'rgba(30,58,138,.65)'}">
+                        <p style="font-size:9.5px;margin-top:3px;color:${d?'rgba(147,197,253,.55)':'rgba(30,58,138,.5)'}">
                             ${l==='bn'?'ফজরের আজানের আগে':'Before Fajr Adhan'}
                         </p>
-                        <p style="font-size:8.5px;margin-top:4px;color:${d?'rgba(147,197,253,.5)':'rgba(30,58,138,.5)'};font-weight:600" id="sehri-countdown">—</p>
                     </div>
 
                     <!-- ইফতার -->
                     <div style="border-radius:14px;padding:11px 13px;
-                        background:${d?'#92400e':'#fff7ed'};
-                        border:1px solid ${d?'rgba(249,115,22,.45)':'rgba(249,115,22,.55)'};
-                        box-shadow:${d?'0 4px 14px rgba(146,64,14,.35)':'0 4px 14px rgba(249,115,22,.12)'}">
+                        background:${d?'linear-gradient(135deg,rgba(69,10,10,.7),rgba(180,83,9,.25))':'linear-gradient(135deg,rgba(255,247,237,.9),rgba(254,215,170,.6))'};
+                        border:1px solid ${d?'rgba(252,165,165,.2)':'rgba(249,115,22,.35)'}">
                         <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
                             <span style="font-size:.9rem" aria-hidden="true">🌇</span>
-                            <span style="font-size:10.5px;font-weight:700;color:${d?'#fb923c':'#c2410c'}">
+                            <span style="font-size:10.5px;font-weight:700;color:${d?'#fca5a5':'#c2410c'}">
                                 ${l==='bn'?'ইফতারের সময়':'Iftar Time'}
                             </span>
                         </div>
@@ -3413,76 +3306,15 @@ function renderPrayerWidget()
                             color:${d?'#fed7aa':'#9a3412'};margin:0;line-height:1.2">
                             ${sanitize(state.prayerTimes.maghrib||'--:--')}
                         </p>
-                        <p style="font-size:9.5px;margin-top:3px;color:${d?'rgba(249,115,22,.65)':'rgba(154,52,18,.65)'}">
+                        <p style="font-size:9.5px;margin-top:3px;color:${d?'rgba(252,165,165,.55)':'rgba(154,52,18,.5)'}">
                             ${l==='bn'?'মাগরিবের আজানে':'At Maghrib Adhan'}
                         </p>
-                        <p style="font-size:8.5px;margin-top:4px;color:${d?'rgba(249,115,22,.5)':'rgba(154,52,18,.5)'};font-weight:600" id="iftar-countdown">—</p>
                     </div>
 
                 </div>`}
         </div>
     </div>`;
 }
-// ============================================================================
-// COUNTDOWN TIMER: Sehri/Iftar
-// ============================================================================
-function updateIffarCountdown() {
-    const fajrEl = document.getElementById('sehri-countdown');
-    const iffarEl = document.getElementById('iftar-countdown');
-    
-    if (!fajrEl && !iffarEl) return; // Not on prayer page
-    
-    const now = new Date();
-    const fajrTime = state.prayerTimes.fajr;
-    const maghribTime = state.prayerTimes.maghrib;
-    
-    // Parse "HH:MM" format
-    const parseTime = (timeStr) => {
-        if (!timeStr || timeStr === '--:--') return null;
-        const [h, m] = timeStr.split(':').map(Number);
-        const d = new Date();
-        d.setHours(h, m, 0, 0);
-        if (d < now) d.setDate(d.getDate() + 1); // Next day if time passed
-        return d;
-    };
-    
-    const fajrDate = parseTime(fajrTime);
-    const maghribDate = parseTime(maghribTime);
-    
-    // Update Sehri countdown
-    if (fajrEl && fajrDate) {
-        const diff = fajrDate - now;
-        if (diff > 0) {
-            const h = Math.floor(diff / 3600000);
-            const m = Math.floor((diff % 3600000) / 60000);
-            const s = Math.floor((diff % 60000) / 1000);
-            const bn = state.language === 'bn';
-            const hTxt = bn ? (h + '').padStart(2, '০').replace(/\d/g, d => '০১२३४५६७८९'[d]) : (h + '').padStart(2, '0');
-            const mTxt = bn ? (m + '').padStart(2, '०').replace(/\d/g, d => '०१२३४५६७८९'[d]) : (m + '').padStart(2, '0');
-            const sTxt = bn ? (s + '').padStart(2, '०').replace(/\d/g, d => '०१२३४५६७८९'[d]) : (s + '').padStart(2, '0');
-            fajrEl.textContent = bn ? `${hTxt}ঘ ${mTxt}মি ${sTxt}সে বাকি` : `${hTxt}h ${mTxt}m ${sTxt}s left`;
-        }
-    }
-    
-    // Update Iftar countdown
-    if (iffarEl && maghribDate) {
-        const diff = maghribDate - now;
-        if (diff > 0) {
-            const h = Math.floor(diff / 3600000);
-            const m = Math.floor((diff % 3600000) / 60000);
-            const s = Math.floor((diff % 60000) / 1000);
-            const bn = state.language === 'bn';
-            const hTxt = bn ? (h + '').padStart(2, '०').replace(/\d/g, d => '०१२३४५६७८९'[d]) : (h + '').padStart(2, '0');
-            const mTxt = bn ? (m + '').padStart(2, '०').replace(/\d/g, d => '०१२३४५६७८९'[d]) : (m + '').padStart(2, '0');
-            const sTxt = bn ? (s + '').padStart(2, '०').replace(/\d/g, d => '०१२३४५६७८९'[d]) : (s + '').padStart(2, '0');
-            iffarEl.textContent = bn ? `${hTxt}ঘ ${mTxt}মি ${sTxt}সে বাকি` : `${hTxt}h ${mTxt}m ${sTxt}s left`;
-        }
-    }
-}
-
-// Start countdown timer when prayer page is visible
-setInterval(() => updateIffarCountdown(), 1000);
-
 // ============================================================================
 // PAGE: HOME
 // ============================================================================
@@ -3516,7 +3348,6 @@ function renderHomePage()
 
     return `
     <!-- ① Hijri banner -->
-    ${renderRamadanProgressBar(d,l)}
     ${renderHijriBanner(d,l)}
 
     <!-- ② Next prayer countdown -->
@@ -3594,7 +3425,7 @@ function renderHomePage()
 
             <!-- Crescent badge -->
             <div class="hero-crescent-badge">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path d="M12 3C8 3 4.5 6.5 4.5 11C4.5 15.5 8 19 12 19C10 16.5 9 14 9 11C9 7.5 10.5 4.5 14 3.5C13.4 3.2 12.7 3 12 3Z" fill="white" opacity=".95"/>
                     <circle cx="16" cy="6" r="2.5" fill="white" opacity=".85"/>
                 </svg>
@@ -3670,10 +3501,10 @@ function renderHomePage()
     </div>
 
     <!-- ④ FEATURE CARDS GRID -->
-    <div style="margin-bottom:3.5rem">
+    <section aria-labelledby="home-features-heading" style="margin-bottom:3.5rem">
         <div class="section-heading reveal">
-            <span style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#059669,#047857);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;box-shadow:0 4px 12px rgba(5,150,105,.4)">✨</span>
-            <h2 class="section-title">${l==='bn'?'বিভাগসমূহ':'Sections'}</h2>
+            <span style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#059669,#047857);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;box-shadow:0 4px 12px rgba(5,150,105,.4)" aria-hidden="true">✨</span>
+            <h2 id="home-features-heading" class="section-title">${l==='bn'?'বিভাগসমূহ':'Sections'}</h2>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             ${features.map((f,fi)=>`
@@ -3682,23 +3513,23 @@ function renderHomePage()
                 style="box-shadow:var(--shadow-sm);--fc-accent:${f.color};--fc-accent-bg:${f.bg};--fc-accent-faint:${f.faint}">
                 <span class="feature-card-badge">${f.title}</span>
                 <div class="feature-card-content">
-                    <div class="feature-icon-wrap" style="background:${f.bg};border-color:${f.faint}">${f.icon}</div>
+                    <div class="feature-icon-wrap" style="background:${f.bg};border-color:${f.faint}" aria-hidden="true">${f.icon}</div>
                     <h3 class="font-bold text-sm mb-1" style="color:${d?'#f9fafb':'#111827'}">${f.title}</h3>
                     <p class="text-xs leading-relaxed" style="color:${d?'#9ca3af':'#6b7280'}">${f.desc}</p>
                     <div class="feature-card-link">
                         ${l==='bn'?'দেখুন':'Explore'}
-                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
                     </div>
                 </div>
             </button>`).join('')}
         </div>
-    </div>
+    </section>
 
     <!-- ⑤ ISLAMIC CALENDAR & SPECIAL DAYS -->
-    <div style="margin-bottom:3rem">
+    <section aria-labelledby="home-calendar-heading" style="margin-bottom:3rem">
         <div class="section-heading reveal">
-            <span style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#dc2626,#7f1d1d);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;box-shadow:0 4px 12px rgba(220,38,38,.35)">🌙</span>
-            <h2 class="section-title">${l==='bn'?'ইসলামিক ক্যালেন্ডার':'Islamic Calendar'}</h2>
+            <span style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#dc2626,#7f1d1d);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;box-shadow:0 4px 12px rgba(220,38,38,.35)" aria-hidden="true">🌙</span>
+            <h2 id="home-calendar-heading" class="section-title">${l==='bn'?'ইসলামিক ক্যালেন্ডার':'Islamic Calendar'}</h2>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 reveal">
             ${[
@@ -3709,12 +3540,12 @@ function renderHomePage()
             <button data-action="changePage" data-param="${c.page}"
                 class="text-left rounded-2xl transition-all focus:outline-none hover:scale-[1.02] hover:brightness-110"
                 style="background:${c.grad};padding:1.3rem 1.3rem 1.6rem;box-shadow:0 6px 24px rgba(0,0,0,.22)">
-                <div style="font-size:2rem;margin-bottom:.55rem">${c.icon}</div>
-                <h4 style="font-weight:800;font-size:.95rem;color:white;margin-bottom:.3rem">${c.title}</h4>
+                <div style="font-size:2rem;margin-bottom:.55rem" aria-hidden="true">${c.icon}</div>
+                <h3 style="font-weight:800;font-size:.95rem;color:white;margin-bottom:.3rem">${c.title}</h3>
                 <p style="font-size:.75rem;color:rgba(255,255,255,.78);line-height:1.5">${c.desc}</p>
             </button>`).join('')}
         </div>
-    </div>
+    </section>
 
     <!-- ⑥ WIDGETS COLUMN -->
     <div class="space-y-5">
@@ -3726,22 +3557,22 @@ function renderHomePage()
         <div class="card-luxury ${d?'bg-gradient-to-br from-purple-950 to-blue-950 border-purple-900':'bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200'} border p-5 reveal" style="box-shadow:var(--shadow-md)">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-bold flex items-center gap-2">
-                    <span style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#4f46e5);display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(124,58,237,.4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0"/><path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0"/><path d="M3 6l0 13"/><path d="M12 6l0 13"/><path d="M21 6l0 13"/></svg></span>
+                    <span style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#4f46e5);display:flex;align-items:center;justify-content:center;font-size:.8rem" aria-hidden="true">📜</span>
                     ${t('hadithOfDay')}
                 </h3>
                 ${state.isAdmin?`<button data-action="openHadithEditor" class="${d?'bg-purple-800 text-purple-200':'bg-purple-100 text-purple-700'} text-xs px-3 py-1 rounded-lg font-semibold hover:opacity-80">✏️ ${l==='bn'?'এডিট':'Edit'}</button>`:''}
             </div>
-            <div class="${d?'bg-black/20':'bg-white/60'} rounded-2xl p-4" style="border-left:3px solid ${d?'#a78bfa':'#7c3aed'}">
+            <div class="${d?'bg-black/20':'bg-white/60'} rounded-2xl p-4">
                 <p class="text-sm leading-relaxed mb-3 italic">"${sanitize(l==='bn'?getDailyHadith().textBn:getDailyHadith().textEn)}"</p>
                 <p class="text-xs font-bold" style="${d?'color:#fbbf24':'color:#7c3aed'}">— ${sanitize(l==='bn'?getDailyHadith().sourceBn:getDailyHadith().sourceEn)}</p>
             </div>
             <div class="flex items-center justify-between mt-3 gap-2">
                 <div class="flex gap-1">
-                    <button data-action="hadithPrev" class="${d?'bg-purple-900 text-purple-200 hover:bg-purple-800':'bg-purple-100 text-purple-700 hover:bg-purple-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors" style="min-height:36px;display:inline-flex;align-items:center">‹ ${l==='bn'?'আগে':'Prev'}</button>
-                    <button data-action="hadithNext" class="${d?'bg-purple-900 text-purple-200 hover:bg-purple-800':'bg-purple-100 text-purple-700 hover:bg-purple-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors" style="min-height:36px;display:inline-flex;align-items:center">${l==='bn'?'পরে':'Next'} ›</button>
+                    <button data-action="hadithPrev" class="${d?'bg-purple-900 text-purple-200 hover:bg-purple-800':'bg-purple-100 text-purple-700 hover:bg-purple-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors">‹ ${l==='bn'?'আগে':'Prev'}</button>
+                    <button data-action="hadithNext" class="${d?'bg-purple-900 text-purple-200 hover:bg-purple-800':'bg-purple-100 text-purple-700 hover:bg-purple-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors">${l==='bn'?'পরে':'Next'} ›</button>
                 </div>
                 <button data-action="shareHadith" class="${d?'bg-emerald-900/60 text-emerald-300 hover:bg-emerald-800':'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors flex items-center gap-1">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                     ${l==='bn'?'শেয়ার':'Share'}
                 </button>
             </div>
@@ -3751,7 +3582,7 @@ function renderHomePage()
         <div class="ayah-widget p-5 reveal" style="box-shadow:var(--shadow-md)">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-bold flex items-center gap-2">
-                    <span style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#c9a227,#b45309);display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(180,83,9,.4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5a2 2 0 0 1 2 -2h4a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0 -2.5 -2.5h-6.5"/><path d="M21 5a2 2 0 0 0 -2 -2h-4a3 3 0 0 0 -3 3v13a2.5 2.5 0 0 1 2.5 -2.5h6.5"/></svg></span>
+                    <span style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#c9a227,#b45309);display:flex;align-items:center;justify-content:center;font-size:.8rem" aria-hidden="true">📖</span>
                     ${l==='bn'?'আজকের আয়াত':"Today's Verse"}
                 </h3>
                 ${state.isAdmin?`<button data-action="openAyahEditor" class="${d?'bg-amber-900 text-amber-200':'bg-amber-100 text-amber-700'} text-xs px-3 py-1 rounded-lg font-semibold hover:opacity-80">✏️ ${l==='bn'?'এডিট':'Edit'}</button>`:''}
@@ -3759,11 +3590,11 @@ function renderHomePage()
             ${renderDailyAyahInner(d,l)}
             <div class="flex items-center justify-between mt-3 gap-2">
                 <div class="flex gap-1">
-                    <button data-action="ayahPrev" class="${d?'bg-amber-900 text-amber-200 hover:bg-amber-800':'bg-amber-100 text-amber-700 hover:bg-amber-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors" style="min-height:36px;display:inline-flex;align-items:center">‹ ${l==='bn'?'আগে':'Prev'}</button>
-                    <button data-action="ayahNext" class="${d?'bg-amber-900 text-amber-200 hover:bg-amber-800':'bg-amber-100 text-amber-700 hover:bg-amber-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors" style="min-height:36px;display:inline-flex;align-items:center">${l==='bn'?'পরে':'Next'} ›</button>
+                    <button data-action="ayahPrev" class="${d?'bg-amber-900 text-amber-200 hover:bg-amber-800':'bg-amber-100 text-amber-700 hover:bg-amber-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors">‹ ${l==='bn'?'আগে':'Prev'}</button>
+                    <button data-action="ayahNext" class="${d?'bg-amber-900 text-amber-200 hover:bg-amber-800':'bg-amber-100 text-amber-700 hover:bg-amber-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors">${l==='bn'?'পরে':'Next'} ›</button>
                 </div>
                 <button data-action="shareAyah" class="${d?'bg-emerald-900/60 text-emerald-300 hover:bg-emerald-800':'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'} text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors flex items-center gap-1">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                     ${l==='bn'?'শেয়ার':'Share'}
                 </button>
             </div>
@@ -3772,26 +3603,27 @@ function renderHomePage()
         <!-- Follow Us -->
         <div class="card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border p-5 reveal" style="box-shadow:var(--shadow-sm)">
             <h3 class="text-sm font-bold mb-4 flex items-center gap-2">
-                <span style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#1d4ed8,#1e40af);display:flex;align-items:center;justify-content:center;font-size:.8rem">🌐</span>
+                <span style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#1d4ed8,#1e40af);display:flex;align-items:center;justify-content:center;font-size:.8rem" aria-hidden="true">🌐</span>
                 ${l==='bn'?'আমাদের অনুসরণ করুন':'Follow Us'}
             </h3>
             <div class="space-y-2">
                 ${[
                     ['https://www.facebook.com/profile.php?id=100090495041094', l==='bn'?'ফেসবুক পেজ':'Facebook Page', '#1877f2','rgba(24,119,242,.12)',
-                        '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>'],
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>'],
                     ['https://www.instagram.com/ahl.al.bayt.a.s/', l==='bn'?'ইনস্টাগ্রাম':'Instagram', '#e1306c','rgba(225,48,108,.12)',
-                        '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>'],
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>'],
                     ['https://www.youtube.com/@Ahl_al-Bayt_a.s', l==='bn'?'ইউটিউব':'YouTube', '#ff0000','rgba(255,0,0,.12)',
-                        '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>'],
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>'],
                     ['https://x.com/Ahl_al_Bayt_a_s', l==='bn'?'টুইটার (X)':'Twitter (X)', d?'#e7e9ea':'#0f172a','rgba(15,23,42,.08)',
-                        '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>'],
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>'],
                 ].map(([href,label,color,bg,icon])=>`
                 <a href="${href}" target="_blank" rel="noopener noreferrer"
+                    aria-label="${label} (${l==='bn'?'নতুন ট্যাবে খুলবে':'opens in a new tab'})"
                     class="flex items-center gap-3 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all hover:translate-x-1 hover:scale-[1.01]"
                     style="background:${bg};color:${color};border:1px solid ${color}28">
                     ${icon}
                     <span class="flex-1">${label}</span>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
                 </a>`).join('')}
             </div>
         </div>
@@ -3816,9 +3648,9 @@ function renderLibraryPage() {
     if (!tab) return `
     <div class="space-y-8 page-enter">
         <div class="reveal">
-            <h2 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#059669,#0369a1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+            <h1 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#059669,#0369a1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
                 📚 ${t('library')}
-            </h2>
+            </h1>
             <p class="text-sm mt-1" style="color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?'ইসলামিক কিতাব ও পিডিএফ সংকলন':'Islamic books & PDF collection'}</p>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4 reveal">
@@ -3856,7 +3688,7 @@ function renderLibraryPage() {
                     background:${folder.color}12;color:${folder.color};border:1.5px solid ${folder.color}30">
                     ← ${l==='bn'?'ফোল্ডারে ফিরুন':'Back'}
                 </button>
-                <h2 class="font-bold text-xl flex items-center gap-2">${folder.icon} ${folder.label}</h2>
+                <h1 class="font-bold text-xl flex items-center gap-2">${folder.icon} ${folder.label}</h1>
             </div>
             ${state.isAdmin?`
             <button data-action="openFolderUpload" data-param="${tab}"
@@ -3864,7 +3696,7 @@ function renderLibraryPage() {
                 background:linear-gradient(135deg,${folder.color},${folder.color}bb);color:white;
                 border:none;cursor:pointer;display:flex;align-items:center;gap:6px;
                 box-shadow:0 4px 14px ${folder.color}40">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 ${l==='bn'?'পিডিএফ আপলোড':'Upload PDF'}
             </button>`:''
         }
@@ -3891,14 +3723,14 @@ function renderLibraryPage() {
                     <div style="font-size:3rem;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3));opacity:.9">${folder.icon}</div>
                 </div>
                 <div class="p-4 flex flex-col flex-1">
-                    <h3 class="font-bold text-sm mb-1 leading-snug flex-1" style="color:${d?'#f9fafb':'#111827'}">${sanitize(pdf.name)}</h3>
+                    <h2 class="font-bold text-sm mb-1 leading-snug flex-1" style="color:${d?'#f9fafb':'#111827'}">${sanitize(pdf.name)}</h2>
                     <p class="text-xs mb-3" style="color:${d?'#6b7280':'#9ca3af'}">${sanitize(pdf.sizeFmt||'')} · ${sanitize(pdf.uploadDate||'')}</p>
                     <div class="flex gap-2">
                         <button data-action="openViewer" data-param="${pdf.id}" data-vtype="pdf" data-listkey="${listKey}"
                             style="flex:1;padding:8px;border-radius:12px;font-size:11.5px;font-weight:700;
                             background:linear-gradient(135deg,${folder.color},${folder.color}bb);
                             color:white;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                             ${l==='bn'?'পড়ুন':'Read'}
                         </button>
                         <button data-action="downloadFile" data-param="${pdf.id}" data-name="${sanitize(pdf.name)}"
@@ -3906,11 +3738,12 @@ function renderLibraryPage() {
                             background:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.05)'};
                             color:${d?'#d1d5db':'#374151'};border:1.5px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'};
                             cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                             ${l==='bn'?'ডাউনলোড':'Download'}
                         </button>
                         ${state.isAdmin?`
                         <button data-action="deleteFile" data-param="${pdf.id}" data-listkey="${listKey}"
+                            aria-label="${l==='bn'?'মুছুন':'Delete'} ${sanitize(pdf.name)}"
                             style="width:36px;border-radius:12px;background:rgba(220,38,38,.1);
                             border:1.5px solid rgba(220,38,38,.2);color:#ef4444;cursor:pointer;font-size:13px;
                             display:flex;align-items:center;justify-content:center">🗑</button>`:''
@@ -3934,16 +3767,16 @@ function renderMediaPage() {
     return `
     <div class="space-y-10 page-enter">
         <div class="reveal">
-            <h2 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#7c3aed,#dc2626);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+            <h1 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#7c3aed,#dc2626);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
                 🎭 ${t('media')}
-            </h2>
+            </h1>
             <p class="text-sm mt-1" style="color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?'ছবি, ভিডিও ও অডিও সংকলন':'Images, videos & audio collection'}</p>
         </div>
         ${tabs.map(tab=>`
         <div class="reveal">
             <div class="section-heading">
-                <span style="width:32px;height:32px;border-radius:10px;background:${tab.grad};display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;box-shadow:0 4px 12px ${tab.color}40">${tab.icon}</span>
-                <h3 class="font-bold text-base" style="color:${d?'#f9fafb':'#111827'}">${tab.label}</h3>
+                <span style="width:32px;height:32px;border-radius:10px;background:${tab.grad};display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;box-shadow:0 4px 12px ${tab.color}40" aria-hidden="true">${tab.icon}</span>
+                <h2 class="font-bold text-base" style="color:${d?'#f9fafb':'#111827'}">${tab.label}</h2>
                 ${state.isAdmin?`
                 <button data-action="openUploadModal" data-param="${tab.uploadKey}"
                     style="margin-left:auto;font-size:11.5px;font-weight:700;padding:6px 16px;border-radius:50px;
@@ -3977,7 +3810,7 @@ function renderMediaCard(item, type, listKey, d, l, color='#059669', grad='linea
         ? `<div style="height:160px;background:${d?'#0f172a':'#1e293b'};position:relative;overflow:hidden">
                ${item.cloudUrl?`<video src="${item.cloudUrl}" style="width:100%;height:100%;object-fit:cover;opacity:.65" muted preload="metadata"></video>`:''}
                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
-                   <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,${color},${color}bb);box-shadow:0 4px 20px ${color}60;display:flex;align-items:center;justify-content:center">
+                   <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,${color},${color}bb);box-shadow:0 4px 20px ${color}60;display:flex;align-items:center;justify-content:center" aria-hidden="true">
                        <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                    </div>
                </div>
@@ -3995,14 +3828,14 @@ function renderMediaCard(item, type, listKey, d, l, color='#059669', grad='linea
         <div style="height:2.5px;background:${color};flex-shrink:0"></div>
         ${thumb}
         <div class="p-4 flex flex-col flex-1">
-            <h4 class="font-semibold text-sm mb-1 truncate" style="color:${d?'#f9fafb':'#111827'}">${sanitize(item.name)}</h4>
+            <h3 class="font-semibold text-sm mb-1 truncate" style="color:${d?'#f9fafb':'#111827'}">${sanitize(item.name)}</h3>
             <p class="text-xs mb-3" style="color:${d?'#6b7280':'#9ca3af'}">${sanitize(item.sizeFmt||'')} · ${sanitize(item.uploadDate||'')}</p>
             <div class="flex gap-2 mt-auto">
                 <button data-action="openViewer" data-param="${item.id}" data-vtype="${type}" data-listkey="${listKey}"
                     style="flex:1;padding:7px;border-radius:10px;font-size:11.5px;font-weight:700;
                     background:linear-gradient(135deg,${color},${color}bb);color:white;border:none;cursor:pointer;
                     display:flex;align-items:center;justify-content:center;gap:5px">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     ${l==='bn'?(type==='audio'?'শুনুন':'দেখুন'):(type==='audio'?'Play':'View')}
                 </button>
                 <button data-action="downloadFile" data-param="${item.id}" data-name="${sanitize(item.name)}"
@@ -4010,11 +3843,12 @@ function renderMediaCard(item, type, listKey, d, l, color='#059669', grad='linea
                     background:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.05)'};
                     color:${d?'#d1d5db':'#374151'};border:1.5px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'};
                     cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     ${l==='bn'?'ডাউনলোড':'Download'}
                 </button>
                 ${state.isAdmin?`
                 <button data-action="deleteFile" data-param="${item.id}" data-listkey="${listKey}"
+                    aria-label="${l==='bn'?'মুছুন':'Delete'} ${sanitize(item.name)}"
                     style="width:34px;border-radius:10px;background:rgba(220,38,38,.1);border:1.5px solid rgba(220,38,38,.2);
                     color:#ef4444;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center">🗑</button>`:''
                 }
@@ -4348,9 +4182,9 @@ function renderDuaPage() {
         <!-- Header -->
         <div class="flex flex-wrap justify-between items-center gap-3 reveal">
             <div>
-                <h2 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#059669,#b45309);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+                <h1 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#059669,#b45309);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
                     🤲 ${t('dua')}
-                </h2>
+                </h1>
                 <p class="text-sm mt-1" style="color:${d?'#9ca3af':'#6b7280'}">
                     ${l==='bn'?`${allDuas.length} দোয়া · ${allZiyarat.length} যিয়ারত`:`${allDuas.length} Duas · ${allZiyarat.length} Ziyarat`}
                 </p>
@@ -4362,7 +4196,7 @@ function renderDuaPage() {
                     style="font-size:12.5px;font-weight:700;padding:9px 18px;border-radius:50px;
                     background:linear-gradient(135deg,#059669,#047857);color:white;border:none;
                     cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(5,150,105,.38)">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     ${l==='bn'?'নতুন দোয়া':'Add Dua'}
                 </button>`:''}
                 ${tab==='ziyarat'?`
@@ -4370,7 +4204,7 @@ function renderDuaPage() {
                     style="font-size:12.5px;font-weight:700;padding:9px 18px;border-radius:50px;
                     background:linear-gradient(135deg,#b45309,#92400e);color:white;border:none;
                     cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(180,83,9,.38)">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     ${l==='bn'?'নতুন যিয়ারত':'Add Ziyarat'}
                 </button>`:''}
             </div>`:''
@@ -4380,7 +4214,7 @@ function renderDuaPage() {
         <!-- Tab switcher -->
         <div class="flex gap-2 p-1 rounded-2xl w-fit reveal"
             style="background:${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)'}">
-            <button data-action="setDuaTab" data-param="dua"
+            <button data-action="setDuaTab" data-param="dua" aria-pressed="${tab==='dua'?'true':'false'}"
                 style="padding:9px 22px;border-radius:14px;font-size:.85rem;font-weight:700;
                 cursor:pointer;transition:all .22s;border:none;
                 background:${tab==='dua'?'linear-gradient(135deg,#059669,#047857)':'transparent'};
@@ -4389,7 +4223,7 @@ function renderDuaPage() {
                 🤲 ${l==='bn'?'দোয়া':'Duas'}
                 <span style="font-size:.7rem;opacity:.75;margin-left:4px">${allDuas.length}</span>
             </button>
-            <button data-action="setDuaTab" data-param="ziyarat"
+            <button data-action="setDuaTab" data-param="ziyarat" aria-pressed="${tab==='ziyarat'?'true':'false'}"
                 style="padding:9px 22px;border-radius:14px;font-size:.85rem;font-weight:700;
                 cursor:pointer;transition:all .22s;border:none;
                 background:${tab==='ziyarat'?'linear-gradient(135deg,#b45309,#92400e)':'transparent'};
@@ -4406,7 +4240,7 @@ function renderDuaPage() {
             <div style="display:flex;gap:7px;width:max-content">
                 ${catFilters.map(f=>{
                     const isActive=selectedCategory===f.key;
-                    return `<button data-action="setDuaCategory" data-param="${f.key}"
+                    return `<button data-action="setDuaCategory" data-param="${f.key}" aria-pressed="${isActive?'true':'false'}"
                         style="flex-shrink:0;font-size:11.5px;font-weight:700;padding:6px 16px;border-radius:50px;
                         cursor:pointer;white-space:nowrap;transition:all .18s;
                         background:${isActive?f.color:(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)')};
@@ -4449,15 +4283,17 @@ function renderDuaPage() {
                             <div class="flex-1">
                                 <div class="flex items-center gap-2 mb-1 flex-wrap">
                                     ${isCustom?`<span class="${d?'gold-badge-dark':'gold-badge'}">${l==='bn'?'কাস্টম':'Custom'}</span>`:''}
-                                    <h3 class="font-bold text-base" style="color:${d?'#f9fafb':'#111827'}">${sanitize(l==='bn'?dua.titleBn:dua.titleEn)}</h3>
+                                    <h2 class="font-bold text-base" style="color:${d?'#f9fafb':'#111827'}">${sanitize(l==='bn'?dua.titleBn:dua.titleEn)}</h2>
                                 </div>
                                 ${dua.source?`<p class="text-xs" style="color:${d?'#6b7280':'#9ca3af'}">${sanitize(dua.source)}</p>`:''}
                             </div>
                             ${state.isAdmin&&isCustom?`
                             <div class="flex gap-1 flex-shrink-0">
                                 <button data-action="editCustomDua" data-param="${dua.id}" data-dtype="dua"
+                                    aria-label="${l==='bn'?'সম্পাদনা করুন':'Edit'} ${sanitize(l==='bn'?dua.titleBn:dua.titleEn)}"
                                     style="width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;background:${d?'rgba(59,130,246,.15)':'rgba(59,130,246,.1)'};border:1px solid rgba(59,130,246,.25);color:${d?'#93c5fd':'#1d4ed8'}">✏️</button>
                                 <button data-action="deleteCustomDua" data-param="${dua.id}" data-dtype="dua"
+                                    aria-label="${l==='bn'?'মুছুন':'Delete'} ${sanitize(l==='bn'?dua.titleBn:dua.titleEn)}"
                                     style="width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.2);color:#ef4444">🗑</button>
                             </div>`:''}
                         </div>
@@ -4478,7 +4314,7 @@ function renderDuaPage() {
                             border:1.5px solid rgba(5,150,105,.25);cursor:pointer;
                             display:inline-flex;align-items:center;gap:6px;transition:all .2s">
                             ${t('readMore')}
-                            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+                            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
                         </button>
                     </div>
                 </article>`;
@@ -4505,7 +4341,7 @@ function renderDuaPage() {
                         <div class="flex-1">
                             <div class="flex items-center gap-2 mb-1 flex-wrap">
                                 <span class="${d?'gold-badge-dark':'gold-badge'}">☪️ ${l==='bn'?'যিয়ারত':'Ziyarat'}</span>
-                                <h3 class="font-bold text-base" style="color:${d?'#f9fafb':'#111827'}">${sanitize(l==='bn'?z.titleBn:z.titleEn)}</h3>
+                                <h2 class="font-bold text-base" style="color:${d?'#f9fafb':'#111827'}">${sanitize(l==='bn'?z.titleBn:z.titleEn)}</h2>
                             </div>
                             ${z.occasion?`<p class="text-xs font-semibold mt-1" style="color:${d?'#fbbf24':'#92400e'}">📅 ${sanitize(z.occasion)}</p>`:''}
                             ${z.source?`<p class="text-xs mt-0.5" style="color:${d?'#6b7280':'#9ca3af'}">${sanitize(z.source)}</p>`:''}
@@ -4513,8 +4349,10 @@ function renderDuaPage() {
                         ${state.isAdmin?`
                         <div class="flex gap-1 flex-shrink-0">
                             <button data-action="editCustomDua" data-param="${z.id}" data-dtype="ziyarat"
+                                aria-label="${l==='bn'?'সম্পাদনা করুন':'Edit'} ${sanitize(l==='bn'?z.titleBn:z.titleEn)}"
                                 style="width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;background:${d?'rgba(59,130,246,.15)':'rgba(59,130,246,.1)'};border:1px solid rgba(59,130,246,.25)">✏️</button>
                             <button data-action="deleteCustomDua" data-param="${z.id}" data-dtype="ziyarat"
+                                aria-label="${l==='bn'?'মুছুন':'Delete'} ${sanitize(l==='bn'?z.titleBn:z.titleEn)}"
                                 style="width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.2)">🗑</button>
                         </div>`:''}
                     </div>
@@ -4533,7 +4371,7 @@ function renderDuaPage() {
                         border:1.5px solid rgba(180,83,9,.25);cursor:pointer;
                         display:inline-flex;align-items:center;gap:6px;transition:all .2s">
                         ${t('readMore')}
-                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
                     </button>
                 </div>
             </article>`).join('')}
@@ -4587,30 +4425,30 @@ function renderCalendarPage() {
 
     return `
     <div class="space-y-6">
-        <h2 class="text-3xl font-bold">📅 ${t('calendar')}</h2>
-        <div class="${d?'bg-gray-800 border-gray-700':'bg-white border-gray-200'} border rounded-2xl overflow-hidden" style="box-shadow:0 4px 24px rgba(0,0,0,.10)">
+        <h1 class="text-3xl font-bold">📅 ${t('calendar')}</h1>
+        <div class="${d?'bg-gray-800 border-gray-700':'bg-white border-gray-200'} border rounded-2xl overflow-hidden" style="box-shadow:0 4px 24px rgba(0,0,0,.10)" role="group" aria-label="${monthNameHijri} ${l==='bn'?toBengaliDigits(year):year} ${l==='bn'?'হিজরি ক্যালেন্ডার':'Hijri calendar'}">
 
             <!-- ── HEADER ── -->
             <div style="background:${d?'#1e3a2f':'#166534'}" class="px-5 py-4 flex items-center justify-between">
-                <button data-action="calPrev"
+                <button data-action="calPrev" aria-label="${l==='bn'?'পূর্ববর্তী মাস':'Previous month'}"
                     class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xl text-white hover:bg-white/20 transition-all focus:outline-none"
                     style="background:rgba(255,255,255,.15)">‹</button>
                 <div class="text-center text-white">
-                    <h3 class="text-xl font-black tracking-wide">${monthNameHijri} ${l==='bn'?toBengaliDigits(year):year} ${l==='bn'?'হিজরি':'AH'}</h3>
+                    <h2 class="text-xl font-black tracking-wide">${monthNameHijri} ${l==='bn'?toBengaliDigits(year):year} ${l==='bn'?'হিজরি':'AH'}</h2>
                     <p style="font-size:.75rem;opacity:.8;margin-top:2px">${l==='bn'?gregRangeBn:gregRange}</p>
                     ${l==='bn'?`<p style="font-size:.68rem;opacity:.65;margin-top:1px">${gregRange}</p>`:""}
                 </div>
-                <button data-action="calNext"
+                <button data-action="calNext" aria-label="${l==='bn'?'পরবর্তী মাস':'Next month'}"
                     class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xl text-white hover:bg-white/20 transition-all focus:outline-none"
                     style="background:rgba(255,255,255,.15)">›</button>
             </div>
 
             <!-- ── DAY HEADERS ── -->
-            <div class="grid grid-cols-7" style="background:${d?'#111827':'#f1f5f9'}">
+            <div class="grid grid-cols-7" role="row" style="background:${d?'#111827':'#f1f5f9'}">
                 ${[0,1,2,3,4,5,6].map(i=>{
                     const isFri=i===5, isSat=i===6;
                     const bg = isFri ? '#dc2626' : isSat ? '#1d4ed8' : (d?'#374151':'#475569');
-                    return `<div style="background:${bg};color:white;text-align:center;padding:7px 2px;font-size:.72rem;font-weight:700;letter-spacing:.03em">
+                    return `<div role="columnheader" style="background:${bg};color:white;text-align:center;padding:7px 2px;font-size:.72rem;font-weight:700;letter-spacing:.03em">
                         ${dayHdrsEn[i]}<br><span style="font-size:.65rem;opacity:.85">${dayHdrsBn[i]}</span>
                     </div>`;
                 }).join('')}
@@ -4671,10 +4509,10 @@ function renderCalendarPage() {
 
                     const dotColor = isAshura ? '#dc2626' : isMartyr ? '#f87171' : isBirth ? '#059669' : isEid ? '#059669' : '#f59e0b';
 
-                    return `<div class="${isTodayGreg?'calendar-today-cell':''}" style="background:${cellBg};min-height:72px;padding:3px 4px;position:relative;display:flex;flex-direction:column;justify-content:space-between;align-items:stretch;cursor:${ev?'pointer':'default'};transition:all .2s ease" role="gridcell" 
-                        ${ev?`onclick="showCalendarEventPopover({month:${month},day:${day},year:${year},event:${JSON.stringify(ev).replace(/"/g,'&quot;')},language:'${l}'});event.stopPropagation()" onmouseover="this.style.boxShadow='inset 0 0 8px rgba(5,150,105,.2)'" onmouseout="this.style.boxShadow=''"`:''}
+                    return `<div class="${isTodayGreg?'calendar-today-cell':''}" style="background:${cellBg};min-height:72px;padding:3px 4px;position:relative;display:flex;flex-direction:column;justify-content:space-between;align-items:stretch;cursor:${ev?'pointer':'default'};transition:all .2s ease" role="${ev?'button':'gridcell'}" ${ev?'tabindex="0"':''}
+                        ${ev?`onclick="showCalendarEventPopover({month:${month},day:${day},year:${year},event:${JSON.stringify(ev).replace(/"/g,'&quot;')},language:'${l}'});event.stopPropagation()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showCalendarEventPopover({month:${month},day:${day},year:${year},event:${JSON.stringify(ev).replace(/"/g,'&quot;')},language:'${l}'});event.stopPropagation();}" onmouseover="this.style.boxShadow='inset 0 0 8px rgba(5,150,105,.2)'" onmouseout="this.style.boxShadow=''"`:''}
+                        ${ev?`aria-label="${sanitize(gDay+' '+gregMonthsEnFull[gMon]+' — '+(l==='bn'?ev.bn:ev.en))}"`:''}
                         title="${gDay} ${gregMonthsEnFull[gMon]} ${gYear} | ${bnGregDay} ${bnGregMon} | ${bnHijriDay} ${bnHijriMon} ${toBengaliDigits(year)} হিজরি${ev?' | '+(l==='bn'?ev.bn:ev.en):''}">
-
                         <!-- TOP: English Gregorian (big) — 1st -->
                         <div style="text-align:center">
                             <span style="color:${enBigColor};font-size:1.6rem;font-weight:900;line-height:1">${gDay}</span>
@@ -4699,12 +4537,12 @@ function renderCalendarPage() {
 
             <!-- ── LEGEND ── -->
             <div class="px-4 py-3 border-t ${d?'border-gray-700':'border-gray-200'} flex flex-wrap gap-x-5 gap-y-1.5 text-xs ${d?'text-gray-300':'text-gray-600'}">
-                <span style="color:${d?'#f3f4f6':'#111827'};font-weight:700">■</span> ${l==='bn'?'ইংরেজি তারিখ':'Gregorian date'} &nbsp;
-                <span style="color:#1d4ed8;font-weight:700">■</span> ${l==='bn'?'বাংলা তারিখ':'Bangla date'} &nbsp;
-                <span style="color:#dc2626;font-weight:700">■</span> ${l==='bn'?'হিজরি তারিখ':'Hijri date'} &nbsp;
-                <span style="color:#f59e0b;font-weight:700">●</span> ${l==='bn'?'ইসলামিক ঘটনা':'Islamic event'} &nbsp;
-                <span style="color:#059669;font-weight:700">●</span> ${l==='bn'?'ইমামের জন্মদিন':'Imam Birthday'} &nbsp;
-                <span style="color:#dc2626;font-weight:700">●</span> ${l==='bn'?'ইমামের শাহাদাত':'Imam Martyrdom'}
+                <span aria-hidden="true" style="color:${d?'#f3f4f6':'#111827'};font-weight:700">■</span> ${l==='bn'?'ইংরেজি তারিখ':'Gregorian date'} &nbsp;
+                <span aria-hidden="true" style="color:#1d4ed8;font-weight:700">■</span> ${l==='bn'?'বাংলা তারিখ':'Bangla date'} &nbsp;
+                <span aria-hidden="true" style="color:#dc2626;font-weight:700">■</span> ${l==='bn'?'হিজরি তারিখ':'Hijri date'} &nbsp;
+                <span aria-hidden="true" style="color:#f59e0b;font-weight:700">●</span> ${l==='bn'?'ইসলামিক ঘটনা':'Islamic event'} &nbsp;
+                <span aria-hidden="true" style="color:#059669;font-weight:700">●</span> ${l==='bn'?'ইমামের জন্মদিন':'Imam Birthday'} &nbsp;
+                <span aria-hidden="true" style="color:#dc2626;font-weight:700">●</span> ${l==='bn'?'ইমামের শাহাদাত':'Imam Martyrdom'}
             </div>
 
             <!-- ── EVENTS LIST ── -->
@@ -4714,7 +4552,7 @@ function renderCalendarPage() {
                     .sort((a,b)=>parseInt(a[0].split('-')[1])-parseInt(b[0].split('-')[1]));
                 if(!evs.length) return '';
                 return `<div class="px-5 py-4 border-t ${d?'border-gray-700':'border-gray-200'}">
-                    <h4 class="font-bold text-sm mb-3">${l==='bn'?'📌 এই মাসের ইসলামিক দিবস':'📌 Islamic Events This Month'}</h4>
+                    <h2 class="font-bold text-sm mb-3">${l==='bn'?'📌 এই মাসের ইসলামিক দিবস':'📌 Islamic Events This Month'}</h2>
                     <div class="space-y-2">
                         ${evs.map(([k,v])=>{
                             const evDay=parseInt(k.split('-')[1]);
@@ -4810,10 +4648,10 @@ function renderContactPage() {
     const d=state.darkMode; const l=state.language;
     return `
     <div class="space-y-8">
-        <h2 class="text-3xl font-bold">✉️ ${t('contact')}</h2>
+        <h1 class="text-3xl font-bold">✉️ ${t('contact')}</h1>
         <div class="grid md:grid-cols-2 gap-8">
             <div class="${d?'bg-gray-800':'bg-white'} border rounded-xl p-8">
-                <h3 class="text-xl font-bold mb-6">${l==='bn'?'বার্তা পাঠান':'Send a Message'}</h3>
+                <h2 class="text-xl font-bold mb-6">${l==='bn'?'বার্তা পাঠান':'Send a Message'}</h2>
                 <form id="contact-form" class="space-y-5">
                     <div>
                         <label for="contact-name" class="block mb-1.5 font-medium text-sm">${l==='bn'?'নাম':'Name'}</label>
@@ -4832,9 +4670,9 @@ function renderContactPage() {
             </div>
             <div class="space-y-6">
                 <div class="${d?'bg-gray-800':'bg-white'} border rounded-xl p-6">
-                    <h3 class="font-bold mb-4">${l==='bn'?'সরাসরি যোগাযোগ':'Direct Contact'}</h3>
-                    <p class="${d?'text-gray-300':'text-gray-700'} mb-2">📧 theroleofahlalbaytas@gmail.com</p>
-                    <p class="${d?'text-gray-300':'text-gray-700'}">📞 +880 1636428274</p>
+                    <h2 class="font-bold mb-4">${l==='bn'?'সরাসরি যোগাযোগ':'Direct Contact'}</h2>
+                    <p class="${d?'text-gray-300':'text-gray-700'} mb-2"><a href="mailto:theroleofahlalbaytas@gmail.com" class="hover:underline focus:outline-none focus:ring-2 focus:ring-green-500 rounded">📧 theroleofahlalbaytas@gmail.com</a></p>
+                    <p class="${d?'text-gray-300':'text-gray-700'}"><a href="tel:+8801636428274" class="hover:underline focus:outline-none focus:ring-2 focus:ring-green-500 rounded">📞 +880 1636428274</a></p>
                 </div>
             </div>
         </div>
@@ -5181,13 +5019,13 @@ function renderImamsPage()
                         style="background:linear-gradient(135deg,${ac},${ac2});color:white;
                             box-shadow:0 3px 12px ${ac}42;letter-spacing:.2px">
                         ${l==='bn'?'বিস্তারিত':'Details'}
-                        <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" style="display:inline;margin-left:4px"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+                        <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" style="display:inline;margin-left:4px" aria-hidden="true"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
                     </button>
                     <button data-action="shareImamQuote" data-param="${im.id}"
                         class="px-3 py-2.5 rounded-xl text-xs font-bold hover:scale-110 transition-all flex items-center justify-center"
                         style="background:${ac}15;color:${ac};border:1.5px solid ${ac}30"
-                        title="${l==='bn'?'শেয়ার করুন':'Share'}">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                        title="${l==='bn'?'শেয়ার করুন':'Share'}" aria-label="${l==='bn'?'শেয়ার করুন':'Share'} ${sanitize(l==='bn'?im.nameBn:im.nameEn)}">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
                             <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
                             <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
                             <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
@@ -5233,19 +5071,19 @@ function renderImamsPage()
         <!-- ── Page header ── -->
         <div class="flex flex-wrap justify-between items-start gap-3 reveal">
             <div>
-                <h2 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#059669,#b45309);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+                <h1 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#059669,#b45309);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
                     👑 ${t('imams')}
-                </h2>
+                </h1>
                 <p class="text-sm mt-1" style="color:${d?'#9ca3af':'#6b7280'}">
                     ${l==='bn'?'পবিত্র নবী, মাসুমিন ও ১২ ইমামের জীবনী':'Lives of the Holy Prophet, Masumeen & 12 Imams'}
                 </p>
             </div>
-            <button data-action="toggleTimeline"
+            <button data-action="toggleTimeline" aria-pressed="${state.showTimeline?'true':'false'}"
                 class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all"
                 style="${state.showTimeline
                     ? 'background:rgba(5,150,105,.14);color:#059669;border:1.5px solid rgba(5,150,105,.38)'
                     : 'border:1.5px solid '+(d?'rgba(255,255,255,.12)':'rgba(0,0,0,.1)')+';color:'+(d?'#6b7280':'#9ca3af')}">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
                 ${l==='bn'?'টাইমলাইন':'Timeline'}${state.showTimeline?' ✓':''}
             </button>
         </div>
@@ -5261,10 +5099,10 @@ function renderImamsPage()
         <!-- ── মাসুমিন section ── -->
         <div class="reveal">
             <div class="section-heading">
-                <span style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#c9a227,#78350f);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;box-shadow:0 4px 14px rgba(201,162,39,.38)">✨</span>
-                <h3 class="font-black text-lg" style="color:${d?'#f9fafb':'#111827'}">
+                <span style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#c9a227,#78350f);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;box-shadow:0 4px 14px rgba(201,162,39,.38)" aria-hidden="true">✨</span>
+                <h2 class="font-black text-lg" style="color:${d?'#f9fafb':'#111827'}">
                     ${l==='bn'?'নবী ও মাসুমিন (আ.)':'Prophet & Masumeen (AS)'}
-                </h3>
+                </h2>
                 <span class="text-xs font-bold px-2.5 py-1 rounded-full"
                     style="background:rgba(201,162,39,.15);color:#c9a227;border:1px solid rgba(201,162,39,.3)">
                     ${l==='bn'?'২ জন':'2'}
@@ -5279,10 +5117,10 @@ function renderImamsPage()
         <!-- ── ১২ ইমাম section ── -->
         <div class="reveal">
             <div class="section-heading">
-                <span style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#059669,#065f46);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;box-shadow:0 4px 14px rgba(5,150,105,.4)">👑</span>
-                <h3 class="font-black text-lg" style="color:${d?'#f9fafb':'#111827'}">
+                <span style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#059669,#065f46);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;box-shadow:0 4px 14px rgba(5,150,105,.4)" aria-hidden="true">👑</span>
+                <h2 class="font-black text-lg" style="color:${d?'#f9fafb':'#111827'}">
                     ${l==='bn'?'বারো ইমাম (আ.)':'The Twelve Imams (AS)'}
-                </h3>
+                </h2>
                 <span class="text-xs font-bold px-2.5 py-1 rounded-full"
                     style="background:rgba(5,150,105,.12);color:#059669;border:1px solid rgba(5,150,105,.25)">
                     ${l==='bn'?'১২ জন':'12'}
@@ -5310,7 +5148,7 @@ function renderImamTimeline(d, l) {
     return `
     <div class="${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-2xl p-6 fade-in" style="box-shadow:var(--shadow-md)">
         <div class="gold-top-bar" style="border-radius:12px 12px 0 0;margin:-24px -24px 20px"></div>
-        <h3 class="text-base font-bold mb-1 text-center">${l==='bn'?'ইমামদের জীবনকাল টাইমলাইন':'Imams Lifetime Timeline'}</h3>
+        <h2 class="text-base font-bold mb-1 text-center">${l==='bn'?'ইমামদের জীবনকাল টাইমলাইন':'Imams Lifetime Timeline'}</h2>
         <p class="text-center text-xs mb-5" style="color:${d?'#6b7280':'#9ca3af'}">${l==='bn'?'খ্রিস্টাব্দ ৬০০–৮৮০':'600 CE – 880 CE'}</p>
         <div class="space-y-2.5">
             ${timelineImams.map((im,idx)=>{
@@ -5445,13 +5283,13 @@ function renderQuizPage() {
         const pct=Math.round(score/total*100);
         return `
         <div class="space-y-8">
-            <h2 class="text-3xl font-bold">🧠 ${t('quiz')}</h2>
+            <h1 class="text-3xl font-bold">🧠 ${t('quiz')}</h1>
             <div class="${d?'bg-gray-800':'bg-white'} border rounded-2xl p-10 text-center max-w-lg mx-auto">
-                <div class="text-7xl mb-6">${pct>=80?'🏆':pct>=50?'👍':'📖'}</div>
-                <h3 class="text-2xl font-bold mb-2">${l==='bn'?'কুইজ সম্পন্ন!':'Quiz Complete!'}</h3>
+                <div class="text-7xl mb-6" aria-hidden="true">${pct>=80?'🏆':pct>=50?'👍':'📖'}</div>
+                <h2 class="text-2xl font-bold mb-2">${l==='bn'?'কুইজ সম্পন্ন!':'Quiz Complete!'}</h2>
                 <p class="text-5xl font-bold ${d?'text-green-400':'text-green-600'} my-6">${score}/${total}</p>
                 <div class="${d?'bg-gray-900':'bg-gray-50'} rounded-xl p-4 mb-8">
-                    <div class="h-4 ${d?'bg-gray-700':'bg-gray-200'} rounded-full overflow-hidden">
+                    <div class="h-4 ${d?'bg-gray-700':'bg-gray-200'} rounded-full overflow-hidden" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" aria-label="${l==='bn'?'সঠিক উত্তরের শতাংশ':'Percent correct'}">
                         <div class="${pct>=80?'bg-green-500':pct>=50?'bg-yellow-500':'bg-red-400'} h-4 rounded-full" style="width:${pct}%"></div>
                     </div>
                     <p class="text-sm mt-2 font-medium">${pct}% ${l==='bn'?'সঠিক':'correct'}</p>
@@ -5469,31 +5307,34 @@ function renderQuizPage() {
     return `
     <div class="space-y-8">
         <div class="flex flex-wrap justify-between items-center gap-4">
-            <h2 class="text-3xl font-bold">🧠 ${t('quiz')}</h2>
+            <h1 class="text-3xl font-bold">🧠 ${t('quiz')}</h1>
             <span class="${d?'text-gray-400':'text-gray-500'} text-sm">${state.quizIndex+1} / ${quizQuestions.length}</span>
         </div>
-        <div class="${d?'bg-gray-900':'bg-gray-100'} rounded-full h-2 overflow-hidden">
+        <div class="${d?'bg-gray-900':'bg-gray-100'} rounded-full h-2 overflow-hidden" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" aria-label="${l==='bn'?'কুইজ অগ্রগতি':'Quiz progress'}">
             <div class="bg-green-500 h-2 rounded-full transition-all" style="width:${pct}%"></div>
         </div>
         <div class="${d?'bg-gray-800':'bg-white'} border rounded-2xl p-8 max-w-2xl mx-auto">
             <p class="text-sm font-medium ${d?'text-green-400':'text-green-600'} mb-4">${l==='bn'?'প্রশ্ন':'Question'} ${state.quizIndex+1}</p>
-            <h3 class="text-xl font-bold mb-8">${sanitize(l==='bn'?q.qBn:q.qEn)}</h3>
+            <h2 class="text-xl font-bold mb-8">${sanitize(l==='bn'?q.qBn:q.qEn)}</h2>
             <div class="space-y-3">
                 ${q.options.map((opt,i)=>{
                     let cls = `quiz-option border-2 ${d?'bg-gray-900 border-gray-700':'bg-gray-50 border-gray-200'} rounded-xl px-5 py-4 w-full text-left font-medium`;
+                    let stateLabel = '';
                     if (state.quizAnswered!==null) {
-                        if (i===q.correct) cls+=' correct';
-                        else if (i===state.quizAnswered) cls+=' wrong';
+                        if (i===q.correct) { cls+=' correct'; stateLabel = ` — ${l==='bn'?'সঠিক উত্তর':'Correct answer'}`; }
+                        else if (i===state.quizAnswered) { cls+=' wrong'; stateLabel = ` — ${l==='bn'?'আপনার উত্তর, ভুল':'Your answer, incorrect'}`; }
                     }
-                    return `<button data-action="quizAnswer" data-param="${i}" class="${cls}" ${state.quizAnswered!==null?'disabled="disabled"':''}>
-                        <span class="${d?'text-gray-400':'text-gray-400'} mr-3">${['A','B','C','D'][i]}.</span>
-                        ${sanitize(l==='bn'?opt.bn:opt.en)}
+                    const optText = sanitize(l==='bn'?opt.bn:opt.en);
+                    return `<button data-action="quizAnswer" data-param="${i}" class="${cls}" ${state.quizAnswered!==null?'disabled="disabled"':''}
+                        ${stateLabel?`aria-label="${['A','B','C','D'][i]}. ${optText}${stateLabel}"`:''}>
+                        <span class="${d?'text-gray-400':'text-gray-400'} mr-3" aria-hidden="true">${['A','B','C','D'][i]}.</span>
+                        ${optText}
                     </button>`;
                 }).join('')}
             </div>
         </div>
         <div class="text-center">
-            <p class="${d?'text-gray-400':'text-gray-500'} text-sm">${l==='bn'?'স্কোর':'Score'}: ${state.quizScore}/${state.quizIndex+(state.quizAnswered!==null?1:0)}</p>
+            <p class="${d?'text-gray-400':'text-gray-500'} text-sm" aria-live="polite">${l==='bn'?'স্কোর':'Score'}: ${state.quizScore}/${state.quizIndex+(state.quizAnswered!==null?1:0)}</p>
         </div>
     </div>`;
 }
@@ -5572,9 +5413,9 @@ function renderTasbeehPage()
 
         <!-- Header -->
         <div class="reveal">
-            <h2 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#059669,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+            <h1 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#059669,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
                 📿 ${t('tasbeeh')}
-            </h2>
+            </h1>
             <p class="text-sm mt-1" style="color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?'ডিজিটাল তাসবিহ কাউন্টার':'Digital Tasbeeh Counter'}</p>
         </div>
 
@@ -5582,7 +5423,7 @@ function renderTasbeehPage()
         <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 1px 6px" class="reveal">
             <div style="display:flex;gap:8px;width:max-content">
                 ${DHIKR.map((dk,i)=>`
-                <button data-action="selectTasbeeh" data-param="${i}"
+                <button data-action="selectTasbeeh" data-param="${i}" aria-pressed="${selected===i?'true':'false'}"
                     style="flex-shrink:0;padding:7px 16px;border-radius:50px;cursor:pointer;
                     font-size:11.5px;font-weight:700;white-space:nowrap;transition:all .2s;
                     background:${selected===i?dk.color:(d?'rgba(255,255,255,.07)':'rgba(0,0,0,.05)')};
@@ -5601,12 +5442,12 @@ function renderTasbeehPage()
             <div class="p-6 text-center">
 
                 <!-- Arabic dhikr -->
-                <p class="arabic-text mb-1" dir="rtl" style="font-size:1.7rem;line-height:1.9;color:${ac}">${dhikr.ar}</p>
+                <p class="arabic-text mb-1" dir="rtl" lang="ar" style="font-size:1.7rem;line-height:1.9;color:${ac}">${dhikr.ar}</p>
                 <p class="font-bold text-sm mb-5" style="color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?dhikr.bn:dhikr.en} · ${l==='bn'?'লক্ষ্য':'Target'}: ${dhikr.target}</p>
 
                 <!-- SVG ring progress -->
                 <div style="position:relative;width:154px;height:154px;margin:0 auto 1.5rem">
-                    <svg width="154" height="154" style="transform:rotate(-90deg)">
+                    <svg width="154" height="154" style="transform:rotate(-90deg)" aria-hidden="true">
                         <circle cx="77" cy="77" r="54" fill="none" stroke="${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.07)'}" stroke-width="10"/>
                         <circle cx="77" cy="77" r="54" fill="none" stroke="${ac}" stroke-width="10"
                             id="tasbeeh-ring"
@@ -5645,14 +5486,14 @@ function renderTasbeehPage()
                         background:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'};
                         color:${d?'#d1d5db':'#374151'};border:1.5px solid ${d?'rgba(255,255,255,.12)':'rgba(0,0,0,.1)'};cursor:pointer;
                         display:flex;align-items:center;gap:6px;transition:all .2s">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
                         ${l==='bn'?'রিসেট':'Reset'}
                     </button>
                     <button data-action="saveTasbeehHistory"
                         style="padding:10px 24px;border-radius:50px;font-size:12.5px;font-weight:700;
                         background:${ac}18;color:${ac};border:1.5px solid ${ac}30;cursor:pointer;
                         display:flex;align-items:center;gap:6px;transition:all .2s">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                         ${l==='bn'?'সেভ করুন':'Save'}
                     </button>
                 </div>
@@ -5663,8 +5504,8 @@ function renderTasbeehPage()
         ${history.length>0?`
         <div class="reveal">
             <div class="section-heading">
-                <span style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#6b7280,#374151);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0">📊</span>
-                <h3 class="font-bold text-sm" style="color:${d?'#f9fafb':'#111827'}">${l==='bn'?'ইতিহাস':'History'}</h3>
+                <span style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#6b7280,#374151);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0" aria-hidden="true">📊</span>
+                <h2 class="font-bold text-sm" style="color:${d?'#f9fafb':'#111827'}">${l==='bn'?'ইতিহাস':'History'}</h2>
             </div>
             <div class="space-y-2">
                 ${history.slice(-5).reverse().map((h,hi)=>`
@@ -5704,20 +5545,21 @@ function renderSearchPage() {
 
         <!-- Header -->
         <div class="reveal">
-            <h2 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#059669,#0369a1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+            <h1 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#059669,#0369a1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
                 🔍 ${l==='bn'?'সার্চ':'Search'}
-            </h2>
+            </h1>
         </div>
 
         <!-- Search box -->
-        <div class="reveal" style="position:relative">
+        <div class="reveal" role="search" style="position:relative">
             <div style="position:absolute;left:16px;top:50%;transform:translateY(-50%);pointer-events:none;color:${d?'#6b7280':'#9ca3af'}">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
             </div>
             <input
                 id="search-input"
                 type="search"
                 value="${sanitize(q)}"
+                aria-label="${l==='bn'?'সার্চ':'Search'}"
                 placeholder="${l==='bn'?'দোয়া, ইমাম, ব্লগ পোস্ট খুঁজুন...':'Search duas, imams, blog posts...'}"
                 oninput="state.searchQuery=this.value;requestAnimationFrame(()=>document.getElementById('search-results')?.replaceWith(createSearchResults()))"
                 onkeydown="if(event.key==='Enter'){state.searchQuery=this.value;render()}"
@@ -5730,16 +5572,16 @@ function renderSearchPage() {
                 onfocus="this.style.borderColor='#059669';this.style.boxShadow='0 4px 24px rgba(5,150,105,.22)'"
                 onblur="this.style.borderColor='${d?'rgba(5,150,105,.2)':'rgba(5,150,105,.18)'}';this.style.boxShadow='0 4px 20px rgba(5,150,105,.1)'"
             />
-            ${q?`<button onclick="state.searchQuery='';render()" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.06)'};border:none;border-radius:50%;width:26px;height:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:${d?'#9ca3af':'#6b7280'}">
-                <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M1 1l12 12M13 1L1 13"/></svg>
+            ${q?`<button onclick="state.searchQuery='';render()" aria-label="${l==='bn'?'সার্চ মুছুন':'Clear search'}" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.06)'};border:none;border-radius:50%;width:26px;height:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:${d?'#9ca3af':'#6b7280'}">
+                <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M1 1l12 12M13 1L1 13"/></svg>
             </button>`:''}
         </div>
 
         <!-- Results -->
-        <div id="search-results">
+        <div id="search-results" aria-live="polite" aria-atomic="true">
             ${!q?`
             <div class="text-center py-16 reveal" style="color:${d?'#6b7280':'#9ca3af'}">
-                <div style="font-size:3.5rem;margin-bottom:1rem;opacity:.4">🔍</div>
+                <div style="font-size:3.5rem;margin-bottom:1rem;opacity:.4" aria-hidden="true">🔍</div>
                 <p class="font-bold text-lg mb-2" style="color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?'কী খুঁজছেন?':'What are you looking for?'}</p>
                 <p class="text-sm">${l==='bn'?'দোয়া, ইমাম, ব্লগ পোস্ট — সব কিছু খুঁজুন':'Search for duas, imams, blog posts & more'}</p>
                 <div class="flex flex-wrap justify-center gap-2 mt-5">
@@ -5754,7 +5596,7 @@ function renderSearchPage() {
             </div>`
             :results.length===0?`
             <div class="text-center py-16 reveal" style="color:${d?'#6b7280':'#9ca3af'}">
-                <div style="font-size:3rem;margin-bottom:.75rem;opacity:.45">📭</div>
+                <div style="font-size:3rem;margin-bottom:.75rem;opacity:.45" aria-hidden="true">📭</div>
                 <p class="font-bold text-base">"${sanitize(q)}" ${l==='bn'?'এর জন্য কোনো ফলাফল নেই':'returned no results'}</p>
                 <p class="text-sm mt-1">${l==='bn'?'ভিন্ন শব্দ দিয়ে চেষ্টা করুন':'Try different keywords'}</p>
             </div>`:`
@@ -5771,7 +5613,7 @@ function renderSearchPage() {
                     <span style="width:40px;height:40px;border-radius:12px;flex-shrink:0;
                         background:${r.color||'#059669'}15;
                         display:flex;align-items:center;justify-content:center;font-size:1.2rem;
-                        border:1px solid ${r.color||'#059669'}22">
+                        border:1px solid ${r.color||'#059669'}22" aria-hidden="true">
                         ${r.icon||'📄'}
                     </span>
                     <div class="flex-1 min-w-0">
@@ -5795,11 +5637,11 @@ function renderAboutPage() {
     const d=state.darkMode; const l=state.language;
     return `
     <div class="space-y-8">
-        <h2 class="text-3xl font-bold">ℹ️ ${t('about')}</h2>
+        <h1 class="text-3xl font-bold">ℹ️ ${t('about')}</h1>
         <article class="${d?'bg-gray-800':'bg-white'} border rounded-xl p-8">
             <p class="text-lg mb-6">${l==='bn'?'আহলে বাইত (আ.) ওয়েবসাইটে আপনাকে স্বাগতম। আমরা ইসলামিক জ্ঞান ছড়িয়ে দিতে প্রতিশ্রুতিবদ্ধ।':'Welcome to the Ahl al-Bayt (a.s) website. We are committed to spreading authentic Islamic knowledge.'}</p>
             <div class="space-y-4">
-                <h3 class="text-xl font-bold">${l==='bn'?'আমাদের লক্ষ্য':'Our Mission'}</h3>
+                <h2 class="text-xl font-bold">${l==='bn'?'আমাদের লক্ষ্য':'Our Mission'}</h2>
                 <p>${l==='bn'?'কুরআন, হাদিস এবং আহলে বাইতের শিক্ষা প্রচার করা।':'To promote the teachings of Quran, Hadith, and Ahl al-Bayt.'}</p>
             </div>
         </article>
@@ -7844,7 +7686,7 @@ function renderFamilyTreePage() {
 
     <div class="family-tree-container">
       <!-- Prophet Card -->
-      <div class="prophet-card" onclick="showPersonDetail('prophet')">
+      <div class="prophet-card" onclick="showPersonDetail('prophet')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showPersonDetail('prophet');}" role="button" tabindex="0" aria-label="${escapeHtml(l==='bn'?p.bengaliName:(p.englishAbbr||p.englishName))}">
         <div class="card-badge">${l==='bn'?'প্রথম জ্যোতি':'First Generation'}</div>
         <div class="card-name">${p.arabicName}</div>
         <div class="card-bengali">${l==='bn'?p.bengaliName:(p.englishAbbr||p.englishName)}</div>
@@ -7853,7 +7695,7 @@ function renderFamilyTreePage() {
       <div class="hierarchy-divider"><div class="tree-stem"></div><div class="tree-node"></div><div class="tree-stem"></div></div>
 
       <!-- Fatima Zahra: genealogical bridge -->
-      <div class="fatima-card" onclick="showPersonDetail('fatima')">
+      <div class="fatima-card" onclick="showPersonDetail('fatima')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showPersonDetail('fatima');}" role="button" tabindex="0" aria-label="${escapeHtml(l==='bn'?familyTreeDatabase.fatima.bengaliName:(familyTreeDatabase.fatima.englishAbbr||familyTreeDatabase.fatima.englishName))}">
         <div class="fatima-role">${l==='bn'?'সংযোগসূত্র · নবীর কন্যা':'The Bridge · Daughter of the Prophet'}</div>
         <div class="fatima-arabic">${familyTreeDatabase.fatima.arabicName}</div>
         <div class="fatima-bengali">${l==='bn'?familyTreeDatabase.fatima.bengaliName:(familyTreeDatabase.fatima.englishAbbr||familyTreeDatabase.fatima.englishName)}</div>
@@ -7873,10 +7715,10 @@ function renderFamilyTreePage() {
     </div>
 
     <!-- Detail Modal -->
-    <div id="person-detail-modal" class="modal hidden">
+    <div id="person-detail-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-body">
       <div class="modal-backdrop" onclick="closePersonDetail()"></div>
       <div class="modal-content">
-        <button class="modal-close" onclick="closePersonDetail()">✕</button>
+        <button class="modal-close" onclick="closePersonDetail()" aria-label="${l==='bn'?'বন্ধ করুন':'Close'}">✕</button>
         <div id="modal-body"></div>
       </div>
     </div>
@@ -8010,11 +7852,29 @@ function showPersonDetail(personId) {
   
   modalBody.innerHTML = html;
   modal.classList.remove('hidden');
+
+  // ✅ Focus management: remember what had focus, move focus into the
+  // modal, and let Escape close it — same behavior the backdrop click
+  // and close button already provide, just reachable from the keyboard.
+  window._personDetailReturnFocus = document.activeElement;
+  const closeBtn = modal.querySelector('.modal-close');
+  if (closeBtn) closeBtn.focus();
+  if (window._personDetailEscHandler) document.removeEventListener('keydown', window._personDetailEscHandler);
+  window._personDetailEscHandler = (e) => { if (e.key === 'Escape') closePersonDetail(); };
+  document.addEventListener('keydown', window._personDetailEscHandler);
 }
 
 function closePersonDetail() {
   const modal = document.getElementById('person-detail-modal');
   modal.classList.add('hidden');
+  if (window._personDetailEscHandler) {
+    document.removeEventListener('keydown', window._personDetailEscHandler);
+    window._personDetailEscHandler = null;
+  }
+  if (window._personDetailReturnFocus && typeof window._personDetailReturnFocus.focus === 'function') {
+    window._personDetailReturnFocus.focus();
+  }
+  window._personDetailReturnFocus = null;
 }
 
 function initFamilyTree() {

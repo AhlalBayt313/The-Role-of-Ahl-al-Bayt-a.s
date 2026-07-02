@@ -3074,6 +3074,7 @@ const ziyarats = [
   {
     titleBn:'যিয়ারত জামিআ কবিরা',
     titleEn:'Ziyarat Jami\'a Kabira',
+    category:'general',
     arabic:'السَّلَامُ عَلَيْكُمْ يَا أَهْلَ بَيْتِ النُّبُوَّةِ',
     meaningBn:'আপনাদের প্রতি শান্তি হোক, হে নবুওয়াতের আহলে বাইত',
     meaningEn:'Peace be upon you, O household of Prophethood',
@@ -3570,6 +3571,7 @@ const ziyarats = [
   {
     titleBn:'যিয়ারত আশুরা (গাইরে মারুফা)',
     titleEn:'Ziyarat Ashura Ghayr Ma\'rufa',
+    category:'general',
     arabic:'يَا أَبَا عَبْدِ اللَّهِ لَقَدْ عَظُمَتِ الرَّزِيَّةُ',
     meaningBn:'হে আবা আবদিল্লাহ! সত্যিই এই মুসিবত অতি মহা-শোকের',
     meaningEn:'O Aba Abdillah! Truly the calamity is immensely great',

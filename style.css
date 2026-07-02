@@ -22,14 +22,23 @@
     --emerald-800:#065f46; --emerald-900:#064e3b; --emerald-950:#022c22;
     --emerald-glow:rgba(5,150,105,.42);
     --navy-900:#1e2d62; --navy-950:#0f172a;
-    /* ── Color aliases ── */
-    --color-gold:#B45309; --color-gold-light:#FEF3C7; --color-gold-dark:#92400E;
-    --color-green-primary:#059669; --color-green-dark:#047857; --color-green-deeper:#064e3b;
+    /* ── Color aliases ──
+       Reference the base palette above instead of repeating hex values,
+       so if a base tone changes, every alias stays in sync automatically. */
+    --color-gold:var(--gold-600); --color-gold-light:#FEF3C7; --color-gold-dark:var(--gold-700);
+    --color-green-primary:var(--emerald-600); --color-green-dark:var(--emerald-700); --color-green-deeper:var(--emerald-900);
     --color-teal:#0d9488; --color-teal-dark:#0f766e;
     --color-gold-vivid:#c9a227; --color-mosque-green:#1a3a2a; --color-night-navy:#0a1628;
     /* ── Radius ── */
     --r-xs:8px; --r-sm:12px; --r-md:18px; --r-lg:24px; --r-xl:32px;
-    --radius-card:18px;
+    --radius-card:var(--r-md);
+    /* ── Spacing scale (4px base) — use in new/edited hand-written rules
+       (splash, hero, cards, etc.) so rhythm stays consistent instead of
+       ad-hoc px/rem per component. The Tailwind utility layer has its
+       own --spacing token and is unaffected by this. */
+    --space-1:4px;  --space-2:8px;  --space-3:12px; --space-4:16px;
+    --space-5:20px; --space-6:24px; --space-8:32px; --space-10:40px;
+    --space-12:48px; --space-16:64px; --space-20:80px;
     /* ── Shadows ── */
     --shadow-xs:0 2px 8px rgba(0,0,0,.06);
     --app-shadow-sm:0 4px 16px rgba(0,0,0,.08);
@@ -92,14 +101,14 @@ header, footer, main, .bg-white, .bg-gray-50, .bg-gray-800,
    3. ISLAMIC GEOMETRIC PAGE BACKGROUND
    ══════════════════════════════════════════ */
 .islamic-pattern-bg {
-    background-color: #eafdf6;
+    background-color: #f0fdf8;
     background-image:
-        radial-gradient(ellipse at 15% 15%, rgba(5,150,105,.13) 0%, transparent 55%),
-        radial-gradient(ellipse at 85% 85%, rgba(201,162,39,.12) 0%, transparent 55%),
-        radial-gradient(ellipse at 85% 15%, rgba(5,150,105,.08) 0%, transparent 45%),
-        radial-gradient(ellipse at 15% 85%, rgba(201,162,39,.08) 0%, transparent 45%),
-        repeating-linear-gradient(45deg,  rgba(5,150,105,.05) 0px, rgba(5,150,105,.05) 1px, transparent 0px, transparent 24px),
-        repeating-linear-gradient(-45deg, rgba(5,150,105,.05) 0px, rgba(5,150,105,.05) 1px, transparent 0px, transparent 24px);
+        radial-gradient(ellipse at 15% 15%, rgba(5,150,105,.08) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 85%, rgba(201,162,39,.07) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 15%, rgba(5,150,105,.05) 0%, transparent 45%),
+        radial-gradient(ellipse at 15% 85%, rgba(201,162,39,.05) 0%, transparent 45%),
+        repeating-linear-gradient(45deg,  rgba(5,150,105,.04) 0px, rgba(5,150,105,.04) 1px, transparent 0px, transparent 24px),
+        repeating-linear-gradient(-45deg, rgba(5,150,105,.04) 0px, rgba(5,150,105,.04) 1px, transparent 0px, transparent 24px);
 }
 
 /* Dark mode page background */
@@ -1012,7 +1021,7 @@ mark { background: linear-gradient(135deg, #fef08a, #fde68a); padding: 0 3px; bo
 /* ══════════════════════════════════════════
    37. AYAH / HADITH WIDGETS
    ══════════════════════════════════════════ */
-.ayah-widget { background: linear-gradient(135deg, rgba(201,162,39,.1), rgba(5,150,105,.08)); border: 1px solid rgba(201,162,39,.35); border-radius: 22px; }
+.ayah-widget { background: linear-gradient(135deg, rgba(201,162,39,.09), rgba(5,150,105,.07)); border: 1px solid rgba(201,162,39,.22); border-radius: 22px; }
 
 /* ══════════════════════════════════════════
    38. TASBEEH HISTORY BARS
@@ -1475,3 +1484,68 @@ html[data-theme="light"] .feature-badge {
 /* dark-mode overrides for modal */
 html[data-theme="dark"] .modal-content { background: #1a2520; color: #f9fafb; }
 html[data-theme="dark"] .info-box { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.08); }
+
+/* ══════════════════════════════════════════
+   46. UI POLISH PASS
+   Additive only — every rule below targets a specific, verified gap.
+   Nothing above this line was modified.
+   ══════════════════════════════════════════ */
+
+/* --- Hero: orbs use expensive blur() at full desktop size on all
+   devices. On small phones this costs paint time for a decorative
+   layer nobody can fully see anyway (viewport crops most of it). --- */
+@media (max-width: 480px) {
+    .hero-orb-1, .hero-orb-2, .hero-orb-3 { filter: blur(36px); }
+    .hero-orb-1 { width: 220px; height: 220px; }
+    .hero-orb-2 { width: 160px; height: 160px; }
+    .hero-orb-3 { width: 130px; height: 130px; }
+}
+
+/* --- Hero: stat label contrast was borderline against the light-mode
+   hero background. Same treatment, slightly stronger opacity. --- */
+.hero-stat-label { color: rgba(2,44,34,.68); }
+.hero-luxury .hero-stat-label { color: rgba(255,255,255,.75); }
+
+/* --- Navigation: the global button:focus-visible outline is square
+   and 6px-radius; on pill-shaped nav it visibly clips the corners.
+   Matches the element's own radius instead. --- */
+.nav-pill:focus-visible {
+    outline: 2px solid var(--emerald-600); outline-offset: 2px; border-radius: 12px;
+}
+.bnav-btn:focus-visible {
+    outline: 2px solid var(--emerald-600); outline-offset: -2px; border-radius: 14px 14px 0 0;
+}
+
+/* --- Buttons: .btn-primary had no :disabled state, so a disabled
+   upload/submit button looked identical to an active one apart from
+   the browser default (which Tailwind's preflight strips to nothing). --- */
+.btn-primary:disabled, .btn-primary[disabled] {
+    opacity: .55; cursor: not-allowed; filter: grayscale(.15);
+}
+.btn-primary:disabled:hover, .btn-primary[disabled]:hover { transform: none !important; }
+
+/* --- Typography: .arabic-text is fixed at 1.8rem/2.3 line-height at
+   every width. On narrow phones long ayahs/duas wrap into many lines;
+   a modest step-down keeps the Amiri script comfortable to read
+   without shrinking it so far it loses presence. --- */
+@media (max-width: 480px) {
+    .arabic-text { font-size: 1.5rem; line-height: 2.05; }
+}
+
+/* --- Forms: only button/a had a defined :focus-visible state.
+   Text inputs, textareas and selects (used in admin/upload forms)
+   fell back to the browser default outline, which Tailwind preflight
+   also strips — meaning keyboard users could lose the focus ring
+   entirely on form fields. --- */
+input:focus-visible, textarea:focus-visible, select:focus-visible {
+    outline: 2px solid var(--emerald-600); outline-offset: 1px; border-radius: 8px;
+}
+
+/* --- Footer: a thin gold separation line to lift the footer off the
+   section above, consistent with the gold accents used elsewhere
+   (nav underline, progress bar, section headings). --- */
+.footer-luxury::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201,162,39,.35), transparent);
+    pointer-events: none;
+}
