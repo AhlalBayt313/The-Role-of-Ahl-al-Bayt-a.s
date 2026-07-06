@@ -5233,19 +5233,19 @@ function renderImamDetailPage()
 
                 <!-- ① Basic Information — 2×2 grid -->
                 <div class="grid grid-cols-2 gap-2.5 sm:gap-3 mb-5">
-                    <div class="rounded-2xl p-3.5" style="background:${d?'rgba(255,255,255,.05)':'rgba(0,0,0,.03)'};border:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}">
+                    <div class="rounded-2xl p-3.5 text-center" style="background:${d?'rgba(255,255,255,.05)':'rgba(0,0,0,.03)'};border:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}">
                         <p class="font-bold text-xs mb-1.5" style="color:${ac}">🌙 ${l==='bn'?'জন্ম':'Birth'}</p>
                         <p class="font-semibold text-xs sm:text-sm leading-snug">${sanitize(l==='bn'?im.birthBn:im.birthEn)}</p>
                     </div>
-                    <div class="rounded-2xl p-3.5" style="background:${d?'rgba(255,255,255,.05)':'rgba(0,0,0,.03)'};border:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}">
+                    <div class="rounded-2xl p-3.5 text-center" style="background:${d?'rgba(255,255,255,.05)':'rgba(0,0,0,.03)'};border:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}">
                         <p class="font-bold text-xs mb-1.5" style="color:${ac}">📍 ${l==='bn'?'জন্মস্থান':'Birthplace'}</p>
                         <p class="font-semibold text-xs sm:text-sm leading-snug">${sanitize(l==='bn'?im.birthplaceBn:im.birthplaceEn)||'—'}</p>
                     </div>
-                    <div class="rounded-2xl p-3.5" style="background:${d?'rgba(255,255,255,.05)':'rgba(0,0,0,.03)'};border:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}">
+                    <div class="rounded-2xl p-3.5 text-center" style="background:${d?'rgba(255,255,255,.05)':'rgba(0,0,0,.03)'};border:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}">
                         <p class="font-bold text-xs mb-1.5" style="color:${ac}">⚔️ ${l==='bn'?'শাহাদাত/ওফাত':'Shahadat/Wafat'}</p>
                         <p class="font-semibold text-xs sm:text-sm leading-snug">${sanitize(l==='bn'?im.martyrdomBn:im.martyrdomEn)}</p>
                     </div>
-                    <div class="rounded-2xl p-3.5" style="background:${d?'rgba(255,255,255,.05)':'rgba(0,0,0,.03)'};border:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}">
+                    <div class="rounded-2xl p-3.5 text-center" style="background:${d?'rgba(255,255,255,.05)':'rgba(0,0,0,.03)'};border:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}">
                         <p class="font-bold text-xs mb-1.5" style="color:${ac}">🕌 ${l==='bn'?'মাজার':'Shrine'}</p>
                         <p class="font-semibold text-xs sm:text-sm leading-snug">${sanitize(l==='bn'?im.shrineBn:im.shrineEn)||'—'}</p>
                     </div>
@@ -5253,11 +5253,11 @@ function renderImamDetailPage()
 
                 <!-- ② Family — compact -->
                 <div class="flex gap-2.5 sm:gap-3 mb-5">
-                    <div class="flex-1 rounded-xl px-3.5 py-2.5" style="background:${ac}09">
+                    <div class="flex-1 rounded-xl px-3.5 py-2.5 text-center" style="background:${ac}09">
                         <p class="font-bold text-[10.5px] uppercase tracking-wide mb-0.5" style="color:${ac};opacity:.85">👤 ${l==='bn'?'পিতা':'Father'}</p>
                         <p class="font-semibold text-xs sm:text-sm">${sanitize(l==='bn'?im.fatherBn:im.fatherEn)||'—'}</p>
                     </div>
-                    <div class="flex-1 rounded-xl px-3.5 py-2.5" style="background:${ac}09">
+                    <div class="flex-1 rounded-xl px-3.5 py-2.5 text-center" style="background:${ac}09">
                         <p class="font-bold text-[10.5px] uppercase tracking-wide mb-0.5" style="color:${ac};opacity:.85">👩 ${l==='bn'?'মাতা':'Mother'}</p>
                         <p class="font-semibold text-xs sm:text-sm">${sanitize(l==='bn'?im.motherBn:im.motherEn)||'—'}</p>
                     </div>
@@ -7926,3 +7926,130 @@ function initFamilyTree() {
 }
 
 console.log('✅ Family Tree Functions Loaded');
+
+// ============================================================================
+// PREMIUM ENHANCEMENT LAYER — Stages 1–4 (additive only)
+// Nothing above this line was changed. This IIFE only reads the DOM and
+// existing classes (.reveal, .btn-primary, .nav-pill, .bnav-btn,
+// .hero-stat-num, #main-header.scrolled) — it does not touch any existing
+// function, render pipeline, or state object.
+// ============================================================================
+(function () {
+    'use strict';
+
+    function reduceMotion() {
+        return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+
+    // ---------- STAGE 1: Aurora background + floating orbs + particles ----------
+    function injectPremiumAuroraBackground() {
+        if (document.getElementById('premium-aurora-bg')) return; // guard: never duplicate
+        var wrap = document.createElement('div');
+        wrap.id = 'premium-aurora-bg';
+        wrap.setAttribute('aria-hidden', 'true');
+        wrap.innerHTML =
+            '<div class="aurora-sweep"></div>' +
+            '<div class="p-orb o1"></div>' +
+            '<div class="p-orb o2"></div>' +
+            '<div class="p-orb o3"></div>' +
+            '<div class="p-orb o4"></div>' +
+            '<div class="p-particles"></div>';
+        document.body.insertBefore(wrap, document.body.firstChild);
+
+        if (!reduceMotion()) {
+            var layer = wrap.querySelector('.p-particles');
+            var count = window.innerWidth < 640 ? 14 : 26;
+            for (var i = 0; i < count; i++) {
+                var dot = document.createElement('div');
+                dot.className = 'p-dot';
+                dot.style.left = (Math.random() * 100).toFixed(2) + '%';
+                dot.style.top = (Math.random() * 100).toFixed(2) + '%';
+                dot.style.animationDelay = (Math.random() * 3).toFixed(2) + 's';
+                dot.style.animationDuration = (2.6 + Math.random() * 2.4).toFixed(2) + 's';
+                layer.appendChild(dot);
+            }
+        }
+    }
+
+    // ---------- STAGE 2: Ripple click feedback (event-delegated, bound once) ----------
+    function bindPremiumRipple() {
+        document.addEventListener('click', function (e) {
+            if (reduceMotion()) return;
+            var target = e.target.closest && e.target.closest('.btn-primary, .nav-pill, .bnav-btn');
+            if (!target) return;
+            var rect = target.getBoundingClientRect();
+            var size = Math.max(rect.width, rect.height);
+            var span = document.createElement('span');
+            span.className = 'premium-ripple-span';
+            span.style.width = size + 'px';
+            span.style.height = size + 'px';
+            span.style.left = (e.clientX - rect.left - size / 2) + 'px';
+            span.style.top = (e.clientY - rect.top - size / 2) + 'px';
+            if (getComputedStyle(target).position === 'static') {
+                target.style.position = 'relative';
+            }
+            if (!target.style.overflow) target.style.overflow = 'hidden';
+            target.appendChild(span);
+            span.addEventListener('animationend', function () { span.remove(); });
+        }, { passive: true });
+    }
+
+    // ---------- STAGE 3: Stat "pop-in" feedback for the hero stats row ----------
+    function bindPremiumStatPop() {
+        var els = document.querySelectorAll('.hero-stat-num:not(.counted)');
+        if (!els.length || reduceMotion() || !('IntersectionObserver' in window)) return;
+        var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('counted');
+                    io.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.4 });
+        els.forEach(function (el) { io.observe(el); });
+    }
+
+    // Optional opt-in utility for future numeric-only counters — not wired to
+    // any existing element automatically, since current stat values mix
+    // Bengali digits, commas and non-numeric text (e.g. "১২৪,৩১৩"). Available
+    // as window.premiumCountUp(el, targetNumber, durationMs) if ever needed.
+    window.premiumCountUp = function (el, target, duration) {
+        if (!el) return;
+        if (reduceMotion()) { el.textContent = String(target); return; }
+        duration = duration || 1200;
+        var start = performance.now();
+        function tick(now) {
+            var p = Math.min(1, (now - start) / duration);
+            var eased = 1 - Math.pow(1 - p, 3);
+            el.textContent = Math.round(target * eased).toLocaleString();
+            if (p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+    };
+
+    // ---------- Re-run per-render enhancements without touching premiumAfterRender() ----------
+    function runPerRenderEnhancements() {
+        bindPremiumStatPop();
+    }
+
+    function initPremiumEnhancements() {
+        injectPremiumAuroraBackground();
+        bindPremiumRipple();
+        runPerRenderEnhancements();
+
+        var appRoot = document.getElementById('app');
+        if (appRoot && 'MutationObserver' in window) {
+            var mo = new MutationObserver(function () {
+                clearTimeout(window._premiumMoDebounce);
+                window._premiumMoDebounce = setTimeout(runPerRenderEnhancements, 60);
+            });
+            mo.observe(appRoot, { childList: true, subtree: true });
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPremiumEnhancements);
+    } else {
+        initPremiumEnhancements();
+    }
+})();
