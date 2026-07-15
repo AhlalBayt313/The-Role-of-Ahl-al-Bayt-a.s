@@ -121,10 +121,10 @@ const familyTreeDatabase = {
       englishName: 'Imam Ali ibn Abi Talib',
       englishAbbr: 'Ali (AS)',
       
-      birth: '১৩ সেপ্টেম্বর ৫৯৯ খ্রিস্টাব্দ',
+      birth: '১৩ রজব, হিজরতের ২৩ বছর পূর্বে (আনুমানিক ৬০০ খ্রিস্টাব্দ)',
       birthPlace: 'মক্কা, সৌদি আরব',
       
-      death: '২৮ জানুয়ারি ৬৬১ খ্রিস্টাব্দ (শুক্রবার)',
+      death: '২১ রমজান, ৪০ হিজরি (২৮ জানুয়ারি ৬৬১ খ্রিস্টাব্দ, শুক্রবার)',
       deathPlace: 'কুফা, ইরাক (মসজিদে কুফায়)',
       
       reignYears: '৩০ বছর',
@@ -182,10 +182,10 @@ const familyTreeDatabase = {
       englishName: 'Imam Hasan ibn Ali',
       englishAbbr: 'Hasan (AS)',
       
-      birth: '১৫ মার্চ ৬২৫ খ্রিস্টাব্দ',
+      birth: '১৫ রমজান, ৩ হিজরি (১৫ মার্চ ৬২৫ খ্রিস্টাব্দ)',
       birthPlace: 'মদিনা, সৌদি আরব',
       
-      death: '৭ এপ্রিল ৬৭০ খ্রিস্টাব্দ',
+      death: '২৮ সফর, ৫০ হিজরি (৭ এপ্রিল ৬৭০ খ্রিস্টাব্দ)',
       deathPlace: 'মদিনা, সৌদি আরব',
       
       reignYears: '১০ বছর',
@@ -232,10 +232,10 @@ const familyTreeDatabase = {
       englishName: 'Imam Husain ibn Ali',
       englishAbbr: 'Husain (AS)',
       
-      birth: '১০ জানুয়ারি ৬২৬ খ্রিস্টাব্দ',
+      birth: '৩ শাবান, ৪ হিজরি (১০ জানুয়ারি ৬২৬ খ্রিস্টাব্দ)',
       birthPlace: 'মদিনা, সৌদি আরব',
       
-      death: '১০ মুহাররম ৬১ হিজরি (১০ অক্টোবর ৬৮০ খ্রিস্টাব্দ)',
+      death: '১০ মহররম, ৬১ হিজরি (১০ অক্টোবর ৬৮০ খ্রিস্টাব্দ)',
       deathPlace: 'কারবালা, ইরাক',
       
       reignYears: '১০ বছর পূর্ণ, ৪ বছর সক্রিয় ইমামতি',
@@ -291,6 +291,7 @@ const familyTreeDatabase = {
       influence: 'বিশ্বব্যাপী লক্ষ লক্ষ মানুষ তাঁর ত্যাগ এবং সংগ্রামে অনুপ্রাণিত'
     },
 
+    // TODO: verify birth/death year — mismatches script.js imams (birth ৬৫৮/658 CE, death ৭১৩/713 CE). Confirm correct source before fixing.
     {
       id: 4,
       order: '৪র্থ',
@@ -299,10 +300,10 @@ const familyTreeDatabase = {
       englishName: 'Imam Ali ibn al-Husain Zain al-Abideen',
       englishAbbr: 'Zain al-Abideen (AS)',
       
-      birth: '৬৫৬ খ্রিস্টাব্দ',
+      birth: '৫ শাবান, ৩৮ হিজরি (৬৫৮/৬৫৯ খ্রিস্টাব্দ)',
       birthPlace: 'মদিনা, সৌদি আরব',
       
-      death: '৪ ফেব্রুয়ারি ৭১৪ খ্রিস্টাব্দ',
+      death: '২৫ মহররম, ৯৫ হিজরি (৪ ফেব্রুয়ারি ৭১৩/৭১৪ খ্রিস্টাব্দ)',
       deathPlace: 'মদিনা, সৌদি আরব',
       
       reignYears: '৩৮ বছর',
@@ -349,6 +350,7 @@ const familyTreeDatabase = {
       shrine: 'মদিনায় বাকিউল গারকাদ সমাধিস্থলে (নবী ও তাঁর পরিবারের নিকটে)'
     },
 
+    // TODO: verify birth/death year — mismatches script.js imams (birth ৬৭৬/676 CE, death ৭৩৩/733 CE). Confirm correct source before fixing.
     {
       id: 5,
       order: '৫ম',
@@ -357,10 +359,10 @@ const familyTreeDatabase = {
       englishName: 'Imam Muhammad al-Baqir',
       englishAbbr: 'Muhammad al-Baqir (AS)',
       
-      birth: '১ নভেম্বর ৬৭৭ খ্রিস্টাব্দ',
+      birth: '১ রজব, ৫৭ হিজরি (১ নভেম্বর ৬৭৬/৬৭৭ খ্রিস্টাব্দ)',
       birthPlace: 'মদিনা, সৌদি আরব',
       
-      death: '৭ নভেম্বর ৭৩২ খ্রিস্টাব্দ',
+      death: '৭ জিলহজ্জ, ১১৪ হিজরি (৭ নভেম্বর ৭৩২/৭৩৩ খ্রিস্টাব্দ)',
       deathPlace: 'মদিনা, সৌদি আরব',
       
       reignYears: '৩৫ বছর',
@@ -409,10 +411,10 @@ const familyTreeDatabase = {
       englishName: 'Imam Jafar as-Sadiq',
       englishAbbr: 'Jafar as-Sadiq (AS)',
       
-      birth: '২০ এপ্রিল ৭০২ খ্রিস্টাব্দ',
+      birth: '১৭ রবিউল আউয়াল, ৮৩ হিজরি (২০ এপ্রিল ৭০২ খ্রিস্টাব্দ)',
       birthPlace: 'মদিনা, সৌদি আরব',
       
-      death: '৪ ডিসেম্বর ৭৬৫ খ্রিস্টাব্দ',
+      death: '২৫ শাওয়াল, ১৪৮ হিজরি (৪ ডিসেম্বর ৭৬৫ খ্রিস্টাব্দ)',
       deathPlace: 'মদিনা, সৌদি আরব',
       
       reignYears: '৩৪ বছর',
@@ -469,10 +471,10 @@ const familyTreeDatabase = {
       englishName: 'Imam Musa al-Kazim',
       englishAbbr: 'Musa al-Kazim (AS)',
       
-      birth: '১ নভেম্বর ৭৪৫ খ্রিস্টাব্দ',
+      birth: '৭ সফর, ১২৮ হিজরি (১ নভেম্বর ৭৪৫ খ্রিস্টাব্দ)',
       birthPlace: 'আবা, ইরাক',
       
-      death: '২৫ জুলাই ৭৯৯ খ্রিস্টাব্দ',
+      death: '২৫ রজব, ১৮৩ হিজরি (২৫ জুলাই ৭৯৯ খ্রিস্টাব্দ)',
       deathPlace: 'বাগদাদ, ইরাক (বাগদাদের জেলে)',
       
       reignYears: '৩৫ বছর',
@@ -528,10 +530,10 @@ const familyTreeDatabase = {
       englishName: 'Imam Ali ar-Reza',
       englishAbbr: 'Ali ar-Reza (AS)',
       
-      birth: '১৩ জানুয়ারি ৭৬৫ খ্রিস্টাব্দ',
+      birth: '১১ জিলকদ, ১৪৮ হিজরি (১৩ জানুয়ারি ৭৬৫/৭৬৬ খ্রিস্টাব্দ)',
       birthPlace: 'মদিনা, সৌদি আরব',
       
-      death: '৩০ জুলাই ৮১৮ খ্রিস্টাব্দ',
+      death: 'শেষ সফর, ২০৩ হিজরি (৩০ জুলাই ৮১৮ খ্রিস্টাব্দ)',
       deathPlace: 'খোরাসান, ইরান',
       
       reignYears: '২৮ বছর',
@@ -574,6 +576,7 @@ const familyTreeDatabase = {
       mausoleum: 'শাহ চেরাগ মসজিদ এবং অন্যান্য স্মৃতিস্তম্ভ'
     },
 
+    // TODO: verify birth year — mismatches script.js imams (৮১১/811 CE). Confirm correct source before fixing.
     {
       id: 9,
       order: '৯ম',
@@ -582,10 +585,10 @@ const familyTreeDatabase = {
       englishName: 'Imam Muhammad al-Jawad',
       englishAbbr: 'Muhammad al-Jawad (AS)',
       
-      birth: '১০ জুলাই ৮১০ খ্রিস্টাব্দ',
+      birth: '১০ রজব, ১৯৫ হিজরি (১০ জুলাই ৮১১ খ্রিস্টাব্দ)',
       birthPlace: 'মদিনা, সৌদি আরব',
       
-      death: '৫ নভেম্বর ৮৩৫ খ্রিস্টাব্দ',
+      death: 'শেষ জিলকদ, ২২০ হিজরি (৫ নভেম্বর ৮৩৫ খ্রিস্টাব্দ)',
       deathPlace: 'বাগদাদ, ইরাক',
       
       reignYears: '২০ বছর',
@@ -626,6 +629,7 @@ const familyTreeDatabase = {
       teachings: 'জ্ঞান ও নৈতিকতা উভয়ের প্রয়োজনীয়তা'
     },
 
+    // TODO: verify birth year — mismatches script.js imams (৮২৭/827 CE). Confirm correct source before fixing.
     {
       id: 10,
       order: '১০ম',
@@ -634,10 +638,10 @@ const familyTreeDatabase = {
       englishName: 'Imam Ali al-Hadi',
       englishAbbr: 'Ali al-Hadi (AS)',
       
-      birth: '২ মার্চ ৮২৮ খ্রিস্টাব্দ',
+      birth: '১৫ জিলহজ্জ, ২১২ হিজরি (২ মার্চ ৮২৮ খ্রিস্টাব্দ)',
       birthPlace: 'মদিনা, সৌদি আরব',
       
-      death: '৩ জুন ৮৬৮ খ্রিস্টাব্দ',
+      death: '৩ রজব, ২৫৪ হিজরি (৩ জুন ৮৬৮ খ্রিস্টাব্দ)',
       deathPlace: 'সামাররা, ইরাক',
       
       reignYears: '৩৩ বছর',
@@ -686,10 +690,10 @@ const familyTreeDatabase = {
       englishName: 'Imam Hasan al-Askari',
       englishAbbr: 'Hasan al-Askari (AS)',
       
-      birth: '৮ ডিসেম্বর ৮৪৬ খ্রিস্টাব্দ',
+      birth: '৮ রবিউস সানি, ২৩২ হিজরি (৮ ডিসেম্বর ৮৪৬ খ্রিস্টাব্দ)',
       birthPlace: 'মদিনা, সৌদি আরব',
       
-      death: '১ জানুয়ারি ৮৭৪ খ্রিস্টাব্দ',
+      death: '৮ রবিউল আউয়াল, ২৬০ হিজরি (১ জানুয়ারি ৮৭৪ খ্রিস্টাব্দ)',
       deathPlace: 'সামাররা, ইরাক',
       
       reignYears: '৬ বছর',
@@ -738,7 +742,7 @@ const familyTreeDatabase = {
       englishName: 'Imam Muhammad al-Mahdi',
       englishAbbr: 'Muhammad al-Mahdi (AS)',
       
-      birth: '২৯ জুলাই ৮৬৯ খ্রিস্টাব্দ (স্পষ্ট ঐতিহাস্যিক সূত্র)',
+      birth: '১৫ শাবান, ২৫৫ হিজরি (২৯ জুলাই ৮৬৯ খ্রিস্টাব্দ)',
       birthPlace: 'সামাররা, ইরাক',
       
       death: 'অদৃশ্য অবস্থায় (জীবিত বলে বিশ্বাসিত)',
