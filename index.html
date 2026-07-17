@@ -165,9 +165,17 @@
 
 <!-- Scripts -->
 <script src="duas-data.js"></script>
-<script src="family-tree-data.js"></script>
+<!-- Ahlul Bayt unified page (Masumeen + Family Tree merge) — 2026-07-17: now
+     self-contained. family-tree-data.js content and all 👑 ইমাম ও মাসুমিন
+     (Imams & Masumeen) data/render code were merged directly into this file,
+     so the separate family-tree-data.js file is no longer loaded. -->
+<script src="ahlul-bayt-unified.js"></script>
 <script src="blog.js"></script>
-<script src="script.js"></script>
+<!-- script.js split into 4 files for maintainability — ORDER MATTERS, keep exactly as-is -->
+<script src="script-1-core.js"></script>
+<script src="script-2-ui.js"></script>
+<script src="script-3-pages.js"></script>
+<script src="script-4-boot.js"></script>
 <script src="related-content.js"></script>
 </body>
 </html>

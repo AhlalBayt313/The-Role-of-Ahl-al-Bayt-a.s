@@ -1679,3 +1679,24 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
     .rce-card { width: 148px; }
     .rce-skel-card { width: 148px; }
 }
+
+/* ============================================================================
+   AHLUL BAYT — UNIFIED PAGE (Section 1: Hero / Category / Stats)
+   Purely additive — all rules are namespaced with the `ab-` prefix so they
+   cannot collide with or override any existing class in this file.
+   ============================================================================ */
+
+.ab-hero-search input::placeholder { color: inherit; opacity: .5; }
+
+.ab-category-chip:focus-visible {
+    outline: 2px solid var(--emerald-600);
+    outline-offset: 2px;
+}
+
+.ab-stat-card { transition: transform .2s, box-shadow .2s; }
+.ab-stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-card-hover); }
+
+@media (prefers-reduced-motion: reduce) {
+    .ab-stat-card { transition: none; }
+    .ab-stat-card:hover { transform: none; }
+}
