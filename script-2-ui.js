@@ -750,12 +750,12 @@ function renderUploadModal() {
 function renderHeader()
 {
     const d=state.darkMode; const l=state.language;
-    const mainPages=['home','blog','library','dua','calendar'];
-    const morePages=['tasbeeh','media','audioLibrary','quiz','qibla','worldMap','ahlulBaytUnified','bookmarks','about','contact'];
+    const mainPages=['home','blog','library','dua','ahlulBaytUnified'];
+    const morePages=['tasbeeh','media','audioLibrary','quiz','qibla','worldMap','calendar','bookmarks','about','contact'];
     const bg   = d ? 'rgba(6,20,16,.95)'      : 'rgba(255,255,255,.90)';
     const border = d ? 'rgba(52,211,153,.08)' : 'rgba(5,150,105,.10)';
     const pageIcons={home:'🏠',imams:'👑',dua:'🤲',library:'📚',blog:'📝',tasbeeh:'📿',
-        media:'🎬',audioLibrary:'🎧',calendar:'📅',quiz:'🧠',qibla:'🧭',worldMap:'🗺️',familyTree:'🌳',ahlulBaytUnified:'✨',bookmarks:'🔖',about:'ℹ️',contact:'📞'};
+        media:'🎬',audioLibrary:'🎧',calendar:'📅',quiz:'🧠',qibla:'🧭',worldMap:'🗺️',familyTree:'🌳',ahlulBaytUnified:'👑',bookmarks:'🔖',about:'ℹ️',contact:'📞'};
     return `
     <header style="background:${bg};border-bottom:1.5px solid ${border};" class="sticky top-0 z-30" id="main-header">
         <div class="max-w-7xl mx-auto px-4" style="padding-top:10px;padding-bottom:10px">
@@ -880,7 +880,7 @@ function renderMobileMenu()
 {
     const d=state.darkMode; const l=state.language;
     const allPages=['home','blog','dua','ahlulBaytUnified','worldMap','library','media','audioLibrary','calendar','tasbeeh','quiz','bookmarks','about','contact','searchPage','analytics'];
-    const icons={home:'🏠',blog:'📝',imams:'👑',familyTree:'🌳',ahlulBaytUnified:'✨',worldMap:'🗺️',dua:'🤲',library:'📚',
+    const icons={home:'🏠',blog:'📝',imams:'👑',familyTree:'🌳',ahlulBaytUnified:'👑',worldMap:'🗺️',dua:'🤲',library:'📚',
         media:'🎬',audioLibrary:'🎧',calendar:'📅',tasbeeh:'📿',quiz:'🧠',bookmarks:'🔖',
         about:'ℹ️',contact:'📞',searchPage:'🔍',analytics:'📊'};
     const border = d?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)';
@@ -1253,10 +1253,10 @@ function renderPrayerWidget()
                 <div style="margin-top:12px;border-top:1px solid ${d?'rgba(255,255,255,.07)':'rgba(0,0,0,.07)'};padding-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
 
                     <!-- সেহরি -->
-                    <div style="border-radius:14px;padding:11px 13px;
+                    <div style="border-radius:14px;padding:11px 13px;text-align:center;
                         background:${d?'linear-gradient(135deg,rgba(15,23,42,.8),rgba(30,64,175,.25))':'linear-gradient(135deg,rgba(239,246,255,.9),rgba(219,234,254,.7))'};
                         border:1px solid ${d?'rgba(96,165,250,.2)':'rgba(147,197,253,.5)'}">
-                        <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
+                        <div style="display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:5px">
                             <span style="font-size:.9rem" aria-hidden="true">🌙</span>
                             <span style="font-size:10.5px;font-weight:700;color:${d?'#93c5fd':'#1d4ed8'}">
                                 ${l==='bn'?'সেহরির শেষ সময়':'Sehri Ends'}
@@ -1272,10 +1272,10 @@ function renderPrayerWidget()
                     </div>
 
                     <!-- ইফতার -->
-                    <div style="border-radius:14px;padding:11px 13px;
+                    <div style="border-radius:14px;padding:11px 13px;text-align:center;
                         background:${d?'linear-gradient(135deg,rgba(69,10,10,.7),rgba(180,83,9,.25))':'linear-gradient(135deg,rgba(255,247,237,.9),rgba(254,215,170,.6))'};
                         border:1px solid ${d?'rgba(252,165,165,.2)':'rgba(249,115,22,.35)'}">
-                        <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
+                        <div style="display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:5px">
                             <span style="font-size:.9rem" aria-hidden="true">🌇</span>
                             <span style="font-size:10.5px;font-weight:700;color:${d?'#fca5a5':'#c2410c'}">
                                 ${l==='bn'?'ইফতারের সময়':'Iftar Time'}
@@ -1545,7 +1545,7 @@ function renderHomePage()
                 </h3>
                 ${state.isAdmin?`<button data-action="openHadithEditor" class="${d?'bg-purple-800 text-purple-200':'bg-purple-100 text-purple-700'} text-xs px-3 py-1 rounded-lg font-semibold hover:opacity-80">✏️ ${l==='bn'?'এডিট':'Edit'}</button>`:''}
             </div>
-            <div class="${d?'bg-black/20':'bg-white/60'} rounded-2xl p-4">
+            <div class="${d?'bg-black/20':'bg-white/60'} rounded-2xl p-4 text-center">
                 <p class="text-sm leading-relaxed mb-3 italic">"${sanitize(l==='bn'?getDailyHadith().textBn:getDailyHadith().textEn)}"</p>
                 <p class="text-xs font-bold" style="${d?'color:#fbbf24':'color:#7c3aed'}">— ${sanitize(l==='bn'?getDailyHadith().sourceBn:getDailyHadith().sourceEn)}</p>
             </div>
@@ -1624,7 +1624,8 @@ function renderLibraryPage() {
         {key:'nahjul',      icon:'📖', color:'#1d4ed8', grad:'linear-gradient(135deg,#1e1b4b,#1d4ed8)', label:l==='bn'?'নাহজুল বালাগা':'Nahjul Balagha',     list:state.nahjulPdfs||[]},
         {key:'sahifa',      icon:'🌹', color:'#7c3aed', grad:'linear-gradient(135deg,#2e1065,#7c3aed)', label:l==='bn'?'সাহিফা সাজ্জাদিয়্যা':'Sahifa Sajjadiya',list:state.sahifaPdfs||[]},
         {key:'imamhadiths', icon:'⭐', color:'#0d9488', grad:'linear-gradient(135deg,#042f2e,#0d9488)', label:l==='bn'?'ইমামদের হাদিস':'Imam Hadiths',        list:state.imamHadithPdfs||[]},
-        {key:'specialdays', icon:'✨', color:'#dc2626', grad:'linear-gradient(135deg,#450a0a,#dc2626)', label:l==='bn'?'বিশেষ দিন':'Special Days',             list:state.specialDayPdfs||[]},
+        {key:'specialdays', icon:'✨', color:'#dc2626', grad:'linear-gradient(135deg,#450a0a,#dc2626)', label:l==='bn'?'আহলে বাইত ও মহান ব্যক্তিত্ব':'Ahl al-Bayt & Great Personalities', list:state.specialDayPdfs||[]},
+        {key:'islamichistory', icon:'🕌', color:'#b45309', grad:'linear-gradient(135deg,#451a03,#b45309)', label:l==='bn'?'ইসলামিক ইতিহাস':'Islamic History',      list:state.islamicHistoryPdfs||[]},
     ];
 
     // Folder grid view
@@ -1657,7 +1658,7 @@ function renderLibraryPage() {
     // Inside folder
     const folder = folders.find(f=>f.key===tab);
     if (!folder) { state.libraryTab=''; render(); return ''; }
-    const listKeyMap={pdf:'pdfList',nahjul:'nahjulPdfs',sahifa:'sahifaPdfs',imamhadiths:'imamHadithPdfs',specialdays:'specialDayPdfs'};
+    const listKeyMap={pdf:'pdfList',nahjul:'nahjulPdfs',sahifa:'sahifaPdfs',imamhadiths:'imamHadithPdfs',specialdays:'specialDayPdfs',islamichistory:'islamicHistoryPdfs'};
     const listKey=listKeyMap[tab];
 
     return `

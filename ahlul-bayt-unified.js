@@ -221,7 +221,7 @@ function ahlulBaytHandleCategoryClick(categoryKey) {
     // Section 2: these categories now have real tab content — route
     // straight to the tab switcher instead of the generic scroll-to-anchor
     // fallback below.
-    if (categoryKey === 'masumeen' || categoryKey === 'tree' || categoryKey === 'male' || categoryKey === 'female') {
+    if (categoryKey === 'masumeen' || categoryKey === 'tree' || categoryKey === 'male' || categoryKey === 'female' || categoryKey === 'timeline' || categoryKey === 'places') {
         ahlulBaytSwitchTab(categoryKey);
         return;
     }
@@ -232,8 +232,7 @@ function ahlulBaytHandleCategoryClick(categoryKey) {
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         return;
     }
-    // timeline/places have no dedicated section yet (Section 3)
-    // — no-op, no error.
+    // no other categories remain unwired — this is now just a safety net.
 }
 
 // ============================================================================
@@ -287,6 +286,8 @@ function renderAhlulBaytTabPanel() {
 
     if (active === 'male') return renderGenderedPersonalitiesPage('male');
     if (active === 'female') return renderGenderedPersonalitiesPage('female');
+    if (active === 'timeline') return renderAhlulBaytTimelinePage();
+    if (active === 'places') return renderAhlulBaytPlacesPage();
 
     // Neither tab clicked yet — show a neutral prompt, not either panel's content.
     return `
@@ -382,6 +383,133 @@ function renderGenderedPersonalitiesPage(gender) {
         </style>
     </div>`;
 }
+
+// ============================================================================
+// SECTION 2c — ঐতিহাসিক টাইমলাইন (Historical Timeline)
+// ============================================================================
+// Reuses two data sources that already exist elsewhere in the app rather
+// than authoring new content:
+//   1. renderImamTimeline(d,l) — 12 Imams' era/reign visual bar timeline
+//      (already built for the মাসুম tab; same function, called directly).
+//   2. getAllHistoryDays(l) — the ৫১ dated events already powering the
+//      "ইতিহাসে আজ" widget and Muharram calendar, here sorted into one
+//      chronological (by Hijri month/day) list.
+function renderAhlulBaytTimelineEventCard(item, d, l) {
+    const typeLabel = {
+        eid: l==='bn'?'আনন্দময় দিন':'Joyous Day',
+        special: l==='bn'?'বিশেষ রাত':'Special Night',
+        martyrdom: l==='bn'?'শাহাদাত দিবস':'Day of Martyrdom'
+    };
+    return `
+    <div style="display:flex;gap:.75rem;padding:1rem;border-radius:var(--r-lg);
+        background:${d?'rgba(255,255,255,.04)':'#ffffff'};
+        border:1px solid ${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'};
+        box-shadow:var(--shadow-card)">
+        <span style="width:36px;height:36px;flex-shrink:0;border-radius:10px;
+            background:${(item.color||'#059669')}18;display:inline-flex;
+            align-items:center;justify-content:center;font-size:1.1rem" aria-hidden="true">${item.icon||'✨'}</span>
+        <div style="flex:1;min-width:0">
+            ${item.type && typeLabel[item.type] ? `<p style="font-size:.7rem;font-weight:700;color:${item.color||'#059669'}">${typeLabel[item.type]}</p>` : ''}
+            <p style="font-weight:800;font-size:.88rem;color:${d?'#f9fafb':'#111827'}">${sanitize(item.titleBn||'')}</p>
+            <p style="font-size:.75rem;color:${d?'#9ca3af':'#6b7280'};margin-top:.15rem">${sanitize(item.hijriDate||'')}</p>
+            ${item.descBn ? `<p style="font-size:.78rem;line-height:1.6;color:${d?'#d1d5db':'#4b5563'};margin-top:.4rem">${sanitize(item.descBn)}</p>` : ''}
+        </div>
+    </div>`;
+}
+
+function renderAhlulBaytTimelinePage() {
+    const d = state.darkMode, l = state.language;
+
+    const imamTimelineHtml = (typeof renderImamTimeline === 'function')
+        ? renderImamTimeline(d, l)
+        : '';
+
+    const events = (typeof getAllHistoryDays === 'function' ? getAllHistoryDays(l) : [])
+        .slice()
+        .sort((a, b) => {
+            const am = a.historyMonth || 0, bm = b.historyMonth || 0;
+            if (am !== bm) return am - bm;
+            const ad = Array.isArray(a.historyDay) ? a.historyDay[0] : (a.historyDay || 0);
+            const bd = Array.isArray(b.historyDay) ? b.historyDay[0] : (b.historyDay || 0);
+            return ad - bd;
+        });
+
+    return `
+    <div class="space-y-6 page-enter">
+        <div>
+            <h2 class="text-2xl font-black" style="color:${d?'#f9fafb':'#111827'}">📅 ${l==='bn'?'ঐতিহাসিক টাইমলাইন':'Historical Timeline'}</h2>
+            <p class="text-sm ${d?'text-gray-400':'text-gray-500'} mt-1">${l==='bn'?'১২ ইমামের যুগ ও হিজরি বর্ষপঞ্জি অনুযায়ী গুরুত্বপূর্ণ দিনসমূহ':'The era of the 12 Imams, and key dates across the Hijri calendar'}</p>
+        </div>
+
+        ${imamTimelineHtml}
+
+        <div>
+            <h3 class="text-lg font-black" style="color:${d?'#f9fafb':'#111827'};margin-bottom:.75rem">
+                🗓️ ${l==='bn'?`হিজরি বর্ষপঞ্জি অনুযায়ী ঘটনাবলী (${events.length})`:`Events by Hijri Calendar (${events.length})`}
+            </h3>
+            ${events.length
+                ? `<div style="display:flex;flex-direction:column;gap:.75rem">${events.map(ev => renderAhlulBaytTimelineEventCard(ev, d, l)).join('')}</div>`
+                : `<p style="color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?'তথ্য লোড হচ্ছে...':'Loading data...'}</p>`
+            }
+        </div>
+    </div>`;
+}
+
+// ============================================================================
+// SECTION 2d — 🕌 গুরুত্বপূর্ণ স্থান (Important Places)
+// ============================================================================
+// Reuses WORLD_MAP_SITES (script-4-boot.js) — the same 10 holy-site records
+// that power the standalone "বিশ্ব মানচিত্র" page. Shown here as a plain
+// card grid (no Leaflet map) to match this page's card-based style and
+// avoid double-initializing a map widget inside a tabbed panel; each card
+// links out to the full interactive map page for anyone who wants it.
+function renderAhlulBaytPlaceCard(site, d, l) {
+    const name = l === 'bn' ? site.nameBn : site.nameEn;
+    const desc = l === 'bn' ? site.descBn : site.descEn;
+    return `
+    <div style="border-radius:var(--r-lg);padding:1.25rem;text-align:left;
+        background:${d?'rgba(255,255,255,.04)':'#ffffff'};
+        border:1px solid ${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'};
+        box-shadow:var(--shadow-card);height:100%;display:flex;flex-direction:column;gap:.6rem">
+        <div style="display:flex;align-items:center;gap:.6rem">
+            <span style="font-size:1.5rem" aria-hidden="true">${site.icon || '📍'}</span>
+            <div style="font-weight:800;font-size:.95rem;color:${d?'#f9fafb':'#111827'}">${sanitize(name)}</div>
+        </div>
+        ${desc ? `<p style="font-size:.8rem;line-height:1.6;color:${d?'#d1d5db':'#4b5563'};flex:1">${sanitize(desc)}</p>` : ''}
+        <button type="button" onclick="changePage('worldMap')"
+            style="align-self:flex-start;font-size:.72rem;font-weight:700;
+                padding:6px 12px;border-radius:999px;cursor:pointer;
+                border:1px solid ${d?'rgba(180,83,9,.4)':'rgba(180,83,9,.3)'};
+                background:${d?'rgba(180,83,9,.12)':'rgba(180,83,9,.08)'};
+                color:${d?'#fcd34d':'#b45309'}">
+            🗺️ ${l==='bn'?'ম্যাপে দেখুন':'View on Map'}
+        </button>
+    </div>`;
+}
+
+function renderAhlulBaytPlacesPage() {
+    const d = state.darkMode, l = state.language;
+    const sites = (typeof WORLD_MAP_SITES !== 'undefined' && Array.isArray(WORLD_MAP_SITES)) ? WORLD_MAP_SITES : [];
+
+    return `
+    <div class="space-y-4 page-enter">
+        <div>
+            <h2 class="text-2xl font-black" style="color:${d?'#f9fafb':'#111827'}">🕌 ${l==='bn'?'গুরুত্বপূর্ণ স্থান':'Important Places'}</h2>
+            <p class="text-sm ${d?'text-gray-400':'text-gray-500'} mt-1">${l==='bn'?'আহলুল বাইত (আ.)-এর সাথে সম্পর্কিত পবিত্র স্থানসমূহ':'Holy sites connected to the Ahlul Bayt (AS)'}</p>
+        </div>
+        ${sites.length
+            ? `<div style="display:grid;grid-template-columns:1fr;gap:1rem" class="ab-person-grid">
+                ${sites.map(site => renderAhlulBaytPlaceCard(site, d, l)).join('')}
+               </div>
+               <style>
+                    @media (min-width:640px){ .ab-person-grid{ grid-template-columns:repeat(2,1fr) !important; } }
+                    @media (min-width:1024px){ .ab-person-grid{ grid-template-columns:repeat(3,1fr) !important; } }
+               </style>`
+            : `<p style="color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?'তথ্য লোড হচ্ছে...':'Loading data...'}</p>`
+        }
+    </div>`;
+}
+
 
 // ============================================================================
 // SECTION 2b — SELF-CONTAINED FALLBACK (embedded copies)

@@ -212,6 +212,7 @@ function renderDuaPage() {
         {key:'night',   icon:'🌙', label:l==='bn'?'রাত':'Night',             color:'#8b5cf6', bg:'rgba(139,92,246,.15)'},
         {key:'hardship',icon:'⚠️', label:l==='bn'?'বিপদে':'Hardship',       color:'#ef4444', bg:'rgba(239,68,68,.15)'},
         {key:'gratitude',icon:'🙏',label:l==='bn'?'কৃতজ্ঞতা':'Gratitude',  color:'#10b981', bg:'rgba(16,185,129,.15)'},
+        {key:'daily',    icon:'🕐', label:l==='bn'?'দৈনন্দিন':'Daily Life',   color:'#6366f1', bg:'rgba(99,102,241,.15)'},
         {key:'ramadan', icon:'🌙', label:l==='bn'?'রমজান':'Ramadan',         color:'#f97316', bg:'rgba(249,115,22,.15)'},
     ];
 
@@ -921,10 +922,430 @@ function renderReadDuaPage()
 // ============================================================================
 // PAGE: IMAMS (12 Imams List)
 // ============================================================================
-// ⚠️ MOVED 2026-07-17: renderImamsPage(), renderImamTimeline(), ও
-// renderImamDetailPage() এখন ahlul-bayt-unified.js ফাইলে আছে
-// (👑 ইমাম ও মাসুমিন মার্জ)। ahlul-bayt-unified.js এই ফাইলের আগে load হয়
-// (index.html দেখুন), তাই এই ফাংশনগুলো এখানে আগের মতোই কল করা যাবে।
+function renderImamsPage()
+{
+    const d=state.darkMode; const l=state.language;
+
+    // ── Per-imam accent colors ────────────────────────────────────────
+    const ACS =['#059669','#0d9488','#be123c','#7c3aed','#0369a1','#d97706','#166534','#be123c','#0e7490','#4f46e5','#0f766e','#c9a227'];
+    const ACS2=['#022c22','#134e4a','#500724','#3b0764','#0c2a4a','#78350f','#052e16','#500724','#083344','#1e1b4b','#042f2e','#065f46'];
+    const CONIC=[
+        'conic-gradient(from 0deg,#059669,#6ee7b7,#065f46,#34d399,#059669)',
+        'conic-gradient(from 0deg,#0d9488,#5eead4,#0f766e,#99f6e4,#0d9488)',
+        'conic-gradient(from 0deg,#be123c,#fda4af,#9f1239,#fb7185,#be123c)',
+        'conic-gradient(from 0deg,#7c3aed,#c4b5fd,#5b21b6,#a78bfa,#7c3aed)',
+        'conic-gradient(from 0deg,#0369a1,#7dd3fc,#075985,#38bdf8,#0369a1)',
+        'conic-gradient(from 0deg,#d97706,#fcd34d,#b45309,#fbbf24,#d97706)',
+        'conic-gradient(from 0deg,#166534,#86efac,#14532d,#4ade80,#166534)',
+        'conic-gradient(from 0deg,#be123c,#fda4af,#9f1239,#fb7185,#be123c)',
+        'conic-gradient(from 0deg,#0e7490,#67e8f9,#155e75,#22d3ee,#0e7490)',
+        'conic-gradient(from 0deg,#4f46e5,#a5b4fc,#4338ca,#818cf8,#4f46e5)',
+        'conic-gradient(from 0deg,#0f766e,#5eead4,#115e59,#2dd4bf,#0f766e)',
+        'conic-gradient(from 0deg,#c9a227,#fde68a,#059669,#6ee7b7,#c9a227)',
+    ];
+    const MACS =['#c9a227','#be185d'];
+    const MACS2=['#78350f','#881337'];
+    const MCONIC=[
+        'conic-gradient(from 0deg,#c9a227,#fde68a,#b45309,#fbbf24,#c9a227)',
+        'conic-gradient(from 0deg,#be185d,#fda4af,#9f1239,#fb7185,#be185d)',
+    ];
+
+    // ── Distinct entrance animation per card (cycled by index, defined in style.css) ─────
+    // ── Jump nav chips ────────────────────────────────────────────────
+    const CHIP_BN=['আলী','হাসান','হোসাইন','সাজ্জাদ','বাকির','সাদিক','কাযিম','রেজা','জওয়াদ','হাদি','আসকারি','মাহদি'];
+    const CHIP_EN=['Ali','Hasan','Husayn','Sajjad','Baqir','Sadiq','Kazim','Ridha','Jawad','Hadi','Askari','Mahdi'];
+    const chips=(l==='bn'?CHIP_BN:CHIP_EN).map((name,i)=>`
+        <button
+            onclick="(function(){const el=document.getElementById('imam-anchor-${i+1}');scrollToImamEl(el)})()"
+            style="flex-shrink:0;padding:5px 14px;border-radius:50px;font-size:.72rem;font-weight:700;
+                border:1.5px solid ${ACS[i]}50;color:${ACS[i]};background:${ACS[i]}12;
+                cursor:pointer;white-space:nowrap;transition:all .18s"
+            onmouseover="this.style.background='${ACS[i]}28';this.style.transform='translateY(-2px)'"
+            onmouseout="this.style.background='${ACS[i]}12';this.style.transform=''">
+            ${i+1}. ${name}
+        </button>`).join('');
+
+    // ── Shared card renderer ──────────────────────────────────────────
+    const renderCard = (im, idx, acList, ac2List, conicList, animIdx) => {
+        const ac    = acList[idx % acList.length];
+        const ac2   = ac2List[idx % ac2List.length];
+        const conic = conicList[idx % conicList.length];
+        const flipId= `imam-flip-${im.id}`;
+        const quoteText   = sanitize(l==='bn'?im.quoteBn:im.quoteEn);
+        const avatarArabic= im.arabicName ? im.arabicName.split(' ')[0] : (im.icon||'✦');
+        const animVariant = (typeof animIdx==='number'?animIdx:idx) % 10;
+        const animDelay   = ((idx % 6) * 0.08).toFixed(2);
+
+        // Special rings
+        const isHussain = im.id===3;
+        const isMahdi   = im.id===12;
+        let outerRing = '';
+        if (isHussain) {
+            outerRing = `
+            <div style="position:absolute;inset:-7px;border-radius:50%;border:2px solid #b91c1c;z-index:0;opacity:.78"></div>
+            <div style="position:absolute;inset:-12px;border-radius:50%;border:1.5px solid #dc2626;z-index:0;opacity:.42"></div>`;
+        } else if (isMahdi) {
+            outerRing = `<div style="position:absolute;inset:-9px;border-radius:50%;border:2.5px dashed #6366f1;z-index:0;opacity:.68;animation:avatarRotate 18s linear infinite reverse"></div>`;
+        }
+
+        return `
+        <div class="imam-flip-wrapper" style="height:100%;position:relative">
+
+            <!-- ── FRONT ── -->
+            <div class="imam-card-luxury imam-card-front imam-anim-${animVariant} border text-center p-5"
+                id="${flipId}-front"
+                style="display:flex;flex-direction:column;
+                    background:${d?'#1e2d26':'#ffffff'};
+                    border-color:${d?'rgba(52,211,153,.15)':'rgba(5,150,105,.1)'};
+                    box-shadow:var(--shadow-sm);height:100%;border-radius:var(--r-lg);
+                    animation-delay:${animDelay}s"
+                onmouseenter="imamCardParticles(this,'${ac}')">
+
+                <!-- Animated top gradient bar -->
+                <div class="imam-top-bar"
+                    style="background:linear-gradient(90deg,${ac},${ac}cc,#c9a227,${ac2},${ac});background-size:300% 100%">
+                </div>
+
+                <!-- Imam number badge -->
+                ${typeof im.id==='number'
+                    ? `<div class="imam-num" style="background:linear-gradient(135deg,#c9a227,#92400e)">${im.id}</div>`
+                    : ''}
+
+                <!-- Avatar -->
+                <div style="position:relative;display:flex;justify-content:center;margin:1rem 0 1rem">
+                    <div class="imam-avatar-inner-wrap" style="width:86px;height:86px;border-radius:50%;position:relative">
+                        ${outerRing}
+                        <div class="imam-avatar-rotate"
+                            style="position:absolute;inset:-3px;border-radius:50%;background:${conic};animation:avatarRotate 8s linear infinite;z-index:1">
+                        </div>
+                        <div style="position:absolute;inset:0;border-radius:50%;
+                            background:${d?'#1e2d26':'#ffffff'};z-index:2;
+                            display:flex;align-items:center;justify-content:center;
+                            font-family:'Amiri',serif;font-size:1.5rem;font-weight:700;
+                            color:${ac};border:2.5px solid ${d?'rgba(52,211,153,.18)':'rgba(5,150,105,.12)'};
+                            text-align:center;padding:4px;line-height:1.1">
+                            ${avatarArabic}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Name -->
+                <h3 class="font-black text-base leading-snug mb-0.5" style="color:${d?'#f9fafb':'#111827'}">
+                    ${sanitize(l==='bn'?im.nameBn:im.nameEn)}
+                </h3>
+
+                <!-- Arabic name shimmer -->
+                <p class="mb-3" style="font-family:'Amiri',serif;font-size:.9rem;opacity:.85">
+                    <span class="imam-arabic-shimmer">${sanitize(im.arabicName)}</span>
+                </p>
+
+                <!-- Epithet badge -->
+                <div style="display:flex;justify-content:center;margin-bottom:1.1rem">
+                    <span class="imam-epithet-badge text-xs font-bold px-3 py-1.5 rounded-full"
+                        style="background:${ac}20;color:${ac};border:1.5px solid ${ac}38">
+                        ${sanitize(l==='bn'?im.epithetBn:im.epithetEn)}
+                    </span>
+                </div>
+
+                <!-- Quote preview -->
+                <div class="imam-quote-wrap rounded-xl p-3 mb-4 text-left"
+                    style="border-left:3px solid ${ac};background:${ac}09;flex:1;display:flex;align-items:flex-start">
+                    <p class="text-xs italic leading-relaxed" style="color:${d?'#9ca3af':'#6b7280'};margin:0;
+                        overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical">
+                        "${quoteText}"
+                    </p>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="flex gap-2">
+                    <button data-action="viewImam" data-param="${im.id}"
+                        class="imam-detail-btn flex-1 py-2.5 rounded-xl text-xs font-bold transition-all"
+                        style="background:linear-gradient(135deg,${ac},${ac2});color:white;
+                            box-shadow:0 3px 12px ${ac}42;letter-spacing:.2px">
+                        ${l==='bn'?'বিস্তারিত':'Details'}
+                        <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" style="display:inline;margin-left:4px" aria-hidden="true"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+                    </button>
+                    <button data-action="shareImamQuote" data-param="${im.id}"
+                        class="px-3 py-2.5 rounded-xl text-xs font-bold hover:scale-110 transition-all flex items-center justify-center"
+                        style="background:${ac}15;color:${ac};border:1.5px solid ${ac}30"
+                        title="${l==='bn'?'শেয়ার করুন':'Share'}" aria-label="${l==='bn'?'শেয়ার করুন':'Share'} ${sanitize(l==='bn'?im.nameBn:im.nameEn)}">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+                            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                        </svg>
+                    </button>
+                </div>
+            </div><!-- /front -->
+
+            <!-- ── BACK (quote card) ── -->
+            <div class="imam-card-back" id="${flipId}-back"
+                style="display:none;position:absolute;inset:0;
+                    background:linear-gradient(145deg,${ac2},${d?'#0a1a0e':'#022c22'});
+                    color:white;border:1px solid ${ac}40;
+                    box-shadow:var(--shadow-lg);border-radius:var(--r-lg)">
+                <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,${ac}28 0%,transparent 70%);pointer-events:none;border-radius:var(--r-lg)"></div>
+                <div style="position:relative;z-index:2;width:100%;text-align:center">
+                    <div style="font-family:'Amiri',serif;font-size:2.5rem;color:${ac};margin-bottom:.4rem;line-height:1">❝</div>
+                    <p style="font-family:'Amiri',serif;font-size:1.05rem;line-height:1.75;
+                        color:rgba(255,255,255,.92);margin-bottom:1.1rem;padding:0 .5rem">
+                        ${sanitize(l==='bn'?im.quoteBn:im.quoteEn)}
+                    </p>
+                    <div style="width:44px;height:2px;background:${ac};margin:0 auto .8rem;border-radius:2px"></div>
+                    <p style="font-size:.75rem;font-weight:700;color:${ac};letter-spacing:.5px">
+                        ${sanitize(l==='bn'?im.nameBn:im.nameEn)}
+                    </p>
+                    <button onclick="imamFlip('${flipId}')"
+                        style="margin-top:1.2rem;padding:7px 20px;border-radius:50px;
+                            background:${ac}30;border:1px solid ${ac}60;
+                            color:white;font-size:.75rem;cursor:pointer;transition:background .2s"
+                        onmouseover="this.style.background='${ac}55'"
+                        onmouseout="this.style.background='${ac}30'">
+                        ← ${l==='bn'?'ফিরে যান':'Back'}
+                    </button>
+                </div>
+            </div><!-- /back -->
+
+        </div>`;
+    };
+
+    return `
+    <div class="space-y-8 page-enter">
+
+        <!-- ── Page header ── -->
+        <div class="flex flex-wrap justify-between items-start gap-3 reveal">
+            <div>
+                <h1 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#059669,#b45309);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+                    👑 ${t('imams')}
+                </h1>
+                <p class="text-sm mt-1" style="color:${d?'#9ca3af':'#6b7280'}">
+                    ${l==='bn'?'পবিত্র নবী, মাসুমিন ও ১২ ইমামের জীবনী':'Lives of the Holy Prophet, Masumeen & 12 Imams'}
+                </p>
+            </div>
+            <button data-action="toggleTimeline" aria-pressed="${state.showTimeline?'true':'false'}"
+                class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all"
+                style="${state.showTimeline
+                    ? 'background:rgba(5,150,105,.14);color:#059669;border:1.5px solid rgba(5,150,105,.38)'
+                    : 'border:1.5px solid '+(d?'rgba(255,255,255,.12)':'rgba(0,0,0,.1)')+';color:'+(d?'#6b7280':'#9ca3af')}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                ${l==='bn'?'টাইমলাইন':'Timeline'}${state.showTimeline?' ✓':''}
+            </button>
+        </div>
+
+        <!-- ── Timeline (optional) ── -->
+        ${state.showTimeline ? renderImamTimeline(d,l) : ''}
+
+        <!-- ── Jump nav chips ── -->
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 1px 6px">
+            <div style="display:flex;gap:7px;width:max-content">${chips}</div>
+        </div>
+
+        <!-- ── মাসুমিন section ── -->
+        <div class="reveal">
+            <div class="section-heading">
+                <span style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#c9a227,#78350f);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;box-shadow:0 4px 14px rgba(201,162,39,.38)" aria-hidden="true">✨</span>
+                <h2 class="font-black text-lg" style="color:${d?'#f9fafb':'#111827'}">
+                    ${l==='bn'?'নবী ও মাসুমিন (আ.)':'Prophet & Masumeen (AS)'}
+                </h2>
+                <span class="text-xs font-bold px-2.5 py-1 rounded-full"
+                    style="background:rgba(201,162,39,.15);color:#c9a227;border:1px solid rgba(201,162,39,.3)">
+                    ${l==='bn'?'২ জন':'2'}
+                </span>
+            </div>
+            <div class="grid sm:grid-cols-2 gap-5 items-stretch">
+                ${masumeen.map((im,idx)=>`
+                <div style="min-height:320px">${renderCard(im,idx,MACS,MACS2,MCONIC,idx)}</div>`).join('')}
+            </div>
+        </div>
+
+        <!-- ── ১২ ইমাম section ── -->
+        <div class="reveal">
+            <div class="section-heading">
+                <span style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#059669,#065f46);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;box-shadow:0 4px 14px rgba(5,150,105,.4)" aria-hidden="true">👑</span>
+                <h2 class="font-black text-lg" style="color:${d?'#f9fafb':'#111827'}">
+                    ${l==='bn'?'বারো ইমাম (আ.)':'The Twelve Imams (AS)'}
+                </h2>
+                <span class="text-xs font-bold px-2.5 py-1 rounded-full"
+                    style="background:rgba(5,150,105,.12);color:#059669;border:1px solid rgba(5,150,105,.25)">
+                    ${l==='bn'?'১২ জন':'12'}
+                </span>
+            </div>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
+                ${imams.map((im,idx)=>`
+                <div id="imam-anchor-${im.id}">${renderCard(im,idx,ACS,ACS2,CONIC,idx+masumeen.length)}</div>`).join('')}
+            </div>
+        </div>
+
+    </div>`;
+}
+
+function renderImamTimeline(d, l) {
+    const timelineImams = imams.map(im => ({
+        ...im,
+        birthYear: parseInt((im.birthEn||'').match(/\d+/)?.[0]||0),
+        deathYear: (im.martyrdomEn||'').includes('Occultation')
+            ? 'Present'
+            : parseInt((im.martyrdomEn||'').match(/\d+/)?.[0]||0),
+    }));
+    const minYear=600, maxYear=880, range=maxYear-minYear;
+    const barColors=['#059669','#0d9488','#be123c','#7c3aed','#0369a1','#d97706','#166534','#be123c','#0e7490','#4f46e5','#0f766e','#c9a227'];
+
+    // ── Era filter chips (interactive timeline) ──
+    const eraFilters=[
+        {key:'all',     label:l==='bn'?'সবাই':'All',           range:[minYear,maxYear]},
+        {key:'umayyad', label:l==='bn'?'উমাইয়া যুগ':'Umayyad',  range:[661,750]},
+        {key:'abbasid', label:l==='bn'?'আব্বাসীয় যুগ':'Abbasid', range:[750,maxYear]},
+    ];
+    const activeEra = eraFilters.find(f=>f.key===(state.timelineEra||'all')) || eraFilters[0];
+
+    return `
+    <div class="${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border rounded-2xl p-6 fade-in" style="box-shadow:var(--shadow-md)">
+        <div class="gold-top-bar" style="border-radius:12px 12px 0 0;margin:-24px -24px 20px"></div>
+        <h2 class="text-base font-bold mb-1 text-center">${l==='bn'?'ইমামদের জীবনকাল টাইমলাইন':'Imams Lifetime Timeline'}</h2>
+        <p class="text-center text-xs mb-4" style="color:${d?'#6b7280':'#9ca3af'}">${l==='bn'?'খ্রিস্টাব্দ ৬০০–৮৮০ · একটি বার ক্লিক করে বিস্তারিত দেখুন':'600 CE – 880 CE · Click a bar to view details'}</p>
+
+        <!-- Era filter chips -->
+        <div style="display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-bottom:18px" role="group" aria-label="${l==='bn'?'যুগ ফিল্টার':'Era filter'}">
+            ${eraFilters.map(f=>{
+                const isActive=f.key===activeEra.key;
+                return `<button data-action="setTimelineEra" data-param="${f.key}" aria-pressed="${isActive?'true':'false'}"
+                    style="font-size:11.5px;font-weight:700;padding:6px 15px;border-radius:50px;cursor:pointer;
+                    transition:all .18s;
+                    background:${isActive?'#059669':(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)')};
+                    color:${isActive?'#fff':(d?'#9ca3af':'#6b7280')};
+                    border:1.5px solid ${isActive?'#059669':(d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)')}">
+                    ${f.label}
+                </button>`;
+            }).join('')}
+        </div>
+
+        <div class="space-y-2.5">
+            ${timelineImams.map((im,idx)=>{
+                const startPct=Math.max(0,((im.birthYear-minYear)/range)*100);
+                const endYear=typeof im.deathYear==='number'?im.deathYear:maxYear;
+                const widthPct=Math.max(2,((endYear-im.birthYear)/range)*100);
+                const c=barColors[idx%barColors.length];
+                const inEra = activeEra.key==='all' || (im.birthYear<=activeEra.range[1] && endYear>=activeEra.range[0]);
+                const deathLabel = typeof im.deathYear==='string'
+                    ? (l==='bn'?'বর্তমান (গায়েবত)':'Present (Occultation)')
+                    : `${im.deathYear}`;
+                const nameForTip = l==='bn'?(im.nameBn||''):(im.nameEn||'');
+                const tooltip = `${nameForTip} — ${im.birthYear} ${l==='bn'?'থেকে':'to'} ${deathLabel}`;
+                return `
+                <div class="imam-timeline-row reveal reveal-delay-${(idx%4)+1}" data-action="viewImam" data-param="${im.id}"
+                    role="button" tabindex="0" title="${sanitize(tooltip)}" aria-label="${sanitize(tooltip)}"
+                    style="display:flex;align-items:center;gap:.75rem;cursor:pointer;opacity:${inEra?1:.3};transition:opacity .25s">
+                    <div class="text-right flex-shrink-0" style="width:130px">
+                        <span class="text-xs font-semibold" style="color:${d?'#d1d5db':'#374151'}">${im.icon} ${sanitize(l==='bn'?im.nameBn.replace('ইমাম ',''):im.nameEn.replace('Imam ',''))}</span>
+                    </div>
+                    <div class="flex-1 relative" style="height:26px">
+                        <div class="w-full h-full absolute rounded-full" style="background:${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)'}"></div>
+                        <div class="imam-timeline-bar h-full absolute rounded-full flex items-center px-2 overflow-hidden"
+                            style="left:${startPct.toFixed(1)}%;width:${Math.min(widthPct,100-startPct).toFixed(1)}%;min-width:28px;background:${c}">
+                            <span class="text-white text-xs font-bold truncate">${im.birthYear}</span>
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0 text-xs" style="width:46px;color:${d?'#6b7280':'#9ca3af'}">${typeof im.deathYear==='string'?'—':im.deathYear}</div>
+                </div>`;
+            }).join('')}
+        </div>
+        <div class="flex justify-between mt-4 px-0" style="margin-left:142px;margin-right:58px">
+            ${[600,650,700,750,800,850].map(yr=>`<span class="text-xs" style="color:${d?'#4b5563':'#9ca3af'}">${yr}</span>`).join('')}
+        </div>
+    </div>`;
+}
+// ============================================================================
+// IMAM DETAIL PAGE
+// ============================================================================
+function renderImamDetailPage()
+{
+    const d=state.darkMode; const l=state.language;
+    const im=state.currentImam;
+    if(!im) return renderImamsPage();
+    const allList=[...masumeen,...imams];
+    const idx=allList.findIndex(x=>x.id===im.id);
+    const prev=idx>0?allList[idx-1]:null;
+    const next=idx<allList.length-1?allList[idx+1]:null;
+    const isMasumeen=masumeen.some(m=>m.id===im.id);
+    const colorIdx=isMasumeen?masumeen.findIndex(m=>m.id===im.id):imams.indexOf(im);
+    const ACS=['#059669','#0d9488','#c9a227','#7c3aed','#0369a1','#d97706','#166534','#be123c','#0e7490','#4f46e5','#0f766e','#c9a227'];
+    const ACS2=['#022c22','#134e4a','#7a5c0a','#3b0764','#0c2a4a','#78350f','#052e16','#500724','#083344','#1e1b4b','#042f2e','#065f46'];
+    const CONIC2=['conic-gradient(from 0deg,#059669,#6ee7b7,#065f46,#34d399,#059669)','conic-gradient(from 0deg,#0d9488,#5eead4,#0f766e,#99f6e4,#0d9488)','conic-gradient(from 0deg,#c9a227,#fde68a,#b45309,#fbbf24,#c9a227)','conic-gradient(from 0deg,#7c3aed,#c4b5fd,#5b21b6,#a78bfa,#7c3aed)','conic-gradient(from 0deg,#0369a1,#7dd3fc,#075985,#38bdf8,#0369a1)','conic-gradient(from 0deg,#d97706,#fcd34d,#b45309,#fbbf24,#d97706)','conic-gradient(from 0deg,#166534,#86efac,#14532d,#4ade80,#166534)','conic-gradient(from 0deg,#be123c,#fda4af,#9f1239,#fb7185,#be123c)','conic-gradient(from 0deg,#0e7490,#67e8f9,#155e75,#22d3ee,#0e7490)','conic-gradient(from 0deg,#4f46e5,#a5b4fc,#4338ca,#818cf8,#4f46e5)','conic-gradient(from 0deg,#0f766e,#5eead4,#115e59,#2dd4bf,#0f766e)','conic-gradient(from 0deg,#c9a227,#fde68a,#059669,#6ee7b7,#c9a227)'];
+    const MACS=['#c9a227','#be185d'];const MACS2=['#78350f','#881337'];const MCONIC2=['conic-gradient(from 0deg,#c9a227,#fde68a,#b45309,#fbbf24,#c9a227)','conic-gradient(from 0deg,#be185d,#fda4af,#9f1239,#fb7185,#be185d)'];
+    const ac=isMasumeen?MACS[colorIdx%2]:ACS[colorIdx%12];
+    const ac2=isMasumeen?MACS2[colorIdx%2]:ACS2[colorIdx%12];
+    const conic2=isMasumeen?MCONIC2[colorIdx%2]:CONIC2[colorIdx%12];
+    return `
+    <div class="max-w-2xl mx-auto page-enter">
+        <button data-action="changePage" data-param="imams"
+            class="flex items-center gap-2 mb-6 px-4 py-2 rounded-xl font-semibold text-sm hover:scale-[1.02] transition-all"
+            style="background:${ac}12;color:${ac}">
+            ← ${l==='bn'?'সকল ইমাম':'All Imams'}
+        </button>
+        <div class="card-luxury ${d?'bg-gray-800 border-gray-700':'bg-white border-gray-100'} border mb-6"
+            style="box-shadow:var(--shadow-lg);position:relative">
+            <div style="height:4px;background:linear-gradient(90deg,${ac},${ac2},${ac});border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
+            <div style="background:linear-gradient(135deg,${ac}10,transparent,${ac2}07);padding:2.5rem 2rem 1.5rem;text-align:center;position:relative">
+                <div style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,${ac},${ac2});display:flex;align-items:center;justify-content:center;color:white;font-size:${typeof im.id==='number'?'.75rem':'1rem'};font-weight:800;box-shadow:0 3px 10px ${ac}50">
+                    ${typeof im.id==='number'?im.id:im.icon}
+                </div>
+                <div style="position:relative;display:flex;justify-content:center;margin-bottom:1.2rem">
+                    <div style="width:96px;height:96px;border-radius:50%;position:relative">
+                        ${im.id===3?`<div style="position:absolute;inset:-8px;border-radius:50%;border:2px solid #b91c1c;z-index:0;opacity:.75"></div><div style="position:absolute;inset:-13px;border-radius:50%;border:1.5px solid #dc2626;z-index:0;opacity:.4"></div>`:''}
+                        ${im.id===12?`<div style="position:absolute;inset:-9px;border-radius:50%;border:2.5px dashed #6366f1;z-index:0;opacity:.65;animation:avatarRotate 18s linear infinite reverse"></div>`:''}
+                        <div style="position:absolute;inset:-4px;border-radius:50%;background:${conic2};animation:avatarRotate 7s linear infinite;z-index:1"></div>
+                        <div style="position:absolute;inset:0;border-radius:50%;background:${d?'#1f2937':'white'};z-index:2;display:flex;align-items:center;justify-content:center;font-family:'Amiri',serif;font-size:2rem;font-weight:700;color:${ac2}">
+                            ${im.arabicName.split(' ')[0]||im.icon}
+                        </div>
+                    </div>
+                </div>
+                <h1 class="text-2xl md:text-3xl font-black mb-2">${sanitize(l==='bn'?im.nameBn:im.nameEn)}</h1>
+                <p class="arabic-text mb-3" style="font-size:1.5rem;color:${ac}">${sanitize(im.arabicName)}</p>
+                <span class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold"
+                    style="background:${ac}18;color:${ac};border:1px solid ${ac}28">
+                    ✨ ${sanitize(l==='bn'?im.epithetBn:im.epithetEn)}
+                </span>
+            </div>
+            <div class="p-6 pt-2">
+                <div class="grid grid-cols-2 gap-3 mb-5">
+                    <div class="rounded-2xl p-4" style="background:${d?'rgba(255,255,255,.05)':'rgba(0,0,0,.03)'};border:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}">
+                        <p class="font-bold text-xs mb-1.5" style="color:${ac}">🌙 ${l==='bn'?'জন্ম':'Birth'}</p>
+                        <p class="font-semibold text-sm">${sanitize(l==='bn'?im.birthBn:im.birthEn)}</p>
+                    </div>
+                    <div class="rounded-2xl p-4" style="background:${d?'rgba(255,255,255,.05)':'rgba(0,0,0,.03)'};border:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}">
+                        <p class="font-bold text-xs mb-1.5" style="color:${ac}">⚔️ ${l==='bn'?'শাহাদাত':'Martyrdom'}</p>
+                        <p class="font-semibold text-sm">${sanitize(l==='bn'?im.martyrdomBn:im.martyrdomEn)}</p>
+                    </div>
+                </div>
+                <div class="${d?'bg-gray-900':'bg-gray-50'} rounded-2xl p-5 mb-5">
+                    <h3 class="font-bold mb-3 text-sm">📝 ${l==='bn'?'পরিচিতি':'About'}</h3>
+                    <p class="${d?'text-gray-300':'text-gray-700'} leading-relaxed text-sm">${sanitize(l==='bn'?im.descBn:im.descEn)}</p>
+                </div>
+                <div class="rounded-2xl p-5" style="background:linear-gradient(135deg,${ac}0d,${ac2}07);border-left:4px solid ${ac}">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-bold text-sm flex items-center gap-2">
+                            <span style="color:${ac}">💬</span>${l==='bn'?'বিখ্যাত উক্তি':'Famous Quote'}
+                        </h3>
+                        <button data-action="shareImamQuote" data-param="${im.id}"
+                            class="text-xs px-3 py-1.5 rounded-xl font-bold hover:scale-105 transition-all"
+                            style="background:${ac}18;color:${ac}">
+                            🔗 ${l==='bn'?'শেয়ার':'Share'}
+                        </button>
+                    </div>
+                    <p class="text-base italic leading-relaxed">"${sanitize(l==='bn'?im.quoteBn:im.quoteEn)}"</p>
+                </div>
+            </div>
+        </div>
+        <div class="flex justify-between gap-4">
+            ${prev?`<button data-action="viewImam" data-param="${prev.id}"
+                class="${d?'bg-gray-800 hover:bg-gray-700 border-gray-700':'bg-white hover:bg-gray-50 border-gray-200'} border rounded-2xl px-5 py-3 font-semibold text-sm flex items-center gap-2 hover:scale-[1.02] transition-all"
+                style="flex:1">← ${sanitize(l==='bn'?prev.nameBn:prev.nameEn)}</button>`:'<div style="flex:1"></div>'}
+            ${next?`<button data-action="viewImam" data-param="${next.id}"
+                class="${d?'bg-gray-800 hover:bg-gray-700 border-gray-700':'bg-white hover:bg-gray-50 border-gray-200'} border rounded-2xl px-5 py-3 font-semibold text-sm flex items-center gap-2 justify-end hover:scale-[1.02] transition-all"
+                style="flex:1">${sanitize(l==='bn'?next.nameBn:next.nameEn)} →</button>`:'<div style="flex:1"></div>'}
+        </div>
+    </div>`;
+}
 
 // ============================================================================
 // PAGE: TASBEEH COUNTER
@@ -1054,7 +1475,8 @@ function performSearch(q) {
         {key:'nahjul',     list:state.nahjulPdfs||[],        label:l==='bn'?'নাহজুল বালাগা':'Nahjul Balagha'},
         {key:'sahifa',     list:state.sahifaPdfs||[],        label:l==='bn'?'সাহিফা সাজ্জাদিয়্যা':'Sahifa Sajjadiya'},
         {key:'imamhadiths',list:state.imamHadithPdfs||[],    label:l==='bn'?'ইমামদের হাদিস':'Imam Hadiths'},
-        {key:'specialdays',list:state.specialDayPdfs||[],    label:l==='bn'?'বিশেষ দিন':'Special Days'},
+        {key:'specialdays',list:state.specialDayPdfs||[],    label:l==='bn'?'আহলে বাইত ও মহান ব্যক্তিত্ব':'Ahl al-Bayt & Great Personalities'},
+        {key:'islamichistory',list:state.islamicHistoryPdfs||[], label:l==='bn'?'ইসলামিক ইতিহাস':'Islamic History'},
     ];
     pdfFolders.forEach(folder=>{
         folder.list.forEach(pdf=>{

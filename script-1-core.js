@@ -215,6 +215,7 @@ const state = {
     sahifaPdfs: [],
     imamHadithPdfs: [],
     specialDayPdfs: [],
+    islamicHistoryPdfs: [],
     // imam detail
     currentImam: null,
     // viewer
@@ -816,6 +817,7 @@ const KEYS = {
     SAHIFA_PDFS:'ahlbayt_sahifa_pdfs',
     IMAM_HADITH_PDFS:'ahlbayt_imam_hadith_pdfs',
     SPECIAL_DAY_PDFS:'ahlbayt_special_day_pdfs',
+    ISLAMIC_HISTORY_PDFS:'ahlbayt_islamic_history_pdfs',
 };
 
 function lsGet(key, fallback=null) {
@@ -840,6 +842,7 @@ function loadState() {
         state.sahifaPdfs = lsGet(KEYS.SAHIFA_PDFS, []);
         state.imamHadithPdfs = lsGet(KEYS.IMAM_HADITH_PDFS, []);
         state.specialDayPdfs = lsGet(KEYS.SPECIAL_DAY_PDFS, []);
+        state.islamicHistoryPdfs = lsGet(KEYS.ISLAMIC_HISTORY_PDFS, []);
         state.imageList = lsGet(KEYS.IMAGES, []);
         state.videoList = lsGet(KEYS.VIDEOS, []);
         state.audioList = lsGet(KEYS.AUDIOS, []);
@@ -885,6 +888,7 @@ function saveState() {
     lsSet(KEYS.SAHIFA_PDFS, state.sahifaPdfs);
     lsSet(KEYS.IMAM_HADITH_PDFS, state.imamHadithPdfs);
     lsSet(KEYS.SPECIAL_DAY_PDFS, state.specialDayPdfs);
+    lsSet(KEYS.ISLAMIC_HISTORY_PDFS, state.islamicHistoryPdfs);
     lsSet(KEYS.IMAGES, state.imageList);
     lsSet(KEYS.VIDEOS, state.videoList);
     lsSet(KEYS.AUDIOS, state.audioList);
@@ -1181,6 +1185,7 @@ const FOLDER_LIST_MAP = {
     sahifa: 'sahifaPdfs',
     imamhadiths: 'imamHadithPdfs',
     specialdays: 'specialDayPdfs',
+    islamichistory: 'islamicHistoryPdfs',
 };
 const FOLDER_CLOUDINARY_MAP = {
     pdf: 'library/pdfs',
@@ -1188,6 +1193,7 @@ const FOLDER_CLOUDINARY_MAP = {
     sahifa: 'library/sahifa',
     imamhadiths: 'library/imam-hadiths',
     specialdays: 'library/special-days',
+    islamichistory: 'library/islamic-history',
 };
 
 function openFolderUpload(folderKey) {
@@ -1352,22 +1358,38 @@ async function deleteFile(id, listKey) {
 }
 
 // ============================================================================
-// MEDIA INDEX SYNC (Cloudinary) — keeps image/video/audio lists in sync
-// across devices/browsers. Was previously called but never defined, which
-// caused an uncaught ReferenceError on every page load (init() crashed at
-// fetchMediaFromCloud()). Both functions below are fully self-contained and
-// never throw — any failure (offline, first run with no cloud index yet,
-// etc.) is caught and logged instead of crashing the app.
+// MEDIA + LIBRARY INDEX SYNC (Cloudinary) — keeps image/video/audio AND all
+// PDF library folder lists (pdf, nahjul, sahifa, imamhadiths, specialdays,
+// islamichistory) in sync across devices/browsers. Was previously called but
+// never defined, which caused an uncaught ReferenceError on every page load
+// (init() crashed at fetchMediaFromCloud()). Both functions below are fully
+// self-contained and never throw — any failure (offline, first run with no
+// cloud index yet, etc.) is caught and logged instead of crashing the app.
+//
+// 2026-07-18: previously this index only covered imageList/videoList/
+// audioList — the PDF library lists (pdfList, nahjulPdfs, sahifaPdfs,
+// imamHadithPdfs, specialDayPdfs, islamicHistoryPdfs) were saved to
+// localStorage only, so a PDF an admin uploaded (file itself went to
+// Cloudinary fine) never appeared for any *other* visitor — their browser
+// has its own separate empty localStorage and nothing ever fetched the
+// admin's list. Folded into the same shared index so uploads are visible
+// to everyone, not just the admin's own browser.
 // ============================================================================
 const MEDIA_INDEX_PUBLIC_ID = 'ahlbayt/media-index';
 
-/** Upload the current image/video/audio lists as a JSON index to Cloudinary */
+/** Upload the current image/video/audio + PDF-library lists as a JSON index to Cloudinary */
 async function syncMediaToCloud() {
     try {
         const payload = JSON.stringify({
             imageList: state.imageList || [],
             videoList: state.videoList || [],
             audioList: state.audioList || [],
+            pdfList: state.pdfList || [],
+            nahjulPdfs: state.nahjulPdfs || [],
+            sahifaPdfs: state.sahifaPdfs || [],
+            imamHadithPdfs: state.imamHadithPdfs || [],
+            specialDayPdfs: state.specialDayPdfs || [],
+            islamicHistoryPdfs: state.islamicHistoryPdfs || [],
             updatedAt: Date.now()
         });
         const dataUri = 'data:application/json;base64,' + btoa(unescape(encodeURIComponent(payload)));
@@ -1390,7 +1412,7 @@ async function syncMediaToCloud() {
     }
 }
 
-/** Load the media index from Cloudinary (cross-device) on app start */
+/** Load the media + PDF-library index from Cloudinary (cross-device) on app start */
 async function fetchMediaFromCloud() {
     try {
         const url = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/raw/upload/${MEDIA_INDEX_PUBLIC_ID}.json?_=${Date.now()}`;
@@ -1404,9 +1426,15 @@ async function fetchMediaFromCloud() {
         if (Array.isArray(data.imageList)) { state.imageList = data.imageList; changed = true; }
         if (Array.isArray(data.videoList)) { state.videoList = data.videoList; changed = true; }
         if (Array.isArray(data.audioList)) { state.audioList = data.audioList; changed = true; }
+        if (Array.isArray(data.pdfList)) { state.pdfList = data.pdfList; changed = true; }
+        if (Array.isArray(data.nahjulPdfs)) { state.nahjulPdfs = data.nahjulPdfs; changed = true; }
+        if (Array.isArray(data.sahifaPdfs)) { state.sahifaPdfs = data.sahifaPdfs; changed = true; }
+        if (Array.isArray(data.imamHadithPdfs)) { state.imamHadithPdfs = data.imamHadithPdfs; changed = true; }
+        if (Array.isArray(data.specialDayPdfs)) { state.specialDayPdfs = data.specialDayPdfs; changed = true; }
+        if (Array.isArray(data.islamicHistoryPdfs)) { state.islamicHistoryPdfs = data.islamicHistoryPdfs; changed = true; }
         if (changed) {
             saveState();
-            if (state.currentPage === 'media') render();
+            if (state.currentPage === 'media' || state.currentPage === 'library') render();
             console.log('[Media] index loaded from cloud ✓');
         }
     } catch (e) {
