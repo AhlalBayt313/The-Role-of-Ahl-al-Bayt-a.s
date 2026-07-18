@@ -89,16 +89,19 @@ function closeBlogEditor() {
 }
 
 // ============================================================================
-// BLOG CLOUDINARY SYNC
+// BLOG GITHUB SYNC
 // ============================================================================
 
 /**
- * Sync blog posts to Cloudinary
+ * Sync blog posts to GitHub (data/blog-posts.json in this repo)
  * @param {Array} posts - Blog posts array
  */
 // Bug #11 fix: পুরনো in-flight sync request abort করার জন্য controller
 // Bug #28: এই variable টাই "sync চলছে" indicator — fetchBlogFromCloud() এটা চেক করবে
 let _blogSyncAbortCtrl = null;
+// 2026-07-18: migrated from Cloudinary to GitHub Contents API — same JSON
+// file, now committed to data/blog-posts.json in this repo.
+const BLOG_INDEX_PATH = 'data/blog-posts.json';
 
 async function syncBlogToCloud(posts) {
     if (location.protocol === 'file:') return;
@@ -106,19 +109,8 @@ async function syncBlogToCloud(posts) {
     _blogSyncAbortCtrl = new AbortController();
     const signal = _blogSyncAbortCtrl.signal;
     try {
-        const blob = new Blob([JSON.stringify(posts)], { type:'application/json' });
-        const file = new File([blob], 'posts_index.json', { type:'application/json' });
-        const fd = new FormData();
-        fd.append('file', file);
-        fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-        fd.append('folder', 'blog');
-        fd.append('resource_type', 'raw');
-        fd.append('use_filename', 'true');
-        fd.append('unique_filename', 'false');
-        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/raw/upload`, { method:'POST', body:fd, signal });
-        if (!res.ok) throw new Error(await res.text());
-        const data = await res.json();
-        console.log('[Blog] Synced →', data.secure_url);
+        await githubWriteJson(BLOG_INDEX_PATH, posts, 'Update blog posts', signal);
+        console.log('[Blog] Synced →', `${GITHUB_RAW_BASE}/${BLOG_INDEX_PATH}`);
     } catch(e) {
         if (e.name === 'AbortError') { console.log('[Blog] sync aborted — superseded by newer save'); return; }
         console.error('[Blog] sync error:', e); throw e;
@@ -129,12 +121,12 @@ async function syncBlogToCloud(posts) {
 }
 
 /**
- * Fetch blog posts from Cloudinary
+ * Fetch blog posts from GitHub
  * Bug #28 fix: sync চলাকালীন fetch block করো এবং blindly overwrite না করে
  * merge করো — local এ নতুন posts থাকলে সেগুলো হারাবে না
  */
 async function fetchBlogFromCloud() {
-    // file:// protocol এ Cloudinary fetch করা যায় না — skip
+    // file:// protocol এ GitHub fetch করা যায় না — skip
     if (location.protocol === 'file:') return;
     // sync in-progress থাকলে fetch বাতিল — cloud এ এখনো পুরনো data আছে
     if (_blogSyncAbortCtrl) {
@@ -142,8 +134,8 @@ async function fetchBlogFromCloud() {
         return;
     }
     try {
-        const _cn = window.CLOUDINARY_CLOUD_NAME || "ahlalbayt";
-        const url = `https://res.cloudinary.com/${_cn}/raw/upload/blog/posts_index.json?cb=${Date.now()}`;
+        const _base = window.GITHUB_RAW_BASE || `https://raw.githubusercontent.com/${window.GITHUB_OWNER}/${window.GITHUB_REPO}/${window.GITHUB_BRANCH}`;
+        const url = `${_base}/${BLOG_INDEX_PATH}?cb=${Date.now()}`;
         const res = await fetch(url);
         if (!res.ok) return;
         const cloudPosts = await res.json();
@@ -216,10 +208,10 @@ async function saveBlogPost() {
     try {
         await syncBlogToCloud(state.customPosts);
         if (mySyncVersion !== _blogSyncVersion) return; // a newer save has since taken over; don't report stale success
-        showToast(state.language==='bn'?'পোস্ট Cloudinary-তে সেভ হয়েছে ✨':'Post saved to Cloudinary ✨','success');
+        showToast(state.language==='bn'?'পোস্ট GitHub-এ সেভ হয়েছে ✨':'Post saved to GitHub ✨','success');
     } catch(e) {
         if (mySyncVersion !== _blogSyncVersion) return; // a newer save is in flight/finished; don't show a stale failure
-        showToast(state.language==='bn'?'Cloudinary sync ব্যর্থ — locally সেভ হয়েছে':'Cloudinary sync failed — saved locally','warning');
+        showToast(state.language==='bn'?'GitHub sync ব্যর্থ — locally সেভ হয়েছে':'GitHub sync failed — saved locally','warning');
     }
     // Fix: closeBlogEditor() rendered synchronously *before* this await,
     // using whatever state existed at that moment. If anything else

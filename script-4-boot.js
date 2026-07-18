@@ -1152,13 +1152,14 @@ function init() {
     setupScrollReveal();
     startPrayerClock();          // ✅ FIXED: prayer-times পেজের next-prayer countdown আগে dead ছিল (Production Audit #1)
     startNextPrayerCountdown();  // ✅ FIXED: হোম ব্যানারের countdown আগে dead ছিল (Production Audit #1)
-    // Cloudinary config must be available before cloud fetches
-    if (typeof CLOUDINARY_CLOUD_NAME === 'undefined') {
-        window.CLOUDINARY_CLOUD_NAME    = "ahlalbayt";
-        window.CLOUDINARY_UPLOAD_PRESET = "ahlalbayt_upload";
+    // GitHub config must be available before cloud fetches
+    if (typeof GITHUB_OWNER === 'undefined') {
+        window.GITHUB_OWNER  = "AhlalBayt313";
+        window.GITHUB_REPO   = "The-Role-of-Ahl-al-Bayt-a.s";
+        window.GITHUB_BRANCH = "main";
     }
-    try { fetchBlogFromCloud(); } catch(e) { console.warn('[Blog] fetchBlogFromCloud failed:', e); }   // load blog posts from Cloudinary (cross-device)
-    try { fetchMediaFromCloud(); } catch(e) { console.warn('[Media] fetchMediaFromCloud failed:', e); } // load media index from Cloudinary (cross-device)
+    try { fetchBlogFromCloud(); } catch(e) { console.warn('[Blog] fetchBlogFromCloud failed:', e); }   // load blog posts from GitHub (cross-device)
+    try { fetchMediaFromCloud(); } catch(e) { console.warn('[Media] fetchMediaFromCloud failed:', e); } // load media index from GitHub (cross-device)
     setTimeout(hideSplash, 2600);
 }
 
