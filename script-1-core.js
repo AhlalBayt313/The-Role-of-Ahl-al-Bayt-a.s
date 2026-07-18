@@ -1,59 +1,138 @@
-// ── Cloudinary Config ─────────────────────────────────────────────
-const CLOUDINARY_CLOUD_NAME    = window.CLOUDINARY_CLOUD_NAME    || "ahlalbayt";
-const CLOUDINARY_UPLOAD_PRESET = window.CLOUDINARY_UPLOAD_PRESET || "ahlalbayt_upload";
-window.CLOUDINARY_CLOUD_NAME    = CLOUDINARY_CLOUD_NAME;
-window.CLOUDINARY_UPLOAD_PRESET = CLOUDINARY_UPLOAD_PRESET;
+// ── GitHub Storage Config ─────────────────────────────────────────
+// Migrated from Cloudinary to GitHub on 2026-07-18. Files are committed
+// directly to this repo via the Contents API and served publicly from
+// raw.githubusercontent.com — same role Cloudinary's secure_url played.
+//
+// ⚠️ SECURITY NOTE: GITHUB_TOKEN below should be a fine-grained Personal
+// Access Token scoped to ONLY this repo, with ONLY "Contents: Read and
+// write" permission. Because this is a public static site, this token is
+// visible to anyone who views the page source — that tradeoff was a
+// deliberate choice (simplicity over a hidden server-side proxy). Rotate
+// the token periodically and never grant it broader scopes.
+const GITHUB_OWNER    = window.GITHUB_OWNER    || "AhlalBayt313";
+const GITHUB_REPO     = window.GITHUB_REPO     || "The-Role-of-Ahl-al-Bayt-a.s";
+const GITHUB_BRANCH   = window.GITHUB_BRANCH   || "main";
+const GITHUB_TOKEN    = window.GITHUB_TOKEN    || "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";
+window.GITHUB_OWNER   = GITHUB_OWNER;
+window.GITHUB_REPO    = GITHUB_REPO;
+window.GITHUB_BRANCH  = GITHUB_BRANCH;
+window.GITHUB_TOKEN   = GITHUB_TOKEN;
+
+const GITHUB_API_BASE = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents`;
+const GITHUB_RAW_BASE = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}`;
+window.GITHUB_API_BASE = GITHUB_API_BASE;
+window.GITHUB_RAW_BASE = GITHUB_RAW_BASE;
 
 /**
- * Cloudinary-তে ফাইল আপলোড করো — progress সহ
+ * GitHub Contents API-তে দেওয়া path-এ ফাইল আছে কিনা চেক করে তার sha ফেরত দেয়।
+ * ফাইল না থাকলে null — নতুন ফাইল তৈরির সময় sha পাঠানো লাগে না, শুধু বিদ্যমান
+ * ফাইল আপডেট করার সময় GitHub-এর এই sha টা লাগে।
+ */
+async function githubGetFileSha(path) {
+    try {
+        const res = await fetch(`${GITHUB_API_BASE}/${path}?ref=${GITHUB_BRANCH}`, {
+            headers: {
+                "Authorization": `token ${GITHUB_TOKEN}`,
+                "Accept": "application/vnd.github+json"
+            }
+        });
+        if (!res.ok) return null; // 404 → ফাইল এখনো নেই, প্রথমবার এটাই স্বাভাবিক
+        const data = await res.json();
+        return data.sha || null;
+    } catch (e) {
+        console.warn('[GitHub] sha lookup failed:', e);
+        return null;
+    }
+}
+
+/**
+ * যেকোনো JSON object-কে GitHub repo-র নির্দিষ্ট path-এ commit করে (create বা update)।
+ * @param {string}      path     - repo-র ভেতরে ফাইলের path, যেমন 'data/media-index.json'
+ * @param {*}           obj      - JSON.stringify করা হবে এমন object/array
+ * @param {string}      message  - commit message
+ * @param {AbortSignal} [signal]
+ * @returns {Promise<Object>} GitHub API response (JSON)
+ */
+async function githubWriteJson(path, obj, message, signal) {
+    const sha = await githubGetFileSha(path);
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(obj, null, 2))));
+    const body = { message, content, branch: GITHUB_BRANCH };
+    if (sha) body.sha = sha;
+    const res = await fetch(`${GITHUB_API_BASE}/${path}`, {
+        method: "PUT",
+        headers: {
+            "Authorization": `token ${GITHUB_TOKEN}`,
+            "Accept": "application/vnd.github+json",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body),
+        signal
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || res.statusText);
+    }
+    return res.json();
+}
+
+/**
+ * GitHub repo-তে ফাইল আপলোড করো (Contents API) — progress সহ।
+ * ফাইল base64-এ এনকোড করে PUT করা হয়। GitHub Contents API-র হার্ড লিমিট প্রতি
+ * ফাইলে 100MB (base64 এনকোডিং আকার ~33% বাড়িয়ে দেয়, তাই বাস্তবে নিরাপদ সীমা
+ * তার চেয়ে কম রাখা হয়েছে — দেখুন handleFileUpload()-এর maxSizeMap)।
  * @param {string}   folder
  * @param {File}     file
  * @param {Function} onProgress  - (percent) => {}
- * @returns {Promise<string>} secure_url
+ * @returns {Promise<string>} raw.githubusercontent.com URL
  */
 window.storageUploadWithProgress = function(folder, file, onProgress = () => {}) {
     return new Promise((resolve, reject) => {
-        const mime = file.type || '';
-        let resourceType = 'raw';
-        if (mime.startsWith('image/')) resourceType = 'image';
-        else if (mime.startsWith('video/')) resourceType = 'video';
-        else if (mime.startsWith('audio/')) resourceType = 'audio'; // ✅ FIXED: was 'video', now 'audio'
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error("ফাইল পড়তে সমস্যা হয়েছে"));
+        reader.onload = () => {
+            const base64 = reader.result.split(',')[1];
+            const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+            const path = `${folder}/${Date.now()}_${safeName}`;
 
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-        formData.append("folder", folder);
+            const xhr = new XMLHttpRequest();
+            xhr.open("PUT", `${GITHUB_API_BASE}/${path}`);
+            xhr.setRequestHeader("Authorization", `token ${GITHUB_TOKEN}`);
+            xhr.setRequestHeader("Accept", "application/vnd.github+json");
+            xhr.setRequestHeader("Content-Type", "application/json");
 
-        const xhr = new XMLHttpRequest();
-        xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`);
-
-        xhr.upload.onprogress = (e) => {
-            if (e.lengthComputable) {
-                onProgress(Math.round((e.loaded / e.total) * 100));
-            }
-        };
-
-        xhr.onload = () => {
-            if (xhr.status >= 200 && xhr.status < 300) {
-                const data = JSON.parse(xhr.responseText);
-                console.log(`[Cloudinary] Upload complete → ${data.public_id}`);
-                resolve(data.secure_url);
-            } else {
-                try {
-                    const err = JSON.parse(xhr.responseText);
-                    reject(new Error("Cloudinary: " + (err.error?.message || xhr.statusText)));
-                } catch (_) {
-                    reject(new Error("Cloudinary upload failed: " + xhr.statusText));
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    onProgress(Math.round((e.loaded / e.total) * 100));
                 }
-            }
-        };
+            };
 
-        xhr.onerror = () => reject(new Error("Network error — internet connection চেক করুন"));
-        xhr.send(formData);
+            xhr.onload = () => {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    const rawUrl = `${GITHUB_RAW_BASE}/${path}`;
+                    console.log(`[GitHub] Upload complete → ${path}`);
+                    resolve(rawUrl);
+                } else {
+                    try {
+                        const err = JSON.parse(xhr.responseText);
+                        reject(new Error("GitHub: " + (err.message || xhr.statusText)));
+                    } catch (_) {
+                        reject(new Error("GitHub upload failed: " + xhr.statusText));
+                    }
+                }
+            };
+
+            xhr.onerror = () => reject(new Error("Network error — internet connection চেক করুন"));
+            xhr.send(JSON.stringify({
+                message: `Upload ${safeName}`,
+                content: base64,
+                branch: GITHUB_BRANCH
+            }));
+        };
+        reader.readAsDataURL(file);
     });
 };
 
-console.log("✅ Cloudinary সফলভাবে যুক্ত হয়েছে — Cloud:", CLOUDINARY_CLOUD_NAME);
+console.log("✅ GitHub storage সফলভাবে যুক্ত হয়েছে — Repo:", GITHUB_OWNER + "/" + GITHUB_REPO);
 
 // ============================================================================
 // HELPER FUNCTIONS — Vibration & Colors
@@ -1209,10 +1288,17 @@ function openFolderUpload(folderKey) {
 async function handleFileUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
-    const maxSize = state.uploadType === 'video' ? 500 : 100; // MB
+    // Must mirror typeLabels[...].maxMB in renderUploadModal() (script-2-ui.js).
+    // video capped at 70MB — GitHub Contents API's hard limit is 100MB/file,
+    // and base64 encoding (required by the API) adds ~33% overhead, so 70MB
+    // is the safe practical ceiling. Catching it here means an oversized file
+    // is rejected instantly instead of running the full progress bar and
+    // failing at GitHub with a confusing error.
+    const maxSizeMap = { video: 70, pdf: 10, image: 70, audio: 70 };
+    const maxSize = maxSizeMap[state.uploadType] ?? 100; // MB
     if (file.size > maxSize * 1024 * 1024) {
         showToast(state.language==='bn'
-            ? `ফাইল ${maxSize}MB এর বেশি হতে পারে না`
+            ? `ফাইল ${maxSize}MB এর বেশি হতে পারে না${state.uploadType==='pdf'?' — কম্প্রেস করে আবার চেষ্টা করুন':''}`
             : `File must be under ${maxSize}MB`, 'warning');
         return;
     }
@@ -1225,7 +1311,7 @@ async function handleFileUpload(e) {
         sizeFmt: formatBytes(file.size)
     };
 
-    // ── All types → Cloudinary ──────────────────────────────────────────────
+    // ── All types → GitHub ──────────────────────────────────────────────────
     const folderMap = { image:'library/images', pdf:'library/pdfs', video:'library/videos', audio:'library/audios' };
     const folder = (state.uploadFolderKey && FOLDER_CLOUDINARY_MAP[state.uploadFolderKey]) || folderMap[state.uploadType] || 'library/misc';
 
@@ -1250,11 +1336,16 @@ async function handleFileUpload(e) {
             saveState(); state.uploadProgress = 100; render();
             try { await syncMediaToCloud(); } catch(e) { console.warn('[Media] index sync failed:', e); }
             const msgs = { image:'ছবি', pdf:'PDF', video:'ভিডিও', audio:'অডিও' };
-            showToast(state.language==='bn'?`${msgs[state.uploadType]||'ফাইল'} Cloudinary-তে সেভ হয়েছে ✓`:'Saved to Cloudinary ✓','success');
+            showToast(state.language==='bn'?`${msgs[state.uploadType]||'ফাইল'} GitHub-এ সেভ হয়েছে ✓`:'Saved to GitHub ✓','success');
             setTimeout(() => closeUploadModal(), 800);
         } catch(err) {
-            console.error('[Cloudinary] upload error:', err);
-            showToast(state.language==='bn'?'আপলোড ব্যর্থ হয়েছে — internet connection চেক করুন':'Upload failed — check internet connection','warning');
+            console.error('[GitHub] upload error:', err);
+            // Show the real reason (e.g. "Bad credentials") instead of always
+            // blaming the internet connection — a bad/missing/expired GitHub
+            // token or wrong repo config looks identical to the user as
+            // a network failure otherwise, and is the far more common cause.
+            const reason = (err && err.message) ? err.message : (state.language==='bn'?'অজানা কারণ':'Unknown reason');
+            showToast(state.language==='bn'?`আপলোড ব্যর্থ হয়েছে — ${reason}`:`Upload failed — ${reason}`,'warning');
             state.isUploading = false; render();
         }
         return;
@@ -1332,7 +1423,7 @@ async function downloadFile(id, name) {
 async function openViewer(item, type) {
     state.viewerItem = item; state.viewerType = type;
     state.viewerLoading = true; state.viewerData = null;
-    // Cloudinary files: resolve data before first render (avoids double render)
+    // Cloud-hosted files (cloudUrl field, now GitHub-backed): resolve data before first render (avoids double render)
     if (item.cloudUrl) {
         state.viewerData = item.cloudUrl;
         state.viewerLoading = false;
@@ -1358,29 +1449,33 @@ async function deleteFile(id, listKey) {
 }
 
 // ============================================================================
-// MEDIA + LIBRARY INDEX SYNC (Cloudinary) — keeps image/video/audio AND all
+// MEDIA + LIBRARY INDEX SYNC (GitHub) — keeps image/video/audio AND all
 // PDF library folder lists (pdf, nahjul, sahifa, imamhadiths, specialdays,
 // islamichistory) in sync across devices/browsers. Was previously called but
 // never defined, which caused an uncaught ReferenceError on every page load
 // (init() crashed at fetchMediaFromCloud()). Both functions below are fully
 // self-contained and never throw — any failure (offline, first run with no
-// cloud index yet, etc.) is caught and logged instead of crashing the app.
+// index file yet, etc.) is caught and logged instead of crashing the app.
 //
 // 2026-07-18: previously this index only covered imageList/videoList/
 // audioList — the PDF library lists (pdfList, nahjulPdfs, sahifaPdfs,
 // imamHadithPdfs, specialDayPdfs, islamicHistoryPdfs) were saved to
-// localStorage only, so a PDF an admin uploaded (file itself went to
-// Cloudinary fine) never appeared for any *other* visitor — their browser
-// has its own separate empty localStorage and nothing ever fetched the
-// admin's list. Folded into the same shared index so uploads are visible
-// to everyone, not just the admin's own browser.
+// localStorage only, so a PDF an admin uploaded (file itself went to cloud
+// storage fine) never appeared for any *other* visitor — their browser has
+// its own separate empty localStorage and nothing ever fetched the admin's
+// list. Folded into the same shared index so uploads are visible to
+// everyone, not just the admin's own browser.
+//
+// 2026-07-18: migrated from Cloudinary to GitHub Contents API — same JSON
+// index, now committed to data/media-index.json in this repo and read back
+// from raw.githubusercontent.com.
 // ============================================================================
-const MEDIA_INDEX_PUBLIC_ID = 'ahlbayt/media-index';
+const MEDIA_INDEX_PATH = 'data/media-index.json';
 
-/** Upload the current image/video/audio + PDF-library lists as a JSON index to Cloudinary */
+/** Commit the current image/video/audio + PDF-library lists as a JSON index to GitHub */
 async function syncMediaToCloud() {
     try {
-        const payload = JSON.stringify({
+        const payload = {
             imageList: state.imageList || [],
             videoList: state.videoList || [],
             audioList: state.audioList || [],
@@ -1391,34 +1486,23 @@ async function syncMediaToCloud() {
             specialDayPdfs: state.specialDayPdfs || [],
             islamicHistoryPdfs: state.islamicHistoryPdfs || [],
             updatedAt: Date.now()
-        });
-        const dataUri = 'data:application/json;base64,' + btoa(unescape(encodeURIComponent(payload)));
-
-        const formData = new FormData();
-        formData.append('file', dataUri);
-        formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-        formData.append('public_id', MEDIA_INDEX_PUBLIC_ID);
-
-        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/raw/upload`, {
-            method: 'POST',
-            body: formData
-        });
-        if (!res.ok) throw new Error('Cloudinary raw upload failed: ' + res.status);
-        const data = await res.json();
-        console.log('[Media] index synced to cloud ✓', data.secure_url);
-        return data.secure_url;
+        };
+        await githubWriteJson(MEDIA_INDEX_PATH, payload, 'Update media index');
+        const url = `${GITHUB_RAW_BASE}/${MEDIA_INDEX_PATH}`;
+        console.log('[Media] index synced to GitHub ✓', url);
+        return url;
     } catch (e) {
         console.warn('[Media] syncMediaToCloud failed (will retry on next change):', e);
     }
 }
 
-/** Load the media + PDF-library index from Cloudinary (cross-device) on app start */
+/** Load the media + PDF-library index from GitHub (cross-device) on app start */
 async function fetchMediaFromCloud() {
     try {
-        const url = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/raw/upload/${MEDIA_INDEX_PUBLIC_ID}.json?_=${Date.now()}`;
+        const url = `${GITHUB_RAW_BASE}/${MEDIA_INDEX_PATH}?_=${Date.now()}`;
         const res = await fetch(url);
         if (!res.ok) {
-            console.log('[Media] no cloud index yet — keeping local data');
+            console.log('[Media] ℹ️ no cloud index yet (normal on first run, before any admin upload) — keeping local data');
             return;
         }
         const data = await res.json();
@@ -1435,7 +1519,7 @@ async function fetchMediaFromCloud() {
         if (changed) {
             saveState();
             if (state.currentPage === 'media' || state.currentPage === 'library') render();
-            console.log('[Media] index loaded from cloud ✓');
+            console.log('[Media] index loaded from GitHub ✓');
         }
     } catch (e) {
         console.warn('[Media] fetchMediaFromCloud failed (offline?):', e);
