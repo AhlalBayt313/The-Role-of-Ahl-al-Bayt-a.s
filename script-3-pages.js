@@ -198,13 +198,46 @@ function renderRamadanLayout(allDuas, d, l) {
 // ============================================================================
 // PAGE: DUA
 // ============================================================================
+// ============================================================================
+// DUA COLLECTION (taxonomy layer #2 — additive, does not touch `category`)
+// ============================================================================
+// Returns a collection key for a dua. Prefers an explicit `dua.collection`
+// field (for newly-tagged entries); otherwise infers from titleEn/titleBn so
+// this works immediately for all existing duas without editing 4500+ lines
+// of data by hand. Safe to call on any dua object.
+const DUA_COLLECTIONS = [
+    {key:'all',        icon:'✦', labelBn:'সব',              labelEn:'All'},
+    {key:'ahlulbayt',  icon:'👑', labelBn:'আহলে বাইত (আ.)', labelEn:'Ahl al-Bayt'},
+    {key:'sahifa',     icon:'📖', labelBn:'সহিফায়ে সাজ্জাদিয়া', labelEn:'Sahifa Sajjadiya'},
+    {key:'ramadan',    icon:'🌙', labelBn:'রমজান',           labelEn:'Ramadan'},
+    {key:'dailylife',  icon:'🕐', labelBn:'দৈনন্দিন',        labelEn:'Daily Life'},
+    {key:'quranic',    icon:'📗', labelBn:'কুরআনিক',        labelEn:'Quranic'},
+];
+
+function getDuaCollection(dua) {
+    if (dua.collection) return dua.collection;
+    const en = (dua.titleEn || '').toLowerCase();
+    const bn = dua.titleBn || '';
+    if (en.includes('sahifa') || bn.includes('সহিফা')) return 'sahifa';
+    if (en.includes('ramadan') || en.includes('laylatul qadr') || bn.includes('রমজান')) return 'ramadan';
+    if (en.includes('quran') || bn.includes('কুরআন')) return 'quranic';
+    if (dua.category === 'daily' || dua.category === 'morning') return 'dailylife';
+    const ahlulBaytKeywords = ['kumayl','tawassul','nudb','mashlool','sabah','arafah','abu hamza',
+        'iftitah','jawshan','noor','al-ahd','al-faraj','mujeer'];
+    if (ahlulBaytKeywords.some(k => en.includes(k))) return 'ahlulbayt';
+    return 'ahlulbayt'; // conservative default — most non-Ramadan/daily duas here are Ahl al-Bayt narrations
+}
+
 function renderDuaPage() {
     const d=state.darkMode; const l=state.language;
     const tab = state.duaTab || 'dua';
     const selectedCategory = state.duaCategory || 'all';
+    const selectedCollection = state.duaCollection || 'all';
     const allDuas    = [...state.customDuas,...duas];
     const allZiyarat = [...ziyarats,...state.customZiyarat];
-    const filteredDuas = selectedCategory==='all' ? allDuas : allDuas.filter(dua=>dua.category===selectedCategory);
+    const filteredDuas = allDuas
+        .filter(dua => selectedCategory==='all'   || dua.category===selectedCategory)
+        .filter(dua => selectedCollection==='all' || getDuaCollection(dua)===selectedCollection);
 
     const catFilters=[
         {key:'all',     icon:'✦', label:l==='bn'?'সকল দোয়া':'All Duas',   color:'#059669', bg:'rgba(5,150,105,.15)'},
@@ -274,7 +307,12 @@ function renderDuaPage() {
             </button>
         </div>
 
-        <!-- Category filter (dua tab only) -->
+        <!-- Category filter (dua tab only) — collapsed to a single row on
+             2026-07-19; the second "collection" row (আহলে বাইত/সহিফা/কুরআনিক
+             etc.) was removed from the UI per request. selectedCollection
+             stays at its default 'all' now, so filteredDuas' collection
+             filter is a no-op — harmless, and easy to re-enable later if a
+             single merged row is wanted instead of a full removal. -->
         ${tab==='dua'?`
         <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 1px 6px">
             <div style="display:flex;gap:7px;width:max-content">
@@ -304,7 +342,11 @@ function renderDuaPage() {
             ? renderRamadanLayout(allDuas, d, l)
             :
             filteredDuas.map((dua,i)=>{
-                const isCustom=!!dua.id;
+                // Bug fix: presence of dua.id does NOT mean user-created —
+                // built-in duas in duas-data.js also carry an id for
+                // identification. "Custom" must mean it actually lives in
+                // state.customDuas (the user-added collection).
+                const isCustom = dua.id!=null && state.customDuas.some(x=>x.id===dua.id);
                 // Bug #8 fix: `i` is the position in filteredDuas (which may be a
                 // category-filtered subset). When a non-custom dua is opened via
                 // readDua, the param must be its index in the global `duas[]` array,
@@ -1438,7 +1480,11 @@ function performSearch(q) {
         const title=l==='bn'?dua.titleBn:dua.titleEn;
         const meaning=l==='bn'?dua.meaningBn:dua.meaningEn;
         if((title||'').toLowerCase().includes(lower)||(meaning||'').toLowerCase().includes(lower)||(dua.arabic||'').includes(q)){
-            const isCustom=!!dua.id;
+            // Bug fix: dua.id alone doesn't mean "custom" — built-in duas have
+            // ids too. Wrongly flagging them as custom sent 'c'+id as the
+            // readDua param, which then failed to find the dua in
+            // state.customDuas and broke navigation from search results.
+            const isCustom = dua.id!=null && state.customDuas.some(x=>x.id===dua.id);
             results.push({title,subtitle:dua.source||'',icon:'🤲',color:'#7c3aed',type:l==='bn'?'দোয়া':'Dua',action:'readDua',param:isCustom?'c'+dua.id:i-state.customDuas.length});
         }
     });

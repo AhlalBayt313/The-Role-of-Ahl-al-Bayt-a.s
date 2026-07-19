@@ -8,13 +8,24 @@ const duas = [
   // ১. দোয়ায়ে কুমাইল
   // ═══════════════════════════════════════════════
   {
+    id:'dua-kumayl',
+    slug:'dua-kumayl',
     titleBn:'দোয়ায়ে কুমাইল',
     titleEn:'Dua Kumayl',
+    titleAr:'دعاء كميل',
     category:'night',
+    collection:'ahlulbayt',
+    tags:['forgiveness','night','protection','shaban'],
+    relatedImams:['Ali ibn Abi Talib'],
     arabic:'اللَّهُمَّ إِنِّي أَسْأَلُكَ بِرَحْمَتِكَ الَّتِي وَسِعَتْ كُلَّ شَيْءٍ',
     meaningBn:'হে আল্লাহ! আমি তোমার সেই রহমতের ওসিলায় চাই যা সবকিছু ঘিরে রেখেছে',
     meaningEn:'O Allah! I ask You through Your mercy which encompasses everything',
     source:'ইমাম আলী (আ.) — মিসবাহুল মুতাহাজ্জিদ',
+    reference:'Misbah al-Mutahajjid, Sheikh al-Tusi (narrated from Khidr, taught by Imam Ali to Kumayl ibn Ziyad al-Nakha\'i); also recorded in Mafatih al-Jinan',
+    compiler:'Sheikh al-Tusi',
+    searchKeywords:['kumayl','কুমাইল','dua khidr','friday night dua','sha\'ban 15'],
+    readingTimeMin:12,
+    audioUrl:'',
     verses:[
       {ar:'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',bn:'আল্লাহর নামে শুরু করছি — যিনি পরম দয়ালু, অতি মেহেরবান।'},
       {ar:'اللَّهُمَّ إِنِّي أَسْأَلُكَ بِرَحْمَتِكَ الَّتِي وَسِعَتْ كُلَّ شَيْءٍ',bn:'হে আল্লাহ! আমি তোমার সেই রহমতের ওসিলায় চাই — যা সবকিছু ঘিরে রেখেছে।'},
@@ -170,13 +181,24 @@ const duas = [
   // ৩. দোয়ায়ে তাওয়াসসুল
   // ═══════════════════════════════════════════════
   {
+    id:'dua-tawassul',
+    slug:'dua-tawassul',
     titleBn:'দোয়ায়ে তাওয়াসসুল',
     titleEn:'Dua Tawassul',
+    titleAr:'دعاء التوسل',
     category:'night',
+    collection:'ahlulbayt',
+    tags:['intercession','tuesday-night','fourteen-infallibles'],
+    relatedImams:['Muhammad','Fatimah','Ali ibn Abi Talib','Hasan ibn Ali','Husayn ibn Ali'],
     arabic:'اللَّهُمَّ إِنِّي أَسْأَلُكَ وَأَتَوَجَّهُ إِلَيْكَ بِنَبِيِّكَ',
     meaningBn:'হে আল্লাহ! আমি তোমার কাছে চাই এবং তোমার নবীর মাধ্যমে তোমার দিকে মুখ করি',
     meaningEn:'O Allah! I ask You and turn towards You through Your Prophet',
     source:'মাফাতিহুল জিনান',
+    reference:'Mafatih al-Jinan, Sheikh Abbas Qummi — reported from the Ahl al-Bayt (a.s.), recommended on the night of Wednesday (i.e. Tuesday night)',
+    compiler:'Sheikh Abbas Qummi',
+    searchKeywords:['tawassul','তাওয়াসসুল','fourteen infallibles dua','tuesday night dua'],
+    readingTimeMin:10,
+    audioUrl:'',
     verses:[
       {ar:'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',bn:'আল্লাহর নামে শুরু করছি — যিনি পরম দয়ালু, অতি মেহেরবান।'},
       {ar:'اللَّهُمَّ إِنِّي أَسْأَلُكَ وَأَتَوَجَّهُ إِلَيْكَ بِنَبِيِّكَ نَبِيِّ الرَّحْمَةِ',bn:'হে আল্লাহ! আমি তোমার কাছে চাই এবং তোমার নবীর মাধ্যমে তোমার দিকে মুখ করি — রহমতের নবীর মাধ্যমে।'},
@@ -247,13 +269,24 @@ const duas = [
   // ৪. দোয়ায়ে মাশলুল
   // ═══════════════════════════════════════════════
   {
+    id:'dua-mashlool',
+    slug:'dua-mashlool',
     titleBn:'দোয়ায়ে মাশলুল',
     titleEn:'Dua Mashlool',
+    titleAr:'دعاء المشلول',
     category:'hardship',
+    collection:'ahlulbayt',
+    tags:['healing','protection','forgiveness','greatest-name'],
+    relatedImams:['Ali ibn Abi Talib','Husayn ibn Ali'],
     arabic:'اللَّهُمَّ إِنِّي أَسْأَلُكَ بِاسْمِكَ الَّذِي وَضَعْتَهُ عَلَى السَّمَاءِ',
     meaningBn:'হে আল্লাহ! আমি তোমার সেই নামের ওসিলায় চাই যা তুমি আকাশে রেখেছ',
     meaningEn:'O Allah! I ask You by Your name which You placed upon the heavens',
-    source:'ইমাম আলী (আ.) — মিসবাহুল মুতাহাজ্জিদ',
+    source:'ইমাম আলী (আ.) — আল-মিসবাহ (কাফআমী) ও মুহাজুদ দাওয়াত',
+    reference:'Quoted from al-Kaf\'ami\'s al-Misbah and Muhaj al-Da\'awat by Sayyid Ibn Tawus — taught by Imam Ali to a paralyzed man (hence "Mashlool")',
+    compiler:'al-Kaf\'ami / Sayyid Ibn Tawus',
+    searchKeywords:['mashlool','মাশলুল','dua of the paralysed'],
+    readingTimeMin:8,
+    audioUrl:'',
     verses:[
   {ar:'اَللَّهُمَّ إِنِّي أَسْأَلُكَ بِاسْمِكَ',bn:'হে আল্লাহ! আমি তোমার নামের ওসিলায় তোমার কাছে প্রার্থনা করছি।'},
   {ar:'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',bn:'আল্লাহর নামে — যিনি পরম দয়ালু, অতি মেহেরবান।'},
@@ -426,13 +459,24 @@ const duas = [
   // ৫. দোয়ায়ে নুদবা
   // ═══════════════════════════════════════════════
   {
+    id:'dua-al-nudbah',
+    slug:'dua-al-nudbah',
     titleBn:'দোয়ায়ে নুদবা',
     titleEn:'Dua al-Nudbah',
+    titleAr:'دعاء الندبة',
     category:'morning',
+    collection:'ahlulbayt',
+    tags:['imam-mahdi','friday-morning','eid','lamentation'],
+    relatedImams:['Muhammad al-Mahdi'],
     arabic:'اللَّهُمَّ لَكَ الْحَمْدُ عَلَى مَا جَرَى بِهِ قَضَاؤُكَ',
     meaningBn:'হে আল্লাহ! তোমার সমস্ত ফয়সালার উপর তোমারই প্রশংসা',
     meaningEn:'O Allah! All praise is Yours for whatever Your decree has brought about',
-    source:'ইমাম মাহদি (আ.) — মাফাতিহুল জিনান (জুমআর দিন পাঠ করতে হয়)',
+    source:'মাফাতিহুল জিনান — জুমআর দিন ও ঈদের দিনগুলোতে পাঠ করা হয় (নির্দিষ্ট ইমামের সনদ নিয়ে মতভেদ আছে)',
+    reference:'Earliest source al-Mazar al-Kabir (Ibn Mashhadi) names no specific Imam; also in Iqbal al-A\'mal and Misbah al-Za\'ir (Sayyid Ibn Tawus). Allama Majlisi\'s Zad al-Ma\'ad ascribes it to Imam Ja\'far al-Sadiq without citing a chain — scholars note this attribution is not firmly established',
+    compiler:'Ibn Mashhadi / Sayyid Ibn Tawus',
+    searchKeywords:['nudba','নুদবা','friday morning dua','imam mahdi lament'],
+    readingTimeMin:14,
+    audioUrl:'',
     verses:[
   {ar:'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',bn:'আল্লাহর নামে শুরু করছি — যিনি পরম দয়ালু, অতি মেহেরবান।'},
   {ar:'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ',bn:'সমস্ত প্রশংসা আল্লাহর জন্য, যিনি সমগ্র জগতের প্রতিপালক।'},
@@ -662,13 +706,24 @@ const duas = [
   // ৬. দোয়ায়ে আহদ
   // ═══════════════════════════════════════════════
   {
+    id:'dua-al-ahd',
+    slug:'dua-al-ahd',
     titleBn:'দোয়ায়ে আহদ',
     titleEn:'Dua al-Ahd',
+    titleAr:'دعاء العهد',
     category:'morning',
+    collection:'ahlulbayt',
+    tags:['imam-mahdi','covenant','daily','fajr'],
+    relatedImams:['Ja\'far al-Sadiq','Muhammad al-Mahdi'],
     arabic:'اللَّهُمَّ رَبَّ النُّورِ الْعَظِيمِ وَرَبَّ الْكُرْسِيِّ الرَّفِيعِ',
     meaningBn:'হে আল্লাহ! মহান নূরের রব এবং উচ্চ কুরসির রব',
     meaningEn:'O Allah! Lord of the great light and Lord of the elevated Throne',
     source:'ইমাম সাদিক (আ.) — মাফাতিহুল জিনান (ফজরের পর ৪০ দিন পাঠ করতে হয়)',
+    reference:'Narrated from Imam Ja\'far al-Sadiq; recorded in Misbah al-Za\'ir and al-Mazar al-Kabir (Ibn Mashhadi), al-Misbah and al-Balad al-Amin (al-Kaf\'ami), Bihar al-Anwar and Zad al-Ma\'ad (Allama Majlisi)',
+    compiler:'Ibn Mashhadi / al-Kaf\'ami',
+    searchKeywords:['ahd','আহদ','covenant dua','40 days dua'],
+    readingTimeMin:6,
+    audioUrl:'',
     verses:[
       {ar:'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',bn:'আল্লাহর নামে শুরু করছি — যিনি পরম দয়ালু, অতি মেহেরবান।'},
       {ar:'اللَّهُمَّ رَبَّ النُّورِ الْعَظِيمِ',bn:'হে আল্লাহ! মহান নূরের রব।'},
@@ -725,13 +780,24 @@ const duas = [
   // ৭. দোয়ায়ে ফারাজ
   // ═══════════════════════════════════════════════
   {
+    id:'dua-al-faraj',
+    slug:'dua-al-faraj',
     titleBn:'দোয়ায়ে ফারাজ',
     titleEn:'Dua al-Faraj',
+    titleAr:'دعاء الفرج',
     category:'hardship',
+    collection:'ahlulbayt',
+    tags:['imam-mahdi','relief','distress'],
+    relatedImams:['Muhammad al-Mahdi'],
     arabic:'اللَّهُمَّ عَظُمَ الْبَلَاءُ وَبَرِحَ الْخَفَاءُ',
     meaningBn:'হে আল্লাহ! বিপদ বিশাল হয়ে গেছে এবং গোপন বিষয় প্রকাশ পেয়ে গেছে',
     meaningEn:'O Allah! The tribulation is great and the hidden has been revealed',
     source:'ইমাম মাহদি (আ.) — মাফাতিহুল জিনান',
+    reference:'Opening line first quoted in Kunuz al-Nijah by Shaykh al-Tabarsi; widely circulated via Mafatih al-Jinan, Sheikh Abbas Qummi',
+    compiler:'Sheikh al-Tabarsi / Sheikh Abbas Qummi',
+    searchKeywords:['faraj','ফারাজ','dua for relief','ilahi azuma al-bala'],
+    readingTimeMin:4,
+    audioUrl:'',
     verses:[
       {ar:'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',bn:'আল্লাহর নামে শুরু করছি — যিনি পরম দয়ালু, অতি মেহেরবান।'},
       {ar:'اللَّهُمَّ عَظُمَ الْبَلَاءُ',bn:'হে আল্লাহ! বিপদ বিশাল হয়ে গেছে।'},
@@ -766,13 +832,24 @@ const duas = [
   // ৮. দোয়ায়ে জওশন কবীর (১০০ বিভাগ)
   // ═══════════════════════════════════════════════
   {
+    id:'dua-jawshan-al-kabir',
+    slug:'dua-jawshan-al-kabir',
     titleBn:'দোয়ায়ে জওশন কবীর',
     titleEn:'Dua Jawshan al-Kabir',
+    titleAr:'دعاء الجوشن الكبير',
     category:'night',
+    collection:'ahlulbayt',
+    tags:['divine-names','protection','laylatul-qadr'],
+    relatedImams:['Ali Zayn al-Abidin'],
     arabic:'اللَّهُمَّ إِنِّي أَسْأَلُكَ بِاسْمِكَ يَا اللَّهُ يَا رَحْمَنُ',
     meaningBn:'হে আল্লাহ! আমি তোমার নামের ওসিলায় চাই — হে আল্লাহ! হে রহমান!',
     meaningEn:'O Allah! I ask You by Your name — O Allah! O Rahman!',
     source:'রাসূলুল্লাহ (সা.) — মাফাতিহুল জিনান (লাইলাতুল কদরে পাঠ করা মুস্তাহাব)',
+    reference:'Related from Imam Ali Zayn al-Abidin, from his father, from his grandfather the Prophet — taught by Angel Jibra\'il during a battle. Recorded in al-Kaf\'ami\'s al-Balad al-Amin and al-Misbah, and in Allama Majlisi\'s Bihar al-Anwar (vol. 91)',
+    compiler:'al-Kaf\'ami / Allama Majlisi',
+    searchKeywords:['jawshan kabir','জওশন কবীর','1000 names of Allah','laylatul qadr dua'],
+    readingTimeMin:45,
+    audioUrl:'',
     verses:[
     {ar:'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ', bn:'পরম দয়ালু মেহেরবান আল্লাহর নামে।'},
     {ar:'يَا اللَّهُ يَا رَحْمَنُ يَا رَحِيمُ يَا كَرِيمُ يَا عَظِيمُ', bn:'হে আল্লাহ! হে রহমান! হে রহিম! হে কারিম! হে আযিম!'},
@@ -1965,13 +2042,24 @@ const duas = [
   // ১১. দোয়ায়ে ইফতিতাহ
   // ═══════════════════════════════════════════════
   {
+    id:'dua-al-iftitah',
+    slug:'dua-al-iftitah',
     titleBn:'দোয়ায়ে ইফতিতাহ',
     titleEn:'Dua al-Iftitah',
+    titleAr:'دعاء الافتتاح',
     category:'night',
+    collection:'ramadan',
+    tags:['ramadan','nightly','imam-mahdi'],
+    relatedImams:['Muhammad al-Mahdi'],
     arabic:'اللَّهُمَّ إِنِّي أَفْتَتِحُ الثَّنَاءَ بِحَمْدِكَ',
     meaningBn:'হে আল্লাহ! আমি তোমার প্রশংসা দিয়েই গুণকীর্তন শুরু করছি',
     meaningEn:'O Allah, I begin the glorification of You with praising You',
     source:'ইমাম মাহদী (আ.) — রমজান মাসের প্রতি রাতের প্রসিদ্ধ দোয়া, মিসবাহুল মুতাহাজ্জিদ',
+    reference:'Narrated by Sayyid Ibn Tawus in Iqbal al-A\'mal (chain reaching Muhammad ibn Uthman, second deputy of Imam al-Mahdi) and by Sheikh al-Tusi in Misbah al-Mutahajjid and Tahdhib al-Ahkam; also recorded in Mafatih al-Jinan',
+    compiler:'Sayyid Ibn Tawus / Sheikh al-Tusi',
+    searchKeywords:['iftitah','ইফতিতাহ','ramadan nightly dua','imam mahdi dua'],
+    readingTimeMin:15,
+    audioUrl:'',
     verses:[
       {ar:'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',bn:'আল্লাহর নামে শুরু করছি — যিনি পরম দয়ালু, অতি মেহেরবান।'},
       {ar:'اللَّهُمَّ إِنِّي أَفْتَتِحُ الثَّنَاءَ بِحَمْدِكَ',bn:'হে আল্লাহ! আমি তোমার প্রশংসা দিয়েই গুণকীর্তন শুরু করছি,'},
@@ -3905,6 +3993,59 @@ const duas = [
       {ar:'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَ آلِهِ، وَ نَبِّهْنِي لِذِكْرِكَ فِي أَوْقَاتِ الْغَفْلَةِ، وَ اسْتَعْمِلْنِي بِطَاعَتِكَ فِي أَيَّامِ الْمُهْلَةِ، وَ انْهَجْ لِي إِلَى مَحَبَّتِكَ سَبِيلًا سَهْلَةً، أَكْمِلْ لِي بِهَا خَيْرَ الدُّنْيَا وَ الْآخِرَةِ',bn:'হে আল্লাহ! মুহাম্মদ ও তাঁর পরিবারের উপর দরুদ পাঠাও, উদাসীনতার মুহূর্তে তোমার স্মরণে জাগ্রত করো, অবকাশের দিনগুলোতে তোমার আনুগত্যে নিয়োজিত করো, তোমার ভালোবাসার দিকে সহজ পথ খুলে দাও, এবং তা দিয়ে দুনিয়া ও আখিরাতের কল্যাণ পূর্ণ করো।'},
       {ar:'اللَّهُمَّ وَ صَلِّ عَلَى مُحَمَّدٍ وَ آلِهِ، كَأَفْضَلِ مَا صَلَّيْتَ عَلَى أَحَدٍ مِنْ خَلْقِكَ قَبْلَهُ، وَ أَنْتَ مُصَلٍّ عَلَى أَحَدٍ بَعْدَهُ، وَ آتِنَا فِي الدُّنْيَا حَسَنَةً وَ فِي الْآخِرَةِ حَسَنَةً، وَ قِنِي بِرَحْمَتِكَ عَذَابَ النَّارِ',bn:'হে আল্লাহ! মুহাম্মদ ও তাঁর পরিবারের উপর দরুদ পাঠাও, তোমার সৃষ্টির মধ্যে ইতঃপূর্বে কারো উপর তুমি যেভাবে সর্বোত্তম দরুদ পাঠিয়েছ এবং পরবর্তীতেও পাঠাবে, সেভাবে। আমাদের দুনিয়াতে কল্যাণ দাও এবং আখিরাতেও কল্যাণ দাও, এবং তোমার করুণায় আমাদের জাহান্নামের আযাব থেকে রক্ষা করো।'}
     ]
+  },
+
+  // ═══════════════════════════════════════════════
+  // তাসবিহে ফাতিমা (আ.) — Tasbih al-Zahra
+  // যোগ করা হয়েছে: 2026-07-19 | উৎস যাচাই: Al-Kafi (Kitab al-Salat, p.343),
+  // Bihar al-Anwar vol.85 p.334 — বর্ণনাকারী: ইমাম জাফর আস-সাদিক (আ.),
+  // ইমাম আলী (আ.) থেকে বর্ণিত যে নবী (স.) নিজে ফাতিমা (আ.)-কে এটি শিখিয়েছিলেন।
+  // ═══════════════════════════════════════════════
+  {
+    id:'tasbih-al-zahra',
+    slug:'tasbih-al-zahra',
+    titleBn:'তাসবিহে ফাতিমা (আ.) — তাসবিহে যাহরা',
+    titleEn:'Tasbih al-Zahra (Tasbih of Fatimah)',
+    titleAr:'تَسْبِيحُ فَاطِمَةَ الزَّهْرَاءِ',
+    category:'daily',
+    collection:'ahlulbayt',
+    tags:['dhikr','tasbih','after-salat','daily'],
+    relatedImams:['Fatimah al-Zahra','Ja\'far al-Sadiq','Ali ibn Abi Talib'],
+    arabic:'اللَّهُ أَكْبَرُ (৩৪ বার) — ٱلْحَمْدُ لِلَّٰهِ (৩৩ বার) — سُبْحَانَ اللَّٰهِ (৩৩ বার) — لَا إِلٰهَ إِلَّا اللَّهُ (১ বার)',
+    meaningBn:'আল্লাহু আকবার (৩৪ বার) — সমস্ত প্রশংসা আল্লাহর জন্য (৩৩ বার) — আল্লাহ পবিত্র ও মহিমান্বিত (৩৩ বার) — আল্লাহ ছাড়া কোনো উপাস্য নেই (১ বার)',
+    meaningEn:'Allahu Akbar — Allah is Greater (34 times); Alhamdulillah — Praise be to Allah (33 times); Subhan Allah — Glory be to Allah (33 times); followed once by La ilaha illallah — There is no god but Allah',
+    source:'হযরত ফাতিমা আজ-জাহরা (আ.) — নবী করীম (স.) কর্তৃক শিক্ষাপ্রাপ্ত',
+    reference:'Al-Kafi, Kitab al-Salat (Sheikh al-Kulayni), p.343; Bihar al-Anwar, Vol. 85, p.334 (Allama Majlisi)',
+    compiler:'Sheikh al-Kulayni / Allama Majlisi',
+    searchKeywords:['tasbih zahra','তাসবিহে যাহরা','তাসবিহে ফাতেমা','after prayer dhikr','namazer পরে দোয়া','34 33 33'],
+    readingTimeMin:2,
+    audioUrl:'',
+  },
+
+  // ═══════════════════════════════════════════════
+  // মা-বাবার জন্য দোয়া (কুরআনিক) — Dua for Parents
+  // যোগ করা হয়েছে: 2026-07-19 | উৎস: পবিত্র কুরআন, সূরা আল-ইসরা ১৭:২৪
+  // (word-for-word যাচাইকৃত কুরআনের আয়াত — paraphrase নয়)
+  // ═══════════════════════════════════════════════
+  {
+    id:'dua-for-parents',
+    slug:'dua-for-parents',
+    titleBn:'মা-বাবার জন্য দোয়া (কুরআনিক)',
+    titleEn:'Dua for Parents (Quranic)',
+    titleAr:'دُعَاءٌ لِلْوَالِدَيْنِ',
+    category:'daily',
+    collection:'quranic',
+    tags:['family','parents','quranic'],
+    relatedImams:[],
+    arabic:'رَبِّ ٱرْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا',
+    meaningBn:'হে আমার প্রতিপালক! তাদের উভয়ের প্রতি দয়া করুন, যেমন তারা আমাকে শৈশবে লালন-পালন করেছেন।',
+    meaningEn:'My Lord, have mercy upon them as they brought me up when I was small.',
+    source:'পবিত্র কুরআন',
+    reference:'Surah Al-Isra (17:24)',
+    compiler:'',
+    searchKeywords:['dua for parents','rabbi irhamhuma','মা বাবার দোয়া','parents dua quran','17:24'],
+    readingTimeMin:1,
+    audioUrl:'',
   }
 
 ];
