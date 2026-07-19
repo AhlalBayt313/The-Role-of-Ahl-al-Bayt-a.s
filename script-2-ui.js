@@ -708,10 +708,10 @@ function renderUploadModal() {
     if(!state.showUploadModal) return '';
     const d=state.darkMode; const l=state.language;
     const typeLabels = {
-        pdf:{bn:'পিডিএফ বই',en:'PDF Book',accept:'.pdf',icon:'📕',maxMB:100},
-        image:{bn:'ছবি',en:'Image',accept:'image/*',icon:'🖼️',maxMB:100},
-        video:{bn:'ভিডিও',en:'Video',accept:'video/*',icon:'🎬',maxMB:500},
-        audio:{bn:'অডিও',en:'Audio',accept:'audio/*',icon:'🎵',maxMB:100}
+        pdf:{bn:'পিডিএফ বই',en:'PDF Book',accept:'.pdf',icon:'📕',maxMB:10},
+        image:{bn:'ছবি',en:'Image',accept:'image/*',icon:'🖼️',maxMB:70},
+        video:{bn:'ভিডিও',en:'Video',accept:'video/*',icon:'🎬',maxMB:70},
+        audio:{bn:'অডিও',en:'Audio',accept:'audio/*',icon:'🎵',maxMB:70}
     };
     const info = typeLabels[state.uploadType]||typeLabels.pdf;
     return `
@@ -738,7 +738,7 @@ function renderUploadModal() {
                 <label for="fileUploadInput" class="block mb-2 font-medium">${l==='bn'?'ফাইল নির্বাচন করুন':'Select file'}</label>
                 <input type="file" id="fileUploadInput" accept="${info.accept}" autofocus
                     class="${d?'bg-gray-900 border-gray-700':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-green-500" />
-                <p class="mt-2 text-sm ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?`সর্বোচ্চ ${info.maxMB}MB`:`Max ${info.maxMB}MB`}</p>
+                <p class="mt-2 text-sm ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?`সর্বোচ্চ ${info.maxMB}MB`:`Max ${info.maxMB}MB`}${state.uploadType==='pdf'?(l==='bn'?' — বড় ফাইল হলে iLovePDF/Smallpdf দিয়ে কম্প্রেস করে আপলোড করুন':' — for larger files, compress with iLovePDF/Smallpdf first'):''}</p>
             `}
         </div>
     </div>`;
@@ -1674,7 +1674,7 @@ function renderLibraryPage() {
                 </button>
                 <h1 class="font-bold text-xl flex items-center gap-2">${folder.icon} ${folder.label}</h1>
             </div>
-            ${state.isAdmin?`
+            ${state.isAdmin&&UPLOAD_LIVE_FEATURE_ENABLED?`
             <button data-action="openFolderUpload" data-param="${tab}"
                 style="font-size:12.5px;font-weight:700;padding:9px 20px;border-radius:50px;
                 background:linear-gradient(135deg,${folder.color},${folder.color}bb);color:white;
@@ -1691,7 +1691,7 @@ function renderLibraryPage() {
         <div class="text-center py-16 reveal" style="color:${d?'#6b7280':'#9ca3af'}">
             <div style="font-size:4rem;margin-bottom:1rem;opacity:.5">${folder.icon}</div>
             <p class="font-bold text-lg mb-1">${l==='bn'?'এই ফোল্ডারে কোনো পিডিএফ নেই':'This folder is empty'}</p>
-            ${state.isAdmin
+            ${state.isAdmin&&UPLOAD_LIVE_FEATURE_ENABLED
                 ?`<p class="text-sm">${l==='bn'?'উপরের বাটন থেকে পিডিএফ আপলোড করুন':'Upload a PDF using the button above'}</p>`
                 :`<p class="text-sm">${l==='bn'?'🔐 অ্যাডমিন শীঘ্রই আপলোড করবেন':'🔐 Admin will upload soon'}</p>`}
         </div>`:`
@@ -1725,7 +1725,7 @@ function renderLibraryPage() {
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                             ${l==='bn'?'ডাউনলোড':'Download'}
                         </button>
-                        ${state.isAdmin?`
+                        ${state.isAdmin&&UPLOAD_LIVE_FEATURE_ENABLED?`
                         <button data-action="deleteFile" data-param="${pdf.id}" data-listkey="${listKey}"
                             aria-label="${l==='bn'?'মুছুন':'Delete'} ${sanitize(pdf.name)}"
                             style="width:36px;border-radius:12px;background:rgba(220,38,38,.1);
@@ -1761,7 +1761,7 @@ function renderMediaPage() {
             <div class="section-heading">
                 <span style="width:32px;height:32px;border-radius:10px;background:${tab.grad};display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;box-shadow:0 4px 12px ${tab.color}40" aria-hidden="true">${tab.icon}</span>
                 <h2 class="font-bold text-base" style="color:${d?'#f9fafb':'#111827'}">${tab.label}</h2>
-                ${state.isAdmin?`
+                ${state.isAdmin&&UPLOAD_LIVE_FEATURE_ENABLED?`
                 <button data-action="openUploadModal" data-param="${tab.uploadKey}"
                     style="margin-left:auto;font-size:11.5px;font-weight:700;padding:6px 16px;border-radius:50px;
                     background:${tab.color}18;color:${tab.color};border:1.5px solid ${tab.color}30;cursor:pointer">
@@ -1830,7 +1830,7 @@ function renderMediaCard(item, type, listKey, d, l, color='#059669', grad='linea
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     ${l==='bn'?'ডাউনলোড':'Download'}
                 </button>
-                ${state.isAdmin?`
+                ${state.isAdmin&&UPLOAD_LIVE_FEATURE_ENABLED?`
                 <button data-action="deleteFile" data-param="${item.id}" data-listkey="${listKey}"
                     aria-label="${l==='bn'?'মুছুন':'Delete'} ${sanitize(item.name)}"
                     style="width:34px;border-radius:10px;background:rgba(220,38,38,.1);border:1.5px solid rgba(220,38,38,.2);

@@ -1,138 +1,23 @@
-// ── GitHub Storage Config ─────────────────────────────────────────
-// Migrated from Cloudinary to GitHub on 2026-07-18. Files are committed
-// directly to this repo via the Contents API and served publicly from
-// raw.githubusercontent.com — same role Cloudinary's secure_url played.
+// ── Live Upload Feature — DISABLED ──────────────────────────────────
+// 2026-07-18/19: Cloudinary → GitHub Contents API migration was attempted
+// and reverted the same day. GitHub automatically revokes any GitHub PAT
+// it detects committed to a public repo (confirmed via GitHub's own docs)
+// — the token died with "Bad credentials" immediately after the first
+// push, regardless of push-protection's "I'll fix it later" option. A
+// working version would need a server-side proxy (e.g. Cloudflare Worker)
+// to keep the token out of client-side code entirely.
 //
-// ⚠️ SECURITY NOTE: GITHUB_TOKEN below should be a fine-grained Personal
-// Access Token scoped to ONLY this repo, with ONLY "Contents: Read and
-// write" permission. Because this is a public static site, this token is
-// visible to anyone who views the page source — that tradeoff was a
-// deliberate choice (simplicity over a hidden server-side proxy). Rotate
-// the token periodically and never grant it broader scopes.
-const GITHUB_OWNER    = window.GITHUB_OWNER    || "AhlalBayt313";
-const GITHUB_REPO     = window.GITHUB_REPO     || "The-Role-of-Ahl-al-Bayt-a.s";
-const GITHUB_BRANCH   = window.GITHUB_BRANCH   || "main";
-const GITHUB_TOKEN    = window.GITHUB_TOKEN    || "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";
-window.GITHUB_OWNER   = GITHUB_OWNER;
-window.GITHUB_REPO    = GITHUB_REPO;
-window.GITHUB_BRANCH  = GITHUB_BRANCH;
-window.GITHUB_TOKEN   = GITHUB_TOKEN;
-
-const GITHUB_API_BASE = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents`;
-const GITHUB_RAW_BASE = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}`;
-window.GITHUB_API_BASE = GITHUB_API_BASE;
-window.GITHUB_RAW_BASE = GITHUB_RAW_BASE;
-
-/**
- * GitHub Contents API-তে দেওয়া path-এ ফাইল আছে কিনা চেক করে তার sha ফেরত দেয়।
- * ফাইল না থাকলে null — নতুন ফাইল তৈরির সময় sha পাঠানো লাগে না, শুধু বিদ্যমান
- * ফাইল আপডেট করার সময় GitHub-এর এই sha টা লাগে।
- */
-async function githubGetFileSha(path) {
-    try {
-        const res = await fetch(`${GITHUB_API_BASE}/${path}?ref=${GITHUB_BRANCH}`, {
-            headers: {
-                "Authorization": `token ${GITHUB_TOKEN}`,
-                "Accept": "application/vnd.github+json"
-            }
-        });
-        if (!res.ok) return null; // 404 → ফাইল এখনো নেই, প্রথমবার এটাই স্বাভাবিক
-        const data = await res.json();
-        return data.sha || null;
-    } catch (e) {
-        console.warn('[GitHub] sha lookup failed:', e);
-        return null;
-    }
-}
-
-/**
- * যেকোনো JSON object-কে GitHub repo-র নির্দিষ্ট path-এ commit করে (create বা update)।
- * @param {string}      path     - repo-র ভেতরে ফাইলের path, যেমন 'data/media-index.json'
- * @param {*}           obj      - JSON.stringify করা হবে এমন object/array
- * @param {string}      message  - commit message
- * @param {AbortSignal} [signal]
- * @returns {Promise<Object>} GitHub API response (JSON)
- */
-async function githubWriteJson(path, obj, message, signal) {
-    const sha = await githubGetFileSha(path);
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(obj, null, 2))));
-    const body = { message, content, branch: GITHUB_BRANCH };
-    if (sha) body.sha = sha;
-    const res = await fetch(`${GITHUB_API_BASE}/${path}`, {
-        method: "PUT",
-        headers: {
-            "Authorization": `token ${GITHUB_TOKEN}`,
-            "Accept": "application/vnd.github+json",
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body),
-        signal
-    });
-    if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || res.statusText);
-    }
-    return res.json();
-}
-
-/**
- * GitHub repo-তে ফাইল আপলোড করো (Contents API) — progress সহ।
- * ফাইল base64-এ এনকোড করে PUT করা হয়। GitHub Contents API-র হার্ড লিমিট প্রতি
- * ফাইলে 100MB (base64 এনকোডিং আকার ~33% বাড়িয়ে দেয়, তাই বাস্তবে নিরাপদ সীমা
- * তার চেয়ে কম রাখা হয়েছে — দেখুন handleFileUpload()-এর maxSizeMap)।
- * @param {string}   folder
- * @param {File}     file
- * @param {Function} onProgress  - (percent) => {}
- * @returns {Promise<string>} raw.githubusercontent.com URL
- */
-window.storageUploadWithProgress = function(folder, file, onProgress = () => {}) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onerror = () => reject(new Error("ফাইল পড়তে সমস্যা হয়েছে"));
-        reader.onload = () => {
-            const base64 = reader.result.split(',')[1];
-            const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-            const path = `${folder}/${Date.now()}_${safeName}`;
-
-            const xhr = new XMLHttpRequest();
-            xhr.open("PUT", `${GITHUB_API_BASE}/${path}`);
-            xhr.setRequestHeader("Authorization", `token ${GITHUB_TOKEN}`);
-            xhr.setRequestHeader("Accept", "application/vnd.github+json");
-            xhr.setRequestHeader("Content-Type", "application/json");
-
-            xhr.upload.onprogress = (e) => {
-                if (e.lengthComputable) {
-                    onProgress(Math.round((e.loaded / e.total) * 100));
-                }
-            };
-
-            xhr.onload = () => {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    const rawUrl = `${GITHUB_RAW_BASE}/${path}`;
-                    console.log(`[GitHub] Upload complete → ${path}`);
-                    resolve(rawUrl);
-                } else {
-                    try {
-                        const err = JSON.parse(xhr.responseText);
-                        reject(new Error("GitHub: " + (err.message || xhr.statusText)));
-                    } catch (_) {
-                        reject(new Error("GitHub upload failed: " + xhr.statusText));
-                    }
-                }
-            };
-
-            xhr.onerror = () => reject(new Error("Network error — internet connection চেক করুন"));
-            xhr.send(JSON.stringify({
-                message: `Upload ${safeName}`,
-                content: base64,
-                branch: GITHUB_BRANCH
-            }));
-        };
-        reader.readAsDataURL(file);
-    });
-};
-
-console.log("✅ GitHub storage সফলভাবে যুক্ত হয়েছে — Repo:", GITHUB_OWNER + "/" + GITHUB_REPO);
+// Decision: no live upload feature for now. New media/PDF files are added
+// by manually placing the file in this GitHub repo and adding an entry to
+// the matching array in media-data.js (see that file for the exact
+// format) — same workflow as adding a blogPosts entry in blog.js.
+//
+// This flag hides the Upload/Delete buttons in the admin UI (see
+// script-2-ui.js) without removing any of the underlying code below, so
+// the feature can be re-enabled later (flip to true + wire up a proxy)
+// without reconstructing it from scratch.
+const UPLOAD_LIVE_FEATURE_ENABLED = window.UPLOAD_LIVE_FEATURE_ENABLED || false;
+window.UPLOAD_LIVE_FEATURE_ENABLED = UPLOAD_LIVE_FEATURE_ENABLED;
 
 // ============================================================================
 // HELPER FUNCTIONS — Vibration & Colors
@@ -1311,45 +1196,10 @@ async function handleFileUpload(e) {
         sizeFmt: formatBytes(file.size)
     };
 
-    // ── All types → GitHub ──────────────────────────────────────────────────
-    const folderMap = { image:'library/images', pdf:'library/pdfs', video:'library/videos', audio:'library/audios' };
-    const folder = (state.uploadFolderKey && FOLDER_CLOUDINARY_MAP[state.uploadFolderKey]) || folderMap[state.uploadType] || 'library/misc';
-
-    if (typeof window.storageUploadWithProgress === 'function') {
-        try {
-            const url = await window.storageUploadWithProgress(folder, file, pct => {
-                state.uploadProgress = pct;
-                // Update progress bar directly — avoid full render() on every tick
-                const pb = document.getElementById('upload-progress-bar');
-                const pt = document.getElementById('upload-progress-text');
-                if (pb) pb.style.width = pct + '%';
-                if (pt) pt.textContent = pct + '%';
-            });
-            meta.cloudUrl = url;
-            if (state.uploadFolderKey && FOLDER_LIST_MAP[state.uploadFolderKey]) {
-                state[FOLDER_LIST_MAP[state.uploadFolderKey]].push(meta);
-                state.uploadFolderKey = null;
-            } else if (state.uploadType==='image') state.imageList.push(meta);
-            else if (state.uploadType==='pdf')   state.pdfList.push(meta);
-            else if (state.uploadType==='video') state.videoList.push(meta);
-            else if (state.uploadType==='audio') state.audioList.push(meta);
-            saveState(); state.uploadProgress = 100; render();
-            try { await syncMediaToCloud(); } catch(e) { console.warn('[Media] index sync failed:', e); }
-            const msgs = { image:'ছবি', pdf:'PDF', video:'ভিডিও', audio:'অডিও' };
-            showToast(state.language==='bn'?`${msgs[state.uploadType]||'ফাইল'} GitHub-এ সেভ হয়েছে ✓`:'Saved to GitHub ✓','success');
-            setTimeout(() => closeUploadModal(), 800);
-        } catch(err) {
-            console.error('[GitHub] upload error:', err);
-            // Show the real reason (e.g. "Bad credentials") instead of always
-            // blaming the internet connection — a bad/missing/expired GitHub
-            // token or wrong repo config looks identical to the user as
-            // a network failure otherwise, and is the far more common cause.
-            const reason = (err && err.message) ? err.message : (state.language==='bn'?'অজানা কারণ':'Unknown reason');
-            showToast(state.language==='bn'?`আপলোড ব্যর্থ হয়েছে — ${reason}`:`Upload failed — ${reason}`,'warning');
-            state.isUploading = false; render();
-        }
-        return;
-    }
+    // Upload feature is hidden in the UI (UPLOAD_LIVE_FEATURE_ENABLED=false,
+    // see top of file), so this function is effectively unreachable right
+    // now — kept working via the IndexedDB fallback below in case the flag
+    // is ever flipped back on for local/offline-only use.
 
     // Fallback → IndexedDB
     const reader = new FileReader();
@@ -1445,85 +1295,32 @@ async function deleteFile(id, listKey) {
     await dbDelete(id);
     state[listKey] = (state[listKey] || []).filter(f => f.id!==id);
     saveState(); render();
-    try { await syncMediaToCloud(); } catch(e) { console.warn('[Media] index sync on delete failed:', e); }
+    // Note: this only removes the entry from this browser's local state/
+    // IndexedDB. If the same entry also exists in media-data.js (static,
+    // code-based), it will reappear on next load until removed there too.
 }
 
 // ============================================================================
-// MEDIA + LIBRARY INDEX SYNC (GitHub) — keeps image/video/audio AND all
-// PDF library folder lists (pdf, nahjul, sahifa, imamhadiths, specialdays,
-// islamichistory) in sync across devices/browsers. Was previously called but
-// never defined, which caused an uncaught ReferenceError on every page load
-// (init() crashed at fetchMediaFromCloud()). Both functions below are fully
-// self-contained and never throw — any failure (offline, first run with no
-// index file yet, etc.) is caught and logged instead of crashing the app.
-//
-// 2026-07-18: previously this index only covered imageList/videoList/
-// audioList — the PDF library lists (pdfList, nahjulPdfs, sahifaPdfs,
-// imamHadithPdfs, specialDayPdfs, islamicHistoryPdfs) were saved to
-// localStorage only, so a PDF an admin uploaded (file itself went to cloud
-// storage fine) never appeared for any *other* visitor — their browser has
-// its own separate empty localStorage and nothing ever fetched the admin's
-// list. Folded into the same shared index so uploads are visible to
-// everyone, not just the admin's own browser.
-//
-// 2026-07-18: migrated from Cloudinary to GitHub Contents API — same JSON
-// index, now committed to data/media-index.json in this repo and read back
-// from raw.githubusercontent.com.
+// MEDIA + LIBRARY STATIC DATA SEED
 // ============================================================================
-const MEDIA_INDEX_PATH = 'data/media-index.json';
-
-/** Commit the current image/video/audio + PDF-library lists as a JSON index to GitHub */
-async function syncMediaToCloud() {
-    try {
-        const payload = {
-            imageList: state.imageList || [],
-            videoList: state.videoList || [],
-            audioList: state.audioList || [],
-            pdfList: state.pdfList || [],
-            nahjulPdfs: state.nahjulPdfs || [],
-            sahifaPdfs: state.sahifaPdfs || [],
-            imamHadithPdfs: state.imamHadithPdfs || [],
-            specialDayPdfs: state.specialDayPdfs || [],
-            islamicHistoryPdfs: state.islamicHistoryPdfs || [],
-            updatedAt: Date.now()
-        };
-        await githubWriteJson(MEDIA_INDEX_PATH, payload, 'Update media index');
-        const url = `${GITHUB_RAW_BASE}/${MEDIA_INDEX_PATH}`;
-        console.log('[Media] index synced to GitHub ✓', url);
-        return url;
-    } catch (e) {
-        console.warn('[Media] syncMediaToCloud failed (will retry on next change):', e);
-    }
-}
-
-/** Load the media + PDF-library index from GitHub (cross-device) on app start */
-async function fetchMediaFromCloud() {
-    try {
-        const url = `${GITHUB_RAW_BASE}/${MEDIA_INDEX_PATH}?_=${Date.now()}`;
-        const res = await fetch(url);
-        if (!res.ok) {
-            console.log('[Media] ℹ️ no cloud index yet (normal on first run, before any admin upload) — keeping local data');
-            return;
-        }
-        const data = await res.json();
-        let changed = false;
-        if (Array.isArray(data.imageList)) { state.imageList = data.imageList; changed = true; }
-        if (Array.isArray(data.videoList)) { state.videoList = data.videoList; changed = true; }
-        if (Array.isArray(data.audioList)) { state.audioList = data.audioList; changed = true; }
-        if (Array.isArray(data.pdfList)) { state.pdfList = data.pdfList; changed = true; }
-        if (Array.isArray(data.nahjulPdfs)) { state.nahjulPdfs = data.nahjulPdfs; changed = true; }
-        if (Array.isArray(data.sahifaPdfs)) { state.sahifaPdfs = data.sahifaPdfs; changed = true; }
-        if (Array.isArray(data.imamHadithPdfs)) { state.imamHadithPdfs = data.imamHadithPdfs; changed = true; }
-        if (Array.isArray(data.specialDayPdfs)) { state.specialDayPdfs = data.specialDayPdfs; changed = true; }
-        if (Array.isArray(data.islamicHistoryPdfs)) { state.islamicHistoryPdfs = data.islamicHistoryPdfs; changed = true; }
-        if (changed) {
-            saveState();
-            if (state.currentPage === 'media' || state.currentPage === 'library') render();
-            console.log('[Media] index loaded from GitHub ✓');
-        }
-    } catch (e) {
-        console.warn('[Media] fetchMediaFromCloud failed (offline?):', e);
-    }
+// 2026-07-19: replaces the old cloud-sync (Cloudinary, then briefly GitHub
+// Contents API) with the static-data approach — see the "Live Upload
+// Feature — DISABLED" note at the top of this file for why. media-data.js
+// (loaded before this file, same pattern as duas-data.js) exports
+// STATIC_MEDIA with the same 9 list keys used throughout the app. This
+// merges those static, code-provided entries (same for every visitor) with
+// anything already saved locally (e.g. from before this change, or if the
+// IndexedDB fallback in handleFileUpload() was ever used).
+function seedStaticMedia() {
+    if (typeof STATIC_MEDIA === 'undefined') return;
+    const keys = ['imageList','videoList','audioList','pdfList','nahjulPdfs','sahifaPdfs','imamHadithPdfs','specialDayPdfs','islamicHistoryPdfs'];
+    keys.forEach(key => {
+        const staticItems = Array.isArray(STATIC_MEDIA[key]) ? STATIC_MEDIA[key] : [];
+        const localItems = Array.isArray(state[key]) ? state[key] : [];
+        const localIds = new Set(localItems.map(item => item.id));
+        // static entries first, skip any id already present locally (avoids duplicates on re-seed)
+        state[key] = [...staticItems.filter(item => !localIds.has(item.id)), ...localItems];
+    });
 }
 
 // ============================================================================

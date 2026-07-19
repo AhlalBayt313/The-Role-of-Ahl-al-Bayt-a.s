@@ -1152,14 +1152,11 @@ function init() {
     setupScrollReveal();
     startPrayerClock();          // ✅ FIXED: prayer-times পেজের next-prayer countdown আগে dead ছিল (Production Audit #1)
     startNextPrayerCountdown();  // ✅ FIXED: হোম ব্যানারের countdown আগে dead ছিল (Production Audit #1)
-    // GitHub config must be available before cloud fetches
-    if (typeof GITHUB_OWNER === 'undefined') {
-        window.GITHUB_OWNER  = "AhlalBayt313";
-        window.GITHUB_REPO   = "The-Role-of-Ahl-al-Bayt-a.s";
-        window.GITHUB_BRANCH = "main";
-    }
-    try { fetchBlogFromCloud(); } catch(e) { console.warn('[Blog] fetchBlogFromCloud failed:', e); }   // load blog posts from GitHub (cross-device)
-    try { fetchMediaFromCloud(); } catch(e) { console.warn('[Media] fetchMediaFromCloud failed:', e); } // load media index from GitHub (cross-device)
+    // Media/PDF library is now static data (media-data.js) merged into state
+    // at boot — see seedStaticMedia() in script-1-core.js. Blog posts are
+    // static too (blogPosts array in blog.js), loaded directly wherever
+    // they're rendered — no cloud fetch needed for either anymore.
+    try { seedStaticMedia(); saveState(); } catch(e) { console.warn('[Media] seedStaticMedia failed:', e); }
     setTimeout(hideSplash, 2600);
 }
 
