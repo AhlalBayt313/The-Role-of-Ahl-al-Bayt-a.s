@@ -93,85 +93,21 @@ function closeBlogEditor() {
 // ============================================================================
 
 /**
- * Sync blog posts to GitHub (data/blog-posts.json in this repo)
- * @param {Array} posts - Blog posts array
+ * 2026-07-19: live cloud sync removed (see the "Live Upload Feature —
+ * DISABLED" note at the top of script-1-core.js — same underlying reason:
+ * GitHub auto-revokes any of its own tokens found in a public repo). The
+ * "New Post"/edit/delete buttons are hidden in the UI now
+ * (UPLOAD_LIVE_FEATURE_ENABLED flag) — permanent posts are added directly
+ * to the blogPosts array above and pushed via git, same as any other
+ * static content on this site.
  */
-// Bug #11 fix: পুরনো in-flight sync request abort করার জন্য controller
-// Bug #28: এই variable টাই "sync চলছে" indicator — fetchBlogFromCloud() এটা চেক করবে
-let _blogSyncAbortCtrl = null;
-// 2026-07-18: migrated from Cloudinary to GitHub Contents API — same JSON
-// file, now committed to data/blog-posts.json in this repo.
-const BLOG_INDEX_PATH = 'data/blog-posts.json';
-
-async function syncBlogToCloud(posts) {
-    if (location.protocol === 'file:') return;
-    if (_blogSyncAbortCtrl) { _blogSyncAbortCtrl.abort(); }
-    _blogSyncAbortCtrl = new AbortController();
-    const signal = _blogSyncAbortCtrl.signal;
-    try {
-        await githubWriteJson(BLOG_INDEX_PATH, posts, 'Update blog posts', signal);
-        console.log('[Blog] Synced →', `${GITHUB_RAW_BASE}/${BLOG_INDEX_PATH}`);
-    } catch(e) {
-        if (e.name === 'AbortError') { console.log('[Blog] sync aborted — superseded by newer save'); return; }
-        console.error('[Blog] sync error:', e); throw e;
-    } finally {
-        // sync শেষ হলে (success বা error) controller clear করো
-        if (_blogSyncAbortCtrl && signal === _blogSyncAbortCtrl.signal) _blogSyncAbortCtrl = null;
-    }
-}
-
-/**
- * Fetch blog posts from GitHub
- * Bug #28 fix: sync চলাকালীন fetch block করো এবং blindly overwrite না করে
- * merge করো — local এ নতুন posts থাকলে সেগুলো হারাবে না
- */
-async function fetchBlogFromCloud() {
-    // file:// protocol এ GitHub fetch করা যায় না — skip
-    if (location.protocol === 'file:') return;
-    // sync in-progress থাকলে fetch বাতিল — cloud এ এখনো পুরনো data আছে
-    if (_blogSyncAbortCtrl) {
-        console.log('[Blog] fetch skipped — sync in progress');
-        return;
-    }
-    try {
-        const _base = window.GITHUB_RAW_BASE || `https://raw.githubusercontent.com/${window.GITHUB_OWNER}/${window.GITHUB_REPO}/${window.GITHUB_BRANCH}`;
-        const url = `${_base}/${BLOG_INDEX_PATH}?cb=${Date.now()}`;
-        const res = await fetch(url);
-        if (!res.ok) return;
-        const cloudPosts = await res.json();
-        if (!Array.isArray(cloudPosts) || !cloudPosts.length) return;
-
-        // sync আবার শুরু হলে (fetch await এর মাঝে) এখানেও বাতিল করো
-        if (_blogSyncAbortCtrl) {
-            console.log('[Blog] fetch discarded — sync started during request');
-            return;
-        }
-
-        // Bug #28 core fix: merge — cloud এ নেই কিন্তু local এ আছে এমন posts রাখো
-        // (local-only posts হলো সেগুলো যা sync হওয়ার আগেই এই fetch চলে এসেছে)
-        const cloudIds = new Set(cloudPosts.map(p => p.id));
-        const localOnly = state.customPosts.filter(p => !cloudIds.has(p.id));
-        state.customPosts = [...localOnly, ...cloudPosts];
-
-        saveState(); render();
-    } catch(e) { console.warn('[Blog] fetch error:', e.message); }
-}
 
 // ============================================================================
 // BLOG POST CRUD OPERATIONS
 // ============================================================================
 
-// Bug #3 fix: if saveBlogPost() is triggered twice in quick succession
-// (double-click, or saving a second post before the first sync finishes),
-// two syncBlogToCloud() calls run concurrently. Network responses can
-// arrive out of order, so the toast/UI state from the SLOWER (older)
-// request could land after the newer one and show misleading feedback.
-// _blogSyncVersion lets each saveBlogPost() call check "am I still the
-// most recent save?" before acting on its own network result.
-let _blogSyncVersion = 0;
-
 /**
- * Save blog post (create or update)
+ * Save blog post (create or update) — local only (see note above)
  */
 async function saveBlogPost() {
     if (!state.editingPost) return;
@@ -201,60 +137,20 @@ async function saveBlogPost() {
     const idx = state.customPosts.findIndex(p=>p.id===savedPost.id);
     if (idx>-1) state.customPosts[idx]=savedPost;
     else state.customPosts.unshift(savedPost);
-    saveState(); closeBlogEditor();
-    showToast(state.language==='bn'?'পোস্ট সংরক্ষিত হচ্ছে...':'Saving post...','info');
-
-    const mySyncVersion = ++_blogSyncVersion;
-    try {
-        await syncBlogToCloud(state.customPosts);
-        if (mySyncVersion !== _blogSyncVersion) return; // a newer save has since taken over; don't report stale success
-        showToast(state.language==='bn'?'পোস্ট GitHub-এ সেভ হয়েছে ✨':'Post saved to GitHub ✨','success');
-    } catch(e) {
-        if (mySyncVersion !== _blogSyncVersion) return; // a newer save is in flight/finished; don't show a stale failure
-        showToast(state.language==='bn'?'GitHub sync ব্যর্থ — locally সেভ হয়েছে':'GitHub sync failed — saved locally','warning');
-    }
-    // Fix: closeBlogEditor() rendered synchronously *before* this await,
-    // using whatever state existed at that moment. If anything else
-    // mutates `state` while we're waiting on the network request (another
-    // action runs, customPosts gets reordered/edited elsewhere, etc.), the
-    // screen would keep showing that stale snapshot even though the toast
-    // says "saved". A final render() here guarantees the UI reflects the
-    // latest state.customPosts once the sync attempt has actually finished.
-    if (mySyncVersion === _blogSyncVersion) render();
+    saveState(); closeBlogEditor(); render();
+    showToast(state.language==='bn'?'পোস্ট সেভ হয়েছে (শুধু এই ব্রাউজারে)':'Post saved (this browser only)','success');
 }
 
 /**
- * Delete custom blog post
+ * Delete custom blog post — local only (see note above)
  * @param {string|number} id - Post ID to delete
- * Bug #8 fix: Save backup before deleting, rollback if sync fails
  */
 async function deleteCustomPost(id) {
     if (!state.isAdmin) return;
     if (!confirm(state.language==='bn'?'পোস্টটি মুছবেন?':'Delete this post?')) return;
-    
-    // Bug #10 fix: deep copy — shallow copy ([...]) তে object references shared,
-    // rollback এ corrupt data ফিরে আসত
-    const backup = state.customPosts.map(p=>({...p}));
-    
     state.customPosts = state.customPosts.filter(p=>p.id!==id);
     saveState(); render();
-    showToast(state.language==='bn'?'পোস্ট মুছছি...':'Deleting post...','info');
-    
-    try {
-        await syncBlogToCloud(state.customPosts);
-        showToast(state.language==='bn'?'পোস্ট মুছে ফেলা হয়েছে ✓':'Post deleted ✓','success');
-    } catch(e) {
-        // Rollback: restore the deleted post if sync fails
-        console.error('[Blog] Delete sync failed, rolling back:', e);
-        state.customPosts = backup;
-        saveState(); render();
-        showToast(
-            state.language==='bn'
-                ?'ক্লাউড সিঙ্ক ব্যর্থ — মুছা বাতিল করা হয়েছে'
-                :'Cloud sync failed — deletion cancelled',
-            'warning'
-        );
-    }
+    showToast(state.language==='bn'?'পোস্ট মুছে ফেলা হয়েছে ✓':'Post deleted ✓','success');
 }
 
 // ============================================================================
@@ -366,7 +262,7 @@ function renderBlogPage() {
                         style="margin-left:auto;background:none;border:none;font-size:18px;cursor:pointer;opacity:.7">
                         ${isBookmarked(featured.id,'post')?'🔖':'🤍'}
                     </button>
-                    ${state.isAdmin&&isCustom?`
+                    ${state.isAdmin&&isCustom&&UPLOAD_LIVE_FEATURE_ENABLED?`
                         <button data-action="openBlogEditorEdit" data-param="${featured.id}" style="background:none;border:none;font-size:15px;cursor:pointer;opacity:.65">✏️</button>
                         <button data-action="deleteCustomPost" data-param="${featured.id}" style="background:none;border:none;font-size:15px;cursor:pointer;opacity:.65">🗑</button>
                     `:''}
@@ -403,7 +299,7 @@ function renderBlogPage() {
                                 style="margin-left:auto;background:none;border:none;font-size:16px;cursor:pointer;opacity:.7">
                                 ${isBookmarked(post.id,'post')?'🔖':'🤍'}
                             </button>
-                            ${state.isAdmin&&isCustom?`
+                            ${state.isAdmin&&isCustom&&UPLOAD_LIVE_FEATURE_ENABLED?`
                                 <button data-action="openBlogEditorEdit" data-param="${post.id}" style="background:none;border:none;font-size:14px;cursor:pointer;opacity:.6">✏️</button>
                                 <button data-action="deleteCustomPost" data-param="${post.id}" style="background:none;border:none;font-size:14px;cursor:pointer;opacity:.6">🗑</button>
                             `:''}
@@ -426,7 +322,7 @@ function renderBlogPage() {
                 <h2 class="text-3xl font-black" style="background:linear-gradient(135deg,#059669,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">📝 ${t('blog')}</h2>
                 <p style="font-size:13px;color:${textSecondary};margin-top:4px">${l==='bn'?'ইসলামিক জ্ঞান ও অন্তর্দৃষ্টি':'Islamic knowledge & insights'}</p>
             </div>
-            ${state.isAdmin?`
+            ${state.isAdmin&&UPLOAD_LIVE_FEATURE_ENABLED?`
             <button data-action="openBlogEditor"
                 style="font-size:13px;font-weight:600;padding:8px 18px;border-radius:10px;border:1px solid #1D9E75;color:${d?'#5DCAA5':'#0F6E56'};background:transparent;cursor:pointer;display:flex;align-items:center;gap:6px">
                 + ${t('newPost')}
