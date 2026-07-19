@@ -1273,13 +1273,37 @@ async function downloadFile(id, name) {
 async function openViewer(item, type) {
     state.viewerItem = item; state.viewerType = type;
     state.viewerLoading = true; state.viewerData = null;
-    // Cloud-hosted files (cloudUrl field, now GitHub-backed): resolve data before first render (avoids double render)
     if (item.cloudUrl) {
+        // PDFs: raw.githubusercontent.com sends "Content-Disposition: attachment"
+        // for PDFs, and an <iframe src="..."> pointed straight at that URL counts
+        // as a navigation — so the browser force-downloads it instead of showing
+        // it (this is what caused "পড়ুন"/Read to trigger a download). fetch()
+        // is a subresource request, not a navigation, so Content-Disposition is
+        // ignored there; we fetch the PDF as a blob and point the iframe at the
+        // local blob: URL instead (same trick downloadFile() already uses).
+        if (type === 'pdf') {
+            state.currentPage = 'viewer'; render();
+            try {
+                const res = await fetch(item.cloudUrl);
+                if (!res.ok) throw new Error('fetch failed');
+                const blob = await res.blob();
+                state.viewerData = URL.createObjectURL(blob);
+            } catch (e) {
+                // Fallback: at least let them view it in a new tab rather than a dead viewer
+                state.viewerData = item.cloudUrl;
+            }
+            state.viewerLoading = false; render();
+            return;
+        }
+        // Images/videos/audio: <img>/<video>/<audio> src loads are subresource
+        // requests too, so Content-Disposition never triggers a download there —
+        // safe to point directly at cloudUrl.
         state.viewerData = item.cloudUrl;
         state.viewerLoading = false;
+        state.currentPage = 'viewer'; render();
+        return;
     }
     state.currentPage = 'viewer'; render();
-    if (item.cloudUrl) return;
     // Local files: load from IndexedDB
     try {
         const data = await dbGet(item.id);
@@ -1454,6 +1478,11 @@ function changePage(page) {
     if (state.currentPage === 'qibla') cleanupQiblaCompass();
     if (state.currentPage === 'worldMap') cleanupWorldMap();
     
+    // Free the blob: URL created for cloud PDFs in openViewer() (avoids leaking
+    // memory if the user opens several PDFs across a session)
+    if (state.currentPage === 'viewer' && typeof state.viewerData === 'string' && state.viewerData.startsWith('blob:')) {
+        URL.revokeObjectURL(state.viewerData);
+    }
     state.previousPage=state.currentPage; state.currentPage=page;
     state.menuOpen=false; state.currentPost=null; state.currentDua=null;
     state.currentZiyarat=null; state.viewerItem=null; state.viewerData=null;
