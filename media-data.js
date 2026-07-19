@@ -46,7 +46,9 @@ const STATIC_MEDIA = {
         // এখানে সাধারণ পিডিএফ যোগ করুন
     ],
     nahjulPdfs: [
-        // নাহজুল বালাগা পিডিএফ
+        { id:'nahjul_1', name:'নাহজুল বালাগা',
+          cloudUrl:'https://raw.githubusercontent.com/AhlalBayt313/The-Role-of-Ahl-al-Bayt-a.s/main/Nahaz-Al-Balagha-Bangla.pdf',
+          uploadDate:'2026-07-19', sizeFmt:'19.2 MB' },
     ],
     sahifaPdfs: [
         // সহিফায়ে সাজ্জাদিয়া পিডিএফ
