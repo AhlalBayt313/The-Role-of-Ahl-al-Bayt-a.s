@@ -1,21 +1,20 @@
-// ── Live Upload Feature — DISABLED ──────────────────────────────────
+// ── Live Upload/Edit/Delete Feature — DISABLED ──────────────────────
 // 2026-07-18/19: Cloudinary → GitHub Contents API migration was attempted
 // and reverted the same day. GitHub automatically revokes any GitHub PAT
 // it detects committed to a public repo (confirmed via GitHub's own docs)
 // — the token died with "Bad credentials" immediately after the first
-// push, regardless of push-protection's "I'll fix it later" option. A
-// working version would need a server-side proxy (e.g. Cloudflare Worker)
-// to keep the token out of client-side code entirely.
+// push, regardless of push-protection's "I'll fix it later" option.
 //
-// Decision: no live upload feature for now. New media/PDF files are added
-// by manually placing the file in this GitHub repo and adding an entry to
-// the matching array in media-data.js (see that file for the exact
-// format) — same workflow as adding a blogPosts entry in blog.js.
+// 2026-07-19: the image/video/audio media feature (and media-data.js)
+// was removed entirely per user's standing decision — all content
+// (blog posts included) is added directly in code and pushed via git,
+// never through an admin UI.
 //
-// This flag hides the Upload/Delete buttons in the admin UI (see
-// script-2-ui.js) without removing any of the underlying code below, so
-// the feature can be re-enabled later (flip to true + wire up a proxy)
-// without reconstructing it from scratch.
+// This flag now only gates blog.js's New Post/Edit/Delete buttons
+// (script-2-ui.js's Upload/Delete buttons were removed along with the
+// media feature, not just hidden). Kept as a flag rather than deleting
+// those blog.js code paths outright, in case a live editor is ever
+// wanted again.
 const UPLOAD_LIVE_FEATURE_ENABLED = window.UPLOAD_LIVE_FEATURE_ENABLED || false;
 window.UPLOAD_LIVE_FEATURE_ENABLED = UPLOAD_LIVE_FEATURE_ENABLED;
 
@@ -74,58 +73,6 @@ if (typeof saveBlogPost !== 'function') {
 }
 
 // ============================================================================
-// INDEXED DB — large file storage
-// ============================================================================
-const DB_NAME = 'AhlAlBaytDB';
-const DB_VERSION = 1;
-let idb = null;
-
-function openDB() {
-    return new Promise((resolve, reject) => {
-        if (idb) { resolve(idb); return; }
-        const req = indexedDB.open(DB_NAME, DB_VERSION);
-        req.onupgradeneeded = e => {
-            const d = e.target.result;
-            if (!d.objectStoreNames.contains('files')) {
-                d.createObjectStore('files', { keyPath: 'id' });
-            }
-        };
-        req.onsuccess = e => { idb = e.target.result; resolve(idb); };
-        req.onerror = e => reject(e.target.error);
-    });
-}
-
-async function dbSave(id, data) {
-    const d = await openDB();
-    return new Promise((res, rej) => {
-        const tx = d.transaction('files', 'readwrite');
-        tx.objectStore('files').put({ id, data });
-        tx.oncomplete = () => res(true);
-        tx.onerror = e => rej(e.target.error);
-    });
-}
-
-async function dbGet(id) {
-    const d = await openDB();
-    return new Promise((res, rej) => {
-        const tx = d.transaction('files', 'readonly');
-        const req = tx.objectStore('files').get(id);
-        req.onsuccess = () => res(req.result ? req.result.data : null);
-        req.onerror = e => rej(e.target.error);
-    });
-}
-
-async function dbDelete(id) {
-    const d = await openDB();
-    return new Promise((res, rej) => {
-        const tx = d.transaction('files', 'readwrite');
-        tx.objectStore('files').delete(id);
-        tx.oncomplete = () => res(true);
-        tx.onerror = e => rej(e.target.error);
-    });
-}
-
-// ============================================================================
 // ADMIN CONFIG — SHA-256 hash of your password (never store plaintext)
 // To change password: run  crypto.subtle.digest('SHA-256', new TextEncoder().encode('newpass'))
 //   then convert to hex and update ADMIN_PASS_HASH below.
@@ -153,11 +100,6 @@ const state = {
     duaCategory: 'all',  // NEW: Category filter for duas
     duaTab: 'dua',  // NEW: Track dua/ziyarat tab
     bookmarksTab: 'bookmarks',  // NEW: Track bookmarks/history tab
-    showUploadModal: false,
-    uploadType: null,
-    uploadProgress: 0,
-    isUploading: false,
-    uploadFolderKey: null,
     fontSize: 'medium', // small | medium | large | xlarge
     showTimeline: false,
     timelineEra: 'all', // all | umayyad | abbasid — Imam timeline era filter
@@ -170,23 +112,8 @@ const state = {
     isAdmin: false,
     showAdminLogin: false,
     adminLoginError: '',
-    // content lists (metadata only, file data in IndexedDB)
-    pdfList: [],
-    imageList: [],
-    videoList: [],
-    audioList: [],
-    nahjulPdfs: [],
-    sahifaPdfs: [],
-    imamHadithPdfs: [],
-    specialDayPdfs: [],
-    islamicHistoryPdfs: [],
     // imam detail
     currentImam: null,
-    // viewer
-    viewerItem: null,
-    viewerType: null,
-    viewerData: null,
-    viewerLoading: false,
     // tasbeeh
     tasbeehCount: 0,
     tasbeehTarget: 33,
@@ -200,8 +127,6 @@ const state = {
     quizFinished: false,
     // search
     searchQuery: '',
-    audioLibraryQuery: '',
-    audioLibrarySort: 'newest',
     searchResults: [],
     // stats (analytics)
     pageViews: {},
@@ -218,9 +143,17 @@ const state = {
     customZiyarat: [],
     // dua tab & ziyarat reader
     duaTab: 'dua',
-    // library tab
-    libraryTab: '',
     currentZiyarat: null,
+    // knowledge center (Hadith / Masail / Q&A / Fatwa)
+    kcTab: 'hadith',
+    kcCategory: '',
+    kcSearch: '',
+    kcPage: 1,
+    kcFatwaMarja: '',
+    kcDetail: null,
+    kcFavorites: [],
+    kcFilter: 'all', // 'all' | 'bookmarked' | 'favorite'
+    kcLoading: false,
     // hadith / ayah index (for next/prev browsing)
     hadithIndex: 0,
     ayahIndex: -1, // -1 = date-based auto; 0+ = manual browse
@@ -756,9 +689,9 @@ const hijriEvents = {
 // ============================================================================
 const KEYS = {
     DARK:'ahlbayt_dark', LANG:'ahlbayt_lang', BOOKMARKS:'ahlbayt_bookmarks',
+    KC_FAVORITES:'ahlbayt_kc_favorites',
     READING_HISTORY:'ahlbayt_reading_history',
-    PDFS:'ahlbayt_pdfs', IMAGES:'ahlbayt_images', VIDEOS:'ahlbayt_videos',
-    AUDIOS:'ahlbayt_audios', LOC:'ahlbayt_loc', ADMIN:'ahlbayt_admin',
+    LOC:'ahlbayt_loc', ADMIN:'ahlbayt_admin',
     TASBEEH_HIST:'ahlbayt_tasbeeh_hist', CUSTOM_POSTS:'ahlbayt_custom_posts',
     PAGE_VIEWS:'ahlbayt_pageviews', HADITH_IDX:'ahlbayt_hadith_idx',
     FONT_SIZE:'ahlbayt_fontsize',
@@ -777,11 +710,6 @@ const KEYS = {
     SPECIAL_DAYS:'ahlbayt_special_days',
     MUHARRAM_EVENTS:'ahlbayt_muharram_events',
     SHIA_SPECIAL_DAYS:'ahlbayt_shia_special_days',
-    NAHJUL_PDFS:'ahlbayt_nahjul_pdfs',
-    SAHIFA_PDFS:'ahlbayt_sahifa_pdfs',
-    IMAM_HADITH_PDFS:'ahlbayt_imam_hadith_pdfs',
-    SPECIAL_DAY_PDFS:'ahlbayt_special_day_pdfs',
-    ISLAMIC_HISTORY_PDFS:'ahlbayt_islamic_history_pdfs',
 };
 
 function lsGet(key, fallback=null) {
@@ -800,16 +728,8 @@ function loadState() {
         state.darkMode = lsGet(KEYS.DARK, false);
         state.language = lsGet(KEYS.LANG, 'bn');
         state.bookmarks = lsGet(KEYS.BOOKMARKS, []);
+        state.kcFavorites = lsGet(KEYS.KC_FAVORITES, []);
         state.readingHistory = lsGet(KEYS.READING_HISTORY, []);
-        state.pdfList = lsGet(KEYS.PDFS, []);
-        state.nahjulPdfs = lsGet(KEYS.NAHJUL_PDFS, []);
-        state.sahifaPdfs = lsGet(KEYS.SAHIFA_PDFS, []);
-        state.imamHadithPdfs = lsGet(KEYS.IMAM_HADITH_PDFS, []);
-        state.specialDayPdfs = lsGet(KEYS.SPECIAL_DAY_PDFS, []);
-        state.islamicHistoryPdfs = lsGet(KEYS.ISLAMIC_HISTORY_PDFS, []);
-        state.imageList = lsGet(KEYS.IMAGES, []);
-        state.videoList = lsGet(KEYS.VIDEOS, []);
-        state.audioList = lsGet(KEYS.AUDIOS, []);
         state.userLocation = lsGet(KEYS.LOC, null);
         state.isAdmin = lsGet(KEYS.ADMIN, false);
         state.tasbeehHistory = lsGet(KEYS.TASBEEH_HIST, []);
@@ -846,16 +766,8 @@ function saveState() {
     lsSet(KEYS.DARK, state.darkMode);
     lsSet(KEYS.LANG, state.language);
     lsSet(KEYS.BOOKMARKS, state.bookmarks);
+    lsSet(KEYS.KC_FAVORITES, state.kcFavorites);
     lsSet(KEYS.READING_HISTORY, state.readingHistory);
-    lsSet(KEYS.PDFS, state.pdfList);
-    lsSet(KEYS.NAHJUL_PDFS, state.nahjulPdfs);
-    lsSet(KEYS.SAHIFA_PDFS, state.sahifaPdfs);
-    lsSet(KEYS.IMAM_HADITH_PDFS, state.imamHadithPdfs);
-    lsSet(KEYS.SPECIAL_DAY_PDFS, state.specialDayPdfs);
-    lsSet(KEYS.ISLAMIC_HISTORY_PDFS, state.islamicHistoryPdfs);
-    lsSet(KEYS.IMAGES, state.imageList);
-    lsSet(KEYS.VIDEOS, state.videoList);
-    lsSet(KEYS.AUDIOS, state.audioList);
     if (state.userLocation) lsSet(KEYS.LOC, state.userLocation);
     lsSet(KEYS.ADMIN, state.isAdmin);
     lsSet(KEYS.TASBEEH_HIST, state.tasbeehHistory);
@@ -976,8 +888,8 @@ function sanitize(text) { return typeof text==='string'?escapeHtml(text):''; }
 // ============================================================================
 const translations = {
     bn:{
-        calendar:'ইসলামিক ক্যালেন্ডার', library:'পিডিএফ লাইব্রেরি',
-        media:'মিডিয়া', dua:'দোয়া ও যিয়ারত', contact:'যোগাযোগ', blog:'ইসলামিক ব্লগ', home:'প্রধান পাতা',
+        calendar:'ইসলামিক ক্যালেন্ডার', knowledgeCenter:'জ্ঞান কেন্দ্র',
+        dua:'দোয়া ও যিয়ারত', contact:'যোগাযোগ', blog:'ইসলামিক ব্লগ', home:'প্রধান পাতা',
         latestPosts:'সর্বশেষ পোস্ট', featuredBooks:'বৈশিষ্ট্যযুক্ত বই',
         readMore:'আরও পড়ুন', download:'ডাউনলোড', read:'পড়ুন',
         search:'অনুসন্ধান', pages:'পৃষ্ঠা', viewAll:'সব দেখুন',
@@ -985,7 +897,7 @@ const translations = {
         asr:'আসর', maghrib:'মাগরিব', isha:'ইশা', share:'শেয়ার',
         todayVerse:'আজকের আয়াত', menu:'মেনু', darkMode:'ডার্ক মোড',
         lightMode:'লাইট মোড', loading:'লোড হচ্ছে...', error:'ত্রুটি',
-        bookmarks:'বুকমার্ক', admin:'অ্যাডমিন', images:'ছবি', videos:'ভিডিও', audios:'অডিও', audioLibrary:'অডিও লাইব্রেরি',
+        bookmarks:'বুকমার্ক', admin:'অ্যাডমিন',
         imams:'ইমাম ও মাসুমিন (আ.)', tasbeeh:'তাসবিহ কাউন্টার', quiz:'ইসলামিক কুইজ', asmaul:'আসমাউল হুসনা', qibla:'কিবলা নির্দেশক', familyTree:'বংশধারা',
         worldMap:'বিশ্ব মানচিত্র',
         searchPage:'সার্চ', analytics:'পরিসংখ্যান', hadithOfDay:'আজকের হাদিস',
@@ -995,7 +907,7 @@ const translations = {
         ahlulBaytUnified:'আহলুল বাইত (আ)'
     },
     en:{
-        library:'Library', media:'Media', dua:'Dua', contact:'Contact', blog:'Islamic Blog', home:'Home',
+        knowledgeCenter:'Knowledge Center', dua:'Dua', contact:'Contact', blog:'Islamic Blog', home:'Home',
         latestPosts:'Latest Posts', featuredBooks:'Featured Books',
         readMore:'Read More', download:'Download', read:'Read',
         search:'Search', pages:'pages', viewAll:'View All',
@@ -1003,7 +915,7 @@ const translations = {
         asr:'Asr', maghrib:'Maghrib', isha:'Isha', share:'Share',
         todayVerse:"Today's Verse", menu:'Menu', darkMode:'Dark Mode',
         lightMode:'Light Mode', loading:'Loading...', error:'Error',
-        bookmarks:'Bookmarks', admin:'Admin', images:'Images', videos:'Videos', audios:'Audios', audioLibrary:'Audio Library',
+        bookmarks:'Bookmarks', admin:'Admin',
         imams:'Imams & Masumeen (AS)', tasbeeh:'Tasbeeh Counter', quiz:'Islamic Quiz', asmaul:'Asmaul Husna', qibla:'Qibla Finder', familyTree:'Family Tree',
         worldMap:'World Map',
         searchPage:'Search', analytics:'Analytics', hadithOfDay:"Today's Hadith",
@@ -1131,220 +1043,6 @@ function adminLogout() {
     state.isAdmin = false;
     saveState();
     render();
-}
-
-// ============================================================================
-// FILE UPLOAD (IndexedDB)
-// ============================================================================
-function openUploadModal(type) {
-    if (!state.isAdmin) { state.showAdminLogin=true; render(); return; }
-    state.showUploadModal=true; state.uploadType=type; state.uploadProgress=0; render();
-}
-function closeUploadModal() { state.showUploadModal=false; state.uploadType=null; state.isUploading=false; state.uploadFolderKey=null; render(); }
-
-// folder key → state list key
-const FOLDER_LIST_MAP = {
-    pdf: 'pdfList',
-    nahjul: 'nahjulPdfs',
-    sahifa: 'sahifaPdfs',
-    imamhadiths: 'imamHadithPdfs',
-    specialdays: 'specialDayPdfs',
-    islamichistory: 'islamicHistoryPdfs',
-};
-const FOLDER_CLOUDINARY_MAP = {
-    pdf: 'library/pdfs',
-    nahjul: 'library/nahjul',
-    sahifa: 'library/sahifa',
-    imamhadiths: 'library/imam-hadiths',
-    specialdays: 'library/special-days',
-    islamichistory: 'library/islamic-history',
-};
-
-function openFolderUpload(folderKey) {
-    if (!state.isAdmin) { state.showAdminLogin=true; render(); return; }
-    state.showUploadModal = true;
-    state.uploadType = 'pdf';
-    state.uploadFolderKey = folderKey;
-    state.uploadProgress = 0;
-    render();
-}
-
-
-async function handleFileUpload(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    // Must mirror typeLabels[...].maxMB in renderUploadModal() (script-2-ui.js).
-    // video capped at 70MB — GitHub Contents API's hard limit is 100MB/file,
-    // and base64 encoding (required by the API) adds ~33% overhead, so 70MB
-    // is the safe practical ceiling. Catching it here means an oversized file
-    // is rejected instantly instead of running the full progress bar and
-    // failing at GitHub with a confusing error.
-    const maxSizeMap = { video: 70, pdf: 10, image: 70, audio: 70 };
-    const maxSize = maxSizeMap[state.uploadType] ?? 100; // MB
-    if (file.size > maxSize * 1024 * 1024) {
-        showToast(state.language==='bn'
-            ? `ফাইল ${maxSize}MB এর বেশি হতে পারে না${state.uploadType==='pdf'?' — কম্প্রেস করে আবার চেষ্টা করুন':''}`
-            : `File must be under ${maxSize}MB`, 'warning');
-        return;
-    }
-    state.isUploading = true; state.uploadProgress = 0; render();
-
-    const id = 'file_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-    const meta = {
-        id, name: file.name, size: file.size, type: file.type,
-        uploadDate: localDate(),
-        sizeFmt: formatBytes(file.size)
-    };
-
-    // Upload feature is hidden in the UI (UPLOAD_LIVE_FEATURE_ENABLED=false,
-    // see top of file), so this function is effectively unreachable right
-    // now — kept working via the IndexedDB fallback below in case the flag
-    // is ever flipped back on for local/offline-only use.
-
-    // Fallback → IndexedDB
-    const reader = new FileReader();
-    reader.onprogress = ev => {
-        if (ev.lengthComputable) {
-            state.uploadProgress = Math.round(ev.loaded/ev.total*90);
-            const pb = document.getElementById('upload-progress-bar');
-            const pt = document.getElementById('upload-progress-text');
-            if (pb) pb.style.width = state.uploadProgress + '%';
-            if (pt) pt.textContent = state.uploadProgress + '%';
-        }
-    };
-    reader.onload = async (ev) => {
-        state.uploadProgress = 95; render();
-        try {
-            await dbSave(id, ev.target.result);
-            if (state.uploadFolderKey && FOLDER_LIST_MAP[state.uploadFolderKey]) {
-                state[FOLDER_LIST_MAP[state.uploadFolderKey]].push(meta);
-                state.uploadFolderKey = null;
-            } else if (state.uploadType==='pdf')   state.pdfList.push(meta);
-            else if (state.uploadType==='video') state.videoList.push(meta);
-            else if (state.uploadType==='audio') state.audioList.push(meta);
-            else if (state.uploadType==='image') state.imageList.push(meta);
-            saveState(); state.uploadProgress = 100; render();
-            setTimeout(() => closeUploadModal(), 800);
-        } catch(err) {
-            showToast(state.language==='bn'?'ফাইল সংরক্ষণে সমস্যা হয়েছে':'Failed to save file','warning');
-            state.isUploading = false; render();
-        }
-    };
-    reader.readAsDataURL(file);
-}
-
-function formatBytes(bytes) {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
-    return (bytes/1024/1024).toFixed(1) + ' MB';
-}
-
-async function downloadFile(id, name) {
-    const allLists = [...state.pdfList, ...state.imageList, ...state.videoList, ...state.audioList];
-    const item = allLists.find(f => f.id === id);
-    if (item && item.cloudUrl) {
-        showToast(state.language==='bn'?'ডাউনলোড প্রস্তুত হচ্ছে...':'Preparing download...','info');
-        try {
-            const res = await fetch(item.cloudUrl);
-            if (!res.ok) throw new Error('fetch failed');
-            const blob = await res.blob();
-            const blobUrl = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = blobUrl; a.download = name;
-            document.body.appendChild(a); a.click(); document.body.removeChild(a);
-            setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
-            showToast(state.language==='bn'?'ডাউনলোড শুরু হয়েছে ✓':'Download started ✓','success');
-        } catch(e) {
-            window.open(item.cloudUrl, '_blank');
-            showToast(state.language==='bn'?'নতুন ট্যাবে খুলছে — সেখান থেকে সেভ করুন':'Opened in new tab — save from there','info');
-        }
-        return;
-    }
-    try {
-        const data = await dbGet(id);
-        if (!data) { showToast(state.language==='bn'?'ফাইল পাওয়া যায়নি':'File not found','warning'); return; }
-        const a = document.createElement('a');
-        a.href = data; a.download = name;
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        showToast(state.language==='bn'?'ডাউনলোড শুরু হয়েছে ✓':'Download started ✓','success');
-    } catch(e) { showToast(state.language==='bn'?'ডাউনলোড ব্যর্থ হয়েছে':'Download failed','warning'); }
-}
-
-async function openViewer(item, type) {
-    state.viewerItem = item; state.viewerType = type;
-    state.viewerLoading = true; state.viewerData = null;
-    if (item.cloudUrl) {
-        // PDFs: raw.githubusercontent.com sends "Content-Disposition: attachment"
-        // for PDFs, and an <iframe src="..."> pointed straight at that URL counts
-        // as a navigation — so the browser force-downloads it instead of showing
-        // it (this is what caused "পড়ুন"/Read to trigger a download). fetch()
-        // is a subresource request, not a navigation, so Content-Disposition is
-        // ignored there; we fetch the PDF as a blob and point the iframe at the
-        // local blob: URL instead (same trick downloadFile() already uses).
-        if (type === 'pdf') {
-            state.currentPage = 'viewer'; render();
-            try {
-                const res = await fetch(item.cloudUrl);
-                if (!res.ok) throw new Error('fetch failed');
-                const blob = await res.blob();
-                state.viewerData = URL.createObjectURL(blob);
-            } catch (e) {
-                // Fallback: at least let them view it in a new tab rather than a dead viewer
-                state.viewerData = item.cloudUrl;
-            }
-            state.viewerLoading = false; render();
-            return;
-        }
-        // Images/videos/audio: <img>/<video>/<audio> src loads are subresource
-        // requests too, so Content-Disposition never triggers a download there —
-        // safe to point directly at cloudUrl.
-        state.viewerData = item.cloudUrl;
-        state.viewerLoading = false;
-        state.currentPage = 'viewer'; render();
-        return;
-    }
-    state.currentPage = 'viewer'; render();
-    // Local files: load from IndexedDB
-    try {
-        const data = await dbGet(item.id);
-        state.viewerData = data; state.viewerLoading = false; render();
-    } catch(e) { state.viewerLoading=false; render(); }
-}
-
-async function deleteFile(id, listKey) {
-    if (!state.isAdmin) return;
-    if (!listKey || !state[listKey]) return; // Guard: ensure listKey is valid
-    const msg = state.language==='bn'?'ফাইলটি মুছবেন?':'Delete this file?';
-    if (!confirm(msg)) return;
-    await dbDelete(id);
-    state[listKey] = (state[listKey] || []).filter(f => f.id!==id);
-    saveState(); render();
-    // Note: this only removes the entry from this browser's local state/
-    // IndexedDB. If the same entry also exists in media-data.js (static,
-    // code-based), it will reappear on next load until removed there too.
-}
-
-// ============================================================================
-// MEDIA + LIBRARY STATIC DATA SEED
-// ============================================================================
-// 2026-07-19: replaces the old cloud-sync (Cloudinary, then briefly GitHub
-// Contents API) with the static-data approach — see the "Live Upload
-// Feature — DISABLED" note at the top of this file for why. media-data.js
-// (loaded before this file, same pattern as duas-data.js) exports
-// STATIC_MEDIA with the same 9 list keys used throughout the app. This
-// merges those static, code-provided entries (same for every visitor) with
-// anything already saved locally (e.g. from before this change, or if the
-// IndexedDB fallback in handleFileUpload() was ever used).
-function seedStaticMedia() {
-    if (typeof STATIC_MEDIA === 'undefined') return;
-    const keys = ['imageList','videoList','audioList','pdfList','nahjulPdfs','sahifaPdfs','imamHadithPdfs','specialDayPdfs','islamicHistoryPdfs'];
-    keys.forEach(key => {
-        const staticItems = Array.isArray(STATIC_MEDIA[key]) ? STATIC_MEDIA[key] : [];
-        const localItems = Array.isArray(state[key]) ? state[key] : [];
-        const localIds = new Set(localItems.map(item => item.id));
-        // static entries first, skip any id already present locally (avoids duplicates on re-seed)
-        state[key] = [...staticItems.filter(item => !localIds.has(item.id)), ...localItems];
-    });
 }
 
 // ============================================================================
@@ -1477,16 +1175,12 @@ function changePage(page) {
     // ✅ FIXED: Cleanup listeners when leaving certain pages (Bug #25)
     if (state.currentPage === 'qibla') cleanupQiblaCompass();
     if (state.currentPage === 'worldMap') cleanupWorldMap();
-    
-    // Free the blob: URL created for cloud PDFs in openViewer() (avoids leaking
-    // memory if the user opens several PDFs across a session)
-    if (state.currentPage === 'viewer' && typeof state.viewerData === 'string' && state.viewerData.startsWith('blob:')) {
-        URL.revokeObjectURL(state.viewerData);
-    }
+
     state.previousPage=state.currentPage; state.currentPage=page;
     state.menuOpen=false; state.currentPost=null; state.currentDua=null;
-    state.currentZiyarat=null; state.viewerItem=null; state.viewerData=null;
-    if (page==='library') state.libraryTab='';
+    state.currentZiyarat=null;
+    if (page==='knowledgeCenter') { state.kcDetail=null; if (typeof kcSimulateLoad==='function') kcSimulateLoad(); }
+    else if (typeof kcUpdateSeoSchema==='function') { kcUpdateSeoSchema(null); }
     state.pageViews[page] = (state.pageViews[page]||0) + 1;
     saveState();
     // ── Smooth fade page transition ──
@@ -1674,10 +1368,10 @@ function _performSearch(query) {
         const hit = im.nameBn?.toLowerCase().includes(q) || im.nameEn?.toLowerCase().includes(q) || im.descBn?.toLowerCase().includes(q);
         if(hit) results.push({type:'imam',item:im});
     });
-    // search pdfs
-    state.pdfList.forEach(pdf=>{
-        if(pdf.name?.toLowerCase().includes(q)) results.push({type:'pdf',item:pdf});
-    });
+    // search Knowledge Center (Hadith / Masail / Q&A / Fatwa) — see knowledge-center.js
+    if (typeof searchKnowledgeCenter === 'function') {
+        results.push(...searchKnowledgeCenter(q));
+    }
     state.searchResults = results;
     render();
 }

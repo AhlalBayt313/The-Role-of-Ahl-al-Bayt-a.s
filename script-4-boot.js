@@ -809,7 +809,7 @@ function renderMobileBottomNav() {
     const items=[
         {page:'home',    icon:'🏠', label:l==='bn'?'হোম':'Home'},
         {page:'blog',    icon:'📝', label:l==='bn'?'ব্লগ':'Blog'},
-        {page:'library', icon:'📚', label:l==='bn'?'লাইব্রেরি':'Library'},
+        {page:'knowledgeCenter', icon:'📚', label:l==='bn'?'জ্ঞান কেন্দ্র':'Knowledge'},
         {page:'dua',     icon:'🤲', label:l==='bn'?'দোয়া':'Duas'},
         {page:'calendar',icon:'📅', label:l==='bn'?'ক্যালেন্ডার':'Calendar'},
     ];
@@ -844,10 +844,11 @@ function renderMainContent() {
     const pages={
         home:renderHomePage,
         blog: typeof renderBlogPage === 'function' ? renderBlogPage : () => '<div class="text-center py-8">Blog loading...</div>',
-        dua:renderDuaPage, library:renderLibraryPage,
-        media:renderMediaPage, audioLibrary:renderAudioLibraryPage, calendar:renderCalendarPage,
+        dua:renderDuaPage,
+        knowledgeCenter: typeof renderKnowledgeCenterPage === 'function' ? renderKnowledgeCenterPage : () => '<div class="text-center py-8">Loading...</div>',
+        calendar:renderCalendarPage,
         contact:renderContactPage, about:renderAboutPage, bookmarks:renderBookmarksPage,
-        readPost:renderReadPostPage, readDua:renderReadDuaPage, viewer:renderViewerPage,
+        readPost:renderReadPostPage, readDua:renderReadDuaPage,
         imams:renderImamsPage, imamDetail:renderImamDetailPage,
         tasbeeh:renderTasbeehPage, quiz:renderQuizPage,
         searchPage:renderSearchPage, analytics:renderAnalyticsPage,
@@ -891,7 +892,6 @@ function render() {
             ${renderMainContent()}
         </main>
         ${renderFooter()}
-        ${renderUploadModal()}
         ${renderAdminLoginModal()}
         ${typeof renderBlogEditorModal === 'function' ? renderBlogEditorModal() : ''}
         ${renderDuaEditorModal()}
@@ -1152,11 +1152,6 @@ function init() {
     setupScrollReveal();
     startPrayerClock();          // ✅ FIXED: prayer-times পেজের next-prayer countdown আগে dead ছিল (Production Audit #1)
     startNextPrayerCountdown();  // ✅ FIXED: হোম ব্যানারের countdown আগে dead ছিল (Production Audit #1)
-    // Media/PDF library is now static data (media-data.js) merged into state
-    // at boot — see seedStaticMedia() in script-1-core.js. Blog posts are
-    // static too (blogPosts array in blog.js), loaded directly wherever
-    // they're rendered — no cloud fetch needed for either anymore.
-    try { seedStaticMedia(); saveState(); } catch(e) { console.warn('[Media] seedStaticMedia failed:', e); }
     setTimeout(hideSplash, 2600);
 }
 

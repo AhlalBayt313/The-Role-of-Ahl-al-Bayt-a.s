@@ -1515,22 +1515,10 @@ function performSearch(q) {
             results.push({title:text,subtitle:src||'',icon:'📜',color:'#7c3aed',type:l==='bn'?'হাদিস':'Hadith',action:'viewHadith',param:i===0?hadithPool.length:i});
         }
     });
-    // Search PDF library (all folders, not just the default one)
-    const pdfFolders=[
-        {key:'pdf',        list:state.pdfList||[],          label:l==='bn'?'দোয়া ও যিয়ারত':'Dua & Ziyarat'},
-        {key:'nahjul',     list:state.nahjulPdfs||[],        label:l==='bn'?'নাহজুল বালাগা':'Nahjul Balagha'},
-        {key:'sahifa',     list:state.sahifaPdfs||[],        label:l==='bn'?'সাহিফা সাজ্জাদিয়্যা':'Sahifa Sajjadiya'},
-        {key:'imamhadiths',list:state.imamHadithPdfs||[],    label:l==='bn'?'ইমামদের হাদিস':'Imam Hadiths'},
-        {key:'specialdays',list:state.specialDayPdfs||[],    label:l==='bn'?'আহলে বাইত ও মহান ব্যক্তিত্ব':'Ahl al-Bayt & Great Personalities'},
-        {key:'islamichistory',list:state.islamicHistoryPdfs||[], label:l==='bn'?'ইসলামিক ইতিহাস':'Islamic History'},
-    ];
-    pdfFolders.forEach(folder=>{
-        folder.list.forEach(pdf=>{
-            if((pdf.name||'').toLowerCase().includes(lower)){
-                results.push({title:pdf.name,subtitle:folder.label,icon:'📕',color:'#059669',type:l==='bn'?'পিডিএফ':'PDF',action:'setLibraryTab',param:folder.key});
-            }
-        });
-    });
+    // Search Knowledge Center (Hadith / Masail / Q&A / Fatwa)
+    if (typeof searchKnowledgeCenter === 'function') {
+        searchKnowledgeCenter(lower).forEach(r=>results.push(r));
+    }
     // Search family tree — Prophet & Fatima Zahra only (the 12 Imams are already
     // covered above via masumeen/imams, so re-adding them here would duplicate results)
     if(typeof familyTreeDatabase!=='undefined'&&familyTreeDatabase){
@@ -1729,7 +1717,7 @@ function searchResultsHTML(query) {
                 ${l==='bn'?`"${sanitize(q)}" — ${results.length}টি ফলাফল`:`${results.length} results for "${sanitize(q)}"`}
             </p>
             ${results.map((r,ri)=>`
-            <button data-action="${r.action}" data-param="${r.param}"
+            <button data-action="${r.action}" data-param="${r.param}" ${r.param2!==undefined?`data-param2="${r.param2}"`:''}
                 class="w-full text-left card-luxury border reveal"
                 style="background:${d?'#1e2a22':'#ffffff'};border-color:${d?'rgba(5,150,105,.12)':'rgba(5,150,105,.1)'};
                 box-shadow:var(--shadow-xs);padding:14px 16px;
@@ -1828,6 +1816,21 @@ function renderBookmarksPage() {
     const tab = state.bookmarksTab || 'bookmarks';
     const history = state.readingHistory || [];
 
+    // Knowledge Center bookmarks (Hadith / Masail / Q&A / Fatwa) — kcType-id keys
+    const KC_BOOKMARK_TYPES = {kcHadith:'hadith', kcMasail:'masail', kcQa:'qa', kcFatwa:'fatwa'};
+    const kcBookmarkItems = (typeof kcFindItem==='function') ? (state.bookmarks||[])
+        .map(key=>{
+            const dashIdx = key.indexOf('-');
+            if (dashIdx===-1) return null;
+            const bmType = key.slice(0,dashIdx);
+            const id = key.slice(dashIdx+1);
+            const tabKey = KC_BOOKMARK_TYPES[bmType];
+            if (!tabKey) return null;
+            const item = kcFindItem(tabKey, id);
+            return item ? {tabKey, item} : null;
+        })
+        .filter(Boolean) : [];
+
     const tabBtn = (key, icon, label) => `
         <button data-action="setBookmarksTab" data-param="${key}"
             class="px-4 py-2 rounded-xl text-sm font-bold transition-all ${tab===key
@@ -1853,6 +1856,30 @@ function renderBookmarksPage() {
                 </article>`).join('')}
         </div>`;
 
+    const knowledgeSection = kcBookmarkItems.length===0?`
+        <div class="text-center py-16 ${d?'text-gray-500':'text-gray-400'}">
+            <div class="text-6xl mb-4">📚</div>
+            <p class="text-lg">${l==='bn'?'জ্ঞান কেন্দ্রে কোনো বুকমার্ক নেই':'No Knowledge Center bookmarks yet'}</p>
+            <p class="text-sm mt-2">${l==='bn'?'হাদিস, মাসাইল, প্রশ্নোত্তর বা ফতোয়ায় ⭐ চাপলে এখানে দেখা যাবে':'Press ⭐ on any Hadith, Masail, Q&A or Fatwa to see it here'}</p>
+        </div>`:`
+        <div class="grid md:grid-cols-2 gap-6">
+            ${kcBookmarkItems.map(({tabKey,item})=>{
+                const meta = kcTabMeta(tabKey);
+                const title = kcItemTitle(tabKey, item, l);
+                const body = kcItemBody(tabKey, item, l);
+                return `
+                <article class="${d?'bg-gray-800':'bg-white'} border rounded-xl p-6 fade-in">
+                    <span class="text-xs px-3 py-1 rounded-full mb-3 inline-block" style="background:${meta.color}18;color:${meta.color}">${meta.icon} ${l==='bn'?meta.bn:meta.en}</span>
+                    <h3 class="text-lg font-bold mb-2 line-clamp-3">${sanitize(title)}</h3>
+                    ${body?`<p class="text-sm ${d?'text-gray-400':'text-gray-600'} mb-4 line-clamp-2">${sanitize(body)}</p>`:''}
+                    <div class="flex gap-3">
+                        <button data-action="kcOpenDetail" data-param="${tabKey}" data-param2="${item.id}" class="${d?'text-green-400':'text-green-600'} font-medium hover:underline">${l==='bn'?'বিস্তারিত':'View'} →</button>
+                        <button data-action="toggleBookmark" data-param="${item.id}" data-param2="kc${tabKey.charAt(0).toUpperCase()+tabKey.slice(1)}" class="ml-auto">🔖</button>
+                    </div>
+                </article>`;
+            }).join('')}
+        </div>`;
+
     const historySection = history.length===0?`
         <div class="text-center py-16 ${d?'text-gray-500':'text-gray-400'}">
             <div class="text-6xl mb-4">🕓</div>
@@ -1874,13 +1901,15 @@ function renderBookmarksPage() {
     return `
     <div class="space-y-6">
         <h2 class="text-3xl font-bold">🔖 ${t('bookmarks')}</h2>
-        <div class="flex gap-2">
-            ${tabBtn('bookmarks','🔖',l==='bn'?'বুকমার্ক':'Bookmarks')}
+        <div class="flex gap-2 flex-wrap">
+            ${tabBtn('bookmarks','🔖',l==='bn'?'ব্লগ বুকমার্ক':'Blog Bookmarks')}
+            ${tabBtn('knowledge','📚',l==='bn'?'জ্ঞান কেন্দ্র':'Knowledge Center')}
             ${tabBtn('history','🕓',l==='bn'?'সাম্প্রতিক পঠিত':'Recently Read')}
         </div>
-        ${tab==='history'?historySection:bookmarksSection}
+        ${tab==='history'?historySection:tab==='knowledge'?knowledgeSection:bookmarksSection}
     </div>`;
 }
+
 
 // ============================================================================
 // PAGE: READ POST

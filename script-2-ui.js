@@ -46,24 +46,6 @@ function setupEventListeners() {
                 case 'clearReadingHistory': state.readingHistory=[]; saveState(); render(); break;
                 case 'readPost': readPost(param); break;
                 case 'readDua': readDua(param); break;
-                case 'openUploadModal': openUploadModal(param); break;
-                case 'openFolderUpload': openFolderUpload(param); break;
-                case 'closeUploadModal': closeUploadModal(); break;
-                case 'downloadFile': {
-                    const name=btn.getAttribute('data-name')||'file';
-                    downloadFile(param,name); break;
-                }
-                case 'openViewer': {
-                    const vtype=btn.getAttribute('data-vtype');
-                    const listKey=btn.getAttribute('data-listkey');
-                    if (!listKey || !state[listKey]) { console.warn('[Viewer] Invalid listKey:', listKey); break; }
-                    const item=state[listKey].find(f=>f.id===param);
-                    if(item) openViewer(item,vtype); break;
-                }
-                case 'deleteFile': {
-                    const listKey=btn.getAttribute('data-listkey');
-                    deleteFile(param,listKey); break;
-                }
                 case 'calPrev': calState.hijriMonth--; if(calState.hijriMonth<1){calState.hijriMonth=12;calState.hijriYear--;} render(); break;
                 case 'calNext': calState.hijriMonth++; if(calState.hijriMonth>12){calState.hijriMonth=1;calState.hijriYear++;} render(); break;
                 case 'showAdminLogin': state.showAdminLogin=true; render(); break;
@@ -174,7 +156,15 @@ function setupEventListeners() {
                 // DUA / ZIYARAT
                 // ✅ REMOVED: duplicate 'setDuaTab' case (identical to the
                 // one defined earlier in this switch; unreachable dead code).
-                case 'setLibraryTab': state.libraryTab=param; render(); break;
+                case 'setKcTab': state.kcTab=param; state.kcCategory=''; state.kcSearch=''; state.kcPage=1; state.kcDetail=null; kcSimulateLoad(); render(); break;
+                case 'setKcCategory': state.kcCategory=param; state.kcPage=1; state.kcDetail=null; kcSimulateLoad(); render(); break;
+                case 'kcSetPage': state.kcPage=parseInt(param)||1; window.scrollTo({top:0,behavior:'smooth'}); render(); break;
+                case 'kcOpenDetail': state.kcDetail={type:param,id:param2}; window.scrollTo({top:0,behavior:'instant'}); render(); break;
+                case 'kcCloseDetail': state.kcDetail=null; render(); break;
+                case 'kcCopy': if(typeof kcCopyItem==='function') kcCopyItem(param,param2); break;
+                case 'kcShare': if(typeof kcShareItem==='function') kcShareItem(param,param2); break;
+                case 'kcToggleFavorite': if(typeof toggleKcFavorite==='function') toggleKcFavorite(param,param2); break;
+                case 'setKcFilter': state.kcFilter=param; state.kcPage=1; render(); break;
                 case 'openKnowledgeEditor':
                     if(!state.isAdmin) { state.showAdminLogin=true; render(); break; }
                     state.knowledgeEditorType = param;
@@ -376,9 +366,6 @@ function setupEventListeners() {
         }
         if(e.target.classList.contains('overlay-close')&&state.menuOpen){state.menuOpen=false;render();}
     });
-    document.addEventListener('change', e => {
-        if(e.target.id==='fileUploadInput') handleFileUpload(e);
-    });
     document.addEventListener('input', e => {
         // NOTE: search-input is only ever rendered by renderSearchPage(), which now
         // handles its own live update via searchResultsHTML() (see that function).
@@ -420,7 +407,6 @@ function setupEventListeners() {
         }
         if(e.key==='Escape'){
             if(state.menuOpen) toggleMenu();
-            else if(state.showUploadModal) closeUploadModal();
             else if(state.showAdminLogin){state.showAdminLogin=false;state.adminLoginError='';render();}
         }
     });
@@ -705,58 +691,18 @@ function renderAdminLoginModal() {
     </div>`;
 }
 
-function renderUploadModal() {
-    if(!state.showUploadModal) return '';
-    const d=state.darkMode; const l=state.language;
-    const typeLabels = {
-        pdf:{bn:'পিডিএফ বই',en:'PDF Book',accept:'.pdf',icon:'📕',maxMB:10},
-        image:{bn:'ছবি',en:'Image',accept:'image/*',icon:'🖼️',maxMB:70},
-        video:{bn:'ভিডিও',en:'Video',accept:'video/*',icon:'🎬',maxMB:70},
-        audio:{bn:'অডিও',en:'Audio',accept:'audio/*',icon:'🎵',maxMB:70}
-    };
-    const info = typeLabels[state.uploadType]||typeLabels.pdf;
-    return `
-    <div class="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="upload-modal-title">
-        <div class="${d?'bg-gray-800':'bg-white'} rounded-2xl p-8 max-w-md w-full shadow-2xl fade-in">
-            <div class="flex justify-between items-center mb-6">
-                <h3 id="upload-modal-title" class="text-xl font-bold">${info.icon} ${l==='bn'?info.bn:info.en} ${l==='bn'?'আপলোড':'Upload'}</h3>
-                ${!state.isUploading?`<button data-action="closeUploadModal" aria-label="${l==='bn'?'বন্ধ করুন':'Close'}" class="p-1 rounded hover:bg-gray-200">✕</button>`:''}
-            </div>
-            ${state.isUploading ? `
-                <div class="text-center py-4">
-                    <div class="mb-4">
-                        <div class="w-full bg-gray-200 rounded-full h-3 mb-2" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${state.uploadProgress}" aria-label="${l==='bn'?'আপলোড অগ্রগতি':'Upload progress'}">
-                            <div id="upload-progress-bar" class="progress-bar rounded-full" style="width:${state.uploadProgress}%"></div>
-                        </div>
-                        <p class="text-sm ${d?'text-gray-300':'text-gray-600'}" aria-live="polite">
-                            ${state.uploadProgress < 100
-                                ? `<span id='upload-progress-text'>${l==='bn'?'আপলোড হচ্ছে':'Uploading'}... ${state.uploadProgress}%</span>`
-                                : (l==='bn'?'✅ সম্পন্ন!':'✅ Done!')}
-                        </p>
-                    </div>
-                </div>
-            ` : `
-                <label for="fileUploadInput" class="block mb-2 font-medium">${l==='bn'?'ফাইল নির্বাচন করুন':'Select file'}</label>
-                <input type="file" id="fileUploadInput" accept="${info.accept}" autofocus
-                    class="${d?'bg-gray-900 border-gray-700':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-green-500" />
-                <p class="mt-2 text-sm ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?`সর্বোচ্চ ${info.maxMB}MB`:`Max ${info.maxMB}MB`}${state.uploadType==='pdf'?(l==='bn'?' — বড় ফাইল হলে iLovePDF/Smallpdf দিয়ে কম্প্রেস করে আপলোড করুন':' — for larger files, compress with iLovePDF/Smallpdf first'):''}</p>
-            `}
-        </div>
-    </div>`;
-}
-
 // ============================================================================
 // HEADER
 // ============================================================================
 function renderHeader()
 {
     const d=state.darkMode; const l=state.language;
-    const mainPages=['home','blog','library','dua','ahlulBaytUnified'];
-    const morePages=['tasbeeh','media','audioLibrary','quiz','qibla','worldMap','calendar','bookmarks','about','contact'];
+    const mainPages=['home','blog','knowledgeCenter','dua','ahlulBaytUnified'];
+    const morePages=['tasbeeh','quiz','qibla','worldMap','calendar','bookmarks','about','contact'];
     const bg   = d ? 'rgba(6,20,16,.95)'      : 'rgba(255,255,255,.90)';
     const border = d ? 'rgba(52,211,153,.08)' : 'rgba(5,150,105,.10)';
-    const pageIcons={home:'🏠',imams:'👑',dua:'🤲',library:'📚',blog:'📝',tasbeeh:'📿',
-        media:'🎬',audioLibrary:'🎧',calendar:'📅',quiz:'🧠',qibla:'🧭',worldMap:'🗺️',familyTree:'🌳',ahlulBaytUnified:'👑',bookmarks:'🔖',about:'ℹ️',contact:'📞'};
+    const pageIcons={home:'🏠',imams:'👑',dua:'🤲',knowledgeCenter:'📚',blog:'📝',tasbeeh:'📿',
+        calendar:'📅',quiz:'🧠',qibla:'🧭',worldMap:'🗺️',familyTree:'🌳',ahlulBaytUnified:'👑',bookmarks:'🔖',about:'ℹ️',contact:'📞'};
     return `
     <header style="background:${bg};border-bottom:1.5px solid ${border};" class="sticky top-0 z-30" id="main-header">
         <div class="max-w-7xl mx-auto px-4" style="padding-top:10px;padding-bottom:10px">
@@ -880,9 +826,9 @@ function renderHeader()
 function renderMobileMenu()
 {
     const d=state.darkMode; const l=state.language;
-    const allPages=['home','blog','dua','ahlulBaytUnified','worldMap','library','media','audioLibrary','calendar','tasbeeh','quiz','bookmarks','about','contact','searchPage','analytics'];
-    const icons={home:'🏠',blog:'📝',imams:'👑',familyTree:'🌳',ahlulBaytUnified:'👑',worldMap:'🗺️',dua:'🤲',library:'📚',
-        media:'🎬',audioLibrary:'🎧',calendar:'📅',tasbeeh:'📿',quiz:'🧠',bookmarks:'🔖',
+    const allPages=['home','blog','dua','ahlulBaytUnified','worldMap','knowledgeCenter','calendar','tasbeeh','quiz','bookmarks','about','contact','searchPage','analytics'];
+    const icons={home:'🏠',blog:'📝',imams:'👑',familyTree:'🌳',ahlulBaytUnified:'👑',worldMap:'🗺️',dua:'🤲',knowledgeCenter:'📚',
+        calendar:'📅',tasbeeh:'📿',quiz:'🧠',bookmarks:'🔖',
         about:'ℹ️',contact:'📞',searchPage:'🔍',analytics:'📊'};
     const border = d?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)';
     return `
@@ -970,7 +916,7 @@ function renderFooter()
         ['https://www.youtube.com/@Ahl_al-Bayt_a.s','#ff0000',l==='bn'?'ইউটিউব':'YouTube','<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>'],
         ['https://x.com/Ahl_al_Bayt_a_s','#e7e9ea','X / Twitter','<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>'],
     ];
-    const quickLinks=['home','blog','imams','dua','library','tasbeeh','quiz','asmaul','qibla','contact'];
+    const quickLinks=['home','blog','imams','dua','knowledgeCenter','tasbeeh','quiz','asmaul','qibla','contact'];
     return `
     <footer class="footer-luxury mt-16" style="position:relative;overflow:hidden">
 
@@ -1307,7 +1253,7 @@ function renderHomePage()
         {icon:'👑',title:l==='bn'?'ইমামগণ':'The Imams',       desc:l==='bn'?'১৪ মাসুমিনের জীবনী':'Lives of 14 Masumeen',    page:'imams',   color:'#059669',bg:'rgba(5,150,105,.1)', faint:'rgba(5,150,105,.25)'},
         {icon:'📝',title:t('blog'),                              desc:l==='bn'?'ইসলামিক প্রবন্ধ':'Islamic writings',            page:'blog',    color:'#0369a1',bg:'rgba(3,105,161,.1)',  faint:'rgba(3,105,161,.25)'},
         {icon:'🤲',title:l==='bn'?'দোয়া ও যিয়ারত':'Dua & Ziyarat',desc:l==='bn'?'দোয়া সংকলন':'Supplications',              page:'dua',     color:'#7c3aed',bg:'rgba(124,58,237,.1)',faint:'rgba(124,58,237,.25)'},
-        {icon:'📚',title:l==='bn'?'লাইব্রেরি':'Library',       desc:l==='bn'?'ইসলামিক কিতাব':'Islamic books',                page:'library', color:'#047857',bg:'rgba(4,120,87,.1)',  faint:'rgba(4,120,87,.25)'},
+        {icon:'📚',title:l==='bn'?'জ্ঞান কেন্দ্র':'Knowledge Center', desc:l==='bn'?'হাদিস, মাসাইল, প্রশ্নোত্তর ও ফতোয়া':'Hadith, Masail, Q&A & Fatwa', page:'knowledgeCenter', color:'#047857',bg:'rgba(4,120,87,.1)',  faint:'rgba(4,120,87,.25)'},
         {icon:'📿',title:l==='bn'?'তাসবিহ':'Tasbeeh',          desc:l==='bn'?'ডিজিটাল তাসবিহ':'Digital counter',             page:'tasbeeh', color:'#059669',bg:'rgba(5,150,105,.1)', faint:'rgba(5,150,105,.25)'},
         {icon:'🧠',title:l==='bn'?'কুইজ':'Quiz',               desc:l==='bn'?'জ্ঞান পরীক্ষা':'Test your knowledge',           page:'quiz',    color:'#dc2626',bg:'rgba(220,38,38,.1)',faint:'rgba(220,38,38,.25)'},
         {icon:'☀️',title:l==='bn'?'৯৯ নাম':'99 Names',         desc:l==='bn'?'আসমাউল হুসনা':'Names of Allah',               page:'asmaul',  color:'#b45309',bg:'rgba(180,83,9,.1)', faint:'rgba(180,83,9,.25)'},
@@ -1614,422 +1560,6 @@ function renderHomePage()
 
     </div>`;
 }
-// ============================================================================
-// PAGE: LIBRARY (PDF)
-// ============================================================================
-function renderLibraryPage() {
-    const d=state.darkMode; const l=state.language;
-    const tab = state.libraryTab || '';
-    const folders = [
-        {key:'pdf',         icon:'📕', color:'#059669', grad:'linear-gradient(135deg,#022c22,#065f46)', label:l==='bn'?'দোয়া ও যিয়ারত':'Dua & Ziyarat',     list:state.pdfList},
-        {key:'nahjul',      icon:'📖', color:'#1d4ed8', grad:'linear-gradient(135deg,#1e1b4b,#1d4ed8)', label:l==='bn'?'নাহজুল বালাগা':'Nahjul Balagha',     list:state.nahjulPdfs||[]},
-        {key:'sahifa',      icon:'🌹', color:'#7c3aed', grad:'linear-gradient(135deg,#2e1065,#7c3aed)', label:l==='bn'?'সাহিফা সাজ্জাদিয়্যা':'Sahifa Sajjadiya',list:state.sahifaPdfs||[]},
-        {key:'imamhadiths', icon:'⭐', color:'#0d9488', grad:'linear-gradient(135deg,#042f2e,#0d9488)', label:l==='bn'?'ইমামদের হাদিস':'Imam Hadiths',        list:state.imamHadithPdfs||[]},
-        {key:'specialdays', icon:'✨', color:'#dc2626', grad:'linear-gradient(135deg,#450a0a,#dc2626)', label:l==='bn'?'আহলে বাইত ও মহান ব্যক্তিত্ব':'Ahl al-Bayt & Great Personalities', list:state.specialDayPdfs||[]},
-        {key:'islamichistory', icon:'🕌', color:'#b45309', grad:'linear-gradient(135deg,#451a03,#b45309)', label:l==='bn'?'ইসলামিক ইতিহাস':'Islamic History',      list:state.islamicHistoryPdfs||[]},
-    ];
-
-    // Folder grid view
-    if (!tab) return `
-    <div class="space-y-8 page-enter">
-        <div class="reveal">
-            <h1 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#059669,#0369a1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
-                📚 ${t('library')}
-            </h1>
-            <p class="text-sm mt-1" style="color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?'ইসলামিক কিতাব ও পিডিএফ সংকলন':'Islamic books & PDF collection'}</p>
-        </div>
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 reveal">
-            ${folders.map(f=>`
-            <button data-action="setLibraryTab" data-param="${f.key}"
-                class="feature-card-luxury text-left w-full focus:outline-none"
-                style="background:${f.grad};border:1px solid ${f.color}30;box-shadow:0 6px 24px ${f.color}22;
-                padding:1.5rem 1.2rem 1.8rem;--fc-accent:${f.color};--fc-accent-bg:${f.color}18;--fc-accent-faint:${f.color}35">
-                <div class="feature-card-content" style="text-align:center">
-                    <div style="font-size:2.6rem;margin-bottom:.75rem;filter:drop-shadow(0 2px 8px ${f.color}55)">${f.icon}</div>
-                    <p class="font-bold text-sm leading-snug mb-2" style="color:white">${f.label}</p>
-                    <span style="font-size:.7rem;font-weight:700;padding:3px 12px;border-radius:50px;
-                        background:rgba(255,255,255,.15);color:rgba(255,255,255,.9)">
-                        ${f.list.length} ${l==='bn'?'টি পিডিএফ':'PDFs'}
-                    </span>
-                </div>
-            </button>`).join('')}
-        </div>
-    </div>`;
-
-    // Inside folder
-    const folder = folders.find(f=>f.key===tab);
-    if (!folder) { state.libraryTab=''; render(); return ''; }
-    const listKeyMap={pdf:'pdfList',nahjul:'nahjulPdfs',sahifa:'sahifaPdfs',imamhadiths:'imamHadithPdfs',specialdays:'specialDayPdfs',islamichistory:'islamicHistoryPdfs'};
-    const listKey=listKeyMap[tab];
-
-    return `
-    <div class="space-y-6 page-enter">
-        <!-- Back + header -->
-        <div class="flex items-center justify-between flex-wrap gap-3 reveal">
-            <div class="flex items-center gap-3">
-                <button data-action="setLibraryTab" data-param=""
-                    style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;
-                    padding:8px 16px;border-radius:50px;cursor:pointer;transition:all .2s;
-                    background:${folder.color}12;color:${folder.color};border:1.5px solid ${folder.color}30">
-                    ← ${l==='bn'?'ফোল্ডারে ফিরুন':'Back'}
-                </button>
-                <h1 class="font-bold text-xl flex items-center gap-2">${folder.icon} ${folder.label}</h1>
-            </div>
-            ${state.isAdmin&&UPLOAD_LIVE_FEATURE_ENABLED?`
-            <button data-action="openFolderUpload" data-param="${tab}"
-                style="font-size:12.5px;font-weight:700;padding:9px 20px;border-radius:50px;
-                background:linear-gradient(135deg,${folder.color},${folder.color}bb);color:white;
-                border:none;cursor:pointer;display:flex;align-items:center;gap:6px;
-                box-shadow:0 4px 14px ${folder.color}40">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                ${l==='bn'?'পিডিএফ আপলোড':'Upload PDF'}
-            </button>`:''
-        }
-        </div>
-
-        <!-- PDF grid -->
-        ${folder.list.length===0?`
-        <div class="text-center py-16 reveal" style="color:${d?'#6b7280':'#9ca3af'}">
-            <div style="font-size:4rem;margin-bottom:1rem;opacity:.5">${folder.icon}</div>
-            <p class="font-bold text-lg mb-1">${l==='bn'?'এই ফোল্ডারে কোনো পিডিএফ নেই':'This folder is empty'}</p>
-            ${state.isAdmin&&UPLOAD_LIVE_FEATURE_ENABLED
-                ?`<p class="text-sm">${l==='bn'?'উপরের বাটন থেকে পিডিএফ আপলোড করুন':'Upload a PDF using the button above'}</p>`
-                :`<p class="text-sm">${l==='bn'?'🔐 অ্যাডমিন শীঘ্রই আপলোড করবেন':'🔐 Admin will upload soon'}</p>`}
-        </div>`:`
-        <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-            ${folder.list.map((pdf,pi)=>`
-            <div class="card-luxury border flex flex-col reveal"
-                style="background:${d?'#1e2a22':'#ffffff'};border-color:${d?'rgba(5,150,105,.15)':'rgba(5,150,105,.1)'};
-                animation:fadeInUp .4s ease-out ${pi*.04}s both;box-shadow:var(--shadow-sm)">
-                <div style="height:3px;background:${folder.color};border-radius:var(--r-lg) var(--r-lg) 0 0;flex-shrink:0"></div>
-                <!-- Thumbnail -->
-                <div class="flex items-center justify-center"
-                    style="height:120px;background:${folder.grad};border-radius:0;flex-shrink:0">
-                    <div style="font-size:3rem;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3));opacity:.9">${folder.icon}</div>
-                </div>
-                <div class="p-4 flex flex-col flex-1">
-                    <h2 class="font-bold text-sm mb-1 leading-snug flex-1" style="color:${d?'#f9fafb':'#111827'}">${sanitize(pdf.name)}</h2>
-                    <p class="text-xs mb-3" style="color:${d?'#6b7280':'#9ca3af'}">${sanitize(pdf.sizeFmt||'')} · ${sanitize(pdf.uploadDate||'')}</p>
-                    <div class="flex gap-2">
-                        <button data-action="openViewer" data-param="${pdf.id}" data-vtype="pdf" data-listkey="${listKey}"
-                            style="flex:1;padding:8px;border-radius:12px;font-size:11.5px;font-weight:700;
-                            background:linear-gradient(135deg,${folder.color},${folder.color}bb);
-                            color:white;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                            ${l==='bn'?'পড়ুন':'Read'}
-                        </button>
-                        <button data-action="downloadFile" data-param="${pdf.id}" data-name="${sanitize(pdf.name)}"
-                            style="flex:1;padding:8px;border-radius:12px;font-size:11.5px;font-weight:700;
-                            background:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.05)'};
-                            color:${d?'#d1d5db':'#374151'};border:1.5px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'};
-                            cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                            ${l==='bn'?'ডাউনলোড':'Download'}
-                        </button>
-                        ${state.isAdmin&&UPLOAD_LIVE_FEATURE_ENABLED?`
-                        <button data-action="deleteFile" data-param="${pdf.id}" data-listkey="${listKey}"
-                            aria-label="${l==='bn'?'মুছুন':'Delete'} ${sanitize(pdf.name)}"
-                            style="width:36px;border-radius:12px;background:rgba(220,38,38,.1);
-                            border:1.5px solid rgba(220,38,38,.2);color:#ef4444;cursor:pointer;font-size:13px;
-                            display:flex;align-items:center;justify-content:center">🗑</button>`:''
-                        }
-                    </div>
-                </div>
-            </div>`).join('')}
-        </div>`}
-    </div>`;
-}
-// ============================================================================
-// PAGE: MEDIA (Image / Video / Audio)
-// ============================================================================
-function renderMediaPage() {
-    const d=state.darkMode; const l=state.language;
-    const tabs=[
-        {key:'imageList', label:l==='bn'?'ছবি':'Images',  icon:'🖼️', type:'image', uploadKey:'image', color:'#7c3aed', grad:'linear-gradient(135deg,#3b0764,#7c3aed)'},
-        {key:'videoList', label:l==='bn'?'ভিডিও':'Videos', icon:'🎬', type:'video', uploadKey:'video', color:'#dc2626', grad:'linear-gradient(135deg,#450a0a,#dc2626)'},
-        {key:'audioList', label:l==='bn'?'অডিও':'Audio',   icon:'🎵', type:'audio', uploadKey:'audio', color:'#059669', grad:'linear-gradient(135deg,#022c22,#059669)'},
-    ];
-    return `
-    <div class="space-y-10 page-enter">
-        <div class="reveal">
-            <h1 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#7c3aed,#dc2626);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
-                🎭 ${t('media')}
-            </h1>
-            <p class="text-sm mt-1" style="color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?'ছবি, ভিডিও ও অডিও সংকলন':'Images, videos & audio collection'}</p>
-        </div>
-        ${tabs.map(tab=>`
-        <div class="reveal">
-            <div class="section-heading">
-                <span style="width:32px;height:32px;border-radius:10px;background:${tab.grad};display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;box-shadow:0 4px 12px ${tab.color}40" aria-hidden="true">${tab.icon}</span>
-                <h2 class="font-bold text-base" style="color:${d?'#f9fafb':'#111827'}">${tab.label}</h2>
-                ${state.isAdmin&&UPLOAD_LIVE_FEATURE_ENABLED?`
-                <button data-action="openUploadModal" data-param="${tab.uploadKey}"
-                    style="margin-left:auto;font-size:11.5px;font-weight:700;padding:6px 16px;border-radius:50px;
-                    background:${tab.color}18;color:${tab.color};border:1.5px solid ${tab.color}30;cursor:pointer">
-                    + ${l==='bn'?'আপলোড':'Upload'}
-                </button>`:''}
-            </div>
-            ${(state[tab.key]||[]).length===0?`
-            <div class="text-center py-10 rounded-2xl" style="border:2px dashed ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}">
-                <div style="font-size:3rem;margin-bottom:.6rem;opacity:.45">${tab.icon}</div>
-                <p class="font-semibold text-sm" style="color:${d?'#6b7280':'#9ca3af'}">${l==='bn'?`কোনো ${tab.label} নেই`:`No ${tab.label} yet`}</p>
-                <p class="text-xs mt-1" style="color:${d?'#4b5563':'#d1d5db'}">${l==='bn'?'অ্যাডমিন শীঘ্রই যোগ করবেন':'Admin will add content soon'}</p>
-            </div>`:`
-            <div class="grid sm:grid-cols-2 ${tab.type==='audio'?'md:grid-cols-2':'md:grid-cols-3'} gap-4">
-                ${(state[tab.key]||[]).map((item,pi)=>renderMediaCard(item,tab.type,tab.key,d,l,tab.color,tab.grad,pi)).join('')}
-            </div>`}
-        </div>`).join('')}
-    </div>`;
-}
-
-function renderMediaCard(item, type, listKey, d, l, color='#059669', grad='linear-gradient(135deg,#022c22,#059669)', pi=0) {
-    color = color||'#059669'; grad = grad||'linear-gradient(135deg,#022c22,#059669)';
-    const thumb = type==='image'
-        ? `<div style="height:160px;border-radius:0;overflow:hidden;background:${d?'#111827':'#f3f4f6'};position:relative">
-               ${item.cloudUrl
-                   ?`<img src="${item.cloudUrl}" style="width:100%;height:100%;object-fit:cover" alt="${sanitize(item.name)}" loading="lazy"/>`
-                   :`<img src="" data-src-id="${item.id}" class="lazy-img" style="width:100%;height:100%;object-fit:cover" alt="${sanitize(item.name)}" loading="lazy"/>`}
-               <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.3),transparent);pointer-events:none"></div>
-           </div>`
-        : type==='video'
-        ? `<div style="height:160px;background:${d?'#0f172a':'#1e293b'};position:relative;overflow:hidden">
-               ${item.cloudUrl?`<video src="${item.cloudUrl}" style="width:100%;height:100%;object-fit:cover;opacity:.65" muted preload="metadata"></video>`:''}
-               <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
-                   <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,${color},${color}bb);box-shadow:0 4px 20px ${color}60;display:flex;align-items:center;justify-content:center" aria-hidden="true">
-                       <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                   </div>
-               </div>
-           </div>`
-        : `<div style="height:100px;background:${grad};display:flex;align-items:center;justify-content:center">
-               <div style="text-align:center">
-                   <div style="font-size:2.2rem;margin-bottom:.3rem">🎵</div>
-                   <div style="width:44px;height:3px;background:rgba(255,255,255,.4);border-radius:2px;margin:0 auto"></div>
-               </div>
-           </div>`;
-    return `
-    <div class="card-luxury border flex flex-col"
-        style="background:${d?'#1e2a22':'#ffffff'};border-color:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.08)'};
-        box-shadow:var(--shadow-sm);animation:fadeInUp .4s ease-out ${pi*.04}s both;overflow:hidden">
-        <div style="height:2.5px;background:${color};flex-shrink:0"></div>
-        ${thumb}
-        <div class="p-4 flex flex-col flex-1">
-            <h3 class="font-semibold text-sm mb-1 truncate" style="color:${d?'#f9fafb':'#111827'}">${sanitize(item.name)}</h3>
-            <p class="text-xs mb-3" style="color:${d?'#6b7280':'#9ca3af'}">${sanitize(item.sizeFmt||'')} · ${sanitize(item.uploadDate||'')}</p>
-            <div class="flex gap-2 mt-auto">
-                <button data-action="openViewer" data-param="${item.id}" data-vtype="${type}" data-listkey="${listKey}"
-                    style="flex:1;padding:7px;border-radius:10px;font-size:11.5px;font-weight:700;
-                    background:linear-gradient(135deg,${color},${color}bb);color:white;border:none;cursor:pointer;
-                    display:flex;align-items:center;justify-content:center;gap:5px">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                    ${l==='bn'?(type==='audio'?'শুনুন':'দেখুন'):(type==='audio'?'Play':'View')}
-                </button>
-                <button data-action="downloadFile" data-param="${item.id}" data-name="${sanitize(item.name)}"
-                    style="flex:1;padding:7px;border-radius:10px;font-size:11.5px;font-weight:700;
-                    background:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.05)'};
-                    color:${d?'#d1d5db':'#374151'};border:1.5px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'};
-                    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    ${l==='bn'?'ডাউনলোড':'Download'}
-                </button>
-                ${state.isAdmin&&UPLOAD_LIVE_FEATURE_ENABLED?`
-                <button data-action="deleteFile" data-param="${item.id}" data-listkey="${listKey}"
-                    aria-label="${l==='bn'?'মুছুন':'Delete'} ${sanitize(item.name)}"
-                    style="width:34px;border-radius:10px;background:rgba(220,38,38,.1);border:1.5px solid rgba(220,38,38,.2);
-                    color:#ef4444;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center">🗑</button>`:''
-                }
-            </div>
-        </div>
-    </div>`;
-}
-
-// ============================================================================
-// PAGE: AUDIO LIBRARY — dedicated browsing/search page for state.audioList
-// (playback still goes through the existing renderViewerPage, unchanged)
-// ============================================================================
-function audioLibraryResultsHTML(query) {
-    const d=state.darkMode; const l=state.language;
-    const q=(query||'').trim().toLowerCase();
-    let items=[...state.audioList];
-
-    if(q) items = items.filter(item => (item.name||'').toLowerCase().includes(q));
-
-    const sort = state.audioLibrarySort||'newest';
-    if(sort==='name') {
-        items.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
-    } else {
-        // uploadDate strings are formatted consistently at upload time; id/order fallback
-        items.sort((a,b)=>{
-            const ta = new Date(a.uploadDate||0).getTime()||0;
-            const tb = new Date(b.uploadDate||0).getTime()||0;
-            return sort==='oldest' ? ta-tb : tb-ta;
-        });
-    }
-
-    if(items.length===0) return `
-        <div class="text-center py-16 rounded-2xl" style="border:2px dashed ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}">
-            <div style="font-size:3rem;margin-bottom:.6rem;opacity:.45">🎧</div>
-            <p class="font-semibold text-sm" style="color:${d?'#6b7280':'#9ca3af'}">${q?(l==='bn'?'কোনো ফলাফল নেই':'No results'):(l==='bn'?'কোনো অডিও নেই':'No audio yet')}</p>
-        </div>`;
-
-    return `
-    <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-        ${items.map((item,pi)=>renderMediaCard(item,'audio','audioList',d,l,'#059669','linear-gradient(135deg,#022c22,#059669)',pi)).join('')}
-    </div>`;
-}
-
-function renderAudioLibraryPage() {
-    const d=state.darkMode; const l=state.language;
-    const q=(state.audioLibraryQuery||'');
-    const sort=state.audioLibrarySort||'newest';
-    const sortOptions=[
-        {key:'newest', label:l==='bn'?'নতুন আগে':'Newest first'},
-        {key:'oldest', label:l==='bn'?'পুরনো আগে':'Oldest first'},
-        {key:'name',   label:l==='bn'?'নাম অনুযায়ী':'By name'},
-    ];
-
-    return `
-    <div class="space-y-6 page-enter">
-        <div class="reveal">
-            <h1 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#022c22,#059669);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
-                🎧 ${t('audioLibrary')}
-            </h1>
-            <p class="text-sm mt-1" style="color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?'সব অডিও এক জায়গায় — খুঁজুন ও শুনুন':'All audio in one place — search & listen'}</p>
-        </div>
-
-        <div class="reveal flex flex-col sm:flex-row gap-3">
-            <div style="position:relative;flex:1">
-                <div style="position:absolute;left:16px;top:50%;transform:translateY(-50%);pointer-events:none;color:${d?'#6b7280':'#9ca3af'}">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-                </div>
-                <input
-                    type="search"
-                    value="${sanitize(q)}"
-                    aria-label="${l==='bn'?'অডিও খুঁজুন':'Search audio'}"
-                    placeholder="${l==='bn'?'নাম দিয়ে অডিও খুঁজুন...':'Search audio by name...'}"
-                    oninput="state.audioLibraryQuery=this.value;const r=document.getElementById('audio-library-results');if(r)r.innerHTML=audioLibraryResultsHTML(this.value)"
-                    style="width:100%;padding:12px 16px 12px 44px;border-radius:16px;font-size:.9rem;
-                    background:${d?'#1e2a22':'#ffffff'};
-                    border:2px solid ${d?'rgba(5,150,105,.2)':'rgba(5,150,105,.18)'};
-                    color:${d?'#f9fafb':'#111827'};outline:none"
-                />
-            </div>
-            <select
-                aria-label="${l==='bn'?'সাজানোর ক্রম':'Sort order'}"
-                onchange="state.audioLibrarySort=this.value;const r=document.getElementById('audio-library-results');if(r)r.innerHTML=audioLibraryResultsHTML(state.audioLibraryQuery)"
-                style="padding:12px 16px;border-radius:16px;font-size:.9rem;
-                background:${d?'#1e2a22':'#ffffff'};
-                border:2px solid ${d?'rgba(5,150,105,.2)':'rgba(5,150,105,.18)'};
-                color:${d?'#f9fafb':'#111827'};outline:none">
-                ${sortOptions.map(o=>`<option value="${o.key}" ${sort===o.key?'selected':''}>${o.label}</option>`).join('')}
-            </select>
-        </div>
-
-        <div id="audio-library-results" class="reveal">
-            ${audioLibraryResultsHTML(q)}
-        </div>
-    </div>`;
-}
-
-// ============================================================================
-// PAGE: VIEWER (PDF / Image / Video / Audio)
-// ============================================================================
-
-function renderViewerPage() {
-    const d=state.darkMode; const l=state.language;
-    const item=state.viewerItem; const type=state.viewerType;
-    if(!item) return renderMediaPage();
-    return `
-    <div class="max-w-5xl mx-auto">
-        <button data-action="changePage" data-param="${state.previousPage||'media'}"
-            class="${d?'text-green-400':'text-green-600'} mb-5 flex items-center gap-2 hover:underline focus:outline-none"
-        >← ${l==='bn'?'ফিরে যান':'Back'}</button>
-        <div class="${d?'bg-gray-800':'bg-white'} border rounded-2xl p-6">
-            <div class="flex justify-between items-start mb-5 flex-wrap gap-3">
-                <div>
-                    <h2 class="text-xl font-bold">${sanitize(item.name)}</h2>
-                    <p class="text-sm ${d?'text-gray-400':'text-gray-500'} mt-1">${sanitize(item.sizeFmt)} • ${sanitize(item.uploadDate)}</p>
-                </div>
-                <button data-action="downloadFile" data-param="${item.id}" data-name="${sanitize(item.name)}"
-                    class="${d?'bg-green-900 text-green-300':'bg-green-600 text-white'} px-5 py-2.5 rounded-xl font-semibold hover:opacity-90 flex items-center gap-2"
-                >⬇ ${l==='bn'?'ডাউনলোড':'Download'}</button>
-            </div>
-            ${state.viewerLoading?`
-                <div class="flex flex-col items-center justify-center py-20">
-                    <div class="animate-spin text-4xl mb-4">⏳</div>
-                    <p class="${d?'text-gray-400':'text-gray-600'}">${l==='bn'?'লোড হচ্ছে...':'Loading...'}</p>
-                </div>`
-            : state.viewerData ? renderViewerContent(type, state.viewerData, item, d, l)
-            : `<div class="text-center py-20 text-red-500">${l==='bn'?'ফাইল লোড করা যায়নি':'Could not load file'}</div>`}
-        </div>
-    </div>`;
-}
-
-function renderViewerContent(type, data, item, d, l) {
-    const dlBtn = (label) => `
-        <button data-action="downloadFile" data-param="${item.id}" data-name="${sanitize(item.name)}"
-            class="px-6 py-2.5 rounded-xl font-bold text-sm text-white flex items-center gap-2 mx-auto"
-            style="background:linear-gradient(135deg,#059669,#047857);box-shadow:0 4px 16px rgba(5,150,105,.4)">
-            ⬇ ${label}
-        </button>`;
-
-    if (type==='pdf') {
-        const isCloud = data.startsWith('http');
-        // For cloud URLs, use direct iframe (works for most modern browsers)
-        if (isCloud) {
-            return `
-            <div class="rounded-xl overflow-hidden" style="height:80vh;background:${d?'#111827':'#f9fafb'}">
-                <iframe src="${data}" class="w-full h-full border-0 rounded-xl" title="${sanitize(item.name)}"></iframe>
-            </div>
-            <div class="flex flex-wrap justify-center items-center gap-3 mt-4">
-                <p class="text-xs ${d?'text-gray-500':'text-gray-400'} w-full text-center">
-                    ${l==='bn'?'লোড না হলে নিচের বাটন ব্যবহার করুন':'If it does not load, use the buttons below'}
-                </p>
-                ${dlBtn(l==='bn'?'PDF ডাউনলোড করুন':'Download PDF')}
-            </div>`;
-        }
-        // Fallback for locally stored PDF
-        return `
-        <div class="rounded-xl overflow-hidden" style="height:80vh;background:${d?'#111827':'#f9fafb'}">
-            <iframe src="${data}" class="w-full h-full border-0 rounded-xl" title="${sanitize(item.name)}"></iframe>
-        </div>
-        <div class="flex flex-wrap justify-center items-center gap-3 mt-4">
-            <p class="text-xs ${d?'text-gray-500':'text-gray-400'} w-full text-center">
-                ${l==='bn'?'লোড না হলে নিচের বাটন ব্যবহার করুন':'If it does not load, use the buttons below'}
-            </p>
-            ${dlBtn(l==='bn'?'PDF ডাউনলোড করুন':'Download PDF')}
-        </div>`; }
-
-    if (type==='image') return `
-        <div class="flex flex-col gap-4">
-            <div class="flex justify-center ${d?'bg-gray-900':'bg-gray-50'} rounded-xl p-4" style="min-height:300px">
-                <img src="${data}" class="max-w-full max-h-screen rounded-xl object-contain" alt="${sanitize(item.name)}" />
-            </div>
-            <div class="flex justify-center">${dlBtn(l==='bn'?'ছবি ডাউনলোড করুন':'Download Image')}</div>
-        </div>`;
-
-    if (type==='video') return `
-        <div class="flex flex-col gap-4">
-            <video src="${data}" class="w-full rounded-xl" style="max-height:75vh" controls playsinline>
-                ${l==='bn'?'আপনার ব্রাউজার ভিডিও সাপোর্ট করে না':'Your browser does not support video'}
-            </video>
-            <div class="flex justify-center">${dlBtn(l==='bn'?'ভিডিও ডাউনলোড করুন':'Download Video')}</div>
-        </div>`;
-
-    if (type==='audio') return `
-        <div class="${d?'bg-gray-900':'bg-gradient-to-br from-green-50 to-emerald-100'} rounded-2xl p-10 text-center">
-            <div class="w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center text-4xl"
-                style="background:linear-gradient(135deg,#059669,#047857);box-shadow:0 8px 32px rgba(5,150,105,.4)">🎵</div>
-            <h3 class="text-lg font-bold mb-2">${sanitize(item.name)}</h3>
-            <p class="text-xs ${d?'text-gray-500':'text-gray-400'} mb-6">${sanitize(item.sizeFmt)} • ${sanitize(item.uploadDate)}</p>
-            <audio src="${data}" class="w-full mb-6" controls>
-                ${l==='bn'?'আপনার ব্রাউজার অডিও সাপোর্ট করে না':'Your browser does not support audio'}
-            </audio>
-            <div class="flex justify-center">${dlBtn(l==='bn'?'অডিও ডাউনলোড করুন':'Download Audio')}</div>
-        </div>`;
-
-    return '';
-}
-
 // ============================================================================
 // PAGE: BLOG
 // ============================================================================
