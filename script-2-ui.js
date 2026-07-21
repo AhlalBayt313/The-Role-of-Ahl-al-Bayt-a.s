@@ -156,8 +156,8 @@ function setupEventListeners() {
                 // DUA / ZIYARAT
                 // ✅ REMOVED: duplicate 'setDuaTab' case (identical to the
                 // one defined earlier in this switch; unreachable dead code).
-                case 'setKcTab': state.kcTab=param; state.kcCategory=''; state.kcSearch=''; state.kcPage=1; state.kcDetail=null; kcSimulateLoad(); render(); break;
-                case 'setKcCategory': state.kcCategory=param; state.kcPage=1; state.kcDetail=null; kcSimulateLoad(); render(); break;
+                case 'setKcTab': state.kcTab=param; state.kcCategory=''; state.kcSearch=''; state.kcPage=1; state.kcDetail=null; state.kcSourceFilter=''; kcSimulateLoad(); render(); break;
+                case 'setKcCategory': state.kcCategory=param; state.kcPage=1; state.kcDetail=null; state.kcSourceFilter=''; kcSimulateLoad(); render(); break;
                 case 'kcSetPage': state.kcPage=parseInt(param)||1; window.scrollTo({top:0,behavior:'smooth'}); render(); break;
                 case 'kcOpenDetail': state.kcDetail={type:param,id:param2}; window.scrollTo({top:0,behavior:'instant'}); render(); break;
                 case 'kcCloseDetail': state.kcDetail=null; render(); break;

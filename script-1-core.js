@@ -1,20 +1,19 @@
-// ── Live Upload/Edit/Delete Feature — DISABLED ──────────────────────
+// ── Live Upload Feature — DISABLED ──────────────────────────────────
 // 2026-07-18/19: Cloudinary → GitHub Contents API migration was attempted
 // and reverted the same day. GitHub automatically revokes any GitHub PAT
 // it detects committed to a public repo (confirmed via GitHub's own docs)
 // — the token died with "Bad credentials" immediately after the first
-// push, regardless of push-protection's "I'll fix it later" option.
+// push, regardless of push-protection's "I'll fix it later" option. A
+// working version would need a server-side proxy (e.g. Cloudflare Worker)
+// to keep the token out of client-side code entirely.
 //
-// 2026-07-19: the image/video/audio media feature (and media-data.js)
-// was removed entirely per user's standing decision — all content
-// (blog posts included) is added directly in code and pushed via git,
-// never through an admin UI.
-//
-// This flag now only gates blog.js's New Post/Edit/Delete buttons
-// (script-2-ui.js's Upload/Delete buttons were removed along with the
-// media feature, not just hidden). Kept as a flag rather than deleting
-// those blog.js code paths outright, in case a live editor is ever
-// wanted again.
+// Decision: no live upload feature for now. This flag hides admin
+// upload/edit/delete UI that would otherwise need it (currently: the
+// blog's New/Edit/Delete Post buttons in blog.js — the Media Library and
+// PDF Library that used to also depend on this flag have both been
+// removed entirely, along with their upload UI). Content is instead added
+// by editing the relevant data file directly (e.g. blogPosts in blog.js)
+// and pushing via git.
 const UPLOAD_LIVE_FEATURE_ENABLED = window.UPLOAD_LIVE_FEATURE_ENABLED || false;
 window.UPLOAD_LIVE_FEATURE_ENABLED = UPLOAD_LIVE_FEATURE_ENABLED;
 
@@ -150,6 +149,7 @@ const state = {
     kcSearch: '',
     kcPage: 1,
     kcFatwaMarja: '',
+    kcSourceFilter: '',
     kcDetail: null,
     kcFavorites: [],
     kcFilter: 'all', // 'all' | 'bookmarked' | 'favorite'
@@ -1175,7 +1175,7 @@ function changePage(page) {
     // ✅ FIXED: Cleanup listeners when leaving certain pages (Bug #25)
     if (state.currentPage === 'qibla') cleanupQiblaCompass();
     if (state.currentPage === 'worldMap') cleanupWorldMap();
-
+    
     state.previousPage=state.currentPage; state.currentPage=page;
     state.menuOpen=false; state.currentPost=null; state.currentDua=null;
     state.currentZiyarat=null;

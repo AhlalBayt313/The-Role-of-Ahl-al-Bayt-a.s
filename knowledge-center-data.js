@@ -89,6 +89,38 @@ const kcHadiths = [
     {id:'h090', category:'topical', textBn:'জ্ঞান হলো সর্বোত্তম উত্তরাধিকার।', textEn:'Knowledge is the best inheritance.', refBn:'বিষয়: ইলম', refEn:'Topic: Knowledge', sourceBn:'নাহজুল বালাগা — ইমাম আলী (আ.)', sourceEn:'Nahjul Balagha — Imam Ali (AS)', narratorBn:'ইমাম আলী (আ.)', narratorEn:'Imam Ali (AS)'},
     {id:'h091', category:'topical', textBn:'বিনম্রতা হলো জ্ঞানের ফল।', textEn:'Humility is the fruit of knowledge.', refBn:'বিষয়: আখলাক', refEn:'Topic: Akhlaq (character)', sourceBn:'গুরারুল হিকাম — ইমাম আলী (আ.)', sourceEn:'Ghurar al-Hikam — Imam Ali (AS)', narratorBn:'ইমাম আলী (আ.)', narratorEn:'Imam Ali (AS)'},
     {id:'h092', category:'topical', textBn:'যে ব্যক্তি তার ভাইয়ের সমস্যা সমাধান করে, আল্লাহ তার দুনিয়া ও আখিরাতের সমস্যা সমাধান করেন।', textEn:'Whoever resolves a difficulty for his brother, Allah resolves his difficulties in this world and the next.', refBn:'বিষয়: সামাজিক দায়িত্ব', refEn:'Topic: Social responsibility', sourceBn:'উসুলে কাফি — ইমাম সাদিক (আ.)', sourceEn:'Usul al-Kafi — Imam al-Sadiq (AS)', narratorBn:'ইমাম সাদিক (আ.)', narratorEn:'Imam al-Sadiq (AS)'},
+
+    // ── আরও Prophet Muhammad (PBUH) ──
+    {id:'h005', category:'prophet', textBn:'তোমাদের মধ্যে সর্বোত্তম সে ব্যক্তি যে তার পরিবারের কাছে সর্বোত্তম, আর আমি আমার পরিবারের কাছে সর্বোত্তম।', textEn:'The best among you is the one best to his family, and I am the best to my family.', refBn:'', refEn:'', sourceBn:'সুনানে তিরমিযি', sourceEn:'Sunan al-Tirmidhi', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+    {id:'h006', category:'prophet', textBn:'জ্ঞান অর্জন করা প্রত্যেক মুসলিম নর-নারীর উপর ফরজ।', textEn:'Seeking knowledge is obligatory upon every Muslim, male and female.', refBn:'', refEn:'', sourceBn:'সুনানে ইবনে মাজাহ', sourceEn:'Sunan Ibn Majah', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+
+    // ── আরও Fatimah al-Zahra (AS) ──
+    {id:'h013', category:'fatima', textBn:'ফাতেমা আমার শরীরের একটি অংশ; যে তাকে কষ্ট দেয় সে যেন আমাকেই কষ্ট দেয়।', textEn:'Fatima is a part of my body; whoever hurts her hurts me.', refBn:'', refEn:'', sourceBn:'সহীহ বুখারি', sourceEn:'Sahih Bukhari', narratorBn:'রাসূলুল্লাহ (সা.) — ফাতিমা (আ.) সম্পর্কে', narratorEn:"Prophet Muhammad (PBUH) — about Fatimah (AS)"},
+
+    // ── আরও Imam Ali (AS) ──
+    {id:'h024', category:'ali', textBn:'দুনিয়া মুমিনের জন্য কারাগার এবং কাফিরের জন্য জান্নাত।', textEn:'The world is a prison for the believer and a paradise for the disbeliever.', refBn:'', refEn:'', sourceBn:'নাহজুল বালাগা (হাদিসে নববী উদ্ধৃত)', sourceEn:'Nahjul Balagha (quoting a Prophetic hadith)', narratorBn:'ইমাম আলী (আ.)', narratorEn:'Imam Ali (AS)'},
+    {id:'h025', category:'ali', textBn:'তোমার শত্রুর সাথেও ন্যায়বিচার করো, আর তোমার বন্ধুর সাথেও সত্য বলো।', textEn:'Be just even to your enemy, and be truthful even with your friend.', refBn:'', refEn:'', sourceBn:'গুরারুল হিকাম', sourceEn:'Ghurar al-Hikam', narratorBn:'ইমাম আলী (আ.)', narratorEn:'Imam Ali (AS)'},
+
+    // ── আরও Imam Husayn (AS) ──
+    {id:'h042', category:'husayn', textBn:'মানুষ দুনিয়ার গোলাম; দ্বীন তাদের জিহ্বার আগায় থাকে যতক্ষণ তাদের জীবিকা নিশ্চিত থাকে।', textEn:'People are slaves of the world; religion is but a fleeting matter on their tongues, so long as their livelihoods remain secure.', refBn:'কারবালার আগের ভাষণ', refEn:'Sermon before Karbala', sourceBn:'তুহাফুল উকুল', sourceEn:'Tuhaf al-Uqul', narratorBn:'ইমাম হোসাইন (আ.)', narratorEn:'Imam Husayn (AS)'},
+
+    // ── আরও Imam Sajjad (আ.) ──
+    {id:'h052', category:'sajjad', textBn:'সবচেয়ে বড় সম্পদ হলো লোভ না করা।', textEn:'The greatest wealth is having no greed.', refBn:'', refEn:'', sourceBn:'তুহাফুল উকুল', sourceEn:'Tuhaf al-Uqul', narratorBn:'ইমাম সাজ্জাদ (আ.)', narratorEn:'Imam Sajjad (AS)'},
+
+    // ── আরও Imam al-Baqir (আ.) ──
+    {id:'h062', category:'baqir', textBn:'তোমাদের মধ্যে সবচেয়ে দুর্বল ব্যক্তি সে, যে দোয়া করতে অলস।', textEn:'The weakest among you is the one who is too lazy to supplicate.', refBn:'', refEn:'', sourceBn:'বিহারুল আনওয়ার', sourceEn:'Bihar al-Anwar', narratorBn:'ইমাম বাকির (আ.)', narratorEn:'Imam al-Baqir (AS)'},
+
+    // ── আরও Imam al-Sadiq (আ.) ──
+    {id:'h073', category:'sadiq', textBn:'তিনটি জিনিস মুমিনের সম্মান রক্ষা করে: নামাজে রাত জাগা, মানুষের কাছ থেকে কিছু আশা না করা, ইমামদের (আ.) অনুসরণ করা।', textEn:'Three things preserve the believer\u2019s honor: staying up at night in prayer, expecting nothing from people, and following the Imams (AS).', refBn:'', refEn:'', sourceBn:'উসুলে কাফি', sourceEn:'Usul al-Kafi', narratorBn:'ইমাম সাদিক (আ.)', narratorEn:'Imam al-Sadiq (AS)'},
+    {id:'h074', category:'sadiq', textBn:'কর্মীর মজুরি ঘাম শুকানোর আগেই পরিশোধ করো।', textEn:'Pay the worker his wages before his sweat dries.', refBn:'', refEn:'', sourceBn:'বিহারুল আনওয়ার', sourceEn:'Bihar al-Anwar', narratorBn:'ইমাম সাদিক (আ.)', narratorEn:'Imam al-Sadiq (AS)'},
+
+    // ── আরও Remaining Imams (আ.) ──
+    {id:'h083', category:'others', textBn:'যে ব্যক্তি নিজের জিহ্বাকে সংযত রাখে, আল্লাহ তার দোষ ঢেকে রাখেন।', textEn:'Whoever restrains his tongue, Allah conceals his faults.', refBn:'', refEn:'', sourceBn:'বিহারুল আনওয়ার', sourceEn:'Bihar al-Anwar', narratorBn:'ইমাম আলী আন-নাকি (আ.)', narratorEn:'Imam Ali al-Naqi / al-Hadi (AS)'},
+    {id:'h084', category:'others', textBn:'যে ব্যক্তি সৎকর্মের পথ দেখায় সে ঐ সৎকর্ম সম্পাদনকারীর সমান সওয়াব পায়।', textEn:'Whoever guides someone to a good deed receives a reward equal to the one who performs it.', refBn:'', refEn:'', sourceBn:'বিহারুল আনওয়ার', sourceEn:'Bihar al-Anwar', narratorBn:'ইমাম হাসান আল-আসকারি (আ.)', narratorEn:'Imam Hasan al-Askari (AS)'},
+
+    // ── আরও Topic-wise ──
+    {id:'h093', category:'topical', textBn:'সবচেয়ে বুদ্ধিমান মানুষ সে যে নিজের ত্রুটিগুলো নিয়ে ব্যস্ত থাকে, অন্যের ত্রুটি নিয়ে নয়।', textEn:'The wisest person is one who is preoccupied with his own faults rather than the faults of others.', refBn:'বিষয়: আত্ম-উন্নয়ন', refEn:'Topic: Self-improvement', sourceBn:'বিহারুল আনওয়ার — ইমাম হাসান (আ.)', sourceEn:'Bihar al-Anwar — Imam Hasan (AS)', narratorBn:'ইমাম হাসান (আ.)', narratorEn:'Imam Hasan (AS)'},
+    {id:'h094', category:'topical', textBn:'প্রতিবেশীর সাথে ভালো ব্যবহার করা ঈমানের অংশ।', textEn:'Good treatment of neighbors is part of faith.', refBn:'বিষয়: সামাজিক আচরণ', refEn:'Topic: Social conduct', sourceBn:'উসুলে কাফি — ইমাম সাদিক (আ.)', sourceEn:'Usul al-Kafi — Imam al-Sadiq (AS)', narratorBn:'ইমাম সাদিক (আ.)', narratorEn:'Imam al-Sadiq (AS)'},
 ];
 
 // ---------------------------------------------------------------------------
@@ -144,10 +176,34 @@ const kcMasail = [
         answerBn:'ইসলামে সুদ কঠোরভাবে হারাম, চাই তা ঋণে হোক বা লেনদেনে।', answerEn:'Interest (Riba) is strictly forbidden in Islam, whether in loans or trade.',
         detailBn:'বিকল্প শরিয়াহ-সম্মত অর্থায়ন পদ্ধতি (যেমন মুদারাবা, মুশারাকা) সম্পর্কে মারজার নির্দেশনা দেখুন।', detailEn:'See your Marja\u2019s guidance on Shariah-compliant financing alternatives (e.g. Mudaraba, Musharaka).',
         sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
+    {id:'m003', category:'taharah', questionBn:'পানি দিয়ে নাপাক জিনিস পবিত্র করার সাধারণ পদ্ধতি কী?', questionEn:'What is the general method for purifying something impure with water?',
+        answerBn:'কল/প্রবাহমান পানি হলে একবার ধুলেই সাধারণত পবিত্র হয়ে যায়; জমা পানি (কম পরিমাণ) হলে সাধারণত তিনবার ধুতে হয়, বস্তুভেদে নিয়ম কিছুটা ভিন্ন।', answerEn:'With running/tap water, one wash is generally sufficient; with a small amount of standing water, three washes are typically required — the exact rule varies by object.',
+        detailBn:'', detailEn:'', sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
+    {id:'m004', category:'wudu', questionBn:'অজুর ফরজ অংশগুলো কী কী?', questionEn:'What are the obligatory parts of Wudu?',
+        answerBn:'মুখমণ্ডল ধোয়া, দুই হাত কনুই পর্যন্ত ধোয়া, মাথার সামনের অংশে মাসেহ করা, এবং দুই পায়ে (গোড়ালি পর্যন্ত) মাসেহ করা — এই ক্রম অনুসরণ করে।', answerEn:'Washing the face, washing both arms up to the elbows, wiping the front part of the head, and wiping both feet up to the ankles — performed in this sequence.',
+        detailBn:'', detailEn:'', sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
+    {id:'m011', category:'salah', questionBn:'নামাজে কিবলামুখী হওয়া কেন জরুরি?', questionEn:'Why is facing the Qibla necessary in prayer?',
+        answerBn:'কাবার দিকে মুখ করে নামাজ পড়া নামাজের একটি শর্ত — ইচ্ছাকৃতভাবে ভুল দিকে নামাজ পড়লে তা বাতিল হয়ে যায়, তবে অনিচ্ছাকৃত সামান্য ভুলের ক্ষেত্রে ছাড় থাকতে পারে।', answerEn:'Facing the Kaaba is a condition for a valid prayer — intentionally praying in the wrong direction invalidates it, though minor unintentional deviation may be excused.',
+        detailBn:'', detailEn:'', sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
+    {id:'m021', category:'sawm', questionBn:'রমজানের রোজা কার উপর ওয়াজিব?', questionEn:'On whom is fasting in Ramadan obligatory?',
+        answerBn:'বালেগ, বিবেকবান ও শারীরিকভাবে সক্ষম প্রত্যেক মুসলিম নর-নারীর উপর রমজানের রোজা ওয়াজিব; অসুস্থ, মুসাফির, গর্ভবতী/স্তন্যদানকারী নারী প্রভৃতির জন্য ছাড় বা কাযা/ফিদিয়ার বিধান আছে।', answerEn:'Fasting in Ramadan is obligatory on every adult, sane, physically able Muslim; exemptions or make-up/compensation rules apply for the ill, travelers, pregnant or nursing women, and others.',
+        detailBn:'', detailEn:'', sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
+    {id:'m031', category:'khums', questionBn:'খুমসের বছর (সাল-ই খুমসি) কী?', questionEn:'What is the \u201cKhums year\u201d?',
+        answerBn:'প্রত্যেকে নিজের একটি নির্দিষ্ট বার্ষিক তারিখ ঠিক করে নেয় (যেমন প্রথম উপার্জনের দিন), সেই তারিখে বছরের শুরুতে যা আয় হয়েছিল তার হিসাব করে অব্যয়িত উদ্বৃত্তের উপর খুমস দিতে হয়।', answerEn:'Each person sets a personal annual date (e.g. the day they first earned income); on that date each year, Khums is calculated and paid on whatever surplus income remains unspent.',
+        detailBn:'', detailEn:'', sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
+    {id:'m041', category:'hajj', questionBn:'হজ্বের প্রধান কাজগুলো (রুকন) কী কী?', questionEn:'What are the main rites (Rukn) of Hajj?',
+        answerBn:'ইহরাম বাঁধা, আরাফাতে অবস্থান, মুজদালিফায় রাত্রিযাপন, জামারাতে কঙ্কর নিক্ষেপ, কাবা তাওয়াফ এবং সাফা-মারওয়া সাঈ — এগুলো হজ্বের প্রধান অংশ।', answerEn:'Entering Ihram, standing at Arafat, staying overnight at Muzdalifah, stoning the Jamarat, circling the Kaaba (Tawaf), and walking between Safa and Marwah (Sa\u2019i) are the main rites of Hajj.',
+        detailBn:'', detailEn:'', sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
+    {id:'m051', category:'business', questionBn:'ব্যবসায় প্রতারণা (গারার) সম্পর্কে ইসলামের অবস্থান কী?', questionEn:'What is the Islamic stance on deceptive uncertainty (Gharar) in trade?',
+        answerBn:'অতিরিক্ত অনিশ্চয়তা বা প্রতারণা জড়িত লেনদেন (গারার) ইসলামে নিষিদ্ধ — ক্রেতা-বিক্রেতা উভয়েরই লেনদেনের বস্তু, মূল্য ও শর্ত সম্পর্কে স্পষ্ট ধারণা থাকা আবশ্যক।', answerEn:'Transactions involving excessive uncertainty or deception (Gharar) are forbidden in Islam — both buyer and seller must have clear knowledge of the object, price, and terms of the transaction.',
+        detailBn:'', detailEn:'', sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
     {id:'m090', category:'misc', questionBn:'দৈনন্দিন জীবনে কোনো মাসআলা নিয়ে সন্দেহ হলে কী করব?', questionEn:'What should I do if I\u2019m unsure about a ruling in daily life?',
         answerBn:'নিজের অনুসরণীয় (মারজা-এ তাকলিদ) এর তাওজিহুল মাসায়েল দেখুন অথবা তাঁর প্রতিনিধি/অফিসে সরাসরি জিজ্ঞাসা করুন।', answerEn:'Consult your chosen Marja-e Taqlid\u2019s ruling manual (Tawdih al-Masail), or ask their representative/office directly.',
         detailBn:'এই বিভাগের তথ্য সাধারণ সচেতনতার জন্য — নির্দিষ্ট ব্যক্তিগত পরিস্থিতির জন্য সরাসরি মারজার কাছ থেকে ফতোয়া নিন।', detailEn:'Content in this section is for general awareness — for specific personal situations, obtain a ruling directly from a Marja.',
         sourceBn:'', sourceEn:'', marja:'general'},
+    {id:'m091', category:'misc', questionBn:'অমুসলিম দেশে বসবাসরত মুসলিমদের জন্য কোনো বিশেষ বিবেচনা আছে কি?', questionEn:'Are there any special considerations for Muslims living in non-Muslim countries?',
+        answerBn:'নামাজের সময়, কিবলা নির্ণয়, হালাল খাদ্য প্রাপ্তি ইত্যাদি ক্ষেত্রে স্থানীয় পরিস্থিতি বিবেচনা করে সংশ্লিষ্ট বিধান প্রযোজ্য হয় — এক্ষেত্রেও নিজের মারজার নির্দেশনা অনুসরণ করা উত্তম।', answerEn:'Local circumstances are taken into account for matters like prayer times, determining the Qibla, and access to Halal food — it\u2019s best to follow your Marja\u2019s specific guidance for these situations too.',
+        detailBn:'', detailEn:'', sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
 
     // ── Ghusl ──
     {id:'m100', category:'ghusl', questionBn:'গোসল কখন ওয়াজিব হয়?', questionEn:'When does Ghusl become obligatory?',
@@ -254,6 +310,38 @@ const kcQa = [
         answerBn:'এটি রাসূলুল্লাহ (সা.) এর একটি প্রসিদ্ধ হাদিস, যেখানে তিনি উম্মতের জন্য দুটি ভারী বস্তু — কুরআন ও আহলে বাইত — রেখে যাওয়ার কথা বলেছেন।', answerEn:'This is a well-known narration in which the Prophet (PBUH) states he is leaving behind two weighty things for the Ummah — the Quran and the Ahlul Bayt.'},
     {id:'q040', category:'general', questionBn:'শিয়া ও সুন্নি মুসলিমদের মধ্যে মূল পার্থক্য কী?', questionEn:'What are the main differences between Shia and Sunni Muslims?',
         answerBn:'উভয় দলই ইসলামের মৌলিক স্তম্ভে বিশ্বাসী; মূল পার্থক্য মূলত রাসূলুল্লাহ (সা.) এর পরবর্তী নেতৃত্ব/ইমামত প্রশ্নে ঐতিহাসিক ও ফিকহি দৃষ্টিভঙ্গিতে।', answerEn:'Both groups share the core pillars of Islam; the primary differences are historical and jurisprudential, centering on the question of leadership/Imamah after the Prophet (PBUH).'},
+
+    // ── আরও Aqidah ──
+    {id:'q003', category:'aqidah', questionBn:'আদল (আল্লাহর ন্যায়বিচার) শিয়া আকিদার একটি মূলনীতি কেন?', questionEn:'Why is Adl (Divine Justice) a core principle in Shia belief?',
+        answerBn:'শিয়া আকিদায় আল্লাহকে সম্পূর্ণ ন্যায়পরায়ণ হিসেবে বিশ্বাস করা হয় — তিনি কখনো অন্যায় করেন না এবং মানুষকে স্বাধীন ইচ্ছাশক্তি দিয়েছেন, যার ফলে মানুষ তার কর্মের জন্য দায়ী।', answerEn:'Shia theology holds Allah to be perfectly just — He never acts unjustly, and has granted humans free will, making them accountable for their actions.'},
+    {id:'q004', category:'aqidah', questionBn:'নবুওয়ত (Prophethood) কী?', questionEn:'What is Nubuwwah (Prophethood)?',
+        answerBn:'নবুওয়ত হলো আল্লাহ কর্তৃক মনোনীত নবী-রাসূলদের মাধ্যমে মানবজাতির কাছে ওহী পৌঁছে দেওয়ার প্রক্রিয়া, যা মুহাম্মদ (সা.)-এর মাধ্যমে পরিসমাপ্ত হয়েছে।', answerEn:'Nubuwwah is the process by which Allah conveys divine revelation to humanity through chosen prophets, which culminated and concluded with Prophet Muhammad (PBUH).'},
+    {id:'q005', category:'aqidah', questionBn:'মাআদ (পুনরুত্থান/আখিরাত) বলতে কী বোঝায়?', questionEn:'What does Ma\u2019ad (Resurrection/Afterlife) mean?',
+        answerBn:'মাআদ হলো কিয়ামতের দিন মৃত্যুর পর পুনরুত্থান ও পরকালে বিচারের প্রতি বিশ্বাস — যা ইসলামের মৌলিক আকিদাগুলোর একটি।', answerEn:'Ma\u2019ad is the belief in resurrection after death and judgment in the afterlife on the Day of Resurrection — one of the fundamental tenets of Islamic belief.'},
+
+    // ── আরও Fiqh ──
+    {id:'q011', category:'fiqh', questionBn:'মুজতাহিদ কে?', questionEn:'Who is a Mujtahid?',
+        answerBn:'মুজতাহিদ হলেন একজন ইসলামি ফিকহ বিশেষজ্ঞ, যিনি কুরআন, হাদিস, ইজমা ও আকল (বুদ্ধিবৃত্তিক প্রমাণ) থেকে স্বাধীনভাবে শরয়ি বিধান নির্ণয় করার যোগ্যতা রাখেন।', answerEn:'A Mujtahid is an Islamic jurisprudence scholar qualified to independently derive religious rulings from the Quran, Hadith, consensus (Ijma), and reason (Aql).'},
+    {id:'q012', category:'fiqh', questionBn:'ওয়াজিব, মুস্তাহাব, মাকরুহ ও হারাম — এই পরিভাষাগুলোর অর্থ কী?', questionEn:'What do the terms Wajib, Mustahabb, Makruh, and Haram mean?',
+        answerBn:'ওয়াজিব (বাধ্যতামূলক), মুস্তাহাব (প্রস্তাবিত/উত্তম), মাকরুহ (অপছন্দনীয় কিন্তু হারাম নয়), হারাম (নিষিদ্ধ) — এগুলো ফিকহি বিধানের শ্রেণিবিভাগ।', answerEn:'Wajib (obligatory), Mustahabb (recommended), Makruh (disliked but not forbidden), and Haram (forbidden) are the categories used to classify Islamic legal rulings.'},
+
+    // ── আরও Quran ──
+    {id:'q021', category:'quran', questionBn:'কুরআন কতদিনে অবতীর্ণ হয়েছিল?', questionEn:'Over how long was the Quran revealed?',
+        answerBn:'কুরআন প্রায় ২৩ বছর ধরে রাসূলুল্লাহ (সা.)-এর কাছে ধাপে ধাপে অবতীর্ণ হয়েছিল — মক্কী ও মাদানী দুই পর্বে।', answerEn:'The Quran was revealed to the Prophet (PBUH) gradually over approximately 23 years, in two phases — Meccan and Medinan.'},
+    {id:'q022', category:'quran', questionBn:'সবচেয়ে বড় ও ছোট সূরা কোনটি?', questionEn:'What are the longest and shortest Surahs?',
+        answerBn:'সবচেয়ে বড় সূরা হলো আল-বাকারা (২৮৬ আয়াত), আর সবচেয়ে ছোট সূরা আল-কাউসার (৩ আয়াত)।', answerEn:'The longest Surah is Al-Baqarah (286 verses), and the shortest is Al-Kawthar (3 verses).'},
+
+    // ── আরও Hadith ──
+    {id:'q031', category:'hadith', questionBn:'সহিফায়ে সাজ্জাদিয়্যা কী?', questionEn:'What is the Sahifa al-Sajjadiyya?',
+        answerBn:'এটি ইমাম যাইনুল আবিদীন (আ.)-এর দোয়ার একটি সংকলন, যা ইসলামি আধ্যাত্মিক সাহিত্যে "যাবুরে আলে মুহাম্মদ" নামে পরিচিত।', answerEn:'It is a collection of supplications by Imam Zayn al-Abidin (AS), known in Islamic spiritual literature as the "Psalms of the Family of Muhammad".'},
+    {id:'q032', category:'hadith', questionBn:'হাদিসে গাদির (গাদিরে খুম) কী?', questionEn:'What is the Hadith of Ghadir (Ghadir Khumm)?',
+        answerBn:'এটি রাসূলুল্লাহ (সা.)-এর একটি প্রসিদ্ধ ভাষণ, যেখানে বিদায় হজ্ব থেকে ফেরার পথে গাদিরে খুম নামক স্থানে তিনি আলী (আ.)-কে উম্মতের নেতৃত্বের বিষয়ে উল্লেখ করেন।', answerEn:'This refers to a famous sermon delivered by the Prophet (PBUH) at Ghadir Khumm while returning from his Farewell Pilgrimage, in which he spoke of Ali (AS) in relation to the community\u2019s leadership.'},
+
+    // ── আরও General ──
+    {id:'q041', category:'general', questionBn:'আশুরা কী এবং কেন গুরুত্বপূর্ণ?', questionEn:'What is Ashura and why is it significant?',
+        answerBn:'আশুরা হলো মুহাররম মাসের দশম দিন, যেদিন ৬১ হিজরিতে কারবালার প্রান্তরে ইমাম হোসাইন (আ.) ও তাঁর সঙ্গীরা শাহাদাত বরণ করেন — শিয়া মুসলিমদের কাছে এটি ত্যাগ ও ন্যায়ের প্রতীক হিসেবে পালিত হয়।', answerEn:'Ashura is the tenth day of Muharram, marking the martyrdom of Imam Husayn (AS) and his companions at Karbala in 61 AH — observed by Shia Muslims as a symbol of sacrifice and standing for justice.'},
+    {id:'q042', category:'general', questionBn:'জান্নাতুল বাকি কী?', questionEn:'What is Jannat al-Baqi?',
+        answerBn:'জান্নাতুল বাকি মদিনায় অবস্থিত একটি ঐতিহাসিক কবরস্থান, যেখানে রাসূলুল্লাহ (সা.)-এর অনেক পরিবারের সদস্য ও সাহাবি সমাহিত আছেন — চার ইমামও (হাসান, সাজ্জাদ, বাকির, সাদিক আ.) এখানে সমাহিত।', answerEn:'Jannat al-Baqi is a historic cemetery in Medina where many family members and companions of the Prophet (PBUH) are buried — including four Imams (Hasan, Sajjad, al-Baqir, and al-Sadiq, AS).'},
 ];
 
 // ---------------------------------------------------------------------------

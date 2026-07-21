@@ -902,11 +902,6 @@ function render() {
         ${renderShiaDayEditorModal()}
     `;
 
-    // load lazy images after render
-    document.querySelectorAll('img[data-src-id]').forEach(img => {
-        const id = img.getAttribute('data-src-id');
-        dbGet(id).then(data => { if(data) img.src=data; }).catch(()=>{});
-    });
     // mobile bottom nav
     renderMobileBottomNav();
     // re-run setup after each render
@@ -1152,6 +1147,8 @@ function init() {
     setupScrollReveal();
     startPrayerClock();          // ✅ FIXED: prayer-times পেজের next-prayer countdown আগে dead ছিল (Production Audit #1)
     startNextPrayerCountdown();  // ✅ FIXED: হোম ব্যানারের countdown আগে dead ছিল (Production Audit #1)
+    // Blog posts are static (blogPosts array in blog.js), loaded directly
+    // wherever they're rendered — no cloud fetch needed.
     setTimeout(hideSplash, 2600);
 }
 

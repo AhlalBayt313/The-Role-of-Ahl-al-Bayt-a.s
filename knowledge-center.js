@@ -97,6 +97,9 @@ function kcFilteredItems(tab) {
     if (tab==='fatwa' && state.kcFatwaMarja) {
         items = items.filter(x => x.marja === state.kcFatwaMarja);
     }
+    if (tab==='hadith' && state.kcSourceFilter) {
+        items = items.filter(x => (x.sourceBn||'') === state.kcSourceFilter || (x.sourceEn||'') === state.kcSourceFilter);
+    }
     if (q) {
         items = items.filter(x => {
             const hay = [
@@ -218,12 +221,12 @@ function kcSimulateLoad() {
 function kcUpdateSeoSchema(tab) {
     if (typeof document === 'undefined') return;
     const existing = document.getElementById('kc-faq-schema');
-    if (tab !== 'qa' && tab !== 'masail') {
+    if (tab !== 'qa' && tab !== 'masail' && tab !== 'fatwa') {
         if (existing) existing.remove();
         return;
     }
     const l = state.language;
-    const items = kcFilteredItems(tab).slice(0, 12);
+    const items = kcFilteredItems(tab).filter(item => !item.sample).slice(0, 12);
     if (items.length === 0) {
         if (existing) existing.remove();
         return;
@@ -636,6 +639,19 @@ function renderKnowledgeCenterPage() {
             <option value="">${l==='bn'?'সব মারজা':'All Maraji'}</option>
             ${cfg.categories.map(c=>`<option value="${c.key}" ${state.kcFatwaMarja===c.key?'selected':''}>${sanitize(l==='bn'?c.bn:c.en)}</option>`).join('')}
         </select>`;
+        if (tab==='hadith' && state.kcCategory && cfg.items) {
+            const inCat = cfg.items.filter(x => x.category === state.kcCategory);
+            const sources = [...new Set(inCat.map(x => l==='bn' ? (x.sourceBn||'') : (x.sourceEn||x.sourceBn||'')).filter(Boolean))];
+            if (sources.length < 2) return '';
+            return `
+            <select aria-label="${l==='bn'?'উৎস গ্রন্থ ফিল্টার':'Filter by Source Book'}"
+                onchange="state.kcSourceFilter=this.value;state.kcPage=1;const r=document.getElementById('kc-results');if(r)r.innerHTML=renderKcResultsInner();"
+                style="padding:12px 16px;border-radius:16px;font-size:.85rem;background:${d?'#1e2a22':'#ffffff'};
+                border:2px solid ${d?'rgba(5,150,105,.2)':'rgba(5,150,105,.18)'};color:${d?'#f9fafb':'#111827'};outline:none">
+                <option value="">${l==='bn'?'সব উৎস গ্রন্থ':'All Source Books'}</option>
+                ${sources.map(s=>`<option value="${sanitize(s)}" ${state.kcSourceFilter===s?'selected':''}>${sanitize(s)}</option>`).join('')}
+            </select>`;
+        }
         return '';
     })();
 
