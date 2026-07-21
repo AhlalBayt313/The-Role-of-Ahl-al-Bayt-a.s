@@ -249,6 +249,37 @@ function renderDuaPage() {
         {key:'ramadan', icon:'🌙', label:l==='bn'?'রমজান':'Ramadan',         color:'#f97316', bg:'rgba(249,115,22,.15)'},
     ];
 
+    // NEW: Ziyarat category filter — person-based (12 Imams / Masumeen) plus
+    // occasion-based (comprehensive/Jami'a-type) buckets, per user's request
+    // to add ziyarat categories and organize the tab by them.
+    const selectedZiyaratCategory = state.ziyaratCategory || 'all';
+    const ziyaratCatFilters=[
+        {key:'all',          icon:'✦', label:l==='bn'?'সকল যিয়ারত':'All Ziyarat',        color:'#b45309'},
+        {key:'imams',        icon:'👑', label:l==='bn'?'১২ ইমাম':'The 12 Imams',           color:'#7c3aed'},
+        {key:'masumeen',     icon:'🌹', label:l==='bn'?'মাসুম (আ.)':'Masumeen (a.s)',      color:'#db2777'},
+        {key:'comprehensive',icon:'📜', label:l==='bn'?'জামে/সার্বজনীন':'Comprehensive',   color:'#0ea5e9'},
+    ];
+    const ziyaratCatOrder=['imams','masumeen','comprehensive'];
+    const ziyaratCatGroupLabel={
+        imams:        {bn:'👑 ১২ ইমাম এর যিয়ারত', en:'👑 Ziyarat of the 12 Imams'},
+        masumeen:     {bn:'🌹 মাসুম (আ.)',          en:'🌹 Masumeen (a.s)'},
+        comprehensive:{bn:'📜 জামে/সার্বজনীন',      en:'📜 Comprehensive'},
+    };
+    // Bug-safety: readZiyarat falls back to ziyarats[parseInt(param)] for
+    // built-in entries (which carry no `id`), relying on the item's ORIGINAL
+    // position in allZiyarat/ziyarats. Filtering/grouping must not lose that
+    // original index, so every item is tagged with its true `idx` up front.
+    const indexedZiyarat = allZiyarat.map((z,idx)=>({z,idx}));
+    const filteredZiyarat = indexedZiyarat
+        .filter(({z}) => selectedZiyaratCategory==='all' || z.category===selectedZiyaratCategory);
+    // When showing "all", group entries by category (12 Imams → Masumeen →
+    // Comprehensive) instead of raw array order.
+    const groupedZiyarat = selectedZiyaratCategory==='all'
+        ? ziyaratCatOrder
+            .map(cat => ({cat, items:filteredZiyarat.filter(({z})=>z.category===cat)}))
+            .filter(g => g.items.length>0)
+        : [{cat:selectedZiyaratCategory, items:filteredZiyarat}];
+
     return `
     <div class="space-y-6 page-enter">
 
@@ -319,6 +350,24 @@ function renderDuaPage() {
                 ${catFilters.map(f=>{
                     const isActive=selectedCategory===f.key;
                     return `<button data-action="setDuaCategory" data-param="${f.key}" aria-pressed="${isActive?'true':'false'}"
+                        style="flex-shrink:0;font-size:11.5px;font-weight:700;padding:6px 16px;border-radius:50px;
+                        cursor:pointer;white-space:nowrap;transition:all .18s;
+                        background:${isActive?f.color:(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)')};
+                        color:${isActive?'#fff':(d?'#9ca3af':'#6b7280')};
+                        border:1.5px solid ${isActive?f.color:(d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)')}">
+                        ${f.icon} ${f.label}
+                    </button>`;
+                }).join('')}
+            </div>
+        </div>`:''}
+
+        <!-- Category filter (ziyarat tab only) -->
+        ${tab==='ziyarat'?`
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 1px 6px">
+            <div style="display:flex;gap:7px;width:max-content">
+                ${ziyaratCatFilters.map(f=>{
+                    const isActive=selectedZiyaratCategory===f.key;
+                    return `<button data-action="setZiyaratCategory" data-param="${f.key}" aria-pressed="${isActive?'true':'false'}"
                         style="flex-shrink:0;font-size:11.5px;font-weight:700;padding:6px 16px;border-radius:50px;
                         cursor:pointer;white-space:nowrap;transition:all .18s;
                         background:${isActive?f.color:(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)')};
@@ -403,60 +452,69 @@ function renderDuaPage() {
             }).join('')}
         </div>`:''}
 
-        <!-- ZIYARAT TAB content -->
+        <!-- ZIYARAT TAB content — grouped by category (12 Imams → Masumeen →
+             Comprehensive) per user's request to organize ziyarat by category -->
         ${tab==='ziyarat'?`
-        <div class="space-y-4">
-            ${allZiyarat.length===0?`
+        <div class="space-y-6">
+            ${filteredZiyarat.length===0?`
             <div class="text-center py-16" style="color:${d?'#6b7280':'#9ca3af'}">
                 <div style="font-size:3rem;margin-bottom:.75rem">☪️</div>
                 <p class="font-semibold text-lg mb-1">${l==='bn'?'কোনো যিয়ারত নেই':'No Ziyarat yet'}</p>
                 ${state.isAdmin?`<p class="text-sm">${l==='bn'?'উপরের বাটন থেকে যিয়ারত যোগ করুন':'Use the button above to add Ziyarat'}</p>`:''}
             </div>`:
-            allZiyarat.map((z,i)=>`
-            <article class="card-luxury border reveal"
-                style="background:${d?'#1e1a14':'#fffbf0'};
-                border-color:${d?'rgba(180,83,9,.2)':'rgba(180,83,9,.15)'};
-                box-shadow:var(--shadow-sm)">
-                <div style="height:3px;background:linear-gradient(90deg,#b45309,#c9a227,#b45309);background-size:200% 100%;animation:goldShimmer 3s linear infinite;border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
-                <div class="p-5">
-                    <div class="flex items-start justify-between gap-3 mb-4">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                <span class="${d?'gold-badge-dark':'gold-badge'}">☪️ ${l==='bn'?'যিয়ারত':'Ziyarat'}</span>
-                                <h2 class="font-bold text-base" style="color:${d?'#f9fafb':'#111827'}">${sanitize(l==='bn'?z.titleBn:z.titleEn)}</h2>
+            groupedZiyarat.map(group=>`
+            <div class="space-y-4">
+                ${selectedZiyaratCategory==='all'?`
+                <h3 class="font-bold text-sm" style="color:${d?'#fbbf24':'#92400e'}">
+                    ${l==='bn'?ziyaratCatGroupLabel[group.cat].bn:ziyaratCatGroupLabel[group.cat].en}
+                    <span style="font-size:.7rem;font-weight:600;opacity:.7;margin-left:4px">${group.items.length}</span>
+                </h3>`:''}
+                ${group.items.map(({z,idx})=>`
+                <article class="card-luxury border reveal"
+                    style="background:${d?'#1e1a14':'#fffbf0'};
+                    border-color:${d?'rgba(180,83,9,.2)':'rgba(180,83,9,.15)'};
+                    box-shadow:var(--shadow-sm)">
+                    <div style="height:3px;background:linear-gradient(90deg,#b45309,#c9a227,#b45309);background-size:200% 100%;animation:goldShimmer 3s linear infinite;border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
+                    <div class="p-5">
+                        <div class="flex items-start justify-between gap-3 mb-4">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <span class="${d?'gold-badge-dark':'gold-badge'}">☪️ ${l==='bn'?'যিয়ারত':'Ziyarat'}</span>
+                                    <h2 class="font-bold text-base" style="color:${d?'#f9fafb':'#111827'}">${sanitize(l==='bn'?z.titleBn:z.titleEn)}</h2>
+                                </div>
+                                ${z.occasion?`<p class="text-xs font-semibold mt-1" style="color:${d?'#fbbf24':'#92400e'}">📅 ${sanitize(z.occasion)}</p>`:''}
+                                ${z.source?`<p class="text-xs mt-0.5" style="color:${d?'#6b7280':'#9ca3af'}">${sanitize(z.source)}</p>`:''}
                             </div>
-                            ${z.occasion?`<p class="text-xs font-semibold mt-1" style="color:${d?'#fbbf24':'#92400e'}">📅 ${sanitize(z.occasion)}</p>`:''}
-                            ${z.source?`<p class="text-xs mt-0.5" style="color:${d?'#6b7280':'#9ca3af'}">${sanitize(z.source)}</p>`:''}
+                            ${state.isAdmin?`
+                            <div class="flex gap-1 flex-shrink-0">
+                                <button data-action="editCustomDua" data-param="${z.id}" data-dtype="ziyarat"
+                                    aria-label="${l==='bn'?'সম্পাদনা করুন':'Edit'} ${sanitize(l==='bn'?z.titleBn:z.titleEn)}"
+                                    style="width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;background:${d?'rgba(59,130,246,.15)':'rgba(59,130,246,.1)'};border:1px solid rgba(59,130,246,.25)">✏️</button>
+                                <button data-action="deleteCustomDua" data-param="${z.id}" data-dtype="ziyarat"
+                                    aria-label="${l==='bn'?'মুছুন':'Delete'} ${sanitize(l==='bn'?z.titleBn:z.titleEn)}"
+                                    style="width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.2)">🗑</button>
+                            </div>`:''}
                         </div>
-                        ${state.isAdmin?`
-                        <div class="flex gap-1 flex-shrink-0">
-                            <button data-action="editCustomDua" data-param="${z.id}" data-dtype="ziyarat"
-                                aria-label="${l==='bn'?'সম্পাদনা করুন':'Edit'} ${sanitize(l==='bn'?z.titleBn:z.titleEn)}"
-                                style="width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;background:${d?'rgba(59,130,246,.15)':'rgba(59,130,246,.1)'};border:1px solid rgba(59,130,246,.25)">✏️</button>
-                            <button data-action="deleteCustomDua" data-param="${z.id}" data-dtype="ziyarat"
-                                aria-label="${l==='bn'?'মুছুন':'Delete'} ${sanitize(l==='bn'?z.titleBn:z.titleEn)}"
-                                style="width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.2)">🗑</button>
-                        </div>`:''}
+                        <div class="rounded-2xl p-5 mb-4"
+                            style="background:${d?'rgba(180,83,9,.08)':'rgba(254,243,199,.6)'};border:1px solid ${d?'rgba(180,83,9,.18)':'rgba(180,83,9,.14)'}">
+                            <p class="arabic-text text-center mb-3" dir="rtl" lang="ar"
+                                style="font-size:1.6rem;line-height:2.3;color:${d?'#fbbf24':'#78350f'}">
+                                ${sanitize(z.arabic)}
+                            </p>
+                            ${z.transliteration?`<p class="text-center text-xs italic mb-2" style="color:${d?'#9ca3af':'#6b7280'}">${sanitize(z.transliteration)}</p>`:''}
+                            <p class="text-center text-sm leading-relaxed" style="color:${d?'#d1d5db':'#374151'}">${sanitize(l==='bn'?z.meaningBn:z.meaningEn)}</p>
+                        </div>
+                        <button data-action="readZiyarat" data-param="${z.id||idx}"
+                            style="font-size:12.5px;font-weight:700;padding:8px 20px;border-radius:50px;
+                            background:rgba(180,83,9,.12);color:${d?'#fbbf24':'#92400e'};
+                            border:1.5px solid rgba(180,83,9,.25);cursor:pointer;
+                            display:inline-flex;align-items:center;gap:6px;transition:all .2s">
+                            ${t('readMore')}
+                            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+                        </button>
                     </div>
-                    <div class="rounded-2xl p-5 mb-4"
-                        style="background:${d?'rgba(180,83,9,.08)':'rgba(254,243,199,.6)'};border:1px solid ${d?'rgba(180,83,9,.18)':'rgba(180,83,9,.14)'}">
-                        <p class="arabic-text text-center mb-3" dir="rtl" lang="ar"
-                            style="font-size:1.6rem;line-height:2.3;color:${d?'#fbbf24':'#78350f'}">
-                            ${sanitize(z.arabic)}
-                        </p>
-                        ${z.transliteration?`<p class="text-center text-xs italic mb-2" style="color:${d?'#9ca3af':'#6b7280'}">${sanitize(z.transliteration)}</p>`:''}
-                        <p class="text-center text-sm leading-relaxed" style="color:${d?'#d1d5db':'#374151'}">${sanitize(l==='bn'?z.meaningBn:z.meaningEn)}</p>
-                    </div>
-                    <button data-action="readZiyarat" data-param="${z.id||i}"
-                        style="font-size:12.5px;font-weight:700;padding:8px 20px;border-radius:50px;
-                        background:rgba(180,83,9,.12);color:${d?'#fbbf24':'#92400e'};
-                        border:1.5px solid rgba(180,83,9,.25);cursor:pointer;
-                        display:inline-flex;align-items:center;gap:6px;transition:all .2s">
-                        ${t('readMore')}
-                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
-                    </button>
-                </div>
-            </article>`).join('')}
+                </article>`).join('')}
+            </div>`).join('')}
         </div>`:''}
 
     </div>`;

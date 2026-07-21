@@ -27,6 +27,7 @@ function setupEventListeners() {
                 }
                 case 'setDuaTab': state.duaTab=param; render(); break;  // NEW: Set dua/ziyarat tab
                 case 'setDuaCategory': state.duaCategory=param; render(); break;  // NEW: Set dua category filter
+                case 'setZiyaratCategory': state.ziyaratCategory=param; render(); break;  // NEW: Set ziyarat category filter (12 Imams / Masumeen / Comprehensive)
                 case 'setDuaCollection': state.duaCollection=param; render(); break;  // NEW: Set dua collection filter (Ahl al-Bayt / Sahifa / Ramadan etc.)
                 case 'sharePost': { const allP=[...(typeof blogPosts!=='undefined'?blogPosts:[]),...state.customPosts]; const p=allP.find(x=>String(x.id)===String(param)); if(p) sharePost(p,state.language); break; }
                 case 'shareHadith': shareHadith(getDailyHadith(),state.language); break;

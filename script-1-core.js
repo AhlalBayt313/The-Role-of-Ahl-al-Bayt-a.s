@@ -97,6 +97,7 @@ const state = {
     currentPost: null,
     currentDua: null,
     duaCategory: 'all',  // NEW: Category filter for duas
+    ziyaratCategory: 'all',  // NEW: Category filter for ziyarat (12 Imams / Masumeen / Comprehensive)
     duaTab: 'dua',  // NEW: Track dua/ziyarat tab
     bookmarksTab: 'bookmarks',  // NEW: Track bookmarks/history tab
     fontSize: 'medium', // small | medium | large | xlarge
