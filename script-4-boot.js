@@ -849,14 +849,14 @@ function renderMainContent() {
         calendar:renderCalendarPage,
         contact:renderContactPage, about:renderAboutPage, bookmarks:renderBookmarksPage,
         readPost:renderReadPostPage, readDua:renderReadDuaPage,
-        imams:renderImamsPage, imamDetail:renderImamDetailPage,
+        imams: typeof renderAhlulBaytImamsRedirect === 'function' ? renderAhlulBaytImamsRedirect : renderImamsPage, imamDetail:renderImamDetailPage,
         tasbeeh:renderTasbeehPage, quiz:renderQuizPage,
         searchPage:renderSearchPage, analytics:renderAnalyticsPage,
         readZiyarat:renderReadZiyaratPage,
         asmaul:renderAsmaulHusnaPage, qibla:renderQiblaPage, worldMap:renderWorldMapPage,
         muharram:renderMuharramPage,
         'shia-days':renderShiaDaysPage,
-        familyTree:renderFamilyTreePage,
+        familyTree: typeof renderAhlulBaytFamilyTreeRedirect === 'function' ? renderAhlulBaytFamilyTreeRedirect : renderFamilyTreePage,
         ahlulBaytUnified: typeof renderAhlulBaytUnifiedPage === 'function' ? renderAhlulBaytUnifiedPage : () => '<div class="text-center py-8">Loading...</div>',
     };
     return (pages[state.currentPage]||pages.home)();

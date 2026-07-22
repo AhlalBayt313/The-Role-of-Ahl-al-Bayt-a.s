@@ -1,15 +1,18 @@
 // ============================================================================
 // AHLUL BAYT — UNIFIED PAGE (Masumeen + Family Tree merge)
 // ============================================================================
-// SCOPE OF THIS FILE (Section 1 + Section 2, approved by user 2026-07-17):
+// SCOPE OF THIS FILE (Section 1 + Section 2 approved 2026-07-17, Section 3 +
+// Section 4 approved 2026-07-22):
 //   ✔ Premium Hero
 //   ✔ Subtitle
 //   ✔ Explore by Category (quick-nav chips)
 //   ✔ Quick Statistics cards
 //   ✔ Tabs content (personalities grid / family tree) — Section 2
-//   ✘ Side profile panel — Section 3
-//   ✘ Smart Search wiring — Section 3
-//   ✘ Router / history integration — Section 4 (see notes at bottom)
+//   ✔ Side profile panel — Section 3
+//   ✔ Smart Search wiring — Section 3
+//   ✔ Backward-compatible imams/familyTree redirects — Section 4 (see notes
+//     at bottom; browser back/forward has no app-wide equivalent to hook
+//     into — see that note for why)
 //
 // SECTION 2 APPROACH:
 //   The "চৌদ্দ মাসুম (আ)" tab and the "বংশবৃক্ষ" tab do NOT reimplement any
@@ -45,6 +48,11 @@ if (typeof state !== 'undefined') {
     // Masumeen personalities grid, 'tree' = the Ahl al-Bayt lineage tree,
     // null = neither clicked yet — no panel shown below the tab bar.
     if (typeof state.ahlulBaytActiveTab === 'undefined') state.ahlulBaytActiveTab = null;
+    // Section 3: current text in the Smart Search box, and the currently
+    // previewed person in the side profile panel — { source, id } where
+    // source is 'masumeen' | 'imam' | 'extra'. null = nothing selected yet.
+    if (typeof state.ahlulBaytSearchQuery === 'undefined') state.ahlulBaytSearchQuery = '';
+    if (typeof state.ahlulBaytSelectedPerson === 'undefined') state.ahlulBaytSelectedPerson = null;
 }
 
 // ============================================================================
@@ -334,8 +342,19 @@ function renderPersonalityCard(p) {
     const name = l === 'bn' ? (p.nameBn || '') : (p.nameEn || p.nameBn || '');
     const epithet = l === 'bn' ? (p.epithetBn || '') : (p.epithetEn || '');
     const desc = l === 'bn' ? (p.descBn || '') : (p.descEn || '');
+    // Section 3: masumeen (id 'p'/'f') and imams (numeric id) already have a
+    // full detail modal via showPersonDetail() — reuse it untouched. Extras
+    // (string slug ids like 'zainab') have no detail page, so they open the
+    // new side profile panel instead — this is new interactivity for cards
+    // that previously had none, not a change to any existing click path.
+    const clickAction = p.id === 'p' ? "showPersonDetail('prophet')"
+        : p.id === 'f' ? "showPersonDetail('fatima')"
+        : typeof p.id === 'number' ? `showPersonDetail('${p.id}')`
+        : `ahlulBaytSelectSearchResult('extra:${p.id}')`;
     return `
-    <div style="border-radius:var(--r-lg);padding:1.25rem;text-align:left;
+    <div onclick="${clickAction}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${clickAction};}"
+        role="button" tabindex="0" aria-label="${escapeHtml(name)}"
+        style="border-radius:var(--r-lg);padding:1.25rem;text-align:left;cursor:pointer;
         background:${d?'rgba(255,255,255,.04)':'#ffffff'};
         border:1px solid ${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'};
         box-shadow:var(--shadow-card);height:100%">
@@ -507,6 +526,192 @@ function renderAhlulBaytPlacesPage() {
                </style>`
             : `<p style="color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?'তথ্য লোড হচ্ছে...':'Loading data...'}</p>`
         }
+    </div>`;
+}
+
+
+// ============================================================================
+// SECTION 3 — SMART SEARCH + SIDE PROFILE PANEL (approved 2026-07-22)
+// ============================================================================
+// Builds a single search index over masumeen[] + imams[] (both already have
+// a full detail modal via the existing showPersonDetail()) plus
+// ADDITIONAL_PERSONALITIES (no detail modal exists for these, per the
+// standing decision — they get an inline preview only). Nothing here
+// touches renderImamsPage/renderFamilyTreePage/showPersonDetail's own card
+// markup; the standalone /imams and /familyTree pages keep behaving exactly
+// as before. Selecting a search result (or an "extra" personality card,
+// wired above in renderPersonalityCard) shows a quick preview in the new
+// side panel; for masumeen/imam entries that panel's "View Full Profile"
+// button calls the SAME existing showPersonDetail() modal used everywhere
+// else in the app — no duplicate detail UI is built.
+//
+// NOTE ON onclick SAFETY: past bug (documented elsewhere in this app) came
+// from JSON.stringify-ing Bengali/Arabic text directly into onclick
+// attributes. This block avoids that entirely — onclick only ever carries a
+// plain "source:id" key (ids here are always simple: 'p','f', 1-12, or a
+// short English slug like 'zainab'); all display text is injected as
+// element content via sanitize(), never into an attribute.
+
+function getAhlulBaytSearchIndex() {
+    const m = (typeof masumeen !== 'undefined' && Array.isArray(masumeen)) ? masumeen : [];
+    const im = (typeof imams !== 'undefined' && Array.isArray(imams)) ? imams : [];
+    const idx = [];
+    m.forEach(p => idx.push({
+        source: 'masumeen', id: p.id, detailId: p.id === 'p' ? 'prophet' : (p.id === 'f' ? 'fatima' : null),
+        nameBn: p.nameBn, nameEn: p.nameEn, epithetBn: p.epithetBn, epithetEn: p.epithetEn,
+        descBn: p.descBn, descEn: p.descEn, arabicName: p.arabicName, icon: p.icon
+    }));
+    im.forEach(p => idx.push({
+        source: 'imam', id: p.id, detailId: p.id,
+        nameBn: p.nameBn, nameEn: p.nameEn, epithetBn: p.epithetBn, epithetEn: p.epithetEn,
+        descBn: p.descBn, descEn: p.descEn, arabicName: p.arabicName, icon: p.icon
+    }));
+    ADDITIONAL_PERSONALITIES.forEach(p => idx.push({
+        source: 'extra', id: p.id, detailId: null,
+        nameBn: p.nameBn, nameEn: p.nameEn, epithetBn: p.epithetBn, epithetEn: p.epithetEn,
+        descBn: p.descBn, descEn: p.descEn, arabicName: p.arabicName, icon: p.icon
+    }));
+    return idx;
+}
+
+function ahlulBaytSearchPersons(query) {
+    const q = (query || '').trim().toLowerCase();
+    if (!q) return [];
+    return getAhlulBaytSearchIndex().filter(p => {
+        return [p.nameBn, p.nameEn, p.epithetBn, p.epithetEn].some(f => (f || '').toLowerCase().includes(q));
+    }).slice(0, 8);
+}
+
+// Selection is looked up fresh from the index every time (by 'source:id'
+// key) rather than storing the whole object in state — keeps state small
+// and always in sync with the underlying data arrays.
+function getAhlulBaytPersonBySelection(sel) {
+    if (!sel) return null;
+    return getAhlulBaytSearchIndex().find(p => p.source === sel.source && String(p.id) === String(sel.id)) || null;
+}
+
+// Called from search-result buttons AND from renderPersonalityCard() (for
+// 'extra' personalities that have no detail modal of their own).
+function ahlulBaytSelectSearchResult(key) {
+    if (typeof key !== 'string') return;
+    const sepIdx = key.indexOf(':');
+    if (sepIdx === -1) return;
+    const source = key.slice(0, sepIdx);
+    const id = key.slice(sepIdx + 1);
+    if (typeof state === 'undefined') return;
+    state.ahlulBaytSelectedPerson = { source, id };
+    state.ahlulBaytSearchQuery = '';
+    // Section 4: update the side panel in place instead of calling the app's
+    // full render() — a full render() would tear down and rebuild whichever
+    // tab is currently open (re-running initFamilyTree() on the tree tab
+    // for no reason, since nothing about the tree tab changed). Also close
+    // the results dropdown and clear the input directly, same reasoning.
+    const panel = document.getElementById('ab-side-panel');
+    if (panel && panel.parentNode) {
+        panel.parentNode.innerHTML = renderAhlulBaytSidePanel();
+    } else if (typeof render === 'function') {
+        render(); // fallback if the panel isn't mounted yet for some reason
+    }
+    const resultsBox = document.getElementById('ab-search-results');
+    if (resultsBox) { resultsBox.style.display = 'none'; resultsBox.innerHTML = ''; }
+    const input = document.getElementById('ab-search-input');
+    if (input) input.value = '';
+    setTimeout(() => {
+        const el = document.getElementById('ab-side-panel');
+        if (el && typeof el.scrollIntoView === 'function') el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 0);
+}
+
+// Updates only the results dropdown on each keystroke (not a full render())
+// so the input never loses focus/cursor position while typing.
+function ahlulBaytHandleSearchInput(value) {
+    if (typeof state === 'undefined') return;
+    state.ahlulBaytSearchQuery = value;
+    const box = document.getElementById('ab-search-results');
+    if (!box) return;
+    box.style.display = value && value.trim() ? 'block' : 'none';
+    box.innerHTML = renderAhlulBaytSearchResults();
+}
+
+function renderAhlulBaytSearchResults() {
+    const d = state.darkMode, l = state.language;
+    const q = state.ahlulBaytSearchQuery;
+    if (!q || !q.trim()) return '';
+    const results = ahlulBaytSearchPersons(q);
+    if (!results.length) {
+        return `<div style="padding:.75rem 1rem;font-size:.8rem;color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?'কোনো ফলাফল পাওয়া যায়নি':'No results found'}</div>`;
+    }
+    return results.map(p => {
+        const name = l === 'bn' ? p.nameBn : (p.nameEn || p.nameBn);
+        const epithet = l === 'bn' ? p.epithetBn : p.epithetEn;
+        return `<button type="button" onclick="ahlulBaytSelectSearchResult('${p.source}:${p.id}')"
+            style="display:flex;align-items:center;gap:.6rem;width:100%;text-align:left;padding:.6rem .9rem;
+                background:transparent;border:none;border-bottom:1px solid ${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.05)'};cursor:pointer">
+            <span style="font-size:1.2rem" aria-hidden="true">${p.icon || '✦'}</span>
+            <span style="flex:1;min-width:0">
+                <span style="display:block;font-weight:700;font-size:.85rem;color:${d?'#f9fafb':'#111827'}">${sanitize(name)}</span>
+                ${epithet ? `<span style="display:block;font-size:.7rem;color:${d?'#fde68a':'#b45309'}">${sanitize(epithet)}</span>` : ''}
+            </span>
+        </button>`;
+    }).join('');
+}
+
+function renderAhlulBaytSearchBox() {
+    const d = state.darkMode, l = state.language;
+    return `
+    <div style="position:relative;margin-top:1rem" class="ab-search-box">
+        <input type="text" id="ab-search-input" value="${sanitize(state.ahlulBaytSearchQuery || '')}"
+            oninput="ahlulBaytHandleSearchInput(this.value)" autocomplete="off"
+            placeholder="${l==='bn'?'🔍 নাম বা উপাধি দিয়ে খুঁজুন...':'🔍 Search by name or title...'}"
+            aria-label="${l==='bn'?'আহলুল বাইত সার্চ':'Ahlul Bayt search'}"
+            style="width:100%;padding:.75rem 1rem;border-radius:999px;font-size:.85rem;box-sizing:border-box;
+                border:1px solid ${d?'rgba(255,255,255,.12)':'rgba(0,0,0,.1)'};
+                background:${d?'rgba(255,255,255,.05)':'#ffffff'};color:${d?'#f9fafb':'#111827'};outline:none">
+        <div id="ab-search-results" style="position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:20;
+            border-radius:var(--r-lg);overflow:hidden;max-height:320px;overflow-y:auto;
+            background:${d?'#1f2937':'#ffffff'};border:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'};
+            box-shadow:var(--shadow-lg);display:${state.ahlulBaytSearchQuery && state.ahlulBaytSearchQuery.trim() ? 'block' : 'none'}">
+            ${renderAhlulBaytSearchResults()}
+        </div>
+    </div>`;
+}
+
+function renderAhlulBaytSidePanel() {
+    const d = state.darkMode, l = state.language;
+    const person = getAhlulBaytPersonBySelection(state.ahlulBaytSelectedPerson);
+
+    if (!person) {
+        return `<div id="ab-side-panel" style="border-radius:var(--r-lg);padding:1.5rem 1.25rem;text-align:center;
+            border:1.5px dashed ${d?'rgba(255,255,255,.12)':'rgba(0,0,0,.1)'};color:${d?'#9ca3af':'#6b7280'}">
+            <div style="font-size:1.6rem;margin-bottom:.4rem" aria-hidden="true">🔍</div>
+            <p style="font-size:.82rem;font-weight:600">${l==='bn'?'উপরের সার্চ থেকে বা কোনো কার্ডে ক্লিক করে কাউকে খুঁজে নিন':'Search above or click a card to preview someone here'}</p>
+        </div>`;
+    }
+
+    const name = l === 'bn' ? person.nameBn : (person.nameEn || person.nameBn);
+    const epithet = l === 'bn' ? person.epithetBn : person.epithetEn;
+    const desc = l === 'bn' ? person.descBn : person.descEn;
+    const viewBtn = person.detailId != null ? `
+        <button type="button" onclick="showPersonDetail('${person.detailId}')"
+            style="margin-top:.9rem;font-size:.78rem;font-weight:700;padding:8px 16px;border-radius:999px;cursor:pointer;
+                border:1px solid ${d?'rgba(180,83,9,.4)':'rgba(180,83,9,.3)'};
+                background:${d?'rgba(180,83,9,.15)':'rgba(180,83,9,.08)'};color:${d?'#fcd34d':'#b45309'}">
+            ${l==='bn'?'সম্পূর্ণ প্রোফাইল দেখুন':'View Full Profile'}
+        </button>` : '';
+
+    return `<div id="ab-side-panel" style="border-radius:var(--r-lg);padding:1.25rem;
+        background:${d?'rgba(255,255,255,.04)':'#ffffff'};
+        border:1px solid ${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'};box-shadow:var(--shadow-card)">
+        <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
+            <span style="font-size:1.8rem" aria-hidden="true">${person.icon || '✦'}</span>
+            <div>
+                <div style="font-weight:800;font-size:1rem;color:${d?'#f9fafb':'#111827'}">${sanitize(name)}</div>
+                ${epithet ? `<div style="font-size:.75rem;font-weight:600;color:${d?'#fde68a':'#b45309'}">${sanitize(epithet)}</div>` : ''}
+            </div>
+        </div>
+        ${person.arabicName ? `<div style="font-family:'Amiri',serif;font-size:1.1rem;color:${d?'#9ca3af':'#6b7280'};margin-bottom:.6rem">${sanitize(person.arabicName)}</div>` : ''}
+        ${desc ? `<p style="font-size:.82rem;line-height:1.65;color:${d?'#d1d5db':'#4b5563'}">${sanitize(desc)}</p>` : ''}
+        ${viewBtn}
     </div>`;
 }
 
@@ -2851,31 +3056,90 @@ function ahlulBaytAnimateStatCounters() {
 // ============================================================================
 // Registered in script-4-boot.js's renderMainContent() pages map as
 // `ahlulBaytUnified`. This name will never change across Section 2/3/4 —
-// only its body grows (profile panel, search wiring get added here in
-// later sections). It now renders Hero + Category chips + Stats + the two
-// live tabs (Section 1 + Section 2).
+// only its body grows (router/history integration lands here in Section 4).
+// It now renders Hero + Category chips + Search + Stats + the two live tabs
+// (Section 1 + Section 2) alongside the Section 3 side profile panel.
 function renderAhlulBaytUnifiedPage() {
     return renderAhlulBaytUnifiedPageSection1Preview();
 }
 
 // ============================================================================
-// SECTION 1 + 2 WRAPPER
+// SECTION 1 + 2 + 3 WRAPPER
 // ============================================================================
-// Hero + Explore by Category + Quick Stats + the two live tabs (14 Masumeen
-// grid / Family tree). The side profile panel and Smart Search wiring are
-// still out of scope (Section 3) — showPersonDetail() already opens its own
-// modal from inside the family-tree tab exactly as it does on the
-// standalone /familyTree page, so lineage detail viewing already works even
-// without the Section-3 side panel.
+// Hero + Explore by Category + Smart Search + Quick Stats + the two live
+// tabs (14 Masumeen grid / Family tree) + the Section 3 side profile panel.
+// showPersonDetail() still opens its own full modal exactly as it does on
+// the standalone /familyTree and /imams pages (untouched) — the side panel
+// here is a lighter-weight quick-preview reached via search or an "extra"
+// personality card, with a button that calls that same existing modal for
+// masumeen/imam entries.
 function renderAhlulBaytUnifiedPageSection1Preview() {
     return `
     <div class="space-y-2 page-enter">
         ${renderAhlulBaytHero()}
         ${renderAhlulBaytCategoryChips()}
+        ${renderAhlulBaytSearchBox()}
         ${renderAhlulBaytStats()}
 
-        <div id="ab-tab-panel-anchor" class="ab-tab-panel" style="margin-top:1.25rem;scroll-margin-top:80px">
-            ${renderAhlulBaytTabPanel()}
+        <div class="ab-main-grid" style="display:grid;grid-template-columns:1fr;gap:1.25rem;margin-top:1.25rem">
+            <div id="ab-tab-panel-anchor" class="ab-tab-panel" style="scroll-margin-top:80px">
+                ${renderAhlulBaytTabPanel()}
+            </div>
+            <div class="ab-side-panel-wrap">
+                ${renderAhlulBaytSidePanel()}
+            </div>
         </div>
+        <style>
+            @media (min-width:1024px){
+                .ab-main-grid{ grid-template-columns:minmax(0,2fr) minmax(260px,1fr) !important; align-items:start; }
+                .ab-side-panel-wrap{ position:sticky; top:90px; }
+            }
+        </style>
     </div>`;
+}
+
+// ============================================================================
+// SECTION 4 — BACKWARD-COMPATIBLE ROUTE REDIRECTS (approved 2026-07-22)
+// ============================================================================
+// script-4-boot.js's renderMainContent() pages map now points its 'imams'
+// and 'familyTree' keys at these two wrappers instead of straight at
+// renderImamsPage/renderFamilyTreePage (see that file's pages map). That is
+// the ONLY change made outside this file for Section 4 — neither
+// renderImamsPage() nor renderFamilyTreePage() is renamed or edited; both
+// are still called exactly as before, from inside renderAhlulBaytTabPanel()
+// (Section 2) and now also from these two wrappers.
+//
+// Effect: every existing place in the app that already sets
+// state.currentPage to 'imams' or 'familyTree' — the desktop/mobile menu
+// entries, and script-2-ui.js's 'viewFamilyPerson' search-result case
+// (state.currentPage='familyTree' then showPersonDetail(param)) — now
+// transparently lands on the unified page with the matching tab
+// pre-selected, with zero changes needed at those call sites. Old
+// bookmarks/saved state pointing at either page key keep working.
+//
+// NOTE ON BROWSER BACK/FORWARD: this app has no URL/hash routing or
+// popstate handling anywhere (checked across all files) — every page,
+// including this one, navigates purely through state.currentPage +
+// state.previousPage and explicit "← Back" buttons (see script-3-pages.js /
+// script-4-boot.js's `data-action="changePage" data-param="${state.previousPage}"`
+// pattern). There is no browser-native back/forward/refresh state to
+// restore for THIS page that every other page in the app doesn't already
+// share the same limitation on. What these two wrappers do give you for
+// free is that `state.previousPage` will correctly read 'imams' or
+// 'familyTree' (whichever the user actually arrived from), and clicking
+// "← Back" from a detail page routes right back into this unified page's
+// same tab.
+function renderAhlulBaytImamsRedirect() {
+    if (typeof state !== 'undefined' && state.ahlulBaytActiveTab !== 'masumeen') {
+        state.ahlulBaytActiveTab = 'masumeen';
+        state.ahlulBaytActiveCategory = 'masumeen';
+    }
+    return renderAhlulBaytUnifiedPage();
+}
+function renderAhlulBaytFamilyTreeRedirect() {
+    if (typeof state !== 'undefined' && state.ahlulBaytActiveTab !== 'tree') {
+        state.ahlulBaytActiveTab = 'tree';
+        state.ahlulBaytActiveCategory = 'tree';
+    }
+    return renderAhlulBaytUnifiedPage();
 }

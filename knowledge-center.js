@@ -456,7 +456,7 @@ function kcCategoryGrid(tab, d, l) {
                 class="text-left w-full focus:outline-none rounded-2xl p-4 border transition-all hover:-translate-y-0.5"
                 style="background:${d?'#1e2a22':'#ffffff'};border-color:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'};box-shadow:var(--shadow-sm)">
                 <div style="font-size:1.7rem;margin-bottom:.4rem">${c.icon}</div>
-                <p class="font-bold text-sm leading-snug mb-1" style="color:${d?'#f3f4f6':'#111827'}">${sanitize(l==='bn'?c.bn:c.en)}</p>
+                <p class="font-bold text-sm leading-snug mb-1" style="color:${d?'#f3f4f6':'#111827'}">${sanitize(l==='bn'?c.bn:c.en)}${c.deceased?` <span style="font-size:.65rem;font-weight:700;color:${d?'#9ca3af':'#6b7280'}">(${l==='bn'?'প্রয়াত':'deceased'})</span>`:''}</p>
                 <span class="text-xs" style="color:${d?'#6b7280':'#9ca3af'}">${count} ${l==='bn'?'টি':'items'}</span>
             </button>`;
         }).join('')}
@@ -526,16 +526,21 @@ function renderKcDetailView() {
             <p class="leading-relaxed" style="color:${d?'#d1d5db':'#374151'}">${sanitize(l==='bn'?item.answerBn:(item.answerEn||item.answerBn))}</p>
         </div>`;
     } else if (tab==='fatwa') {
+        const marjaObj = cfg.categories.find(x=>x.key===item.marja);
         fields = `
         <div class="space-y-4">
             ${item.sample?`
             <div class="text-xs font-bold p-3 rounded-xl" style="background:rgba(220,38,38,.08);color:#dc2626;border:1px solid rgba(220,38,38,.2)">
                 ${l==='bn'?'⚠️ এটি একটি নমুনা এন্ট্রি। প্রকৃত প্রকাশনার আগে অনুগ্রহ করে সংশ্লিষ্ট মারজার অফিসিয়াল ও যাচাইকৃত সূত্র থেকে প্রকৃত ফতোয়া দিয়ে প্রতিস্থাপন করুন।':'⚠️ This is a sample entry. Please replace it with the actual verified ruling from the Marja\u2019s official source before publishing.'}
             </div>`:''}
+            ${marjaObj && marjaObj.deceased?`
+            <div class="text-xs font-bold p-3 rounded-xl" style="background:rgba(107,114,128,.1);color:${d?'#d1d5db':'#4b5563'};border:1px solid rgba(107,114,128,.25)">
+                ${l==='bn'?`⚠️ ${sanitize(marjaObj.bn)} ${marjaObj.deathDateBn||''} তারিখে ইন্তেকাল করেছেন। এটি তাঁর জীবদ্দশায় প্রদত্ত একটি ঐতিহাসিক ফতোয়া — নতুন কোনো বিষয়ে রায়ের জন্য আপনার বর্তমান অনুসরণীয় (জীবিত) মারজার সাথে যোগাযোগ করুন।`:`⚠️ ${sanitize(marjaObj.en)} passed away on ${marjaObj.deathDateEn||'an unspecified date'}. This is a historical ruling given during his lifetime — for new matters, consult your current (living) Marja.`}
+            </div>`:''}
             <p class="text-lg font-bold" style="color:${d?'#f3f4f6':'#111827'}">${sanitize(l==='bn'?item.questionBn:(item.questionEn||item.questionBn))}</p>
             <p class="leading-relaxed" style="color:${d?'#d1d5db':'#374151'}">${sanitize(l==='bn'?item.answerBn:(item.answerEn||item.answerBn))}</p>
             <dl class="grid sm:grid-cols-2 gap-3 text-sm pt-2 border-t" style="border-color:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'}">
-                <div><dt class="font-semibold" style="color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?'মারজা':'Marja'}</dt><dd>${sanitize(catLabel)}</dd></div>
+                <div><dt class="font-semibold" style="color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?'মারজা':'Marja'}</dt><dd>${sanitize(catLabel)}${marjaObj&&marjaObj.deceased?` (${l==='bn'?'প্রয়াত':'deceased'})`:''}</dd></div>
                 ${(item.refBn||item.refEn)?`<div><dt class="font-semibold" style="color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?'রেফারেন্স':'Reference'}</dt><dd>${sanitize(l==='bn'?item.refBn:(item.refEn||item.refBn))}</dd></div>`:''}
                 ${item.date?`<div><dt class="font-semibold" style="color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?'তারিখ':'Date'}</dt><dd>${sanitize(item.date)}</dd></div>`:''}
             </dl>
@@ -637,7 +642,7 @@ function renderKnowledgeCenterPage() {
             style="padding:12px 16px;border-radius:16px;font-size:.85rem;background:${d?'#1e2a22':'#ffffff'};
             border:2px solid ${d?'rgba(5,150,105,.2)':'rgba(5,150,105,.18)'};color:${d?'#f9fafb':'#111827'};outline:none">
             <option value="">${l==='bn'?'সব মারজা':'All Maraji'}</option>
-            ${cfg.categories.map(c=>`<option value="${c.key}" ${state.kcFatwaMarja===c.key?'selected':''}>${sanitize(l==='bn'?c.bn:c.en)}</option>`).join('')}
+            ${cfg.categories.map(c=>`<option value="${c.key}" ${state.kcFatwaMarja===c.key?'selected':''}>${sanitize((l==='bn'?c.bn:c.en) + (c.deceased?(l==='bn'?' (প্রয়াত)':' (deceased)'):''))}</option>`).join('')}
         </select>`;
         if (tab==='hadith' && state.kcCategory && cfg.items) {
             const inCat = cfg.items.filter(x => x.category === state.kcCategory);

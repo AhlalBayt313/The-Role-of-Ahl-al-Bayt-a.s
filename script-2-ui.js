@@ -78,7 +78,7 @@ function setupEventListeners() {
                     const l = state.language;
                     const text = (ay.arabic || '') + '\n\n' + (l==='bn' ? (ay.meaningBn||ay.meaningEn||'') : (ay.meaningEn||ay.meaningBn||'')) + '\n— ' + (l==='bn' ? (ay.ref||ay.refEn||'') : (ay.refEn||ay.ref||''));
                     if (navigator.share) { navigator.share({ title: l==='bn'?'আজকের আয়াত':'Today\'s Verse', text }); }
-                    else { navigator.clipboard && navigator.clipboard.writeText(text).then(()=>alert(l==='bn'?'কপি হয়েছে!':'Copied!')); }
+                    else { navigator.clipboard && navigator.clipboard.writeText(text).then(()=>showToast(l==='bn'?'✅ কপি হয়েছে!':'✅ Copied!','success')); }
                     break;
                 }
                 // HADITH NAVIGATION & SHARE
@@ -218,7 +218,7 @@ function setupEventListeners() {
                     const textEn=(document.getElementById('he-textEn')?.value||'').trim();
                     const sourceBn=(document.getElementById('he-sourceBn')?.value||'').trim();
                     const sourceEn=(document.getElementById('he-sourceEn')?.value||'').trim();
-                    if(!textBn&&!textEn){alert(state.language==='bn'?'হাদিস লিখুন':'Please enter hadith text');break;}
+                    if(!textBn&&!textEn){showToast(state.language==='bn'?'হাদিস লিখুন':'Please enter hadith text','warning');break;}
                     const item={textBn,textEn,sourceBn,sourceEn};
                     const idx=param!==''&&param!=null?parseInt(param):null;
                     if(idx!=null && !isNaN(idx)) state.customHadiths[idx]=item;
@@ -245,7 +245,7 @@ function setupEventListeners() {
                     const meaningEn=(document.getElementById('ae-meaningEn')?.value||'').trim();
                     const ref=(document.getElementById('ae-ref')?.value||'').trim();
                     const refEn=(document.getElementById('ae-refEn')?.value||'').trim();
-                    if(!arabic){alert(state.language==='bn'?'আরবি আয়াত লিখুন':'Please enter Arabic ayah');break;}
+                    if(!arabic){showToast(state.language==='bn'?'আরবি আয়াত লিখুন':'Please enter Arabic ayah','warning');break;}
                     const item={arabic,meaningBn,meaningEn,ref,refEn};
                     const idx=param!==''&&param!=null?parseInt(param):null;
                     if(idx!=null && !isNaN(idx)) state.customAyahs[idx]=item;

@@ -1271,7 +1271,7 @@ function tasbeehSetLabel(idx) {
         {bn:'আলহামদুলিল্লাহ', en:'Alhamdulillah',  target:33},
         {bn:'আল্লাহু আকবার',  en:'Allahu Akbar',   target:34},
         {bn:'লা ইলাহা ইল্লাল্লাহ',en:'La ilaha illallah',target:100},
-        {bn:'দরুদে ইব্রাহিম', en:'Durood Ibrahim',  target:10},
+        {bn:'দরুদে মুহম্মাদ ও আলে মুহম্মাদ', en:'Durud on Muhammad & Aal-e-Muhammad',  target:100},
         {bn:'আস্তাগফিরুল্লাহ',en:'Astaghfirullah', target:70},
     ];
     const dk = DHIKR[idx];

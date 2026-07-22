@@ -53,6 +53,8 @@ const kcHadiths = [
 
     // ── Imam Hasan (AS) — additional ──
     {id:'h032', category:'hasan', textBn:'সবচেয়ে বুদ্ধিমান মানুষ সে যে নিজের ত্রুটিগুলো নিয়ে ব্যস্ত থাকে, অন্যের ত্রুটি নিয়ে নয়।', textEn:'The wisest person is one who is preoccupied with his own faults rather than the faults of others.', refBn:'', refEn:'', sourceBn:'বিহারুল আনওয়ার', sourceEn:'Bihar al-Anwar', narratorBn:'ইমাম হাসান (আ.)', narratorEn:'Imam Hasan (AS)'},
+    {id:'h133', category:'hasan', textBn:'উত্তম আচরণ শত্রুকেও বন্ধুতে পরিণত করে।', textEn:'Good conduct turns even an enemy into a friend.', refBn:'', refEn:'', sourceBn:'বিহারুল আনওয়ার', sourceEn:'Bihar al-Anwar', narratorBn:'ইমাম হাসান (আ.)', narratorEn:'Imam Hasan (AS)'},
+    {id:'h134', category:'hasan', textBn:'কৃপণতা হলো নিজের অধিকারেও লজ্জা বোধ করা এবং যা তোমার হাতে নেই তার জন্য অতিরিক্ত চিন্তা করা।', textEn:'Stinginess is feeling ashamed even over what is rightfully yours, and worrying excessively over what is not in your hands.', refBn:'', refEn:'', sourceBn:'তুহাফুল উকুল', sourceEn:'Tuhaf al-Uqul', narratorBn:'ইমাম হাসান (আ.)', narratorEn:'Imam Hasan (AS)'},
 
     {id:'h020', category:'ali', textBn:'মানুষ যা জানে না তার শত্রু।', textEn:'Man is the enemy of what he does not know.', refBn:'', refEn:'', sourceBn:'নাহজুল বালাগা', sourceEn:'Nahjul Balagha', narratorBn:'ইমাম আলী (আ.)', narratorEn:'Imam Ali (AS)'},
     {id:'h021', category:'ali', textBn:'যে নিজেকে চেনে সে তার রবকে চেনে।', textEn:'Whoever knows himself knows his Lord.', refBn:'', refEn:'', sourceBn:'গুরারুল হিকাম', sourceEn:'Ghurar al-Hikam', narratorBn:'ইমাম আলী (আ.)', narratorEn:'Imam Ali (AS)'},
@@ -93,34 +95,140 @@ const kcHadiths = [
     // ── আরও Prophet Muhammad (PBUH) ──
     {id:'h005', category:'prophet', textBn:'তোমাদের মধ্যে সর্বোত্তম সে ব্যক্তি যে তার পরিবারের কাছে সর্বোত্তম, আর আমি আমার পরিবারের কাছে সর্বোত্তম।', textEn:'The best among you is the one best to his family, and I am the best to my family.', refBn:'', refEn:'', sourceBn:'সুনানে তিরমিযি', sourceEn:'Sunan al-Tirmidhi', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
     {id:'h006', category:'prophet', textBn:'জ্ঞান অর্জন করা প্রত্যেক মুসলিম নর-নারীর উপর ফরজ।', textEn:'Seeking knowledge is obligatory upon every Muslim, male and female.', refBn:'', refEn:'', sourceBn:'সুনানে ইবনে মাজাহ', sourceEn:'Sunan Ibn Majah', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+    {id:'h150', category:'prophet', textBn:'আমাকে উত্তম চরিত্র পরিপূর্ণ করার জন্যই প্রেরণ করা হয়েছে।', textEn:'I have been sent only to perfect good character.', refBn:'', refEn:'', sourceBn:'মুয়াত্তা মালিক', sourceEn:'Muwatta Malik', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+    {id:'h151', category:'prophet', textBn:'তোমাদের কেউ ততক্ষণ পর্যন্ত (পূর্ণ) মুমিন হবে না, যতক্ষণ না সে তার ভাইয়ের জন্য তা-ই পছন্দ করে যা সে নিজের জন্য পছন্দ করে।', textEn:'None of you truly believes until he loves for his brother what he loves for himself.', refBn:'', refEn:'', sourceBn:'সহীহ বুখারি', sourceEn:'Sahih Bukhari', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+    {id:'h152', category:'prophet', textBn:'তোমরা একে অপরকে উপহার দাও, এতে পারস্পরিক ভালোবাসা বৃদ্ধি পায়।', textEn:'Give gifts to one another, for it increases mutual love.', refBn:'', refEn:'', sourceBn:'আল-আদাবুল মুফরাদ', sourceEn:'Al-Adab al-Mufrad', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
 
     // ── আরও Fatimah al-Zahra (AS) ──
     {id:'h013', category:'fatima', textBn:'ফাতেমা আমার শরীরের একটি অংশ; যে তাকে কষ্ট দেয় সে যেন আমাকেই কষ্ট দেয়।', textEn:'Fatima is a part of my body; whoever hurts her hurts me.', refBn:'', refEn:'', sourceBn:'সহীহ বুখারি', sourceEn:'Sahih Bukhari', narratorBn:'রাসূলুল্লাহ (সা.) — ফাতিমা (আ.) সম্পর্কে', narratorEn:"Prophet Muhammad (PBUH) — about Fatimah (AS)"},
+    {id:'h153', category:'fatima', textBn:'ফাতেমা আমার কাছে সবচেয়ে প্রিয়, আর আলী আমার পরিবারের মধ্যে আমার কাছে সবচেয়ে প্রিয়।', textEn:'Fatima is the most beloved to me, and Ali is the most beloved to me among my family.', refBn:'', refEn:'', sourceBn:'সুনানে তিরমিযি', sourceEn:'Sunan al-Tirmidhi', narratorBn:'রাসূলুল্লাহ (সা.) — ফাতিমা ও আলী (আ.) সম্পর্কে', narratorEn:'Prophet Muhammad (PBUH) — about Fatimah & Ali (AS)'},
+    {id:'h154', category:'fatima', textBn:'যখনই ফাতেমা রাসূলুল্লাহর কাছে আসতেন, তিনি উঠে দাঁড়িয়ে তাকে চুমু খেতেন এবং নিজের বসার জায়গায় বসাতেন।', textEn:'Whenever Fatima came to the Prophet, he would stand up, kiss her, and seat her in his own place.', refBn:'', refEn:'', sourceBn:'সুনানে আবু দাউদ', sourceEn:'Sunan Abu Dawud', narratorBn:'ফাতিমা (আ.) সম্পর্কে বর্ণিত', narratorEn:'Narrated about Fatimah (AS)'},
 
     // ── আরও Imam Ali (AS) ──
     {id:'h024', category:'ali', textBn:'দুনিয়া মুমিনের জন্য কারাগার এবং কাফিরের জন্য জান্নাত।', textEn:'The world is a prison for the believer and a paradise for the disbeliever.', refBn:'', refEn:'', sourceBn:'নাহজুল বালাগা (হাদিসে নববী উদ্ধৃত)', sourceEn:'Nahjul Balagha (quoting a Prophetic hadith)', narratorBn:'ইমাম আলী (আ.)', narratorEn:'Imam Ali (AS)'},
     {id:'h025', category:'ali', textBn:'তোমার শত্রুর সাথেও ন্যায়বিচার করো, আর তোমার বন্ধুর সাথেও সত্য বলো।', textEn:'Be just even to your enemy, and be truthful even with your friend.', refBn:'', refEn:'', sourceBn:'গুরারুল হিকাম', sourceEn:'Ghurar al-Hikam', narratorBn:'ইমাম আলী (আ.)', narratorEn:'Imam Ali (AS)'},
+    {id:'h130', category:'ali', textBn:'মানুষ দুই শ্রেণির: হয় দ্বীনে তোমার ভাই, অথবা সৃষ্টিতে তোমার সমান — তাদের প্রতি সদয় হও।', textEn:'People are of two types: either your brother in faith, or your equal in creation — be kind to them.', refBn:'পত্র (মালিক আশতারের প্রতি)', refEn:'Letter (to Malik al-Ashtar)', sourceBn:'নাহজুল বালাগা', sourceEn:'Nahjul Balagha', narratorBn:'ইমাম আলী (আ.)', narratorEn:'Imam Ali (AS)'},
+    {id:'h131', category:'ali', textBn:'সবচেয়ে বড় ধনী সে, যে অন্যের হাতে যা আছে তার প্রতি লোভ করে না।', textEn:'The richest of people is the one who does not covet what is in the hands of others.', refBn:'', refEn:'', sourceBn:'গুরারুল হিকাম', sourceEn:'Ghurar al-Hikam', narratorBn:'ইমাম আলী (আ.)', narratorEn:'Imam Ali (AS)'},
+    {id:'h132', category:'ali', textBn:'তোমার কথার আগে চিন্তা করো, কারণ কথা তীরের মতো — একবার ছুঁড়ে দিলে ফিরিয়ে আনা যায় না।', textEn:'Think before you speak, for words are like arrows — once released, they cannot be recalled.', refBn:'', refEn:'', sourceBn:'গুরারুল হিকাম', sourceEn:'Ghurar al-Hikam', narratorBn:'ইমাম আলী (আ.)', narratorEn:'Imam Ali (AS)'},
 
     // ── আরও Imam Husayn (AS) ──
     {id:'h042', category:'husayn', textBn:'মানুষ দুনিয়ার গোলাম; দ্বীন তাদের জিহ্বার আগায় থাকে যতক্ষণ তাদের জীবিকা নিশ্চিত থাকে।', textEn:'People are slaves of the world; religion is but a fleeting matter on their tongues, so long as their livelihoods remain secure.', refBn:'কারবালার আগের ভাষণ', refEn:'Sermon before Karbala', sourceBn:'তুহাফুল উকুল', sourceEn:'Tuhaf al-Uqul', narratorBn:'ইমাম হোসাইন (আ.)', narratorEn:'Imam Husayn (AS)'},
+    {id:'h135', category:'husayn', textBn:'সম্মানের সাথে মৃত্যু অপমানের জীবনের চেয়ে উত্তম।', textEn:'Death with dignity is better than a life of humiliation.', refBn:'কারবালার প্রেক্ষাপট', refEn:'Karbala context', sourceBn:'বিহারুল আনওয়ার', sourceEn:'Bihar al-Anwar', narratorBn:'ইমাম হোসাইন (আ.)', narratorEn:'Imam Husayn (AS)'},
+    {id:'h136', category:'husayn', textBn:'নিশ্চয়ই ইমাম হলো কুরআনের অনুসারী, ন্যায়পরায়ণ, সত্যের পথে দৃঢ়, এবং আল্লাহর সন্তুষ্টির জন্য নিজেকে উৎসর্গকারী।', textEn:'Indeed, an Imam is one who follows the Book of Allah, is just, adheres firmly to the truth, and dedicates himself entirely to the pleasure of Allah.', refBn:'', refEn:'', sourceBn:'তুহাফুল উকুল', sourceEn:'Tuhaf al-Uqul', narratorBn:'ইমাম হোসাইন (আ.)', narratorEn:'Imam Husayn (AS)'},
 
     // ── আরও Imam Sajjad (আ.) ──
     {id:'h052', category:'sajjad', textBn:'সবচেয়ে বড় সম্পদ হলো লোভ না করা।', textEn:'The greatest wealth is having no greed.', refBn:'', refEn:'', sourceBn:'তুহাফুল উকুল', sourceEn:'Tuhaf al-Uqul', narratorBn:'ইমাম সাজ্জাদ (আ.)', narratorEn:'Imam Sajjad (AS)'},
+    {id:'h137', category:'sajjad', textBn:'তোমার ভাইয়ের অধিকার হলো: তার সাথে সদাচরণ করা, তার প্রতি সদয় হওয়া, এবং তার অনুপস্থিতিতে তার সম্মান রক্ষা করা।', textEn:'The right of your brother is that you treat him well, be kind to him, and protect his honor in his absence.', refBn:'রিসালাতুল হুকুক', refEn:'Risalat al-Huquq (Treatise on Rights)', sourceBn:'তুহাফুল উকুল', sourceEn:'Tuhaf al-Uqul', narratorBn:'ইমাম সাজ্জাদ (আ.)', narratorEn:'Imam Sajjad (AS)'},
 
     // ── আরও Imam al-Baqir (আ.) ──
     {id:'h062', category:'baqir', textBn:'তোমাদের মধ্যে সবচেয়ে দুর্বল ব্যক্তি সে, যে দোয়া করতে অলস।', textEn:'The weakest among you is the one who is too lazy to supplicate.', refBn:'', refEn:'', sourceBn:'বিহারুল আনওয়ার', sourceEn:'Bihar al-Anwar', narratorBn:'ইমাম বাকির (আ.)', narratorEn:'Imam al-Baqir (AS)'},
+    {id:'h138', category:'baqir', textBn:'সৎকর্ম দারিদ্র্য দূর করে এবং হায়াত বৃদ্ধি করে; পাপ কর্ম বালা-মুসিবত ডেকে আনে।', textEn:'Good deeds ward off poverty and lengthen one\u2019s life; sinful deeds invite calamity.', refBn:'', refEn:'', sourceBn:'উসুলে কাফি', sourceEn:'Usul al-Kafi', narratorBn:'ইমাম বাকির (আ.)', narratorEn:'Imam al-Baqir (AS)'},
 
     // ── আরও Imam al-Sadiq (আ.) ──
     {id:'h073', category:'sadiq', textBn:'তিনটি জিনিস মুমিনের সম্মান রক্ষা করে: নামাজে রাত জাগা, মানুষের কাছ থেকে কিছু আশা না করা, ইমামদের (আ.) অনুসরণ করা।', textEn:'Three things preserve the believer\u2019s honor: staying up at night in prayer, expecting nothing from people, and following the Imams (AS).', refBn:'', refEn:'', sourceBn:'উসুলে কাফি', sourceEn:'Usul al-Kafi', narratorBn:'ইমাম সাদিক (আ.)', narratorEn:'Imam al-Sadiq (AS)'},
     {id:'h074', category:'sadiq', textBn:'কর্মীর মজুরি ঘাম শুকানোর আগেই পরিশোধ করো।', textEn:'Pay the worker his wages before his sweat dries.', refBn:'', refEn:'', sourceBn:'বিহারুল আনওয়ার', sourceEn:'Bihar al-Anwar', narratorBn:'ইমাম সাদিক (আ.)', narratorEn:'Imam al-Sadiq (AS)'},
+    {id:'h139', category:'sadiq', textBn:'যে আমাদের জ্ঞান দিয়ে মানুষের হৃদয়ে ভালোবাসা তৈরি করতে চায় সে আমাদের একজন, আর যে তা দিয়ে মানুষকে দূরে ঠেলে দেয় সে আমাদের নয়।', textEn:'Whoever uses our knowledge to draw people\u2019s hearts closer is one of us, and whoever uses it to drive people away is not one of us.', refBn:'', refEn:'', sourceBn:'উসুলে কাফি', sourceEn:'Usul al-Kafi', narratorBn:'ইমাম সাদিক (আ.)', narratorEn:'Imam al-Sadiq (AS)'},
+    {id:'h140', category:'sadiq', textBn:'আমাদের শিয়াদের পরিচয় তিনটি বিষয়ে: নামাজ উত্তমরূপে আদায় করা, আমানত রক্ষা করা, এবং মানুষের সাথে সদাচরণ করা।', textEn:'Our Shia are known by three things: performing prayer excellently, safeguarding trusts, and treating people well.', refBn:'', refEn:'', sourceBn:'বিহারুল আনওয়ার', sourceEn:'Bihar al-Anwar', narratorBn:'ইমাম সাদিক (আ.)', narratorEn:'Imam al-Sadiq (AS)'},
 
     // ── আরও Remaining Imams (আ.) ──
     {id:'h083', category:'others', textBn:'যে ব্যক্তি নিজের জিহ্বাকে সংযত রাখে, আল্লাহ তার দোষ ঢেকে রাখেন।', textEn:'Whoever restrains his tongue, Allah conceals his faults.', refBn:'', refEn:'', sourceBn:'বিহারুল আনওয়ার', sourceEn:'Bihar al-Anwar', narratorBn:'ইমাম আলী আন-নাকি (আ.)', narratorEn:'Imam Ali al-Naqi / al-Hadi (AS)'},
     {id:'h084', category:'others', textBn:'যে ব্যক্তি সৎকর্মের পথ দেখায় সে ঐ সৎকর্ম সম্পাদনকারীর সমান সওয়াব পায়।', textEn:'Whoever guides someone to a good deed receives a reward equal to the one who performs it.', refBn:'', refEn:'', sourceBn:'বিহারুল আনওয়ার', sourceEn:'Bihar al-Anwar', narratorBn:'ইমাম হাসান আল-আসকারি (আ.)', narratorEn:'Imam Hasan al-Askari (AS)'},
+    {id:'h141', category:'others', textBn:'যে ব্যক্তি ধৈর্য ধারণ করে না, সে বুদ্ধিমান নয়।', textEn:'Whoever does not exercise patience is not truly wise.', refBn:'', refEn:'', sourceBn:'বিহারুল আনওয়ার', sourceEn:'Bihar al-Anwar', narratorBn:'ইমাম মুসা আল-কাযিম (আ.)', narratorEn:'Imam Musa al-Kadhim (AS)'},
+    {id:'h142', category:'others', textBn:'তোমাদের মধ্যে সর্বোত্তম আমল হলো নামাজ ওয়াক্তমতো আদায় করা, পিতামাতার সাথে সদাচরণ করা, এবং আল্লাহর পথে জিহাদ করা।', textEn:'The best of deeds among you are performing prayer on time, being good to one\u2019s parents, and striving in the way of Allah.', refBn:'', refEn:'', sourceBn:'উয়ুনে আখবারির রেযা', sourceEn:'Uyun Akhbar al-Ridha', narratorBn:'ইমাম রেযা (আ.)', narratorEn:'Imam Ridha (AS)'},
+    {id:'h143', category:'others', textBn:'যে ব্যক্তি তার দ্বীন রক্ষার জন্য নিজেকে বিপদ থেকে দূরে রাখে, সে প্রকৃতপক্ষে বুদ্ধিমান।', textEn:'Whoever keeps himself away from harm in order to safeguard his faith is truly wise.', refBn:'', refEn:'', sourceBn:'বিহারুল আনওয়ার', sourceEn:'Bihar al-Anwar', narratorBn:'ইমাম আলী আন-নাকি (আ.)', narratorEn:'Imam Ali al-Naqi / al-Hadi (AS)'},
+    // ── ইমাম মাহদী (আ.স.) ──
+    {id:'h144', category:'others', textBn:'নিশ্চয়ই আমি সৃষ্টির কাছে জ্ঞানে পরিপূর্ণ; তোমাদের প্রার্থনায় আমাকে ভুলো না, কারণ আমি তোমাদের বিষয়ে অবগত।', textEn:'Indeed, I am complete in knowledge among creation; do not forget me in your supplications, for I am aware of your affairs.', refBn:'তাওকি (পত্র), শায়খ মুফিদের মাধ্যমে বর্ণিত', refEn:'Tawqi\u2019 (letter), narrated via Shaykh al-Mufid', sourceBn:'বিহারুল আনওয়ার', sourceEn:'Bihar al-Anwar', narratorBn:'ইমাম মাহদী (আ.স.)', narratorEn:'Imam al-Mahdi (AJ)'},
+    {id:'h145', category:'others', textBn:'যখন আমাদের কায়েম (আ.স.) আত্মপ্রকাশ করবেন, তখন তিনি পৃথিবীকে ন্যায় ও ইনসাফে পূর্ণ করবেন, যেমন তা অন্যায় ও অত্যাচারে পূর্ণ ছিল।', textEn:'When our Qa\u2019im (AJ) appears, he will fill the earth with justice and fairness, just as it had been filled with injustice and oppression.', refBn:'', refEn:'', sourceBn:'বিহারুল আনওয়ার — ইমাম সাদিক (আ.) থেকে বর্ণিত', sourceEn:'Bihar al-Anwar — narrated from Imam al-Sadiq (AS)', narratorBn:'ইমাম মাহদী (আ.স.) সম্পর্কে', narratorEn:'About Imam al-Mahdi (AJ)'},
 
     // ── আরও Topic-wise ──
     {id:'h093', category:'topical', textBn:'সবচেয়ে বুদ্ধিমান মানুষ সে যে নিজের ত্রুটিগুলো নিয়ে ব্যস্ত থাকে, অন্যের ত্রুটি নিয়ে নয়।', textEn:'The wisest person is one who is preoccupied with his own faults rather than the faults of others.', refBn:'বিষয়: আত্ম-উন্নয়ন', refEn:'Topic: Self-improvement', sourceBn:'বিহারুল আনওয়ার — ইমাম হাসান (আ.)', sourceEn:'Bihar al-Anwar — Imam Hasan (AS)', narratorBn:'ইমাম হাসান (আ.)', narratorEn:'Imam Hasan (AS)'},
     {id:'h094', category:'topical', textBn:'প্রতিবেশীর সাথে ভালো ব্যবহার করা ঈমানের অংশ।', textEn:'Good treatment of neighbors is part of faith.', refBn:'বিষয়: সামাজিক আচরণ', refEn:'Topic: Social conduct', sourceBn:'উসুলে কাফি — ইমাম সাদিক (আ.)', sourceEn:'Usul al-Kafi — Imam al-Sadiq (AS)', narratorBn:'ইমাম সাদিক (আ.)', narratorEn:'Imam al-Sadiq (AS)'},
+
+    // ══════════════════════════════════════════════════════════════════
+    // দৈনন্দিন জীবন-সংক্রান্ত হাদিস (Daily-life topics) — বিষয়ভিত্তিক
+    // ══════════════════════════════════════════════════════════════════
+
+    // ── সততা ও বিশ্বস্ততা (Honesty & Trustworthiness) ──
+    {id:'h100', category:'topical', textBn:'মুনাফিকের আলামত তিনটি: কথা বললে মিথ্যা বলে, ওয়াদা করলে ভঙ্গ করে, আমানত রাখলে খিয়ানত করে।', textEn:'The signs of a hypocrite are three: when he speaks he lies, when he makes a promise he breaks it, and when he is entrusted he betrays that trust.', refBn:'বিষয়: সততা', refEn:'Topic: Honesty', sourceBn:'সহীহ বুখারি', sourceEn:'Sahih Bukhari', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+    {id:'h101', category:'topical', textBn:'বিশ্বস্ততা জীবিকার স্তম্ভ।', textEn:'Trustworthiness is the pillar of one\u2019s livelihood.', refBn:'বিষয়: সততা', refEn:'Topic: Honesty', sourceBn:'গুরারুল হিকাম', sourceEn:'Ghurar al-Hikam', narratorBn:'ইমাম আলী (আ.)', narratorEn:'Imam Ali (AS)'},
+
+    // ── রাগ নিয়ন্ত্রণ (Anger Management) ──
+    {id:'h102', category:'topical', textBn:'শক্তিশালী সে নয় যে কুস্তিতে অন্যকে হারায়, বরং শক্তিশালী সে যে রাগের সময় নিজেকে নিয়ন্ত্রণ করে।', textEn:'The strong person is not the one who overcomes others by strength, but the one who controls himself while in anger.', refBn:'বিষয়: রাগ নিয়ন্ত্রণ', refEn:'Topic: Anger management', sourceBn:'সহীহ বুখারি', sourceEn:'Sahih Bukhari', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+    {id:'h103', category:'topical', textBn:'রাগ হলো এক ধরনের উন্মত্ততা, কারণ যে রেগে যায় সে পরে অনুতপ্ত হয়; আর যদি অনুতপ্ত না হয় তবে তার উন্মত্ততা স্থায়ী।', textEn:'Anger is a form of madness, for the one who becomes angry regrets it afterward; and if he does not regret it, his madness is permanent.', refBn:'বিষয়: রাগ নিয়ন্ত্রণ', refEn:'Topic: Anger management', sourceBn:'নাহজুল বালাগা', sourceEn:'Nahjul Balagha', narratorBn:'ইমাম আলী (আ.)', narratorEn:'Imam Ali (AS)'},
+
+    // ── পিতামাতার প্রতি সদাচরণ (Kindness to Parents) ──
+    {id:'h104', category:'topical', textBn:'যে ব্যক্তি তার আত্মীয়দের সাথে সম্পর্ক বজায় রাখতে চায়, সে যেন তার পরিবারের সাথে সুসম্পর্ক রাখে।', textEn:'Whoever wishes to maintain family ties should keep good relations with his kin.', refBn:'বিষয়: পারিবারিক সম্পর্ক', refEn:'Topic: Family ties', sourceBn:'সহীহ বুখারি', sourceEn:'Sahih Bukhari', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+    {id:'h105', category:'topical', textBn:'আল্লাহর সন্তুষ্টি পিতামাতার সন্তুষ্টিতে, আর আল্লাহর অসন্তুষ্টি পিতামাতার অসন্তুষ্টিতে।', textEn:"Allah's pleasure lies in the pleasure of one's parents, and Allah's displeasure lies in their displeasure.", refBn:'বিষয়: পিতামাতা', refEn:'Topic: Parents', sourceBn:'সুনানে তিরমিযি', sourceEn:'Sunan al-Tirmidhi', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+
+    // ── পরিচ্ছন্নতা (Cleanliness) ──
+    {id:'h106', category:'topical', textBn:'পরিচ্ছন্নতা ঈমানের অংশ।', textEn:'Cleanliness is part of faith.', refBn:'বিষয়: পরিচ্ছন্নতা', refEn:'Topic: Cleanliness', sourceBn:'সহীহ মুসলিম', sourceEn:'Sahih Muslim', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+
+    // ── হালাল উপার্জন ও কাজ (Halal Earning & Work) ──
+    {id:'h107', category:'topical', textBn:'হালাল উপার্জনের সন্ধান করা প্রত্যেক মুসলিমের উপর একটি কর্তব্য।', textEn:'Seeking a lawful (Halal) livelihood is a duty upon every Muslim.', refBn:'বিষয়: উপার্জন', refEn:'Topic: Earning a living', sourceBn:'বিহারুল আনওয়ার', sourceEn:'Bihar al-Anwar', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+    {id:'h108', category:'topical', textBn:'কর্মীর মজুরি তার ঘাম শুকানোর আগেই পরিশোধ করো।', textEn:'Give the worker his wages before his sweat dries.', refBn:'বিষয়: কর্মসংস্থান', refEn:'Topic: Employment ethics', sourceBn:'সুনানে ইবনে মাজাহ', sourceEn:'Sunan Ibn Majah', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+
+    // ── কথাবার্তা ও নীরবতা (Speech & Silence) ──
+    {id:'h109', category:'topical', textBn:'যে আল্লাহ ও শেষ দিবসে বিশ্বাস করে, সে যেন ভালো কথা বলে অথবা নীরব থাকে।', textEn:'Whoever believes in Allah and the Last Day should speak good or remain silent.', refBn:'বিষয়: কথাবার্তা', refEn:'Topic: Speech', sourceBn:'সহীহ বুখারি', sourceEn:'Sahih Bukhari', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+    {id:'h110', category:'topical', textBn:'তোমার জিহ্বাকে নিয়ন্ত্রণ করো, কেননা এটাই সবচেয়ে বড় শত্রু।', textEn:'Control your tongue, for it is your greatest enemy.', refBn:'বিষয়: কথাবার্তা', refEn:'Topic: Speech', sourceBn:'বিহারুল আনওয়ার', sourceEn:'Bihar al-Anwar', narratorBn:'ইমাম আলী (আ.)', narratorEn:'Imam Ali (AS)'},
+
+    // ── ধৈর্য (Patience) ──
+    {id:'h111', category:'topical', textBn:'ধৈর্য হলো আলো।', textEn:'Patience is light.', refBn:'বিষয়: ধৈর্য', refEn:'Topic: Patience', sourceBn:'সহীহ মুসলিম', sourceEn:'Sahih Muslim', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+    {id:'h112', category:'topical', textBn:'ধৈর্য ঈমানের সাথে সম্পর্কিত, যেমন মাথা শরীরের সাথে সম্পর্কিত।', textEn:'Patience is related to faith as the head is related to the body.', refBn:'বিষয়: ধৈর্য', refEn:'Topic: Patience', sourceBn:'উসুলে কাফি', sourceEn:'Usul al-Kafi', narratorBn:'ইমাম আলী (আ.)', narratorEn:'Imam Ali (AS)'},
+
+    // ── কৃতজ্ঞতা (Gratitude) ──
+    {id:'h113', category:'topical', textBn:'যে মানুষের প্রতি কৃতজ্ঞতা প্রকাশ করে না, সে আল্লাহর প্রতিও কৃতজ্ঞতা প্রকাশ করে না।', textEn:'Whoever does not thank people has not thanked Allah.', refBn:'বিষয়: কৃতজ্ঞতা', refEn:'Topic: Gratitude', sourceBn:'সুনানে আবু দাউদ', sourceEn:'Sunan Abu Dawud', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+
+    // ── দাম্পত্য জীবন (Marriage & Family Life) ──
+    {id:'h114', category:'topical', textBn:'তোমাদের মধ্যে সর্বোত্তম সে ব্যক্তি যে তার স্ত্রীর কাছে সর্বোত্তম, আর আমি আমার পরিবারের কাছে সর্বোত্তম।', textEn:'The best among you is the one best to his wife, and I am the best of you to my family.', refBn:'বিষয়: দাম্পত্য জীবন', refEn:'Topic: Marriage', sourceBn:'সুনানে তিরমিযি', sourceEn:'Sunan al-Tirmidhi', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+
+    // ── দান-সদকা (Charity) ──
+    {id:'h115', category:'topical', textBn:'সদকা কখনো সম্পদ কমায় না।', textEn:'Charity does not decrease wealth.', refBn:'বিষয়: দান-সদকা', refEn:'Topic: Charity', sourceBn:'সহীহ মুসলিম', sourceEn:'Sahih Muslim', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+
+    // ── উত্তম চরিত্র (Good Character) ──
+    {id:'h116', category:'topical', textBn:'ঈমানের দিক থেকে সবচেয়ে পরিপূর্ণ মুমিন সে, যার চরিত্র সবচেয়ে উত্তম।', textEn:'The most complete believers in faith are those with the best character.', refBn:'বিষয়: চরিত্র', refEn:'Topic: Character', sourceBn:'সুনানে তিরমিযি', sourceEn:'Sunan al-Tirmidhi', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+
+    // ── হিংসা (Envy) ──
+    {id:'h117', category:'topical', textBn:'হিংসা থেকে বেঁচে থাকো, কারণ হিংসা সৎকর্মকে এমনভাবে গ্রাস করে যেমন আগুন কাঠকে গ্রাস করে।', textEn:'Beware of envy, for envy devours good deeds just as fire devours firewood.', refBn:'বিষয়: হিংসা', refEn:'Topic: Envy', sourceBn:'সুনানে আবু দাউদ', sourceEn:'Sunan Abu Dawud', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+
+    // ── সময়ের গুরুত্ব (Value of Time) ──
+    {id:'h118', category:'topical', textBn:'পাঁচটি জিনিসকে পাঁচটি জিনিসের আগে মূল্য দাও: বার্ধক্যের আগে যৌবন, অসুস্থতার আগে সুস্থতা, দারিদ্র্যের আগে সচ্ছলতা, ব্যস্ততার আগে অবসর, মৃত্যুর আগে জীবন।', textEn:'Take advantage of five before five: your youth before your old age, your health before your illness, your wealth before your poverty, your free time before your busyness, and your life before your death.', refBn:'বিষয়: সময়ের গুরুত্ব', refEn:'Topic: Value of time', sourceBn:'বিহারুল আনওয়ার', sourceEn:'Bihar al-Anwar', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+
+    // ── পরিমিতি (Moderation, incl. eating) ──
+    {id:'h119', category:'topical', textBn:'আদম-সন্তান তার পেটের চেয়ে খারাপ কোনো পাত্র পূর্ণ করেনি; তার পিঠ সোজা রাখার মতো কয়েক লোকমাই যথেষ্ট।', textEn:'The son of Adam fills no vessel worse than his stomach; a few morsels to keep his back straight are enough for him.', refBn:'বিষয়: পরিমিতিবোধ', refEn:'Topic: Moderation', sourceBn:'সুনানে তিরমিযি', sourceEn:'Sunan al-Tirmidhi', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+
+    // ── পরামর্শ গ্রহণ (Consultation) ──
+    {id:'h120', category:'topical', textBn:'যে পরামর্শ নেয়, সে কখনো ব্যর্থ হয় না।', textEn:'One who consults others is never disappointed.', refBn:'বিষয়: পরামর্শ', refEn:'Topic: Consultation', sourceBn:'গুরারুল হিকাম', sourceEn:'Ghurar al-Hikam', narratorBn:'ইমাম আলী (আ.)', narratorEn:'Imam Ali (AS)'},
+
+    // ── ওয়াদা রক্ষা (Keeping Promises) ──
+    {id:'h121', category:'topical', textBn:'ওয়াদা একটি ঋণ।', textEn:'A promise is a debt (that must be fulfilled).', refBn:'বিষয়: ওয়াদা', refEn:'Topic: Promises', sourceBn:'বিহারুল আনওয়ার', sourceEn:'Bihar al-Anwar', narratorBn:'ইমাম আলী (আ.)', narratorEn:'Imam Ali (AS)'},
+
+    // ── বিনয় (Humility) ──
+    {id:'h122', category:'topical', textBn:'যে ব্যক্তি আল্লাহর জন্য বিনয়ী হয়, আল্লাহ তাকে উঁচু করেন।', textEn:'Whoever humbles himself for the sake of Allah, Allah elevates him.', refBn:'বিষয়: বিনয়', refEn:'Topic: Humility', sourceBn:'উসুলে কাফি', sourceEn:'Usul al-Kafi', narratorBn:'ইমাম সাদিক (আ.)', narratorEn:'Imam al-Sadiq (AS)'},
+
+    // ── সন্তান লালনপালন (Raising Children) ──
+    {id:'h123', category:'topical', textBn:'তোমাদের সন্তানদের সাথে সদাচরণ করো এবং তাদের উত্তম শিষ্টাচার শেখাও।', textEn:'Treat your children well and teach them good manners.', refBn:'বিষয়: সন্তান লালনপালন', refEn:'Topic: Raising children', sourceBn:'সুনানে ইবনে মাজাহ', sourceEn:'Sunan Ibn Majah', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+
+    // ── ক্ষমাশীলতা (Forgiveness) ──
+    {id:'h124', category:'topical', textBn:'যে ক্ষমা করে ও সম্পর্ক স্থাপন করে, তার প্রতিদান আল্লাহর কাছে।', textEn:'Whoever forgives and mends relations, his reward is with Allah.', refBn:'বিষয়: ক্ষমাশীলতা', refEn:'Topic: Forgiveness', sourceBn:'বিহারুল আনওয়ার', sourceEn:'Bihar al-Anwar', narratorBn:'ইমাম সাজ্জাদ (আ.)', narratorEn:'Imam Sajjad (AS)'},
+
+    // ── স্বাস্থ্য (Health) ──
+    {id:'h160', category:'topical', textBn:'তোমার শরীরও তোমার উপর অধিকার রাখে।', textEn:'Your body also has a right over you.', refBn:'বিষয়: স্বাস্থ্য', refEn:'Topic: Health', sourceBn:'সহীহ বুখারি', sourceEn:'Sahih Bukhari', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+
+    // ── অতিথি আপ্যায়ন (Hospitality) ──
+    {id:'h161', category:'topical', textBn:'যে আল্লাহ ও শেষ দিবসে বিশ্বাস করে, সে যেন তার মেহমানকে সম্মান করে।', textEn:'Whoever believes in Allah and the Last Day should honor his guest.', refBn:'বিষয়: আতিথেয়তা', refEn:'Topic: Hospitality', sourceBn:'সহীহ বুখারি', sourceEn:'Sahih Bukhari', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+
+    // ── শিক্ষা ও শিক্ষক (Education & Teachers) ──
+    {id:'h162', category:'topical', textBn:'পণ্ডিতগণ নবীদের উত্তরাধিকারী।', textEn:'The scholars are the heirs of the Prophets.', refBn:'বিষয়: শিক্ষা', refEn:'Topic: Education', sourceBn:'সুনানে আবু দাউদ', sourceEn:'Sunan Abu Dawud', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+    {id:'h163', category:'topical', textBn:'দোলনা থেকে কবর পর্যন্ত জ্ঞান অন্বেষণ করো।', textEn:'Seek knowledge from the cradle to the grave.', refBn:'বিষয়: শিক্ষা', refEn:'Topic: Education', sourceBn:'বিহারুল আনওয়ার', sourceEn:'Bihar al-Anwar', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+
+    // ── ব্যবসায়িক নৈতিকতা (Business Ethics) ──
+    {id:'h164', category:'topical', textBn:'সৎ ও বিশ্বস্ত ব্যবসায়ী কিয়ামতের দিন নবী, সিদ্দিক ও শহীদদের সাথে থাকবেন।', textEn:'The honest and trustworthy merchant will be with the Prophets, the truthful, and the martyrs on the Day of Judgment.', refBn:'বিষয়: ব্যবসায়িক নৈতিকতা', refEn:'Topic: Business ethics', sourceBn:'সুনানে তিরমিযি', sourceEn:'Sunan al-Tirmidhi', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+
+    // ── সালাম ও সৌজন্য (Greetings & Courtesy) ──
+    {id:'h165', category:'topical', textBn:'তোমরা ততক্ষণ জান্নাতে প্রবেশ করবে না যতক্ষণ না ঈমান আনো, আর ততক্ষণ পূর্ণ ঈমানদার হবে না যতক্ষণ না একে অপরকে ভালোবাসো। আমি কি তোমাদের এমন কিছু বলে দেব, যা করলে তোমরা একে অপরকে ভালোবাসবে? তোমাদের মধ্যে সালামের প্রচলন করো।', textEn:'You will not enter Paradise until you believe, and you will not truly believe until you love one another. Shall I tell you of something that, if you do it, you will love one another? Spread the greeting of peace (Salam) among yourselves.', refBn:'বিষয়: সালাম ও সৌজন্য', refEn:'Topic: Greetings', sourceBn:'সহীহ মুসলিম', sourceEn:'Sahih Muslim', narratorBn:'রাসূলুল্লাহ (সা.)', narratorEn:'Prophet Muhammad (PBUH)'},
+
+    // ── প্রতিশ্রুতি ও সময়ানুবর্তিতা (Punctuality) ──
+    {id:'h166', category:'topical', textBn:'সময়ের প্রতি যত্নশীল হও, কারণ সময় তরবারির মতো — তুমি একে না কাটলে সে তোমাকে কেটে ফেলবে।', textEn:'Guard your time carefully, for time is like a sword — if you do not cut it, it will cut you.', refBn:'বিষয়: সময়ানুবর্তিতা', refEn:'Topic: Punctuality', sourceBn:'নাহজুল বালাগা (ভাবার্থ)', sourceEn:'Nahjul Balagha (paraphrased theme)', narratorBn:'ইমাম আলী (আ.)', narratorEn:'Imam Ali (AS)'},
 ];
 
 // ---------------------------------------------------------------------------
@@ -179,11 +287,23 @@ const kcMasail = [
     {id:'m003', category:'taharah', questionBn:'পানি দিয়ে নাপাক জিনিস পবিত্র করার সাধারণ পদ্ধতি কী?', questionEn:'What is the general method for purifying something impure with water?',
         answerBn:'কল/প্রবাহমান পানি হলে একবার ধুলেই সাধারণত পবিত্র হয়ে যায়; জমা পানি (কম পরিমাণ) হলে সাধারণত তিনবার ধুতে হয়, বস্তুভেদে নিয়ম কিছুটা ভিন্ন।', answerEn:'With running/tap water, one wash is generally sufficient; with a small amount of standing water, three washes are typically required — the exact rule varies by object.',
         detailBn:'', detailEn:'', sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
+    {id:'m200', category:'taharah', questionBn:'দৈনন্দিন জীবনে কোন জিনিসগুলো সাধারণত নাপাক ধরা হয়?', questionEn:'What things are generally considered impure in daily life?',
+        answerBn:'প্রস্রাব-পায়খানা, রক্ত, শুকরের দেহ, মদজাতীয় নেশাদ্রব্য এবং কুকুরের লালা — এগুলো দৈনন্দিন জীবনে সবচেয়ে বেশি সম্মুখীন হওয়া নাপাক বিষয়।', answerEn:'Urine and feces, blood, the body of a pig, intoxicating alcoholic substances, and dog saliva are among the impure things most commonly encountered in daily life.',
+        detailBn:'', detailEn:'', sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
     {id:'m004', category:'wudu', questionBn:'অজুর ফরজ অংশগুলো কী কী?', questionEn:'What are the obligatory parts of Wudu?',
         answerBn:'মুখমণ্ডল ধোয়া, দুই হাত কনুই পর্যন্ত ধোয়া, মাথার সামনের অংশে মাসেহ করা, এবং দুই পায়ে (গোড়ালি পর্যন্ত) মাসেহ করা — এই ক্রম অনুসরণ করে।', answerEn:'Washing the face, washing both arms up to the elbows, wiping the front part of the head, and wiping both feet up to the ankles — performed in this sequence.',
         detailBn:'', detailEn:'', sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
+    {id:'m201', category:'wudu', questionBn:'নেইল পলিশ বা মেহেদি লাগানো অবস্থায় অজু হবে কি?', questionEn:'Is Wudu valid while wearing nail polish or henna?',
+        answerBn:'অজুতে পানি চামড়া পর্যন্ত পৌঁছানো জরুরি; পানিরোধী নেইল পলিশ চামড়ায় পানি পৌঁছাতে বাধা দিলে অজু সহিহ হয় না, তবে মেহেদির রঙ (স্তর নয়) সাধারণত বাধা হয় না।', answerEn:'Water must reach the skin for Wudu to be valid; water-resistant nail polish that blocks water from reaching the skin invalidates Wudu, whereas henna\u2019s color (not a physical layer) generally does not block it.',
+        detailBn:'', detailEn:'', sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
     {id:'m011', category:'salah', questionBn:'নামাজে কিবলামুখী হওয়া কেন জরুরি?', questionEn:'Why is facing the Qibla necessary in prayer?',
         answerBn:'কাবার দিকে মুখ করে নামাজ পড়া নামাজের একটি শর্ত — ইচ্ছাকৃতভাবে ভুল দিকে নামাজ পড়লে তা বাতিল হয়ে যায়, তবে অনিচ্ছাকৃত সামান্য ভুলের ক্ষেত্রে ছাড় থাকতে পারে।', answerEn:'Facing the Kaaba is a condition for a valid prayer — intentionally praying in the wrong direction invalidates it, though minor unintentional deviation may be excused.',
+        detailBn:'', detailEn:'', sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
+    {id:'m202', category:'salah', questionBn:'কর্মস্থলে বা ভ্রমণে নামাজের সময় সংকুচিত হলে করণীয় কী?', questionEn:'What to do when prayer time is tight while at work or traveling?',
+        answerBn:'ওয়াক্তের মধ্যে সংক্ষিপ্ত সময়ে নামাজ পড়া যায় (ফরজ অংশ ঠিক রেখে); সফরে থাকলে চার রাকাতবিশিষ্ট নামাজ (যোহর/আসর/এশা) শর্তসাপেক্ষে কসর (২ রাকাত) হয়।', answerEn:'Prayer can be performed in a shortened timeframe within its window (while keeping the obligatory elements intact); while traveling, four-rak\u2019ah prayers (Dhuhr/Asr/Isha) are shortened to two (Qasr), subject to conditions.',
+        detailBn:'', detailEn:'', sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
+    {id:'m203', category:'salah', questionBn:'জামাতে নামাজ পড়ার গুরুত্ব কতটুকু?', questionEn:'How important is praying in congregation (Jama\u2019ah)?',
+        answerBn:'জামাতে নামাজ পড়া অত্যন্ত ফজিলতপূর্ণ ও উৎসাহিত (মুস্তাহাব মুওয়াক্কাদ) — একা নামাজের চেয়ে বহুগুণ সওয়াবের কথা বলা হয়েছে, তবে এককভাবে নামাজ পড়াও বৈধ।', answerEn:'Praying in congregation is highly virtuous and strongly encouraged — it carries many times the reward of praying alone, though praying individually remains valid.',
         detailBn:'', detailEn:'', sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
     {id:'m021', category:'sawm', questionBn:'রমজানের রোজা কার উপর ওয়াজিব?', questionEn:'On whom is fasting in Ramadan obligatory?',
         answerBn:'বালেগ, বিবেকবান ও শারীরিকভাবে সক্ষম প্রত্যেক মুসলিম নর-নারীর উপর রমজানের রোজা ওয়াজিব; অসুস্থ, মুসাফির, গর্ভবতী/স্তন্যদানকারী নারী প্রভৃতির জন্য ছাড় বা কাযা/ফিদিয়ার বিধান আছে।', answerEn:'Fasting in Ramadan is obligatory on every adult, sane, physically able Muslim; exemptions or make-up/compensation rules apply for the ill, travelers, pregnant or nursing women, and others.',
@@ -196,6 +316,12 @@ const kcMasail = [
         detailBn:'', detailEn:'', sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
     {id:'m051', category:'business', questionBn:'ব্যবসায় প্রতারণা (গারার) সম্পর্কে ইসলামের অবস্থান কী?', questionEn:'What is the Islamic stance on deceptive uncertainty (Gharar) in trade?',
         answerBn:'অতিরিক্ত অনিশ্চয়তা বা প্রতারণা জড়িত লেনদেন (গারার) ইসলামে নিষিদ্ধ — ক্রেতা-বিক্রেতা উভয়েরই লেনদেনের বস্তু, মূল্য ও শর্ত সম্পর্কে স্পষ্ট ধারণা থাকা আবশ্যক।', answerEn:'Transactions involving excessive uncertainty or deception (Gharar) are forbidden in Islam — both buyer and seller must have clear knowledge of the object, price, and terms of the transaction.',
+        detailBn:'', detailEn:'', sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
+    {id:'m204', category:'business', questionBn:'বেতনভুক্ত চাকরিতে অফিসের সময় ব্যক্তিগত কাজ করা কি জায়েজ?', questionEn:'Is it permissible to do personal work during office hours in a salaried job?',
+        answerBn:'চুক্তি অনুযায়ী নির্ধারিত সময় নিয়োগকর্তার প্রাপ্য — অনুমতি ছাড়া সেই সময় ব্যক্তিগত কাজে ব্যয় করা আমানতের খেয়ানতের শামিল বলে গণ্য।', answerEn:'The time stipulated by contract belongs to the employer — spending it on personal matters without permission is considered a breach of trust (Amanah).',
+        detailBn:'', detailEn:'', sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
+    {id:'m205', category:'business', questionBn:'ব্যাংক থেকে সুদভিত্তিক ঋণ নেওয়ার বিধান কী?', questionEn:'What is the ruling on taking an interest-based loan from a bank?',
+        answerBn:'সুদ (রিবা) দেওয়া বা নেওয়া উভয়ই ইসলামে হারাম হিসেবে গণ্য; অত্যন্ত জরুরি প্রয়োজনের ক্ষেত্রে বিকল্প না থাকলে কিছু ব্যতিক্রমী পরিস্থিতির আলোচনা মারজাভেদে থাকতে পারে — নিজের মারজার নির্দেশনা দেখা উচিত।', answerEn:'Both paying and receiving interest (Riba) are considered forbidden in Islam; in cases of extreme necessity with no alternative, some Maraji discuss limited exceptions — one should consult their own Marja\u2019s guidance.',
         detailBn:'', detailEn:'', sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
     {id:'m090', category:'misc', questionBn:'দৈনন্দিন জীবনে কোনো মাসআলা নিয়ে সন্দেহ হলে কী করব?', questionEn:'What should I do if I\u2019m unsure about a ruling in daily life?',
         answerBn:'নিজের অনুসরণীয় (মারজা-এ তাকলিদ) এর তাওজিহুল মাসায়েল দেখুন অথবা তাঁর প্রতিনিধি/অফিসে সরাসরি জিজ্ঞাসা করুন।', answerEn:'Consult your chosen Marja-e Taqlid\u2019s ruling manual (Tawdih al-Masail), or ask their representative/office directly.',
@@ -258,6 +384,12 @@ const kcMasail = [
     {id:'m151', category:'food', questionBn:'শরয়ি জবাই (জিবাহ)-এর শর্ত কী?', questionEn:'What are the conditions for Shar\u2019i slaughter (Dhabihah)?',
         answerBn:'মুসলিম কর্তৃক আল্লাহর নাম নিয়ে, ধারালো অস্ত্র দিয়ে, প্রাণীর গলার নির্দিষ্ট অংশ কেটে জবাই করতে হয়।', answerEn:'The animal must be slaughtered by a Muslim, invoking the name of Allah, using a sharp instrument, cutting the specified part of the throat.',
         detailBn:'', detailEn:'', sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
+    {id:'m206', category:'food', questionBn:'রেস্টুরেন্ট বা প্যাকেটজাত খাবার হালাল কিনা কীভাবে নিশ্চিত হবো?', questionEn:'How can I confirm whether restaurant or packaged food is Halal?',
+        answerBn:'উপাদান তালিকা (জেলাটিন, ইমালসিফায়ার ইত্যাদির উৎস), হালাল সার্টিফিকেশন থাকা এবং অ্যালকোহল বা অ-জবাইকৃত মাংসজাত উপাদান না থাকা নিশ্চিত করা উচিত; সন্দেহ হলে এড়িয়ে যাওয়াই নিরাপদ।', answerEn:'One should check the ingredient list (source of gelatin, emulsifiers, etc.), look for Halal certification, and confirm the absence of alcohol or non-slaughtered meat derivatives; when in doubt, it is safer to avoid it.',
+        detailBn:'', detailEn:'', sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
+    {id:'m207', category:'food', questionBn:'অপচয় (ইসরাফ) সম্পর্কে খাদ্যের ক্ষেত্রে ইসলামের নির্দেশনা কী?', questionEn:'What is the Islamic guidance on food waste (Israf)?',
+        answerBn:'খাদ্য অপচয় করা নিরুৎসাহিত ও মাকরুহ — প্রয়োজনমতো খাবার গ্রহণ এবং অতিরিক্ত খাবার সংরক্ষণ বা অন্যকে দান করার পরামর্শ দেওয়া হয়েছে।', answerEn:'Wasting food is discouraged and disliked (Makruh) — taking only what is needed and preserving or donating surplus food is encouraged.',
+        detailBn:'', detailEn:'', sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
 
     // ── Clothing ──
     {id:'m160', category:'clothing', questionBn:'নামাজে পুরুষদের পোশাকের ন্যূনতম শর্ত কী?', questionEn:'What is the minimum clothing requirement for men in prayer?',
@@ -282,6 +414,12 @@ const kcMasail = [
         detailBn:'', detailEn:'', sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
     {id:'m181', category:'technology', questionBn:'অনলাইনে ক্রিপ্টোকারেন্সি লেনদেনের ব্যাপারে সাধারণ দৃষ্টিভঙ্গি কী?', questionEn:'What is the general view on online cryptocurrency transactions?',
         answerBn:'এটি একটি অপেক্ষাকৃত নতুন বিষয় যেখানে মারজাদের মধ্যে ভিন্নমত রয়েছে — সিদ্ধান্ত নেওয়ার আগে নিজ মারজার সুনির্দিষ্ট ফতোয়া জেনে নিন।', answerEn:'This is a relatively new area where opinions differ among Maraji — check your specific Marja\u2019s ruling before making decisions.',
+        detailBn:'', detailEn:'', sourceBn:'', sourceEn:'', marja:'general'},
+    {id:'m208', category:'technology', questionBn:'মোবাইল ফোনে নামাজের সময় ও কিবলা দিক জানার অ্যাপ ব্যবহার করা কি নির্ভরযোগ্য?', questionEn:'Is it reliable to use mobile apps for prayer times and Qibla direction?',
+        answerBn:'নির্ভরযোগ্য উৎসের উপর ভিত্তি করে তৈরি অ্যাপ ব্যবহার করা সাধারণত গ্রহণযোগ্য, তবে GPS/কম্পাসের নির্ভুলতা যাচাই করে নেওয়া এবং সম্ভব হলে স্থানীয় মসজিদের সময়ের সাথে মিলিয়ে দেখা ভালো।', answerEn:'Using apps built on reliable sources is generally acceptable, though it\u2019s good practice to verify GPS/compass accuracy and, where possible, cross-check with local mosque timings.',
+        detailBn:'', detailEn:'', sourceBn:'সাধারণ ফিকহি নীতি', sourceEn:'General fiqh principle', marja:'general'},
+    {id:'m209', category:'technology', questionBn:'অনলাইনে গান/মিউজিক শোনার বিধান কী?', questionEn:'What is the ruling on listening to music/songs online?',
+        answerBn:'গান-বাদ্যের বিধান নিয়ে মারজাদের মধ্যে বিস্তারিত পার্থক্য রয়েছে (কিছু ধরনের সংগীত সম্পূর্ণ নিষিদ্ধ, কিছু ক্ষেত্রে ছাড় আছে) — নিজ মারজার নির্দিষ্ট নির্দেশনা অনুসরণ করা উচিত।', answerEn:'Rulings on music vary in detail among Maraji (some types are entirely forbidden while others have more leeway) — one should follow their own Marja\u2019s specific guidance.',
         detailBn:'', detailEn:'', sourceBn:'', sourceEn:'', marja:'general'},
 ];
 
@@ -347,31 +485,76 @@ const kcQa = [
 // ---------------------------------------------------------------------------
 // FATWA — Maraji + SAMPLE/PLACEHOLDER data (see notice at top of file)
 // ---------------------------------------------------------------------------
+// ⚠️ ২০২৬-০৭: আয়াতুল্লাহ খামেনেই ২৮ ফেব্রুয়ারি ২০২৬-এ তেহরানে একটি
+// মার্কিন-ইসরায়েলি বিমান হামলায় নিহত হন (একাধিক নির্ভরযোগ্য সূত্র — BBC,
+// Al Jazeera, Reuters, NPR দ্বারা নিশ্চিত)। তাঁকে এখানে "প্রয়াত মারজা"
+// হিসেবে রাখা হয়েছে (deceased:true) — তাঁর জীবদ্দশায় প্রদত্ত ফতোয়া
+// ঐতিহাসিক দলিল হিসেবে থাকবে, কিন্তু তিনি নতুন কোনো ফতোয়া দিতে পারবেন না।
+// নতুন মারজা অনুসরণের প্রশ্নে (তাকলিদ চালিয়ে যাওয়া/বদলানো) মারজা-ভেদে
+// ভিন্নমত আছে — এই বিষয়ে ব্যবহারকারীকে নিজ প্রতিনিধির কাছে জিজ্ঞাসা
+// করার পরামর্শ দেওয়া উচিত।
 const kcMaraji = [
     {key:'sistani', bn:'আয়াতুল্লাহ সিস্তানি',            en:'Ayatollah Sistani'},
-    {key:'khamenei', bn:'আয়াতুল্লাহ খামেনেই',           en:'Ayatollah Khamenei'},
+    {key:'khamenei', bn:'আয়াতুল্লাহ খামেনেই',           en:'Ayatollah Khamenei', deceased:true, deathDateBn:'২৮ ফেব্রুয়ারি ২০২৬', deathDateEn:'28 February 2026'},
     {key:'makarem', bn:'আয়াতুল্লাহ মাকারেম শিরাজি',      en:'Ayatollah Makarem Shirazi'},
     {key:'wahid', bn:'আয়াতুল্লাহ ওয়াহিদ খোরাসানি',       en:'Ayatollah Wahid Khorasani'},
     {key:'other', bn:'অন্যান্য মারজা',                    en:'Others'},
 ];
 
 // item: {id, marja, category, questionBn, questionEn, answerBn, answerEn, refBn, refEn, date, sample}
+// ✅ ২০২৬-০৭: নিচের ফতোয়াগুলো প্রতিটি মারজার অফিসিয়াল ওয়েবসাইট থেকে
+// paraphrase করে (verbatim quote নয়) যোগ করা হয়েছে, সঠিক সূত্র-লিংকসহ।
+// আয়াতুল্লাহ খামেনেই ২৮ ফেব্রুয়ারি ২০২৬-এ ইন্তেকাল করেছেন — তাঁর নামে
+// থাকা ফতোয়াগুলো তাঁর জীবদ্দশায় প্রদত্ত ঐতিহাসিক রায় হিসেবে চিহ্নিত।
 const kcFatwa = [
-    {id:'f001', marja:'sistani', category:'salah', questionBn:'নামাজে সন্দেহ (শাক) হলে করণীয় কী?', questionEn:'What should be done when in doubt during prayer?',
-        answerBn:'[নমুনা লেখা — অনুগ্রহ করে অফিসিয়াল ও যাচাইকৃত সূত্র থেকে প্রকৃত ফতোয়া দিয়ে প্রতিস্থাপন করুন।]', answerEn:'[Sample placeholder text — please replace with the actual verified ruling from an official source.]',
-        refBn:'তাওজিহুল মাসায়েল', refEn:'Tawdih al-Masail', date:'', sample:true},
-    {id:'f002', marja:'khamenei', category:'khums', questionBn:'খুমসের হিসাব কখন করতে হয়?', questionEn:'When should Khums be calculated?',
-        answerBn:'[নমুনা লেখা — অনুগ্রহ করে অফিসিয়াল ও যাচাইকৃত সূত্র থেকে প্রকৃত ফতোয়া দিয়ে প্রতিস্থাপন করুন।]', answerEn:'[Sample placeholder text — please replace with the actual verified ruling from an official source.]',
-        refBn:'অফিসিয়াল ওয়েবসাইট', refEn:'Official website', date:'', sample:true},
-    {id:'f003', marja:'makarem', category:'business', questionBn:'ক্রিপ্টোকারেন্সি লেনদেনের বিধান কী?', questionEn:'What is the ruling on cryptocurrency transactions?',
-        answerBn:'[নমুনা লেখা — অনুগ্রহ করে অফিসিয়াল ও যাচাইকৃত সূত্র থেকে প্রকৃত ফতোয়া দিয়ে প্রতিস্থাপন করুন।]', answerEn:'[Sample placeholder text — please replace with the actual verified ruling from an official source.]',
-        refBn:'অফিসিয়াল ওয়েবসাইট', refEn:'Official website', date:'', sample:true},
-    {id:'f004', marja:'wahid', category:'sawm', questionBn:'সফরে রোজার বিধান কী?', questionEn:'What is the ruling on fasting while traveling?',
-        answerBn:'[নমুনা লেখা — অনুগ্রহ করে অফিসিয়াল ও যাচাইকৃত সূত্র থেকে প্রকৃত ফতোয়া দিয়ে প্রতিস্থাপন করুন।]', answerEn:'[Sample placeholder text — please replace with the actual verified ruling from an official source.]',
-        refBn:'তাওজিহুল মাসায়েল', refEn:'Tawdih al-Masail', date:'', sample:true},
-    {id:'f005', marja:'other', category:'misc', questionBn:'নতুন প্রযুক্তি বিষয়ক ফতোয়া কোথায় পাব?', questionEn:'Where can I find rulings on new technology topics?',
-        answerBn:'[নমুনা লেখা — আপনার অনুসরণীয় মারজার অফিসিয়াল অফিস/ওয়েবসাইটে যোগাযোগ করুন।]', answerEn:'[Sample placeholder text — contact your Marja\u2019s official office/website directly.]',
-        refBn:'', refEn:'', date:'', sample:true},
+    // ── আয়াতুল্লাহ সিস্তানি ──
+    {id:'f001', marja:'sistani', category:'khums', questionBn:'খুমস কোন কোন সম্পদের উপর ওয়াজিব হয়?', questionEn:'On which types of wealth does Khums become obligatory?',
+        answerBn:'সাতটি বিষয়ে খুমস ওয়াজিব: ব্যবসা-উপার্জনের উদ্বৃত্ত, খনিজ সম্পদ, প্রোথিত ধনভাণ্ডার, হালাল সম্পদ যা হারাম সম্পদের সাথে মিশে গেছে, ডুবসাঁতারে প্রাপ্ত মূল্যবান পাথর, যুদ্ধলব্ধ সম্পদ, এবং (অধিকাংশ মুজতাহিদের মতে) কোনো জিম্মি কর্তৃক মুসলিমের কাছ থেকে ক্রীত ভূমি।', answerEn:'Khums becomes obligatory on seven things: surplus income from earnings/trade, mined products, treasure troves, lawful property mixed with unlawful property, precious stones acquired by diving, spoils of war, and (per the majority view) land purchased by a dhimmi from a Muslim.',
+        refBn:'ইসলামিক লজ, রুলিং ১৭৬৮ (sistani.org)', refEn:'Islamic Laws, Ruling 1768 (sistani.org)', date:'', sample:false},
+    {id:'f002', marja:'sistani', category:'khums', questionBn:'বার্ষিক খুমসের বছর কীভাবে শুরু হয়?', questionEn:'How does one\u2019s annual Khums year begin?',
+        answerBn:'উপার্জনকারী ব্যক্তির (ব্যবসায়ী, চাকরিজীবী, কারিগর ইত্যাদি) খুমস-বছর শুরু হয় প্রথম উপার্জনের দিন থেকে; সেই তারিখ থেকে এক বছর পর হিসাব করে বার্ষিক ব্যয়ের অতিরিক্ত অংশের উপর খুমস দিতে হয়।', answerEn:'For someone earning an income (trader, employee, craftsman, etc.), the Khums year begins on the day they first earn income; one year later, Khums is calculated and paid on whatever exceeds that year\u2019s living expenses.',
+        refBn:'ইসলামিক লজ, রুলিং ১৭৬৯ (sistani.org)', refEn:'Islamic Laws, Ruling 1769 (sistani.org)', date:'', sample:false},
+    {id:'f003', marja:'sistani', category:'khums', questionBn:'খুমসের অর্থ কীভাবে বণ্টন করা হয়?', questionEn:'How is Khums money distributed?',
+        answerBn:'খুমস দুই ভাগে বিভক্ত: এক ভাগ সাদাতদের অংশ (দরিদ্র সাইয়িদ, এতিম সাইয়িদ, বা সফররত সাইয়িদকে দেওয়া হয়), আর অন্য ভাগ ইমামের অংশ — যা বর্তমান গায়বাতের যুগে একজন পূর্ণ যোগ্যতাসম্পন্ন মুজতাহিদকে দিতে হয় বা তাঁর অনুমোদিত খাতে ব্যয় করতে হয়।', answerEn:'Khums is divided into two parts: the sayyids\u2019 share (given to a poor, orphaned, or stranded-traveler sayyid), and the Imam\u2019s share — which, during the current occultation, must be given to a fully qualified jurist or spent in ways he authorizes.',
+        refBn:'ইসলামিক লজ, রুলিং ১৮৫১ (sistani.org)', refEn:'Islamic Laws, Ruling 1851 (sistani.org)', date:'', sample:false},
+    {id:'f004', marja:'sistani', category:'sawm', questionBn:'রোজার সংজ্ঞা কী?', questionEn:'What is the definition of fasting (Sawm)?',
+        answerBn:'রোজা মানে হলো সুবহে সাদিক থেকে মাগরিব পর্যন্ত নির্দিষ্ট আটটি বিষয় থেকে বিরত থাকা, বিনম্রতা ও আনুগত্যের সাথে।', answerEn:'Fasting means abstaining from eight specified things, from the start of dawn (Subh) until Maghrib, in humility and obedience.',
+        refBn:'ইসলামিক লজ, অধ্যায় ৪ (sistani.org)', refEn:'Islamic Laws, Chapter 4 (sistani.org)', date:'', sample:false},
+
+    // ── আয়াতুল্লাহ ওয়াহিদ খোরাসানি ──
+    {id:'f005', marja:'wahid', category:'khums', questionBn:'উপহার হিসেবে পাওয়া বসবাসের ঘরের উপর কি খুমস দিতে হয়?', questionEn:'Is Khums due on a residence received as a gift?',
+        answerBn:'যদি প্রয়োজনীয় বসবাসের ঘর উপহার হিসেবে পাওয়া যায় এবং তা বার্ষিক ব্যয়ের অংশ হিসেবে ব্যবহৃত হয়, তবে তার উপর খুমস ওয়াজিব হয় না; তবে বিনিময়ে পাওয়া সম্পত্তি বিক্রি করলে এবং তার মূল্য বৃদ্ধি পেলে সেই বাড়তি মূল্যের উপর খুমসের বিধান প্রযোজ্য হতে পারে।', answerEn:'If a needed residence is received as a gift and used as part of one\u2019s annual expenses, Khums is not due on it; however, if property acquired through exchange is later sold and its value has appreciated, Khums may apply to that appreciated value.',
+        refBn:'অফিসিয়াল ওয়েবসাইট, ফতোয়া বিভাগ (wahidkhorasani.com)', refEn:'Official website, Fatwa section (wahidkhorasani.com)', date:'', sample:false},
+    {id:'f006', marja:'wahid', category:'salah', questionBn:'ঢালু জমিতে নামাজ পড়া বৈধ কিনা তা কীভাবে নির্ণয় করব?', questionEn:'How is the validity of praying on sloped ground determined?',
+        answerBn:'সতর্কতামূলক বিধান হলো, ঢালু জমির ঢাল অজানা থাকলে এবং কপাল রাখার স্থান পা ও হাঁটুর স্থান থেকে চার আঙুলের বেশি উঁচু বা নিচু হলে সেই নামাজ অবৈধ বলে গণ্য হবে।', answerEn:'As an obligatory precaution, if the slope of the ground is unknown and the spot where the forehead rests is more than four closed fingers higher or lower than where the toes and knees rest, the prayer is considered invalid.',
+        refBn:'অফিসিয়াল ওয়েবসাইট, ফতোয়া বিভাগ, রুলিং ১০৬৭ (wahidkhorasani.com)', refEn:'Official website, Fatwa section, Ruling 1067 (wahidkhorasani.com)', date:'', sample:false},
+
+    // ── আয়াতুল্লাহ মাকারেম শিরাজি ──
+    {id:'f007', marja:'makarem', category:'sawm', questionBn:'সফরকালে রোজা রাখার বিধান কী?', questionEn:'What is the ruling on fasting while traveling?',
+        answerBn:'যাদের উপর নামাজ কসর (সংক্ষিপ্ত) করা ওয়াজিব, তাদের রোজাও অবৈধ হয়ে যায়; তবে যারা পূর্ণ নামাজ পড়তে বাধ্য (যেমন যারা প্রায়ই সফর করেন), তাদের সফরেও রোজা রাখতে হয়। নিছক রোজা এড়ানোর উদ্দেশ্যে সফর করা অপছন্দনীয়।', answerEn:'Those obligated to shorten (Qasr) their prayers also have their fast invalidated while traveling; however, those required to pray in full (such as frequent travelers) must still fast even while traveling. Traveling merely to avoid fasting is disliked.',
+        refBn:'অফিসিয়াল ওয়েবসাইট, ফতোয়া বিভাগ (makarem.ir)', refEn:'Official website, Fatwa section (makarem.ir)', date:'', sample:false},
+    {id:'f008', marja:'makarem', category:'sawm', questionBn:'অস্বাভাবিক দীর্ঘ দিনের দেশে (যেমন ১৮ ঘণ্টার বেশি) রোজার বিধান কী?', questionEn:'What is the ruling on fasting in regions with abnormally long days (e.g. over 18 hours)?',
+        answerBn:'এমন অঞ্চলে পূর্ণ সময় রোজা রাখতে অক্ষম ব্যক্তি তেহরানের মতো মধ্যম দৈর্ঘ্যের কোনো অঞ্চলের সময়সূচি অনুসরণ করে রোজা রাখতে পারেন; তবে যদি পূর্ণ সময় রোজা রাখার সামর্থ্য থাকে, তবে সেটাই করা উচিত।', answerEn:'Someone unable to fast the full duration in such regions may fast according to the schedule of a region with moderate day-length, such as Tehran; however, if one is able to fast the full duration, they should do so.',
+        refBn:'অফিসিয়াল ওয়েবসাইট, ফতোয়া বিভাগ (makarem.ir)', refEn:'Official website, Fatwa section (makarem.ir)', date:'', sample:false},
+    {id:'f009', marja:'makarem', category:'misc', questionBn:'ধূমপানের ইসলামি বিধান কী?', questionEn:'What is the Islamic ruling on smoking?',
+        answerBn:'স্বাস্থ্যের উপর প্রমাণিত ক্ষতির কারণে ধূমপানকে হারাম ঘোষণা করা হয়েছে।', answerEn:'Smoking has been declared forbidden (Haram) due to its established harm to health.',
+        refBn:'ফতোয়া (উইকিপিডিয়ায় উদ্ধৃত)', refEn:'Fatwa (as cited on Wikipedia)', date:'', sample:false},
+    {id:'f010', marja:'makarem', category:'taharah', questionBn:'কুকুরকে নাপাক গণ্য করার পেছনে কারণ কী?', questionEn:'What is the basis for considering dogs ritually impure?',
+        answerBn:'শরিয়তে কুকুরকে নির্ভরযোগ্য বর্ণনা (রিওয়ায়াত)-এর ভিত্তিতে নাপাক গণ্য করা হয়; পোষা প্রাণী হিসেবে রাখার উপর কুরআনে সরাসরি কোনো নিষেধাজ্ঞা না থাকলেও, শরিয়তের নাপাক-সংক্রান্ত বিধান প্রযোজ্য থাকে।', answerEn:'Dogs are considered ritually impure in Shariah based on reliable narrations; while the Quran does not directly prohibit keeping them as pets, the Shariah rulings on ritual impurity still apply.',
+        refBn:'ফতোয়া, ২০১০ (উইকিপিডিয়ায় উদ্ধৃত)', refEn:'Fatwa, 2010 (as cited on Wikipedia)', date:'', sample:false},
+
+    // ── আয়াতুল্লাহ খামেনেই (প্রয়াত — জীবদ্দশায় প্রদত্ত ঐতিহাসিক ফতোয়া) ──
+    {id:'f011', marja:'khamenei', category:'sawm', questionBn:'কোভিড-১৯ মহামারির সময় রমজানের রোজার বিধান কী ছিল?', questionEn:'What was the ruling on fasting during Ramadan amid the COVID-19 pandemic?',
+        answerBn:'রোজা একটি শরয়ি কর্তব্য এবং আধ্যাত্মিক উন্নতির মাধ্যম হলেও, যদি কারো যুক্তিসঙ্গত কারণ থাকে যে রোজা রাখলে স্বাস্থ্যের গুরুতর ক্ষতি হতে পারে বা রোগ ছড়াতে পারে, তবে সংশ্লিষ্ট শারয়ি ছাড়ের বিধান প্রযোজ্য হয়।', answerEn:'While fasting is a religious obligation and a means of spiritual upliftment, if a person has reasonable grounds to believe fasting would cause serious harm to health or risk spreading illness, the relevant Shar\u2019i exemptions apply.',
+        refBn:'অফিসিয়াল ঘোষণা, ২০২০ (khamenei.ir) — প্রয়াত মারজার ঐতিহাসিক ফতোয়া', refEn:'Official decree, 2020 (khamenei.ir) — historical ruling of a deceased Marja', date:'2020', sample:false},
+    {id:'f012', marja:'khamenei', category:'ghusl', questionBn:'গোসলের সময় শরীরের ডান-বাম ক্রম মেনে চলা কি বাধ্যতামূলক ছিল?', questionEn:'Was following the right-left order of the body obligatory during Ghusl?',
+        answerBn:'সতর্কতামূলক বিধান (ইহতিয়াতে ওয়াজিব) হিসেবে গোসলে শরীরের ডান পাশ ও বাম পাশ ধোয়ার ক্রম মেনে চলা আবশ্যক ছিল বলে অভিমত দেওয়া হয়েছিল।', answerEn:'It was held, as an obligatory precaution (ihtiyat wajib), that following the order of washing the right side then the left side of the body during Ghusl was required.',
+        refBn:'ফতোয়া, khamenei.ir — প্রয়াত মারজার ঐতিহাসিক ফতোয়া', refEn:'Fatwa, khamenei.ir — historical ruling of a deceased Marja', date:'', sample:false},
+
+    // ── সাধারণ নির্দেশনা ──
+    {id:'f013', marja:'other', category:'misc', questionBn:'নতুন বা জটিল বিষয়ে ফতোয়া প্রয়োজন হলে কী করব?', questionEn:'What should I do if I need a ruling on a new or complex issue?',
+        answerBn:'নিজের অনুসরণীয় জীবিত মারজার অফিসিয়াল ওয়েবসাইট বা প্রতিনিধির মাধ্যমে সরাসরি প্রশ্ন পাঠান — এই তালিকার বেশিরভাগ ফতোয়াই সাধারণ শিক্ষামূলক উদ্দেশ্যে সংক্ষিপ্ত আকারে দেওয়া হয়েছে, ব্যক্তিগত সিদ্ধান্তের জন্য মূল উৎস দেখুন।', answerEn:'Submit your question directly through your chosen living Marja\u2019s official website or representative — most rulings listed here are summarized for general educational purposes; consult the original source for personal decisions.',
+        refBn:'', refEn:'', date:'', sample:false},
 ];
 
 if (typeof window !== 'undefined') {
