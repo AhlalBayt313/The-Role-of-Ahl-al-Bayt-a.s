@@ -215,6 +215,23 @@ function kcSimulateLoad() {
     window._kcLoadTimer = setTimeout(() => { state.kcLoading = false; render(); }, 260);
 }
 
+// Like kcSimulateLoad(), but also waits for the tab's real data (loadKcSection)
+// before turning the skeleton off — so the card grid mounts (and its reveal/
+// fadeInUp animation plays) exactly ONCE, not once for the skeleton timeout
+// and again when the fetch resolves.
+function kcLoadTab(tab) {
+    state.kcLoading = true;
+    clearTimeout(window._kcLoadTimer);
+    const minDelay = new Promise(resolve => { window._kcLoadTimer = setTimeout(resolve, 260); });
+    const dataReady = (typeof loadKcSection === 'function') ? loadKcSection(tab) : Promise.resolve();
+    const requestId = (window._kcLoadRequestId = (window._kcLoadRequestId || 0) + 1);
+    Promise.all([minDelay, dataReady]).then(() => {
+        if (window._kcLoadRequestId !== requestId) return; // a newer tab load superseded this one
+        state.kcLoading = false;
+        render();
+    });
+}
+
 function kcUpdateSeoSchema(tab) {
     if (typeof document === 'undefined') return;
     const existing = document.getElementById('kc-faq-schema');
@@ -360,59 +377,170 @@ function kcSearchBar(d, l, placeholder) {
 }
 
 // ---------------------------------------------------------------------------
-// CARD
+// CARD — 4 visually distinct designs (one per tab)
+// Hadith    → manuscript / quotation card
+// Masail    → verdict / index-card
+// Q&A       → conversational chat bubbles
+// Fatwa     → certificate / letterhead
 // ---------------------------------------------------------------------------
-function kcCard(tab, item, d, l, pi) {
-    const meta = kcTabMeta(tab);
-    const cfg = kcTabConfig(tab);
-    const title = kcItemTitle(tab, item, l);
-    const body = kcItemBody(tab, item, l);
+function kcSampleBadge(l, item) {
+    return item.sample ? `<span class="kc-sample-badge">${l==='bn'?'নমুনা':'Sample'}</span>` : '';
+}
+
+function kcCardActions(tab, item, cfg, d, l, bookmarked, favorited, accentColor) {
+    return `
+    <div class="kc-card-actions">
+        <button data-action="kcOpenDetail" data-param="${tab}" data-param2="${item.id}" class="kc-act-main"
+            style="background:linear-gradient(135deg,${accentColor},${accentColor}bb)">
+            ${l==='bn'?'বিস্তারিত':'View'}
+        </button>
+        <button data-action="toggleBookmark" data-param="${item.id}" data-param2="${cfg.bookmarkType}" class="kc-act-icon"
+            aria-label="${l==='bn'?'বুকমার্ক':'Bookmark'}" aria-pressed="${bookmarked}"
+            style="background:${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)'};border:1.5px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}">
+            ${bookmarked?'⭐':'☆'}
+        </button>
+        <button data-action="kcToggleFavorite" data-param="${item.id}" data-param2="${cfg.bookmarkType}" class="kc-act-icon"
+            aria-label="${l==='bn'?'পছন্দ':'Favorite'}" aria-pressed="${favorited}"
+            style="background:${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)'};border:1.5px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'}">
+            ${favorited?'❤️':'🤍'}
+        </button>
+        <button data-action="kcShare" data-param="${tab}" data-param2="${item.id}" class="kc-act-icon"
+            aria-label="${l==='bn'?'শেয়ার':'Share'}"
+            style="background:${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)'};border:1.5px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'};font-size:12px">📤</button>
+    </div>`;
+}
+
+// 1. HADITH — manuscript / quotation card: gold shimmer bar, giant quote mark,
+// serif Bengali hero text, narrator attribution, source as a footnote.
+function kcCardHadith(item, cfg, d, l, pi) {
+    const meta = kcTabMeta('hadith');
     const bookmarked = typeof isBookmarked==='function' && isBookmarked(item.id, cfg.bookmarkType);
     const favorited = isKcFavorite(item.id, cfg.bookmarkType);
-    const sampleBadge = item.sample ? `
-        <span style="font-size:.65rem;font-weight:800;padding:2px 9px;border-radius:50px;
-            background:rgba(220,38,38,.12);color:#dc2626;border:1px solid rgba(220,38,38,.25)">
-            ${l==='bn'?'নমুনা':'Sample'}
-        </span>` : '';
-
+    const text = l==='bn' ? item.textBn : (item.textEn||item.textBn);
+    const narrator = l==='bn' ? (item.narratorBn||'') : (item.narratorEn||item.narratorBn||'');
+    const source = l==='bn' ? (item.sourceBn||'') : (item.sourceEn||item.sourceBn||'');
+    const ref = l==='bn' ? (item.refBn||'') : (item.refEn||item.refBn||'');
     return `
-    <article class="card-luxury border flex flex-col reveal" style="background:${d?'#1e2a22':'#ffffff'};
+    <article class="kc-card kc-card-hadith border flex flex-col reveal" style="background:${d?'#1e2a22':'#ffffff'};
         border-color:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'};box-shadow:var(--shadow-sm);
         animation:fadeInUp .35s ease-out ${(pi%9)*.04}s both">
-        <div style="height:3px;background:${meta.color};border-radius:var(--r-lg) var(--r-lg) 0 0;flex-shrink:0"></div>
-        <div class="p-4 flex flex-col flex-1 gap-2.5">
-            <div class="flex items-center justify-between gap-2">
-                <span style="font-size:.68rem;font-weight:800;padding:3px 10px;border-radius:50px;
-                    background:${meta.color}18;color:${meta.color}">${meta.icon} ${l==='bn'?meta.bn:meta.en}</span>
-                ${sampleBadge}
+        <div class="kc-gold-bar"></div>
+        <div class="kc-hadith-body flex flex-col flex-1">
+            <div class="flex items-center justify-between gap-2 mb-2">
+                <span class="kc-badge" style="background:${meta.color}18;color:${meta.color}">${meta.icon} ${l==='bn'?meta.bn:meta.en}</span>
+                ${kcSampleBadge(l, item)}
             </div>
-            <h3 class="font-bold text-sm leading-snug line-clamp-3" style="color:${d?'#f3f4f6':'#111827'}">${sanitize(title)}</h3>
-            ${body?`<p class="text-xs leading-relaxed line-clamp-2" style="color:${d?'#9ca3af':'#6b7280'}">${sanitize(body)}</p>`:''}
-            <div class="flex gap-2 mt-auto pt-1">
-                <button data-action="kcOpenDetail" data-param="${tab}" data-param2="${item.id}"
-                    style="flex:1;padding:8px;border-radius:12px;font-size:11.5px;font-weight:700;
-                    background:linear-gradient(135deg,${meta.color},${meta.color}bb);color:white;border:none;cursor:pointer">
-                    ${l==='bn'?'বিস্তারিত':'View'}
-                </button>
-                <button data-action="toggleBookmark" data-param="${item.id}" data-param2="${cfg.bookmarkType}"
-                    aria-label="${l==='bn'?'বুকমার্ক':'Bookmark'}" aria-pressed="${bookmarked}"
-                    style="width:34px;border-radius:12px;background:${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)'};
-                    border:1.5px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'};cursor:pointer;font-size:13px">
-                    ${bookmarked?'⭐':'☆'}
-                </button>
-                <button data-action="kcToggleFavorite" data-param="${item.id}" data-param2="${cfg.bookmarkType}"
-                    aria-label="${l==='bn'?'পছন্দ':'Favorite'}" aria-pressed="${favorited}"
-                    style="width:34px;border-radius:12px;background:${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)'};
-                    border:1.5px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'};cursor:pointer;font-size:13px">
-                    ${favorited?'❤️':'🤍'}
-                </button>
-                <button data-action="kcShare" data-param="${tab}" data-param2="${item.id}"
-                    aria-label="${l==='bn'?'শেয়ার':'Share'}"
-                    style="width:34px;border-radius:12px;background:${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)'};
-                    border:1.5px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)'};cursor:pointer;font-size:12px">📤</button>
-            </div>
+            <span class="kc-hadith-quote-mark" aria-hidden="true">❝</span>
+            <blockquote class="kc-hadith-text line-clamp-4" style="color:${d?'#f3f4f6':'#1c1917'}">${sanitize(text)}</blockquote>
+            ${narrator?`<div class="kc-hadith-narrator" style="color:${d?'#d1d5db':'#374151'}">${sanitize(narrator)}</div>`:''}
+            ${(source||ref)?`<div class="kc-hadith-footnote" style="color:${d?'#9ca3af':'#6b7280'}">📖 ${sanitize([ref,source].filter(Boolean).join(' · '))}</div>`:''}
+            ${kcCardActions('hadith', item, cfg, d, l, bookmarked, favorited, meta.color)}
         </div>
     </article>`;
+}
+
+// 2. MASAIL — verdict / index-card: colored left tab, "প্রশ্ন" label,
+// highlighted "সংক্ষিপ্ত জবাব" box, small marja-variance note.
+function kcCardMasail(item, cfg, d, l, pi) {
+    const meta = kcTabMeta('masail');
+    const bookmarked = typeof isBookmarked==='function' && isBookmarked(item.id, cfg.bookmarkType);
+    const favorited = isKcFavorite(item.id, cfg.bookmarkType);
+    const question = l==='bn' ? item.questionBn : (item.questionEn||item.questionBn);
+    const answer = l==='bn' ? (item.answerBn||'') : (item.answerEn||item.answerBn||'');
+    const detail = l==='bn' ? (item.detailBn||'') : (item.detailEn||item.detailBn||'');
+    return `
+    <article class="kc-card kc-card-masail border reveal" style="background:${d?'#1e2a22':'#ffffff'};
+        border-color:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'};box-shadow:var(--shadow-sm);
+        animation:fadeInUp .35s ease-out ${(pi%9)*.04}s both">
+        <div class="kc-masail-tab" style="background:${meta.color}"></div>
+        <div class="kc-masail-body">
+            <div class="flex items-center justify-between gap-2">
+                <span class="kc-badge" style="background:${meta.color}18;color:${meta.color}">${meta.icon} ${l==='bn'?meta.bn:meta.en}</span>
+                ${kcSampleBadge(l, item)}
+            </div>
+            <div class="kc-masail-q-label" style="color:${meta.color}">❔ ${l==='bn'?'প্রশ্ন':'Question'}</div>
+            <h3 class="kc-masail-question line-clamp-2" style="color:${d?'#f3f4f6':'#111827'}">${sanitize(question)}</h3>
+            ${answer?`
+            <div class="kc-masail-answer-box" style="background:${meta.color}14;border-color:${meta.color}">
+                <div class="kc-masail-answer-label" style="color:${meta.color}">✓ ${l==='bn'?'সংক্ষিপ্ত জবাব':'Quick Answer'}</div>
+                <div class="kc-masail-answer-text line-clamp-2" style="color:${d?'#e5e7eb':'#1f2937'}">${sanitize(answer)}</div>
+            </div>`:''}
+            ${detail?`<div class="kc-masail-variance-note" style="color:${d?'#9ca3af':'#6b7280'}"><span>ℹ️</span><span class="line-clamp-1">${sanitize(detail)}</span></div>`:''}
+            ${kcCardActions('masail', item, cfg, d, l, bookmarked, favorited, meta.color)}
+        </div>
+    </article>`;
+}
+
+// 3. Q&A — conversational card: question + answer as two light chat bubbles.
+function kcCardQa(item, cfg, d, l, pi) {
+    const meta = kcTabMeta('qa');
+    const bookmarked = typeof isBookmarked==='function' && isBookmarked(item.id, cfg.bookmarkType);
+    const favorited = isKcFavorite(item.id, cfg.bookmarkType);
+    const question = l==='bn' ? item.questionBn : (item.questionEn||item.questionBn);
+    const answer = l==='bn' ? (item.answerBn||'') : (item.answerEn||item.answerBn||'');
+    return `
+    <article class="kc-card kc-card-qa border flex flex-col reveal" style="background:${d?'#1e2a22':'#ffffff'};
+        border-color:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'};box-shadow:var(--shadow-sm);
+        animation:fadeInUp .35s ease-out ${(pi%9)*.04}s both">
+        <div class="kc-qa-body flex flex-col flex-1">
+            <div class="flex items-center justify-between gap-2">
+                <span class="kc-badge" style="background:${meta.color}18;color:${meta.color}">${meta.icon} ${l==='bn'?meta.bn:meta.en}</span>
+                ${kcSampleBadge(l, item)}
+            </div>
+            <div class="kc-chat-row kc-chat-q">
+                <span class="kc-chat-icon">🙋</span>
+                <div class="kc-chat-bubble line-clamp-2" style="background:${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.045)'};color:${d?'#f3f4f6':'#111827'}">${sanitize(question)}</div>
+            </div>
+            ${answer?`
+            <div class="kc-chat-row kc-chat-a">
+                <span class="kc-chat-icon">💬</span>
+                <div class="kc-chat-bubble line-clamp-2" style="background:${meta.color}16;color:${d?'#e5e7eb':'#1f2937'}">${sanitize(answer)}</div>
+            </div>`:''}
+            ${kcCardActions('qa', item, cfg, d, l, bookmarked, favorited, meta.color)}
+        </div>
+    </article>`;
+}
+
+// 4. FATWA — certificate / letterhead card: marja avatar + name as a letterhead,
+// gold ribbon-seal corner, dashed-border ruling box, reference number footer.
+function kcCardFatwa(item, cfg, d, l, pi) {
+    const meta = kcTabMeta('fatwa');
+    const bookmarked = typeof isBookmarked==='function' && isBookmarked(item.id, cfg.bookmarkType);
+    const favorited = isKcFavorite(item.id, cfg.bookmarkType);
+    const question = l==='bn' ? item.questionBn : (item.questionEn||item.questionBn);
+    const answer = l==='bn' ? (item.answerBn||'') : (item.answerEn||item.answerBn||'');
+    const ref = l==='bn' ? (item.refBn||'') : (item.refEn||item.refBn||'');
+    const marjaEntry = (cfg.categories||[]).find(m=>m.key===item.marja);
+    const marjaLabel = marjaEntry ? (l==='bn'?marjaEntry.bn:marjaEntry.en) : (item.marja||'');
+    const initial = (marjaEntry ? marjaEntry.en : item.marja || '?').trim().charAt(0).toUpperCase();
+    return `
+    <article class="kc-card kc-card-fatwa border flex flex-col reveal" style="background:${d?'#1e2a22':'#ffffff'};
+        border-color:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'};box-shadow:var(--shadow-sm);
+        animation:fadeInUp .35s ease-out ${(pi%9)*.04}s both">
+        ${item.sample?`<div class="kc-fatwa-ribbon">${l==='bn'?'নমুনা':'SAMPLE'}</div>`:''}
+        <div class="kc-fatwa-body flex flex-col flex-1">
+            <div class="kc-fatwa-letterhead" style="border-color:${meta.color}30">
+                <div class="kc-fatwa-avatar" style="background:linear-gradient(135deg,${meta.color},${meta.color}bb)">${sanitize(initial)}</div>
+                <div class="min-w-0">
+                    <div class="kc-fatwa-marja-name truncate" style="color:${d?'#f3f4f6':'#111827'}">${sanitize(marjaLabel)}</div>
+                    <div class="kc-fatwa-badge-sm" style="color:${meta.color}">${meta.icon} ${l==='bn'?meta.bn:meta.en}</div>
+                </div>
+            </div>
+            <h3 class="kc-fatwa-question line-clamp-2" style="color:${d?'#f3f4f6':'#111827'}">${sanitize(question)}</h3>
+            ${answer?`<div class="kc-fatwa-answer-box line-clamp-3" style="border-color:${meta.color}55;color:${d?'#e5e7eb':'#1f2937'}">${sanitize(answer)}</div>`:''}
+            ${ref?`<div class="kc-fatwa-ref" style="color:${d?'#9ca3af':'#6b7280'}">№ ${sanitize(ref)}</div>`:''}
+            ${kcCardActions('fatwa', item, cfg, d, l, bookmarked, favorited, meta.color)}
+        </div>
+    </article>`;
+}
+
+function kcCard(tab, item, d, l, pi) {
+    const cfg = kcTabConfig(tab);
+    if (tab === 'hadith') return kcCardHadith(item, cfg, d, l, pi);
+    if (tab === 'masail') return kcCardMasail(item, cfg, d, l, pi);
+    if (tab === 'qa') return kcCardQa(item, cfg, d, l, pi);
+    if (tab === 'fatwa') return kcCardFatwa(item, cfg, d, l, pi);
+    return '';
 }
 
 // ---------------------------------------------------------------------------
@@ -600,6 +728,13 @@ function renderKnowledgeCenterPage() {
     const meta = kcTabMeta(tab);
     const cfg = kcTabConfig(tab);
     if (typeof kcUpdateSeoSchema==='function') kcUpdateSeoSchema(tab);
+
+    // Safety net: hydrate this tab's full answer/detail/reference fields if not
+    // loaded yet (covers deep-links that bypass changePage/setKcTab). Guarded by
+    // hasFullData so it fires at most once per section — no re-render loop.
+    if (!state.kcLoading && typeof loadKcSection==='function' && cfg.items && cfg.items.length && !cfg.items.every(it=>it.hasFullData)) {
+        loadKcSection(tab).then(()=>{ if (state.currentPage==='knowledgeCenter' && (state.kcTab||'hadith')===tab) render(); });
+    }
 
     const tabBar = `
     <div class="flex flex-wrap gap-2 reveal" role="tablist" aria-label="${l==='bn'?'জ্ঞান কেন্দ্র বিভাগ':'Knowledge Center sections'}">

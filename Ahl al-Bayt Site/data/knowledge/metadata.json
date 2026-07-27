@@ -908,6 +908,582 @@
       "narratorBn": "ইমাম আলী (আ.)",
       "narratorEn": "Imam Ali (AS)",
       "hasFullData": false
+    },
+    {
+      "id": "h173",
+      "category": "prophet",
+      "textBn": "যে ব্যক্তি নিজেকে চিনল, সে তার প্রতিপালককে চিনল।",
+      "textEn": "Whoever knows himself knows his Lord.",
+      "narratorBn": "রাসূলুল্লাহ (সা.)",
+      "narratorEn": "Prophet Muhammad (PBUH)",
+      "hasFullData": false
+    },
+    {
+      "id": "h174",
+      "category": "prophet",
+      "textBn": "তোমাদের মধ্যে সর্বোত্তম ব্যক্তি সে, যে আখলাকে সবচেয়ে উত্তম।",
+      "textEn": "The best among you is the one with the best character.",
+      "narratorBn": "রাসূলুল্লাহ (সা.)",
+      "narratorEn": "Prophet Muhammad (PBUH)",
+      "hasFullData": false
+    },
+    {
+      "id": "h175",
+      "category": "prophet",
+      "textBn": "আমি তোমাদের মাঝে দুটি ভারী বিষয় (সাকালাইন) রেখে যাচ্ছি — আল্লাহর কিতাব এবং আমার আহলে বাইত।",
+      "textEn": "I am leaving among you two weighty things (al-Thaqalayn) — the Book of Allah and my Ahl al-Bayt.",
+      "narratorBn": "রাসূলুল্লাহ (সা.)",
+      "narratorEn": "Prophet Muhammad (PBUH)",
+      "hasFullData": false
+    },
+    {
+      "id": "h176",
+      "category": "prophet",
+      "textBn": "জ্ঞান অন্বেষণ করা প্রত্যেক মুসলিম নর-নারীর উপর ফরজ।",
+      "textEn": "Seeking knowledge is obligatory upon every Muslim, male and female.",
+      "narratorBn": "রাসূলুল্লাহ (সা.)",
+      "narratorEn": "Prophet Muhammad (PBUH)",
+      "hasFullData": false
+    },
+    {
+      "id": "h177",
+      "category": "fatima",
+      "textBn": "আমার কন্যা ফাতিমা বেহেশতি নারীদের নেত্রী।",
+      "textEn": "My daughter Fatimah is the leader of the women of Paradise.",
+      "narratorBn": "রাসূলুল্লাহ (সা.)",
+      "narratorEn": "Prophet Muhammad (PBUH)",
+      "hasFullData": false
+    },
+    {
+      "id": "h178",
+      "category": "fatima",
+      "textBn": "ফাতিমা আমার দেহের একটি অংশ; যে তাকে কষ্ট দেয়, সে আমাকেই কষ্ট দেয়।",
+      "textEn": "Fatimah is a part of me; whoever hurts her, hurts me.",
+      "narratorBn": "রাসূলুল্লাহ (সা.)",
+      "narratorEn": "Prophet Muhammad (PBUH)",
+      "hasFullData": false
+    },
+    {
+      "id": "h179",
+      "category": "fatima",
+      "textBn": "আল্লাহ ফাতিমার সন্তুষ্টিতে সন্তুষ্ট হন এবং তার ক্রোধে ক্রুদ্ধ হন।",
+      "textEn": "Allah is pleased when Fatimah is pleased, and displeased when she is displeased.",
+      "narratorBn": "রাসূলুল্লাহ (সা.)",
+      "narratorEn": "Prophet Muhammad (PBUH)",
+      "hasFullData": false
+    },
+    {
+      "id": "h180",
+      "category": "ali",
+      "textBn": "আলী সত্যের সাথে এবং সত্য আলীর সাথে; তারা কখনো পৃথক হবে না।",
+      "textEn": "Ali is with the truth and the truth is with Ali; they will never separate.",
+      "narratorBn": "রাসূলুল্লাহ (সা.)",
+      "narratorEn": "Prophet Muhammad (PBUH)",
+      "hasFullData": false
+    },
+    {
+      "id": "h181",
+      "category": "ali",
+      "textBn": "মানুষ যা কিছু জানে না তার শত্রু।",
+      "textEn": "People are enemies of what they do not know.",
+      "narratorBn": "ইমাম আলী (আ.)",
+      "narratorEn": "Imam Ali (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h182",
+      "category": "ali",
+      "textBn": "তোমার সম্পদ কমে গেলেও ভয় পেয়ো না, তোমার আমল কমে গেলে ভয় পেও।",
+      "textEn": "Do not fear a decrease in wealth, but fear a decrease in your good deeds.",
+      "narratorBn": "ইমাম আলী (আ.)",
+      "narratorEn": "Imam Ali (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h183",
+      "category": "ali",
+      "textBn": "মানুষের মূল্য তার সৎকর্মে, তার সম্পদে নয়।",
+      "textEn": "A person's worth lies in their good deeds, not their wealth.",
+      "narratorBn": "ইমাম আলী (আ.)",
+      "narratorEn": "Imam Ali (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h184",
+      "category": "hasan",
+      "textBn": "সবচেয়ে বড় বুদ্ধিমত্তা হলো আল্লাহকে ভয় করা এবং তাকওয়া অবলম্বন করা।",
+      "textEn": "The greatest intelligence is fearing Allah and adopting piety.",
+      "narratorBn": "ইমাম হাসান (আ.)",
+      "narratorEn": "Imam Hasan (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h185",
+      "category": "hasan",
+      "textBn": "উদারতা মানে ফরজের আগেই দান করা, চাওয়ার আগেই দেওয়া।",
+      "textEn": "Generosity means giving before being asked, and fulfilling obligation before it is demanded.",
+      "narratorBn": "ইমাম হাসান (আ.)",
+      "narratorEn": "Imam Hasan (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h186",
+      "category": "husayn",
+      "textBn": "মৃত্যু তো অনিবার্য, কিন্তু সম্মানের সাথে মৃত্যু লাঞ্ছনার জীবনের চেয়ে উত্তম।",
+      "textEn": "Death is inevitable, but death with honor is better than a life of disgrace.",
+      "narratorBn": "ইমাম হোসাইন (আ.)",
+      "narratorEn": "Imam Husayn (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h187",
+      "category": "husayn",
+      "textBn": "মানুষ দুনিয়ার গোলাম; দ্বীন তাদের জিহ্বার আঁচড়ানো মাত্র, যতক্ষণ তাদের জীবিকা চলে।",
+      "textEn": "People are slaves of this world; religion is but a scratch upon their tongues as long as their livelihood is secure.",
+      "narratorBn": "ইমাম হোসাইন (আ.)",
+      "narratorEn": "Imam Husayn (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h188",
+      "category": "husayn",
+      "textBn": "আমি জীবনের প্রাচুর্যের জন্য বের হইনি, না বিলাসিতার জন্য, না দুষ্কর্মের জন্য, না অত্যাচারের জন্য; বরং আমার নানার উম্মতের সংস্কারের জন্য বের হয়েছি।",
+      "textEn": "I have not risen for indulgence, nor for wrongdoing or oppression, but to seek reform in the nation of my grandfather.",
+      "narratorBn": "ইমাম হোসাইন (আ.)",
+      "narratorEn": "Imam Husayn (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h189",
+      "category": "sajjad",
+      "textBn": "মুমিনের ঈমান পূর্ণ হয় না যতক্ষণ না তার মধ্যে তিনটি গুণ থাকে — দ্বীনের বোঝাপড়া, বিপদে ধৈর্য, এবং জীবিকার সুষ্ঠু পরিচালনা।",
+      "textEn": "A believer's faith is not complete until he possesses three qualities: understanding of religion, patience in adversity, and sound management of livelihood.",
+      "narratorBn": "ইমাম যাইনুল আবিদীন (আ.)",
+      "narratorEn": "Imam Zayn al-Abidin (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h190",
+      "category": "sajjad",
+      "textBn": "সবচেয়ে বড় জিহাদ হলো নিজের নফসের বিরুদ্ধে জিহাদ।",
+      "textEn": "The greatest struggle (jihad) is the struggle against one's own soul.",
+      "narratorBn": "ইমাম যাইনুল আবিদীন (আ.)",
+      "narratorEn": "Imam Zayn al-Abidin (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h191",
+      "category": "baqir",
+      "textBn": "যে ব্যক্তি ভালো কাজের পথ দেখায়, সে তার কর্তার সমান সওয়াব পায়।",
+      "textEn": "Whoever guides another toward a good deed receives a reward equal to the one who performs it.",
+      "narratorBn": "ইমাম মুহাম্মদ আল-বাকির (আ.)",
+      "narratorEn": "Imam Muhammad al-Baqir (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h192",
+      "category": "baqir",
+      "textBn": "নিকট আত্মীয়দের সাথে সদাচরণ হিসাব সহজ করে এবং সম্পদ বৃদ্ধি করে।",
+      "textEn": "Kindness to relatives eases one's reckoning and increases one's wealth.",
+      "narratorBn": "ইমাম মুহাম্মদ আল-বাকির (আ.)",
+      "narratorEn": "Imam Muhammad al-Baqir (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h193",
+      "category": "sadiq",
+      "textBn": "আমাদের অনুসারী সে-ই, যে আমাদের আদেশ মান্য করে এবং আমাদের নিষেধ থেকে বিরত থাকে।",
+      "textEn": "Our true follower is the one who obeys our commands and abstains from what we forbid.",
+      "narratorBn": "ইমাম জাফর আস-সাদিক (আ.)",
+      "narratorEn": "Imam Ja'far al-Sadiq (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h194",
+      "category": "sadiq",
+      "textBn": "আল্লাহর নিকট সবচেয়ে প্রিয় কাজ হলো একজন মুমিনের মনে আনন্দ দেওয়া।",
+      "textEn": "The deed most beloved to Allah is bringing joy to the heart of a believer.",
+      "narratorBn": "ইমাম জাফর আস-সাদিক (আ.)",
+      "narratorEn": "Imam Ja'far al-Sadiq (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h195",
+      "category": "sadiq",
+      "textBn": "চিন্তা-ভাবনা এক ঘণ্টা কখনো কখনো এক বছরের ইবাদতের চেয়ে উত্তম।",
+      "textEn": "An hour of contemplation is sometimes better than a year of worship.",
+      "narratorBn": "ইমাম জাফর আস-সাদিক (আ.)",
+      "narratorEn": "Imam Ja'far al-Sadiq (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h196",
+      "category": "others",
+      "textBn": "প্রত্যেক যুগে আমার আহলে বাইতের একজন থাকবে, যিনি সত্যের সাক্ষী হবেন এবং বিভ্রান্তদের থেকে মিথ্যাচার দূর করবেন।",
+      "textEn": "In every age there will be one from my Ahl al-Bayt who bears witness to the truth and repels the distortions of the misguided.",
+      "narratorBn": "ইমাম মুহাম্মদ আল-বাকির (আ.)",
+      "narratorEn": "Imam Muhammad al-Baqir (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h197",
+      "category": "others",
+      "textBn": "যে ব্যক্তি তার যুগের ইমামকে না চিনে মারা যায়, সে জাহেলিয়্যাতের মৃত্যুতে মারা যায়।",
+      "textEn": "Whoever dies without recognizing the Imam of his time dies the death of the Age of Ignorance (Jahiliyyah).",
+      "narratorBn": "রাসূলুল্লাহ (সা.)",
+      "narratorEn": "Prophet Muhammad (PBUH)",
+      "hasFullData": false
+    },
+    {
+      "id": "h198",
+      "category": "others",
+      "textBn": "ইমাম মাহদী (আ.) পৃথিবীকে ন্যায়বিচার ও সাম্যে পূর্ণ করবেন, যেমন তা অন্যায় ও অত্যাচারে পূর্ণ ছিল।",
+      "textEn": "Imam al-Mahdi (AS) will fill the earth with justice and equity, just as it had been filled with injustice and tyranny.",
+      "narratorBn": "রাসূলুল্লাহ (সা.)",
+      "narratorEn": "Prophet Muhammad (PBUH)",
+      "hasFullData": false
+    },
+    {
+      "id": "h199",
+      "category": "topical",
+      "textBn": "জান্নাত মায়ের পায়ের নিচে।",
+      "textEn": "Paradise lies beneath the feet of mothers.",
+      "narratorBn": "রাসূলুল্লাহ (সা.)",
+      "narratorEn": "Prophet Muhammad (PBUH)",
+      "hasFullData": false
+    },
+    {
+      "id": "h200",
+      "category": "topical",
+      "textBn": "প্রতিবেশীর অধিকার সম্পর্কে জিব্রাইল আমাকে এত বেশি অসিয়ত করেছিলেন যে, আমি ভাবলাম তাকে হয়তো উত্তরাধিকারী বানানো হবে।",
+      "textEn": "Gabriel enjoined upon me the rights of the neighbor so much that I thought he would be made an heir.",
+      "narratorBn": "রাসূলুল্লাহ (সা.)",
+      "narratorEn": "Prophet Muhammad (PBUH)",
+      "hasFullData": false
+    },
+    {
+      "id": "h201",
+      "category": "topical",
+      "textBn": "ধৈর্য ঈমানের সাথে সম্পর্কিত, যেমন মাথা দেহের সাথে সম্পর্কিত।",
+      "textEn": "Patience is related to faith as the head is related to the body.",
+      "narratorBn": "ইমাম আলী (আ.)",
+      "narratorEn": "Imam Ali (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h202",
+      "category": "topical",
+      "textBn": "সততার সাথে ব্যবসাকারী সৎ ব্যবসায়ী কিয়ামতের দিন নবী, সিদ্দিক ও শহীদদের সাথে থাকবে।",
+      "textEn": "The honest, truthful merchant will be with the Prophets, the truthful ones, and the martyrs on the Day of Judgment.",
+      "narratorBn": "রাসূলুল্লাহ (সা.)",
+      "narratorEn": "Prophet Muhammad (PBUH)",
+      "hasFullData": false
+    },
+    {
+      "id": "h203",
+      "category": "topical",
+      "textBn": "কুরআন শিক্ষা করো এবং তা শিক্ষা দাও, কেননা তোমাদের মধ্যে সর্বোত্তম ব্যক্তি সে-ই, যে কুরআন শিখে এবং শেখায়।",
+      "textEn": "Learn the Quran and teach it, for the best among you is the one who learns the Quran and teaches it.",
+      "narratorBn": "রাসূলুল্লাহ (সা.)",
+      "narratorEn": "Prophet Muhammad (PBUH)",
+      "hasFullData": false
+    },
+    {
+      "id": "h204",
+      "category": "topical",
+      "textBn": "কর্মের প্রতিদান নিয়্যাত অনুযায়ী নির্ধারিত হয়।",
+      "textEn": "Actions are judged according to intentions.",
+      "narratorBn": "রাসূলুল্লাহ (সা.)",
+      "narratorEn": "Prophet Muhammad (PBUH)",
+      "hasFullData": false
+    },
+    {
+      "id": "h205",
+      "category": "prophet",
+      "textBn": "তোমাদের মধ্যে সে-ই উত্তম, যে নিজের পরিবারের কাছে উত্তম।",
+      "textEn": "The best of you is the one who is best to his family.",
+      "narratorBn": "রাসূলুল্লাহ (সা.)",
+      "narratorEn": "Prophet Muhammad (PBUH)",
+      "hasFullData": false
+    },
+    {
+      "id": "h206",
+      "category": "prophet",
+      "textBn": "জ্ঞান অন্বেষণ করা প্রত্যেক মুসলিমের জন্য ফরজ।",
+      "textEn": "Seeking knowledge is obligatory upon every Muslim.",
+      "narratorBn": "রাসূলুল্লাহ (সা.)",
+      "narratorEn": "Prophet Muhammad (PBUH)",
+      "hasFullData": false
+    },
+    {
+      "id": "h207",
+      "category": "fatima",
+      "textBn": "ফাতিমা জান্নাতের নারীদের সর্দার।",
+      "textEn": "Fatima is the leader of the women of Paradise.",
+      "narratorBn": "রাসূলুল্লাহ (সা.)",
+      "narratorEn": "Prophet Muhammad (PBUH)",
+      "hasFullData": false
+    },
+    {
+      "id": "h208",
+      "category": "fatima",
+      "textBn": "ফাতিমা আমার দেহের অংশ; যে তাকে কষ্ট দেয়, সে আমাকে কষ্ট দেয়।",
+      "textEn": "Fatima is a part of me; whoever hurts her, hurts me.",
+      "narratorBn": "রাসূলুল্লাহ (সা.)",
+      "narratorEn": "Prophet Muhammad (PBUH)",
+      "hasFullData": false
+    },
+    {
+      "id": "h209",
+      "category": "fatima",
+      "textBn": "যখনই ফাতিমা (আ.) ঘরে প্রবেশ করতেন, রাসূলুল্লাহ (সা.) দাঁড়িয়ে তাকে সম্মান জানাতেন।",
+      "textEn": "Whenever Fatima entered, the Prophet would stand to honor her.",
+      "narratorBn": "আয়িশা (রা.)",
+      "narratorEn": "Aisha (RA)",
+      "hasFullData": false
+    },
+    {
+      "id": "h210",
+      "category": "hasan",
+      "textBn": "হাসান ও হুসাইন জান্নাতের যুবকদের সর্দার।",
+      "textEn": "Hasan and Husayn are the leaders of the youth of Paradise.",
+      "narratorBn": "রাসূলুল্লাহ (সা.)",
+      "narratorEn": "Prophet Muhammad (PBUH)",
+      "hasFullData": false
+    },
+    {
+      "id": "h211",
+      "category": "hasan",
+      "textBn": "দানশীলতা মানুষকে আল্লাহর নিকটবর্তী করে।",
+      "textEn": "Generosity brings a person closer to Allah.",
+      "narratorBn": "ইমাম হাসান (আ.)",
+      "narratorEn": "Imam Hasan (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h212",
+      "category": "hasan",
+      "textBn": "যে ব্যক্তি সৎকর্মে ব্যস্ত থাকে, তার মন্দ কর্মের সময় থাকে না।",
+      "textEn": "One occupied with good deeds has no time for evil ones.",
+      "narratorBn": "ইমাম হাসান (আ.)",
+      "narratorEn": "Imam Hasan (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h213",
+      "category": "hasan",
+      "textBn": "ধৈর্য হলো ঈমানের মাথা।",
+      "textEn": "Patience is the head of faith.",
+      "narratorBn": "ইমাম হাসান (আ.)",
+      "narratorEn": "Imam Hasan (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h214",
+      "category": "ali",
+      "textBn": "মানুষ যা জানে না তার শত্রু।",
+      "textEn": "People are enemies of what they do not know.",
+      "narratorBn": "ইমাম আলী (আ.)",
+      "narratorEn": "Imam Ali (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h215",
+      "category": "ali",
+      "textBn": "সবচেয়ে দুর্বল মানুষ সে, যে বন্ধু খুঁজে পায় না, আর তার চেয়েও দুর্বল যে বন্ধু পেয়েও হারায়।",
+      "textEn": "The weakest of people is one who cannot find friends, but weaker still is one who finds them and loses them.",
+      "narratorBn": "ইমাম আলী (আ.)",
+      "narratorEn": "Imam Ali (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h216",
+      "category": "ali",
+      "textBn": "জ্ঞান সম্পদের চেয়ে উত্তম, কারণ জ্ঞান তোমাকে রক্ষা করে, আর সম্পদকে তোমাকে রক্ষা করতে হয়।",
+      "textEn": "Knowledge is better than wealth, for knowledge guards you, while you must guard wealth.",
+      "narratorBn": "ইমাম আলী (আ.)",
+      "narratorEn": "Imam Ali (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h217",
+      "category": "husayn",
+      "textBn": "মৃত্যু আমার কাছে সৌভাগ্যের চেয়ে বেশি কিছু নয়, আর জালিমদের সাথে জীবনযাপন অপমান ছাড়া কিছু নয়।",
+      "textEn": "Death is nothing but good fortune to me, and life with tyrants is nothing but disgrace.",
+      "narratorBn": "ইমাম হুসাইন (আ.)",
+      "narratorEn": "Imam Husayn (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h218",
+      "category": "husayn",
+      "textBn": "মানুষ দুনিয়ার গোলাম; দ্বীন তাদের জিহ্বায়, যতক্ষণ তাদের জীবিকা চলে, ততক্ষণই তারা ধর্মপরায়ণ।",
+      "textEn": "People are slaves of the world; religion is on their tongues only as long as it serves their livelihood.",
+      "narratorBn": "ইমাম হুসাইন (আ.)",
+      "narratorEn": "Imam Husayn (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h219",
+      "category": "husayn",
+      "textBn": "সম্মানের সাথে মৃত্যু, অপমানের জীবনের চেয়ে উত্তম।",
+      "textEn": "Death with honor is better than a life of disgrace.",
+      "narratorBn": "ইমাম হুসাইন (আ.)",
+      "narratorEn": "Imam Husayn (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h220",
+      "category": "husayn",
+      "textBn": "নিশ্চয়ই আমি বিদ্রোহের জন্য, অহংকারের জন্য, বা ফাসাদের জন্য বের হইনি; বরং আমার নানার উম্মতের সংস্কারের জন্য বের হয়েছি।",
+      "textEn": "I have not risen for rebellion, arrogance, or corruption, but to reform my grandfather's nation.",
+      "narratorBn": "ইমাম হুসাইন (আ.)",
+      "narratorEn": "Imam Husayn (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h221",
+      "category": "sajjad",
+      "textBn": "সবচেয়ে ভারী পাপ সেটাই, যাকে তার কর্তা লঘু মনে করে।",
+      "textEn": "The heaviest sin is the one its doer considers light.",
+      "narratorBn": "ইমাম সাজ্জাদ (আ.)",
+      "narratorEn": "Imam Zayn al-Abidin (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h222",
+      "category": "sajjad",
+      "textBn": "প্রত্যেক অঙ্গের একটি হক (অধিকার) রয়েছে আল্লাহর প্রতি।",
+      "textEn": "Every limb has a right owed to Allah.",
+      "narratorBn": "ইমাম সাজ্জাদ (আ.)",
+      "narratorEn": "Imam Zayn al-Abidin (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h223",
+      "category": "sajjad",
+      "textBn": "দোয়া হলো বিশ্বাসীর অস্ত্র।",
+      "textEn": "Supplication is the weapon of the believer.",
+      "narratorBn": "ইমাম সাজ্জাদ (আ.)",
+      "narratorEn": "Imam Zayn al-Abidin (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h224",
+      "category": "baqir",
+      "textBn": "নিজের ভাইয়ের সাথে সদাচরণ করা সবচেয়ে বড় ইবাদত।",
+      "textEn": "Good conduct with one's brother is among the greatest acts of worship.",
+      "narratorBn": "ইমাম বাকির (আ.)",
+      "narratorEn": "Imam Muhammad al-Baqir (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h225",
+      "category": "baqir",
+      "textBn": "যে ব্যক্তি নিজের জিহ্বা নিয়ন্ত্রণ করে, আল্লাহ তার দোষ ঢেকে রাখেন।",
+      "textEn": "Whoever controls their tongue, Allah conceals their faults.",
+      "narratorBn": "ইমাম বাকির (আ.)",
+      "narratorEn": "Imam Muhammad al-Baqir (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h226",
+      "category": "baqir",
+      "textBn": "নম্রতা ঈমানের একটি শাখা।",
+      "textEn": "Humility is a branch of faith.",
+      "narratorBn": "ইমাম বাকির (আ.)",
+      "narratorEn": "Imam Muhammad al-Baqir (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h227",
+      "category": "sadiq",
+      "textBn": "যে ব্যক্তি তার প্রতিবেশীর ক্ষুধায় রাত কাটায় অথচ জানে, সে প্রকৃত মুমিন নয়।",
+      "textEn": "Whoever sleeps with a full stomach while his neighbor goes hungry, knowing of it, is not a true believer.",
+      "narratorBn": "ইমাম সাদিক (আ.)",
+      "narratorEn": "Imam Ja'far al-Sadiq (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h228",
+      "category": "sadiq",
+      "textBn": "সততা হলো ঈমানের চাবি।",
+      "textEn": "Honesty is the key to faith.",
+      "narratorBn": "ইমাম সাদিক (আ.)",
+      "narratorEn": "Imam Ja'far al-Sadiq (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h229",
+      "category": "sadiq",
+      "textBn": "আমাদের শিয়া তারাই, যারা আমাদের আদেশ মানে এবং আমাদের নিষেধ থেকে বিরত থাকে।",
+      "textEn": "Our Shia are those who obey our commands and refrain from what we forbid.",
+      "narratorBn": "ইমাম সাদিক (আ.)",
+      "narratorEn": "Imam Ja'far al-Sadiq (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h230",
+      "category": "others",
+      "textBn": "যে ব্যক্তি নিজ ভুল স্বীকার করে, সে তওবাকারীদের সমতুল্য।",
+      "textEn": "One who admits their fault is like one who repents.",
+      "narratorBn": "ইমাম রিদা (আ.)",
+      "narratorEn": "Imam Ali al-Ridha (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h231",
+      "category": "others",
+      "textBn": "যে ব্যক্তি প্রতিদিন তার হিসাব নেয় না, সে আমাদের নয়।",
+      "textEn": "Whoever does not hold themselves accountable each day is not one of us.",
+      "narratorBn": "ইমাম মুসা আল-কাযিম (আ.)",
+      "narratorEn": "Imam Musa al-Kadhim (AS)",
+      "hasFullData": false
+    },
+    {
+      "id": "h232",
+      "category": "others",
+      "textBn": "আমার আবির্ভাবের অপেক্ষা করাটাই সবচেয়ে বড় ইবাদত।",
+      "textEn": "Awaiting my reappearance is among the greatest acts of worship.",
+      "narratorBn": "ইমাম মাহদি (আ.জ.)",
+      "narratorEn": "Imam Mahdi (may Allah hasten his return)",
+      "hasFullData": false
+    },
+    {
+      "id": "h233",
+      "category": "topical",
+      "textBn": "গোপন দান প্রকাশ্য দানের সত্তর গুণ উত্তম।",
+      "textEn": "Charity given secretly is seventy times better than that given openly.",
+      "narratorBn": "রাসূলুল্লাহ (সা.)",
+      "narratorEn": "Prophet Muhammad (PBUH)",
+      "hasFullData": false
+    },
+    {
+      "id": "h234",
+      "category": "topical",
+      "textBn": "নামায হলো দ্বীনের স্তম্ভ।",
+      "textEn": "Prayer is the pillar of religion.",
+      "narratorBn": "রাসূলুল্লাহ (সা.)",
+      "narratorEn": "Prophet Muhammad (PBUH)",
+      "hasFullData": false
+    },
+    {
+      "id": "h235",
+      "category": "topical",
+      "textBn": "তোমাদের মধ্যে সর্বোত্তম সে, যে তার স্ত্রীর প্রতি সর্বোত্তম।",
+      "textEn": "The best among you is the one who is best to his wife.",
+      "narratorBn": "রাসূলুল্লাহ (সা.)",
+      "narratorEn": "Prophet Muhammad (PBUH)",
+      "hasFullData": false
+    },
+    {
+      "id": "h236",
+      "category": "topical",
+      "textBn": "জ্ঞানীর কালি শহীদের রক্তের চেয়ে বেশি মূল্যবান।",
+      "textEn": "The ink of the scholar is more precious than the blood of the martyr.",
+      "narratorBn": "রাসূলুল্লাহ (সা.)",
+      "narratorEn": "Prophet Muhammad (PBUH)",
+      "hasFullData": false
     }
   ],
   "kcMasail": [
@@ -1262,6 +1838,518 @@
       "questionEn": "What is the ruling on listening to music/songs online?",
       "marja": "general",
       "hasFullData": false
+    },
+    {
+      "id": "m210",
+      "category": "wudu",
+      "questionBn": "অজুর ফরজগুলো কী কী?",
+      "questionEn": "What are the obligatory acts (wajibat) of wudu?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m211",
+      "category": "wudu",
+      "questionBn": "কোন কোন কারণে অজু ভেঙে যায়?",
+      "questionEn": "What things invalidate wudu?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m212",
+      "category": "salah",
+      "questionBn": "নামাজের ওয়াজিব রুকনগুলো কী কী?",
+      "questionEn": "What are the pillars (arkan) of prayer whose omission invalidates it?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m213",
+      "category": "salah",
+      "questionBn": "মুসাফির অবস্থায় নামাজ কীভাবে পড়তে হয়?",
+      "questionEn": "How should prayer be performed while traveling?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m214",
+      "category": "salah",
+      "questionBn": "জামাতে নামাজ পড়ার হুকুম কী?",
+      "questionEn": "What is the ruling on praying in congregation (jama'ah)?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m215",
+      "category": "sawm",
+      "questionBn": "রোজা ভঙ্গকারী বিষয়গুলো কী কী?",
+      "questionEn": "What are the things that invalidate a fast (mubtilat al-sawm)?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m216",
+      "category": "sawm",
+      "questionBn": "কারা রোজা রাখা থেকে অব্যাহতিপ্রাপ্ত?",
+      "questionEn": "Who is exempt from fasting?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m217",
+      "category": "khums",
+      "questionBn": "খুমসের হিসাব বছরে কখন করতে হয়?",
+      "questionEn": "When should Khums be calculated each year?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m218",
+      "category": "zakat",
+      "questionBn": "যাকাত কোন কোন সম্পদের উপর ওয়াজিব?",
+      "questionEn": "On which types of property is Zakat obligatory?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m219",
+      "category": "hajj",
+      "questionBn": "হজ্ব কার উপর ওয়াজিব হয়?",
+      "questionEn": "Upon whom does Hajj become obligatory?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m220",
+      "category": "nikah",
+      "questionBn": "স্থায়ী নিকাহ ও মুতা (অস্থায়ী) নিকাহের মধ্যে পার্থক্য কী?",
+      "questionEn": "What is the difference between permanent nikah and mut'ah (temporary marriage)?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m221",
+      "category": "nikah",
+      "questionBn": "নিকাহের জন্য কী কী শর্ত পূরণ করতে হয়?",
+      "questionEn": "What conditions must be met for a valid nikah contract?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m222",
+      "category": "talaq",
+      "questionBn": "তালাক কীভাবে শরিয়তসম্মতভাবে সংঘটিত হয়?",
+      "questionEn": "How does divorce (talaq) occur validly according to Shariah?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m223",
+      "category": "business",
+      "questionBn": "সুদ (রিবা) সংক্রান্ত ইসলামি বিধান কী?",
+      "questionEn": "What is the Islamic ruling on interest (riba)?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m224",
+      "category": "business",
+      "questionBn": "ব্যবসায়িক চুক্তিতে গারার (অনিশ্চয়তা) কেন নিষিদ্ধ?",
+      "questionEn": "Why is gharar (excessive uncertainty) forbidden in business contracts?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m225",
+      "category": "food",
+      "questionBn": "কোন কোন প্রাণী খাওয়া হারাম?",
+      "questionEn": "Which animals are forbidden to eat?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m226",
+      "category": "food",
+      "questionBn": "যবাহ (শরিয়তসম্মত জবাই) এর শর্তাবলি কী কী?",
+      "questionEn": "What are the conditions for a valid Islamic slaughter (dhabh)?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m227",
+      "category": "taharah",
+      "questionBn": "কুর (Kurr) পানি কী এবং এর গুরুত্ব কী?",
+      "questionEn": "What is 'Kurr' water and why is it significant?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m228",
+      "category": "ghusl",
+      "questionBn": "জানাবাতের গোসল কখন ওয়াজিব হয়?",
+      "questionEn": "When does the ritual bath (ghusl) for major impurity (janabah) become obligatory?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m229",
+      "category": "tayammum",
+      "questionBn": "কখন তায়াম্মুম করা যায়?",
+      "questionEn": "When is tayammum (dry ablution) permitted?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m230",
+      "category": "clothing",
+      "questionBn": "নামাজে পুরুষের পোশাকের শর্ত কী?",
+      "questionEn": "What are the clothing conditions for a man during prayer?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m231",
+      "category": "clothing",
+      "questionBn": "নারীদের হিজাবের ফিকহি সীমা কী?",
+      "questionEn": "What are the jurisprudential limits of hijab for women?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m232",
+      "category": "women",
+      "questionBn": "হায়েজ অবস্থায় কোন কোন ইবাদত নিষিদ্ধ?",
+      "questionEn": "Which acts of worship are forbidden during menstruation (hayd)?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m233",
+      "category": "women",
+      "questionBn": "মোহর (দেনমোহর) কী এবং তা কখন পরিশোধযোগ্য?",
+      "questionEn": "What is mahr (dowry) and when is it payable?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m234",
+      "category": "technology",
+      "questionBn": "সোশ্যাল মিডিয়ায় নাজায়েজ ছবি বা কন্টেন্ট শেয়ার করার হুকুম কী?",
+      "questionEn": "What is the ruling on sharing inappropriate images or content on social media?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m235",
+      "category": "technology",
+      "questionBn": "ক্রিপ্টোকারেন্সি লেনদেনের ইসলামি হুকুম কী?",
+      "questionEn": "What is the Islamic ruling on cryptocurrency transactions?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m236",
+      "category": "misc",
+      "questionBn": "গান-বাজনা শোনার হুকুম কী?",
+      "questionEn": "What is the ruling on listening to music?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m237",
+      "category": "misc",
+      "questionBn": "তাকলিদ (মারজার অনুসরণ) কেন প্রয়োজন?",
+      "questionEn": "Why is Taqlid (following a Marja) necessary?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m238",
+      "category": "misc",
+      "questionBn": "কাজা নামাজ কীভাবে আদায় করতে হয়?",
+      "questionEn": "How should missed (qada) prayers be made up?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m239",
+      "category": "salah",
+      "questionBn": "নামাজে সাহু সিজদা কখন দিতে হয়?",
+      "questionEn": "When must the prostration of forgetfulness (sajdah al-sahw) be performed?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m240",
+      "category": "taharah",
+      "questionBn": "কোন কোন বস্তু নাজিসকে পবিত্র (মুতাহহির) করতে পারে?",
+      "questionEn": "What are the means (mutahhirat) that can purify something impure (najis)?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m241",
+      "category": "misc",
+      "questionBn": "ইসলামে ওসিয়ত (উইল) সংক্রান্ত বিধান কী?",
+      "questionEn": "What is the Islamic ruling regarding a will (wasiyyah)?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m242",
+      "category": "taharah",
+      "questionBn": "কুর (Kurr) পানি কী এবং কেন গুরুত্বপূর্ণ?",
+      "questionEn": "What is Kurr water and why does it matter?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m243",
+      "category": "taharah",
+      "questionBn": "মৃত প্রাণীর চামড়া কি পবিত্র হতে পারে?",
+      "questionEn": "Can the skin of a dead animal become pure?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m244",
+      "category": "wudu",
+      "questionBn": "ওজুর মধ্যে সন্দেহ হলে করণীয় কী?",
+      "questionEn": "What should one do if in doubt during wudu?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m245",
+      "category": "wudu",
+      "questionBn": "নেইলপলিশ থাকা অবস্থায় ওজু বৈধ কি?",
+      "questionEn": "Is wudu valid while wearing nail polish?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m246",
+      "category": "salah",
+      "questionBn": "সালাতে সিজদায়ে সাহু কখন ওয়াজিব হয়?",
+      "questionEn": "When does the prostration of forgetfulness (sajdah al-sahw) become obligatory?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m247",
+      "category": "salah",
+      "questionBn": "মুসাফির অবস্থায় নামায কসর করা কি বাধ্যতামূলক?",
+      "questionEn": "Is shortening prayer obligatory while traveling?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m248",
+      "category": "sawm",
+      "questionBn": "রোজা অবস্থায় ইনজেকশন নেওয়া কি রোজা ভঙ্গ করে?",
+      "questionEn": "Does taking an injection break the fast?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m249",
+      "category": "sawm",
+      "questionBn": "ভুলবশত পানাহার করলে রোজার কী হয়?",
+      "questionEn": "What happens to the fast if one eats or drinks forgetfully?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m250",
+      "category": "khums",
+      "questionBn": "বছরান্তে অব্যবহৃত আয়ের উদ্বৃত্তাংশের ওপর খুমস কীভাবে হিসাব করা হয়?",
+      "questionEn": "How is Khums calculated on the surplus of unused annual income?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m251",
+      "category": "hajj",
+      "questionBn": "হজ্জের ইহরাম অবস্থায় কী কী নিষিদ্ধ?",
+      "questionEn": "What is forbidden while in the state of Ihram for Hajj?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m252",
+      "category": "hajj",
+      "questionBn": "হজ্জে বদলি (নিয়াবত) করা কখন বৈধ?",
+      "questionEn": "When is performing Hajj by proxy (niyabah) valid?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m253",
+      "category": "business",
+      "questionBn": "সুদভিত্তিক ব্যাংক থেকে সুদমুক্ত ঋণ নেওয়া কি জায়েজ?",
+      "questionEn": "Is it permissible to take an interest-free loan from an interest-based bank?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m254",
+      "category": "business",
+      "questionBn": "শেয়ার বাজারে বিনিয়োগ কি ইসলামে জায়েজ?",
+      "questionEn": "Is investing in the stock market permissible in Islam?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m255",
+      "category": "misc",
+      "questionBn": "ইসলামে জীবন বীমা করা কি জায়েজ?",
+      "questionEn": "Is life insurance permissible in Islam?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m256",
+      "category": "misc",
+      "questionBn": "অঙ্গ প্রতিস্থাপন (অর্গান ডোনেশন) কি ইসলামে অনুমোদিত?",
+      "questionEn": "Is organ donation permitted in Islam?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m257",
+      "category": "ghusl",
+      "questionBn": "জানাবাতের গোসল না করে রোজা রাখা যাবে কি?",
+      "questionEn": "Can one fast without performing ghusl for major ritual impurity first?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m258",
+      "category": "tayammum",
+      "questionBn": "পানি থাকা সত্ত্বেও তায়াম্মুম কখন বৈধ?",
+      "questionEn": "When is Tayammum valid even if water is available?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m259",
+      "category": "tayammum",
+      "questionBn": "তায়াম্মুম কোন কোন বস্তুর উপর করা যায়?",
+      "questionEn": "On what substances can Tayammum be performed?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m260",
+      "category": "zakat",
+      "questionBn": "জাকাত কোন কোন সম্পদের ওপর ওয়াজিব হয়?",
+      "questionEn": "On which types of wealth is Zakat obligatory?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m261",
+      "category": "zakat",
+      "questionBn": "জাকাতুল ফিতরা কাদের ওপর ওয়াজিব?",
+      "questionEn": "On whom is Zakat al-Fitrah obligatory?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m262",
+      "category": "nikah",
+      "questionBn": "মাহর (দেনমোহর) নির্ধারণে কোনো সর্বোচ্চ সীমা আছে কি?",
+      "questionEn": "Is there a maximum limit for the amount of Mahr?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m263",
+      "category": "nikah",
+      "questionBn": "বিয়ের আগে মেয়ে পক্ষের অভিভাবকের অনুমতি কি বাধ্যতামূলক?",
+      "questionEn": "Is the consent of the bride's guardian mandatory before marriage?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m264",
+      "category": "talaq",
+      "questionBn": "তালাক বৈধ হওয়ার জন্য কোন শর্তগুলো পূরণ হতে হবে?",
+      "questionEn": "What conditions must be met for a divorce (talaq) to be valid?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m265",
+      "category": "talaq",
+      "questionBn": "ইদ্দত পালনকালীন সময়ে স্বামী কি স্ত্রীকে ফিরিয়ে নিতে পারে?",
+      "questionEn": "Can a husband take his wife back during her waiting period (Iddah)?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m266",
+      "category": "food",
+      "questionBn": "জেলাটিন কি হালাল, নাকি হারাম?",
+      "questionEn": "Is gelatin halal or haram?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m267",
+      "category": "food",
+      "questionBn": "সামুদ্রিক খাবারের মধ্যে কোনগুলো হালাল?",
+      "questionEn": "Which seafood is halal?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m268",
+      "category": "clothing",
+      "questionBn": "পুরুষদের জন্য রেশমি কাপড় পরা কি নিষিদ্ধ?",
+      "questionEn": "Is wearing silk clothing forbidden for men?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m269",
+      "category": "clothing",
+      "questionBn": "পুরুষদের স্বর্ণের অলংকার পরিধান করার বিধান কী?",
+      "questionEn": "What is the ruling on men wearing gold jewelry?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m270",
+      "category": "women",
+      "questionBn": "গর্ভাবস্থায় নামায ও রোজার বিধান কী?",
+      "questionEn": "What are the rules for prayer and fasting during pregnancy?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m271",
+      "category": "women",
+      "questionBn": "ইস্তিহাযা (অনিয়মিত রক্তস্রাব) অবস্থায় নামাযের বিধান কী?",
+      "questionEn": "What is the ruling on prayer during Istihadah (irregular bleeding)?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m272",
+      "category": "technology",
+      "questionBn": "অনলাইনে ক্রিপ্টোকারেন্সি লেনদেন কি ইসলামে জায়েজ?",
+      "questionEn": "Is trading cryptocurrency permissible in Islam?",
+      "marja": "general",
+      "hasFullData": false
+    },
+    {
+      "id": "m273",
+      "category": "technology",
+      "questionBn": "সামাজিক যোগাযোগ মাধ্যমে ধর্মীয় বক্তব্য শেয়ার করার ক্ষেত্রে কোন বিষয়ে সতর্ক থাকা উচিত?",
+      "questionEn": "What should one be cautious about when sharing religious content on social media?",
+      "marja": "general",
+      "hasFullData": false
     }
   ],
   "kcQa": [
@@ -1383,6 +2471,454 @@
       "questionBn": "জান্নাতুল বাকি কী?",
       "questionEn": "What is Jannat al-Baqi?",
       "hasFullData": false
+    },
+    {
+      "id": "q043",
+      "category": "aqidah",
+      "questionBn": "শিয়া ইসলামে ইমামত (নেতৃত্ব) বলতে কী বোঝায়?",
+      "questionEn": "What does Imamah (leadership) mean in Shia Islam?",
+      "hasFullData": false
+    },
+    {
+      "id": "q044",
+      "category": "aqidah",
+      "questionBn": "ইসমাত (নিষ্পাপতা) কী?",
+      "questionEn": "What is Ismah (infallibility)?",
+      "hasFullData": false
+    },
+    {
+      "id": "q045",
+      "category": "aqidah",
+      "questionBn": "আদল (ন্যায়বিচার) আল্লাহর একটি গুণ হিসেবে শিয়া আকিদায় কেন গুরুত্বপূর্ণ?",
+      "questionEn": "Why is Adl (Divine Justice) important as a principle in Shia theology?",
+      "hasFullData": false
+    },
+    {
+      "id": "q046",
+      "category": "aqidah",
+      "questionBn": "মাআদ (পুনরুত্থান) সম্পর্কে ইসলামি বিশ্বাস কী?",
+      "questionEn": "What is the Islamic belief regarding Ma'ad (the Resurrection)?",
+      "hasFullData": false
+    },
+    {
+      "id": "q047",
+      "category": "fiqh",
+      "questionBn": "মুজতাহিদ কাকে বলা হয়?",
+      "questionEn": "Who is called a Mujtahid?",
+      "hasFullData": false
+    },
+    {
+      "id": "q048",
+      "category": "fiqh",
+      "questionBn": "উসুলে ফিকহ কী?",
+      "questionEn": "What is Usul al-Fiqh (principles of jurisprudence)?",
+      "hasFullData": false
+    },
+    {
+      "id": "q049",
+      "category": "fiqh",
+      "questionBn": "নিয়্যাত (ইবাদতের নিয়ত) কেন গুরুত্বপূর্ণ?",
+      "questionEn": "Why is niyyah (intention in worship) important?",
+      "hasFullData": false
+    },
+    {
+      "id": "q050",
+      "category": "quran",
+      "questionBn": "কুরআনে সূরার সংখ্যা কত?",
+      "questionEn": "How many chapters (Surahs) are in the Quran?",
+      "hasFullData": false
+    },
+    {
+      "id": "q051",
+      "category": "quran",
+      "questionBn": "শিয়া ও সুন্নি মুসলিমরা কি একই কুরআন ব্যবহার করে?",
+      "questionEn": "Do Shia and Sunni Muslims use the same Quran?",
+      "hasFullData": false
+    },
+    {
+      "id": "q052",
+      "category": "quran",
+      "questionBn": "সূরা আল-ইনসান (দাহর) কেন আহলে বাইতের জন্য বিশেষ গুরুত্বপূর্ণ?",
+      "questionEn": "Why is Surah al-Insan (al-Dahr) especially significant for the Ahl al-Bayt?",
+      "hasFullData": false
+    },
+    {
+      "id": "q053",
+      "category": "hadith",
+      "questionBn": "আল-কাফি গ্রন্থের গুরুত্ব কী?",
+      "questionEn": "What is the significance of the book Al-Kafi?",
+      "hasFullData": false
+    },
+    {
+      "id": "q054",
+      "category": "hadith",
+      "questionBn": "কুতুবে আরবাআ (চার প্রধান শিয়া হাদিস গ্রন্থ) কী কী?",
+      "questionEn": "What are the al-Kutub al-Arba'ah (the four primary Shia hadith collections)?",
+      "hasFullData": false
+    },
+    {
+      "id": "q055",
+      "category": "hadith",
+      "questionBn": "হাদিসে সাকালাইনের তাৎপর্য কী?",
+      "questionEn": "What is the significance of the Hadith al-Thaqalayn?",
+      "hasFullData": false
+    },
+    {
+      "id": "q056",
+      "category": "general",
+      "questionBn": "শিয়া ও সুন্নি মুসলিমদের মধ্যে মূল পার্থক্য কী?",
+      "questionEn": "What is the core difference between Shia and Sunni Muslims?",
+      "hasFullData": false
+    },
+    {
+      "id": "q057",
+      "category": "general",
+      "questionBn": "'শিয়া' শব্দের অর্থ কী?",
+      "questionEn": "What does the word 'Shia' mean?",
+      "hasFullData": false
+    },
+    {
+      "id": "q058",
+      "category": "general",
+      "questionBn": "কারবালার ঘটনা কেন এত গুরুত্বপূর্ণ?",
+      "questionEn": "Why is the event of Karbala so significant?",
+      "hasFullData": false
+    },
+    {
+      "id": "q059",
+      "category": "general",
+      "questionBn": "গাদির-এ-খুম-এর ঘটনা কী?",
+      "questionEn": "What was the event of Ghadir Khumm?",
+      "hasFullData": false
+    },
+    {
+      "id": "q060",
+      "category": "aqidah",
+      "questionBn": "গায়বত (অদৃশ্যতা) বলতে ইমাম মাহদী সম্পর্কে কী বোঝানো হয়?",
+      "questionEn": "What does Ghaybah (occultation) mean regarding Imam al-Mahdi?",
+      "hasFullData": false
+    },
+    {
+      "id": "q061",
+      "category": "aqidah",
+      "questionBn": "শাফাআত (সুপারিশ) কী?",
+      "questionEn": "What is Shafa'ah (intercession)?",
+      "hasFullData": false
+    },
+    {
+      "id": "q062",
+      "category": "general",
+      "questionBn": "ইয়াওমুল গাদির উৎসব কীভাবে পালিত হয়?",
+      "questionEn": "How is Eid al-Ghadir celebrated?",
+      "hasFullData": false
+    },
+    {
+      "id": "q063",
+      "category": "general",
+      "questionBn": "আশুরা দিবস কী এবং এটি কেন পালন করা হয়?",
+      "questionEn": "What is the Day of Ashura and why is it observed?",
+      "hasFullData": false
+    },
+    {
+      "id": "q064",
+      "category": "fiqh",
+      "questionBn": "'ওয়াজিব' ও 'মুস্তাহাব'-এর মধ্যে পার্থক্য কী?",
+      "questionEn": "What is the difference between 'Wajib' (obligatory) and 'Mustahabb' (recommended)?",
+      "hasFullData": false
+    },
+    {
+      "id": "q065",
+      "category": "fiqh",
+      "questionBn": "'হারাম' ও 'মাকরুহ'-এর মধ্যে পার্থক্য কী?",
+      "questionEn": "What is the difference between 'Haram' (forbidden) and 'Makruh' (disliked)?",
+      "hasFullData": false
+    },
+    {
+      "id": "q066",
+      "category": "quran",
+      "questionBn": "তাফসিরে ইলমুল আয়াত ও ইলমুল বাতেন বলতে কী বোঝায়?",
+      "questionEn": "What is meant by the outward (zahir) and inward (batin) meanings of the Quran?",
+      "hasFullData": false
+    },
+    {
+      "id": "q067",
+      "category": "hadith",
+      "questionBn": "মুতাওয়াতির হাদিস কী?",
+      "questionEn": "What is a Mutawatir hadith?",
+      "hasFullData": false
+    },
+    {
+      "id": "q068",
+      "category": "hadith",
+      "questionBn": "সহীহ হাদিস কীভাবে যাচাই করা হয়?",
+      "questionEn": "How is a Sahih (authentic) hadith verified?",
+      "hasFullData": false
+    },
+    {
+      "id": "q069",
+      "category": "general",
+      "questionBn": "নাজাফ ও কারবালা কেন শিয়া মুসলিমদের কাছে পবিত্র শহর হিসেবে গণ্য?",
+      "questionEn": "Why are Najaf and Karbala considered holy cities for Shia Muslims?",
+      "hasFullData": false
+    },
+    {
+      "id": "q070",
+      "category": "general",
+      "questionBn": "হাওজা ইলমিয়া কী?",
+      "questionEn": "What is a Hawza Ilmiyyah?",
+      "hasFullData": false
+    },
+    {
+      "id": "q071",
+      "category": "aqidah",
+      "questionBn": "তাওয়াসসুল (নবী-ইমামদের মাধ্যমে দোয়া) সম্পর্কে শিয়া অবস্থান কী?",
+      "questionEn": "What is the Shia position on Tawassul (seeking intercession through the Prophet/Imams in supplication)?",
+      "hasFullData": false
+    },
+    {
+      "id": "q072",
+      "category": "fiqh",
+      "questionBn": "মারজায়ে তাকলিদ কীভাবে নির্বাচিত হন?",
+      "questionEn": "How is a Marja al-Taqlid (source of emulation) selected?",
+      "hasFullData": false
+    },
+    {
+      "id": "q073",
+      "category": "quran",
+      "questionBn": "কুরআনে আহলে বাইতের পবিত্রতা সম্পর্কে কোন আয়াত বর্ণিত?",
+      "questionEn": "Which Quranic verse is cited regarding the purity of the Ahl al-Bayt?",
+      "hasFullData": false
+    },
+    {
+      "id": "q074",
+      "category": "general",
+      "questionBn": "শিয়া মুসলিমরা কেন ইমামদের জন্ম ও শাহাদাত দিবস পালন করেন?",
+      "questionEn": "Why do Shia Muslims commemorate the birth and martyrdom anniversaries of the Imams?",
+      "hasFullData": false
+    },
+    {
+      "id": "q075",
+      "category": "aqidah",
+      "questionBn": "আদল (আল্লাহর ন্যায়বিচার) বলতে কী বোঝায়?",
+      "questionEn": "What does 'Adl (Divine Justice) mean?",
+      "hasFullData": false
+    },
+    {
+      "id": "q076",
+      "category": "aqidah",
+      "questionBn": "ইমামত (নেতৃত্ব) শিয়া আকিদায় কেন মূলনীতি হিসেবে গণ্য?",
+      "questionEn": "Why is Imamate considered a foundational principle in Shia belief?",
+      "hasFullData": false
+    },
+    {
+      "id": "q077",
+      "category": "aqidah",
+      "questionBn": "বদা (Bada') মতবাদ কী?",
+      "questionEn": "What is the concept of Bada'?",
+      "hasFullData": false
+    },
+    {
+      "id": "q078",
+      "category": "aqidah",
+      "questionBn": "নবুওয়াত (নবী প্রেরণ) কেন প্রয়োজনীয়?",
+      "questionEn": "Why is Prophethood necessary?",
+      "hasFullData": false
+    },
+    {
+      "id": "q079",
+      "category": "aqidah",
+      "questionBn": "মাআদ (পুনরুত্থান) বিশ্বাসের গুরুত্ব কী?",
+      "questionEn": "What is the significance of belief in Ma'ad (Resurrection)?",
+      "hasFullData": false
+    },
+    {
+      "id": "q080",
+      "category": "aqidah",
+      "questionBn": "তাকিয়া (Taqiyyah) কী এবং কখন প্রযোজ্য?",
+      "questionEn": "What is Taqiyyah and when does it apply?",
+      "hasFullData": false
+    },
+    {
+      "id": "q081",
+      "category": "aqidah",
+      "questionBn": "গায়বাত (ইমাম মাহদির অন্তর্ধান) কী?",
+      "questionEn": "What is Ghaybah (the Occultation of Imam Mahdi)?",
+      "hasFullData": false
+    },
+    {
+      "id": "q082",
+      "category": "fiqh",
+      "questionBn": "ফিকহে 'মারজা তাকলিদ' অনুসরণ করা কেন জরুরি?",
+      "questionEn": "Why is it necessary to follow a Marja' al-Taqlid in fiqh?",
+      "hasFullData": false
+    },
+    {
+      "id": "q083",
+      "category": "fiqh",
+      "questionBn": "এহতিয়াত (সতর্কতামূলক পন্থা) কী?",
+      "questionEn": "What is Ihtiyat (precautionary practice)?",
+      "hasFullData": false
+    },
+    {
+      "id": "q084",
+      "category": "fiqh",
+      "questionBn": "কাযা ও কাফফারার মধ্যে পার্থক্য কী?",
+      "questionEn": "What is the difference between Qada and Kaffarah?",
+      "hasFullData": false
+    },
+    {
+      "id": "q085",
+      "category": "fiqh",
+      "questionBn": "ইজতিহাদ কী এবং কারা তা করতে পারেন?",
+      "questionEn": "What is Ijtihad and who can perform it?",
+      "hasFullData": false
+    },
+    {
+      "id": "q086",
+      "category": "fiqh",
+      "questionBn": "নাজিস ও মুতানাজ্জিসের মধ্যে পার্থক্য কী?",
+      "questionEn": "What is the difference between Najis and Mutanajjis?",
+      "hasFullData": false
+    },
+    {
+      "id": "q087",
+      "category": "fiqh",
+      "questionBn": "ওয়াজিব কিফায়া ও ওয়াজিব আইনি মধ্যে পার্থক্য কী?",
+      "questionEn": "What is the difference between Wajib Kifa'i and Wajib 'Ayni?",
+      "hasFullData": false
+    },
+    {
+      "id": "q088",
+      "category": "fiqh",
+      "questionBn": "হালাল রুজি অর্জনের গুরুত্ব ফিকহে কতটা?",
+      "questionEn": "How important is earning halal livelihood in fiqh?",
+      "hasFullData": false
+    },
+    {
+      "id": "q089",
+      "category": "quran",
+      "questionBn": "কুরআনের 'মুহকাম' ও 'মুতাশাবিহ' আয়াতের অর্থ কী?",
+      "questionEn": "What do 'Muhkam' and 'Mutashabih' verses of the Quran mean?",
+      "hasFullData": false
+    },
+    {
+      "id": "q090",
+      "category": "quran",
+      "questionBn": "সূরা আল-কাউসার কেন গুরুত্বপূর্ণ?",
+      "questionEn": "Why is Surah al-Kawthar significant?",
+      "hasFullData": false
+    },
+    {
+      "id": "q091",
+      "category": "quran",
+      "questionBn": "'আয়াতে তাতহির' (সূরা আহযাব ৩৩) কী নির্দেশ করে?",
+      "questionEn": "What does the 'Verse of Purification' (Quran 33:33) indicate?",
+      "hasFullData": false
+    },
+    {
+      "id": "q092",
+      "category": "quran",
+      "questionBn": "কুরআনে 'উলিল আমর' কারা?",
+      "questionEn": "Who are the 'Ulil Amr' mentioned in the Quran?",
+      "hasFullData": false
+    },
+    {
+      "id": "q093",
+      "category": "quran",
+      "questionBn": "কুরআন সংরক্ষণে আহলে বাইতের ভূমিকা কী ছিল?",
+      "questionEn": "What role did the Ahl al-Bayt play in preserving the Quran?",
+      "hasFullData": false
+    },
+    {
+      "id": "q094",
+      "category": "quran",
+      "questionBn": "'নাসিখ' ও 'মানসুখ' আয়াত বলতে কী বোঝায়?",
+      "questionEn": "What is meant by 'Nasikh' and 'Mansukh' verses?",
+      "hasFullData": false
+    },
+    {
+      "id": "q095",
+      "category": "hadith",
+      "questionBn": "হাদিসে সহীহ, হাসান ও যঈফ কী বোঝায়?",
+      "questionEn": "What do Sahih, Hasan, and Da'if mean in hadith terminology?",
+      "hasFullData": false
+    },
+    {
+      "id": "q096",
+      "category": "hadith",
+      "questionBn": "হাদিসে সিলসিলাতুয যাহাব (স্বর্ণ শৃঙ্খল) কী?",
+      "questionEn": "What is the 'Golden Chain' (Silsilat al-Dhahab) in hadith?",
+      "hasFullData": false
+    },
+    {
+      "id": "q097",
+      "category": "hadith",
+      "questionBn": "'কুতুবে আরবাআ' (চার প্রধান হাদিস গ্রন্থ) কী কী?",
+      "questionEn": "What are the 'Four Books' (Kutub al-Arba'ah) of Shia hadith?",
+      "hasFullData": false
+    },
+    {
+      "id": "q098",
+      "category": "hadith",
+      "questionBn": "হাদিসে গাদিরের গুরুত্ব কী?",
+      "questionEn": "What is the significance of the Hadith of Ghadir?",
+      "hasFullData": false
+    },
+    {
+      "id": "q099",
+      "category": "hadith",
+      "questionBn": "হাদিসে সাকালাইন কী শিক্ষা দেয়?",
+      "questionEn": "What does the Hadith of Thaqalayn teach?",
+      "hasFullData": false
+    },
+    {
+      "id": "q100",
+      "category": "hadith",
+      "questionBn": "'ইলমুর রিজাল' কী?",
+      "questionEn": "What is 'Ilm al-Rijal'?",
+      "hasFullData": false
+    },
+    {
+      "id": "q101",
+      "category": "general",
+      "questionBn": "ইসলামে পরিবেশ সংরক্ষণের গুরুত্ব কী?",
+      "questionEn": "What is the importance of environmental conservation in Islam?",
+      "hasFullData": false
+    },
+    {
+      "id": "q102",
+      "category": "general",
+      "questionBn": "শিয়া ইসলামে মাতম ও সিনাজানি কেন পালিত হয়?",
+      "questionEn": "Why are Matam and Sinazani observed in Shia Islam?",
+      "hasFullData": false
+    },
+    {
+      "id": "q103",
+      "category": "general",
+      "questionBn": "ইসলামে প্রতিবেশীর অধিকার কী কী?",
+      "questionEn": "What are the rights of a neighbor in Islam?",
+      "hasFullData": false
+    },
+    {
+      "id": "q104",
+      "category": "general",
+      "questionBn": "ইসলামে জ্ঞান অর্জনে নারী-পুরুষের মধ্যে কোনো পার্থক্য আছে কি?",
+      "questionEn": "Is there any distinction between men and women in seeking knowledge in Islam?",
+      "hasFullData": false
+    },
+    {
+      "id": "q105",
+      "category": "general",
+      "questionBn": "আশুরার দিনে রোজা রাখার বিধান কী?",
+      "questionEn": "What is the ruling on fasting on the Day of Ashura?",
+      "hasFullData": false
+    },
+    {
+      "id": "q106",
+      "category": "general",
+      "questionBn": "ইসলামে ধৈর্য (সবর)-এর গুরুত্ব কী?",
+      "questionEn": "What is the importance of patience (Sabr) in Islam?",
+      "hasFullData": false
     }
   ],
   "kcFatwa": [
@@ -1500,6 +3036,582 @@
       "category": "misc",
       "questionBn": "নতুন বা জটিল বিষয়ে ফতোয়া প্রয়োজন হলে কী করব?",
       "questionEn": "What should I do if I need a ruling on a new or complex issue?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f014",
+      "marja": "sistani",
+      "category": "zakat",
+      "questionBn": "ব্যবসায়িক পণ্যের ওপর যাকাত কি বাধ্যতামূলক?",
+      "questionEn": "Is Zakat obligatory on business merchandise?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f015",
+      "marja": "sistani",
+      "category": "salah",
+      "questionBn": "কর্মস্থলে নামাজের জন্য সময় বের করা সম্ভব না হলে কী করণীয়?",
+      "questionEn": "What should one do if it is not possible to find time for prayer at the workplace?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f016",
+      "marja": "sistani",
+      "category": "food",
+      "questionBn": "পশ্চিমা দেশে বাজারের মাংস খাওয়ার হুকুম কী?",
+      "questionEn": "What is the ruling on eating meat from markets in Western countries?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f017",
+      "marja": "sistani",
+      "category": "business",
+      "questionBn": "ব্যাংক সুদ (ইন্টারেস্ট) গ্রহণ করা যাবে কি?",
+      "questionEn": "Is it permissible to accept bank interest?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f018",
+      "marja": "khamenei",
+      "category": "khums",
+      "questionBn": "বেতনভুক্ত চাকরিজীবীর খুমস হিসাব কীভাবে করবেন?",
+      "questionEn": "How should a salaried employee calculate Khums?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f019",
+      "marja": "khamenei",
+      "category": "misc",
+      "questionBn": "সঙ্গীত শোনার ব্যাপারে আয়াতুল্লাহ খামেনেইর অবস্থান কী?",
+      "questionEn": "What is Ayatollah Khamenei's position on listening to music?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f020",
+      "marja": "khamenei",
+      "category": "salah",
+      "questionBn": "বিমানে নামাজের কিবলা কীভাবে নির্ধারণ করবেন?",
+      "questionEn": "How should the Qiblah direction be determined for prayer on an airplane?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f021",
+      "marja": "makarem",
+      "category": "taharah",
+      "questionBn": "শহরের পাইপলাইনের পানি নাপাক হয় কি?",
+      "questionEn": "Does municipal piped water become impure (najis)?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f022",
+      "marja": "makarem",
+      "category": "business",
+      "questionBn": "স্টক মার্কেটে বিনিয়োগ করা কি হালাল?",
+      "questionEn": "Is investing in the stock market halal?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f023",
+      "marja": "makarem",
+      "category": "sawm",
+      "questionBn": "ইনজেকশন নেওয়া কি রোজা ভঙ্গ করে?",
+      "questionEn": "Does receiving an injection invalidate the fast?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f024",
+      "marja": "wahid",
+      "category": "ghusl",
+      "questionBn": "গোসলে জানাবাতের পর নতুন করে অজু করতে হবে কি?",
+      "questionEn": "Is a fresh wudu required after performing ghusl for janabah?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f025",
+      "marja": "wahid",
+      "category": "salah",
+      "questionBn": "নামাজে সন্দেহ (শাক) হলে কী করণীয়?",
+      "questionEn": "What should one do if doubt (shakk) arises during prayer regarding the number of rak'ahs?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f026",
+      "marja": "sistani",
+      "category": "hajj",
+      "questionBn": "হজ্বের ঋণ থাকা অবস্থায় হজ্ব করা কি বাধ্যতামূলক?",
+      "questionEn": "Is Hajj obligatory while one still has outstanding debts?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f027",
+      "marja": "sistani",
+      "category": "nikah",
+      "questionBn": "কন্যার প্রথম বিবাহে অভিভাবকের সম্মতি কি বাধ্যতামূলক?",
+      "questionEn": "Is a guardian's consent required for a woman's first marriage?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f028",
+      "marja": "khamenei",
+      "category": "nikah",
+      "questionBn": "অমুসলিম নারীর সাথে মুসলিম পুরুষের বিবাহের হুকুম কী?",
+      "questionEn": "What is the ruling on a Muslim man marrying a non-Muslim woman?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f029",
+      "marja": "makarem",
+      "category": "zakat",
+      "questionBn": "ফিতরা (যাকাতুল ফিতর) কার ওপর ওয়াজিব?",
+      "questionEn": "Upon whom is Fitrah (Zakat al-Fitr) obligatory?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f030",
+      "marja": "sistani",
+      "category": "misc",
+      "questionBn": "ক্রিপ্টোকারেন্সিতে লেনদেন করা কি জায়েজ?",
+      "questionEn": "Is trading in cryptocurrency permissible?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f031",
+      "marja": "khamenei",
+      "category": "technology",
+      "questionBn": "সোশ্যাল মিডিয়ায় অপ্রয়োজনীয় সময় ব্যয় করার হুকুম কী?",
+      "questionEn": "What is the ruling on spending excessive, unnecessary time on social media?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f032",
+      "marja": "makarem",
+      "category": "clothing",
+      "questionBn": "কর্মক্ষেত্রে হিজাব মেনে চলা কঠিন হলে করণীয় কী?",
+      "questionEn": "What should one do if observing hijab is difficult in the workplace?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f033",
+      "marja": "sistani",
+      "category": "sawm",
+      "questionBn": "দীর্ঘ গ্রীষ্মকালীন দিনযুক্ত দেশে রোজা রাখতে অক্ষম হলে করণীয় কী?",
+      "questionEn": "What should one do if unable to fast due to extremely long summer days in high-latitude countries?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f034",
+      "marja": "wahid",
+      "category": "khums",
+      "questionBn": "উত্তরাধিকারসূত্রে প্রাপ্ত সম্পত্তির ওপর খুমস প্রযোজ্য কি?",
+      "questionEn": "Is Khums applicable to inherited property?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f035",
+      "marja": "sistani",
+      "category": "taharah",
+      "questionBn": "কুকুর বা শূকরের লালার সংস্পর্শে আসা কাপড় কীভাবে পবিত্র করা যায়?",
+      "questionEn": "How can clothing that has come into contact with dog or pig saliva be purified?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f036",
+      "marja": "khamenei",
+      "category": "misc",
+      "questionBn": "অমুসলিমদের সাথে সৌহার্দ্যপূর্ণ সম্পর্ক বজায় রাখার হুকুম কী?",
+      "questionEn": "What is the ruling on maintaining friendly relations with non-Muslims?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f037",
+      "marja": "makarem",
+      "category": "salah",
+      "questionBn": "মহাকাশচারীদের জন্য নামাজের সময় ও কিবলা কীভাবে নির্ধারিত হয়?",
+      "questionEn": "How are prayer times and Qiblah determined for astronauts?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f038",
+      "marja": "sistani",
+      "category": "business",
+      "questionBn": "মাল্টি-লেভেল মার্কেটিং (এমএলএম) ব্যবসার হুকুম কী?",
+      "questionEn": "What is the ruling on multi-level marketing (MLM) business schemes?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f039",
+      "marja": "khamenei",
+      "category": "food",
+      "questionBn": "জেলাটিনযুক্ত খাবার (উৎস অনিশ্চিত) খাওয়া যাবে কি?",
+      "questionEn": "Is it permissible to eat food containing gelatin of uncertain origin?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f040",
+      "marja": "makarem",
+      "category": "khums",
+      "questionBn": "শিক্ষার্থীর বৃত্তির অর্থে খুমস প্রযোজ্য কি?",
+      "questionEn": "Is Khums applicable to a student's scholarship funds?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f041",
+      "marja": "sistani",
+      "category": "ghusl",
+      "questionBn": "মৃতের গোসল (গুসলে মাইয়্যেত) কে দিতে পারবেন?",
+      "questionEn": "Who is permitted to perform the ritual bath (ghusl) of a deceased person?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f042",
+      "marja": "wahid",
+      "category": "misc",
+      "questionBn": "ইন্স্যুরেন্স (বীমা) করা কি জায়েজ?",
+      "questionEn": "Is purchasing insurance permissible?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f043",
+      "marja": "sistani",
+      "category": "salah",
+      "questionBn": "অসুস্থ ব্যক্তি যিনি দাঁড়াতে অক্ষম, তিনি কীভাবে নামাজ পড়বেন?",
+      "questionEn": "How should a sick person who is unable to stand perform prayer?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f044",
+      "marja": "khamenei",
+      "category": "hajj",
+      "questionBn": "প্রতিনিধির মাধ্যমে হজ্ব বদলি করা (হজ্জে বদল) কখন অনুমোদিত?",
+      "questionEn": "When is performing Hajj by proxy (Hajj al-Badal) permitted?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f045",
+      "marja": "makarem",
+      "category": "taharah",
+      "questionBn": "ওয়াশিং মেশিনে কাপড় ধোয়া কি পবিত্র করার জন্য যথেষ্ট?",
+      "questionEn": "Is washing clothes in a washing machine sufficient for purification?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f046",
+      "marja": "sistani",
+      "category": "khums",
+      "questionBn": "ব্যক্তিগত ব্যবহারের বাড়ির উপর কি খুমস ওয়াজিব হয়?",
+      "questionEn": "Is Khums obligatory on a personally used residential home?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f047",
+      "marja": "makarem",
+      "category": "khums",
+      "questionBn": "খুমসের অর্থ কীভাবে ব্যয় করা হয়?",
+      "questionEn": "How is Khums money spent?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f048",
+      "marja": "khamenei",
+      "category": "khums",
+      "questionBn": "চাকরিজীবীদের বেতনের উপর খুমস কীভাবে প্রযোজ্য?",
+      "questionEn": "How does Khums apply to a salaried employee's income?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f049",
+      "marja": "sistani",
+      "category": "sawm",
+      "questionBn": "দীর্ঘ গ্রীষ্মকালীন দিনযুক্ত দেশে রোজার সময়সূচি কীভাবে নির্ধারিত হয়?",
+      "questionEn": "How is the fasting schedule determined in countries with long summer days?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f050",
+      "marja": "wahid",
+      "category": "sawm",
+      "questionBn": "রমজানে দিনে ভুলবশত ধূমপান করলে করণীয় কী?",
+      "questionEn": "What should one do if they smoke forgetfully during a fasting day in Ramadan?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f051",
+      "marja": "sistani",
+      "category": "salah",
+      "questionBn": "বিমানে দীর্ঘ ভ্রমণে নামাযের কিবলা কীভাবে নির্ণয় করা হয়?",
+      "questionEn": "How is the Qiblah direction determined for prayer during a long flight?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f052",
+      "marja": "makarem",
+      "category": "salah",
+      "questionBn": "হুইলচেয়ারে বসে নামায পড়ার বিধান কী?",
+      "questionEn": "What is the ruling on praying while seated in a wheelchair?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f053",
+      "marja": "khamenei",
+      "category": "misc",
+      "questionBn": "ইসলামে পশু নির্যাতন সম্পর্কে ফতোয়া কী?",
+      "questionEn": "What is the ruling on animal cruelty in Islam?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f054",
+      "marja": "sistani",
+      "category": "misc",
+      "questionBn": "ডিজিটাল কুরআন অ্যাপ স্পর্শ করতে কি ওজু প্রয়োজন?",
+      "questionEn": "Is wudu required to touch a digital Quran app?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f055",
+      "marja": "wahid",
+      "category": "misc",
+      "questionBn": "টেস্ট-টিউব বেবি (আইভিএফ) পদ্ধতি ইসলামে জায়েজ কি?",
+      "questionEn": "Is IVF (in-vitro fertilization) permissible in Islam?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f056",
+      "marja": "makarem",
+      "category": "taharah",
+      "questionBn": "অ্যালকোহলযুক্ত পারফিউম ব্যবহার করা কি নাজিস গণ্য হবে?",
+      "questionEn": "Is alcohol-based perfume considered najis?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f057",
+      "marja": "sistani",
+      "category": "taharah",
+      "questionBn": "পোষা কুকুরের লালা লাগা কাপড় কীভাবে পবিত্র করা হয়?",
+      "questionEn": "How is clothing purified after contact with a dog's saliva?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f058",
+      "marja": "khamenei",
+      "category": "ghusl",
+      "questionBn": "হজ্জের সময় ইহরামের গোসল না করলে কী হবে?",
+      "questionEn": "What happens if the Ihram ghusl is missed before Hajj?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f059",
+      "marja": "makarem",
+      "category": "ghusl",
+      "questionBn": "গোসলে মাথার সব চুলে পানি পৌঁছানো কি বাধ্যতামূলক?",
+      "questionEn": "Is it mandatory for water to reach every hair during ghusl?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f060",
+      "marja": "sistani",
+      "category": "zakat",
+      "questionBn": "জাকাতের অর্থ কি নিজ পরিবারের অভাবী সদস্যকে দেওয়া যায়?",
+      "questionEn": "Can Zakat funds be given to a needy family member?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f061",
+      "marja": "makarem",
+      "category": "zakat",
+      "questionBn": "ফিতরার পরিমাণ কীভাবে নির্ধারিত হয়?",
+      "questionEn": "How is the amount of Fitrah determined?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f062",
+      "marja": "wahid",
+      "category": "zakat",
+      "questionBn": "জাকাত আদায়ে বিলম্ব করলে কি গুনাহ হবে?",
+      "questionEn": "Is it sinful to delay paying Zakat once it becomes due?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f063",
+      "marja": "sistani",
+      "category": "food",
+      "questionBn": "ভেজিটেরিয়ান জেলাটিনযুক্ত ওষুধ গ্রহণ করা কি জায়েজ?",
+      "questionEn": "Is it permissible to take medication containing vegetarian gelatin?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f064",
+      "marja": "makarem",
+      "category": "food",
+      "questionBn": "অমুসলিমের রান্না করা খাবার খাওয়া কি জায়েজ?",
+      "questionEn": "Is it permissible to eat food cooked by a non-Muslim?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f065",
+      "marja": "khamenei",
+      "category": "food",
+      "questionBn": "এনার্জি ড্রিংক পান করা কি ইসলামে জায়েজ?",
+      "questionEn": "Is drinking energy drinks permissible in Islam?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f066",
+      "marja": "sistani",
+      "category": "business",
+      "questionBn": "ফ্রিল্যান্স ডিজিটাল সেবার (যেমন গ্রাফিক ডিজাইন) আয় হালাল কি?",
+      "questionEn": "Is income from freelance digital services (e.g. graphic design) halal?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f067",
+      "marja": "wahid",
+      "category": "business",
+      "questionBn": "অংশীদারি ব্যবসায় (মুদারাবা) লাভ-ক্ষতি কীভাবে বণ্টিত হয়?",
+      "questionEn": "How are profit and loss shared in a Mudarabah partnership?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f068",
+      "marja": "khamenei",
+      "category": "hajj",
+      "questionBn": "আর্থিকভাবে সামর্থ্যবান কিন্তু স্বাস্থ্যগত কারণে হজ্জে যেতে অক্ষম ব্যক্তির করণীয় কী?",
+      "questionEn": "What should a financially able person who is physically unable to perform Hajj do?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f069",
+      "marja": "makarem",
+      "category": "hajj",
+      "questionBn": "হজ্জের খরচের জন্য ঋণ নেওয়া কি জায়েজ?",
+      "questionEn": "Is it permissible to take a loan to cover Hajj expenses?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f070",
+      "marja": "sistani",
+      "category": "nikah",
+      "questionBn": "আন্তঃধর্মীয় বিবাহের বিধান ইসলামে কী?",
+      "questionEn": "What is the ruling on interfaith marriage in Islam?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f071",
+      "marja": "makarem",
+      "category": "nikah",
+      "questionBn": "মুতা (অস্থায়ী) বিবাহের শর্তাবলি কী?",
+      "questionEn": "What are the conditions for Mut'ah (temporary marriage)?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f072",
+      "marja": "khamenei",
+      "category": "technology",
+      "questionBn": "কৃত্রিম বুদ্ধিমত্তা (AI) ব্যবহার করে ধর্মীয় ফতোয়া তৈরি করা কি গ্রহণযোগ্য?",
+      "questionEn": "Is it acceptable to generate religious fatwas using artificial intelligence?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f073",
+      "marja": "sistani",
+      "category": "technology",
+      "questionBn": "সামাজিক যোগাযোগমাধ্যমে ধর্মীয় বিতর্কে অংশ নেওয়ার বিধান কী?",
+      "questionEn": "What is the ruling on engaging in religious debates on social media?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f074",
+      "marja": "wahid",
+      "category": "technology",
+      "questionBn": "অনলাইনে যাকাত/খুমস প্রদান করা কি বৈধ?",
+      "questionEn": "Is it valid to pay Zakat/Khums through online payment methods?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f075",
+      "marja": "makarem",
+      "category": "clothing",
+      "questionBn": "নারীদের জন্য শরীরের গঠন প্রকাশ পায় এমন টাইট পোশাক পরার বিধান কী?",
+      "questionEn": "What is the ruling on women wearing tight-fitting clothing that reveals body shape?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f076",
+      "marja": "sistani",
+      "category": "clothing",
+      "questionBn": "পুরুষদের জন্য হাঁটুর নিচ পর্যন্ত প্যান্ট পরা কি বাধ্যতামূলক?",
+      "questionEn": "Is it mandatory for men to wear pants covering below the knee?",
+      "sample": false,
+      "hasFullData": false
+    },
+    {
+      "id": "f077",
+      "marja": "khamenei",
+      "category": "clothing",
+      "questionBn": "ক্রীড়া পোশাক (স্পোর্টসওয়্যার) পরে জনসমক্ষে ব্যায়াম করার বিধান কী?",
+      "questionEn": "What is the ruling on exercising in public while wearing sportswear?",
       "sample": false,
       "hasFullData": false
     }
