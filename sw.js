@@ -1,5 +1,5 @@
 
-const CACHE = 'ahlbayt-v5';
+const CACHE = 'ahlbayt-v6';
 // NOTE (2026-07-23): paths updated to match the reorganized assets/ + data/
 // folder structure. Old entries (./script.js, ./family-tree-data.js) removed
 // since those files no longer exist — script.js was split into 4 files under
@@ -113,6 +113,26 @@ self.addEventListener('fetch', e => {
                 return res;
             }).catch(() => caches.match(e.request))
         );
+        return;
+    }
+
+    // data/*.json → never intercept. These are loaded via SYNCHRONOUS XHR at
+    // boot (see assets/js/utils/data-loader.js: knowledge-center-data.js,
+    // duas-data.js, ahlul-bayt-unified.js all block the main thread waiting
+    // on these requests). A synchronous XHR made by a page whose fetch is
+    // being handled by this SW's async respondWith()/Promise chain can hang
+    // indefinitely in several browsers — the tab's JS thread is frozen
+    // waiting for the XHR to finish, but delivering the SW's response back
+    // to that frozen thread also needs the event loop, so it can deadlock.
+    // knowledge/metadata.json is the largest of these files (~165KB), so it
+    // is the one most likely to actually hit this window — matching the
+    // "spinner stuck forever on Knowledge Center" symptom. Skipping
+    // respondWith() here means the browser handles these requests natively
+    // (straight to network / its own HTTP cache), completely side-stepping
+    // the SW for this route. They're still precached in STATIC above for
+    // install-time warmup; they just aren't served *from* that cache at
+    // fetch time anymore.
+    if (url.pathname.includes('/data/') && url.pathname.endsWith('.json')) {
         return;
     }
 
