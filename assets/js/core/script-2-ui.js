@@ -278,7 +278,17 @@ function setupEventListeners() {
                 }
                 case 'readZiyarat': {
                     const zitem=state.customZiyarat.find(x=>x.id===param) || ziyarats.find(x=>x.titleEn===param||x.titleBn===param) || ziyarats[parseInt(param)];
-                    if(zitem){state.currentZiyarat=zitem;state.previousPage=state.currentPage;state.currentPage='readZiyarat';render();window.scrollTo(0,0);}
+                    if(zitem){
+                        state.currentZiyarat=zitem;state.previousPage=state.currentPage;state.currentPage='readZiyarat';
+                        window._ziyaratJustOpened = true;
+                        window.scrollTo(0,0);
+                        if (typeof ensureZiyaratContent==='function' && !zitem.hasFullData) {
+                            render();
+                            ensureZiyaratContent(zitem).then(()=>{ if (state.currentZiyarat===zitem) render(); });
+                        } else {
+                            render();
+                        }
+                    }
                     break;
                 }
                 // IMAM PAGE

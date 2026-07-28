@@ -1801,7 +1801,15 @@ function readDua(index) {
     }
     if (!state.currentDua) return; // ✅ FIXED: Early return if not found
     recordReadingHistory('dua', index, state.currentDua.titleBn, state.currentDua.titleEn);
-    state.currentPage='readDua'; render(); window.scrollTo(0,0);
+    state.currentPage='readDua';
+    window._duaJustOpened = true;
+    if (typeof ensureDuaContent==='function' && !state.currentDua.hasFullData) {
+        const openedDua = state.currentDua;
+        render(); window.scrollTo(0,0);
+        ensureDuaContent(openedDua).then(()=>{ if (state.currentDua===openedDua) render(); });
+        return;
+    }
+    render(); window.scrollTo(0,0);
 }
 
 // ============================================================================

@@ -906,8 +906,11 @@ function renderReadDuaPage()
         ${dua.fullTextBn?`<div class="${d?'bg-gray-900/60':'bg-amber-50/60'} rounded-2xl p-5" style="border-left:3px solid #b45309"><p class="text-base leading-relaxed whitespace-pre-line ${d?'text-gray-300':'text-gray-700'}">${sanitize(dua.fullTextBn)}</p></div>`:''}
     `;
 
+    const duaPageEnterClass = window._duaJustOpened ? ' page-enter' : '';
+    window._duaJustOpened = false;
+
     return `
-    <div class="max-w-4xl mx-auto page-enter">
+    <div class="max-w-4xl mx-auto${duaPageEnterClass}">
 
         <!-- Back button -->
         <button data-action="changePage" data-param="${state.previousPage||'dua'}"

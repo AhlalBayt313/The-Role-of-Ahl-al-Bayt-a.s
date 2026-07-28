@@ -733,8 +733,11 @@ function renderReadZiyaratPage() {
         </div>
     `;
 
+    const ziyaratPageEnterClass = window._ziyaratJustOpened ? ' page-enter' : '';
+    window._ziyaratJustOpened = false;
+
     return `
-    <div class="max-w-4xl mx-auto page-enter">
+    <div class="max-w-4xl mx-auto${ziyaratPageEnterClass}">
 
         <button data-action="changePage" data-param="${state.previousPage||'dua'}"
             class="flex items-center gap-2 mb-6 px-4 py-2 rounded-xl font-semibold text-sm hover:scale-[1.02] transition-all"
