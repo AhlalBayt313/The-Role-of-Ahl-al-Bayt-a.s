@@ -781,11 +781,7 @@ function renderAhlulBaytSidePanel() {
     const person = getAhlulBaytPersonBySelection(state.ahlulBaytSelectedPerson);
 
     if (!person) {
-        return `<div id="ab-side-panel" style="border-radius:var(--r-lg);padding:1.5rem 1.25rem;text-align:center;
-            border:1.5px dashed ${d?'rgba(255,255,255,.12)':'rgba(0,0,0,.1)'};color:${d?'#9ca3af':'#6b7280'}">
-            <div style="font-size:1.6rem;margin-bottom:.4rem" aria-hidden="true">🔍</div>
-            <p style="font-size:.82rem;font-weight:600">${l==='bn'?'উপরের সার্চ থেকে বা কোনো কার্ডে ক্লিক করে কাউকে খুঁজে নিন':'Search above or click a card to preview someone here'}</p>
-        </div>`;
+        return `<div id="ab-side-panel"></div>`;
     }
 
     const name = l === 'bn' ? person.nameBn : (person.nameEn || person.nameBn);
