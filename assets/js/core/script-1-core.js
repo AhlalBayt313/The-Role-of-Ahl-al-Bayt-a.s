@@ -1399,7 +1399,7 @@ function changePage(page) {
     state.previousPage=state.currentPage; state.currentPage=page;
     state.menuOpen=false; state.currentPost=null; state.currentDua=null;
     state.currentZiyarat=null;
-    if (page==='knowledgeCenter') { state.kcDetail=null; if (typeof kcLoadTab==='function') kcLoadTab(state.kcTab||'hadith'); else if (typeof kcSimulateLoad==='function') kcSimulateLoad(); }
+    if (page==='knowledgeCenter') { state.kcDetail=null; window._kcJustEnteredPage=true; if (typeof kcLoadTab==='function') kcLoadTab(state.kcTab||'hadith'); else if (typeof kcSimulateLoad==='function') kcSimulateLoad(); }
     else if (typeof kcUpdateSeoSchema==='function') { kcUpdateSeoSchema(null); }
     state.pageViews[page] = (state.pageViews[page]||0) + 1;
     saveState();

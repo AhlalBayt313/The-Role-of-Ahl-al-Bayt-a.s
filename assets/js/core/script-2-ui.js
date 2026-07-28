@@ -159,14 +159,26 @@ function setupEventListeners() {
                 // one defined earlier in this switch; unreachable dead code).
                 case 'setKcTab':
                     state.kcTab=param; state.kcCategory=''; state.kcSearch=''; state.kcPage=1; state.kcDetail=null; state.kcSourceFilter='';
-                    if (typeof kcLoadTab==='function') kcLoadTab(param); else kcSimulateLoad();
-                    render(); break;
-                case 'setKcCategory': state.kcCategory=param; state.kcPage=1; state.kcDetail=null; state.kcSourceFilter=''; kcSimulateLoad(); render(); break;
+                    if (typeof kcLoadTab==='function') kcLoadTab(param); else { kcSimulateLoad(); render(); }
+                    break;
+                case 'setKcCategory': state.kcCategory=param; state.kcPage=1; state.kcDetail=null; state.kcSourceFilter=''; render(); break;
                 case 'kcSetPage': state.kcPage=parseInt(param)||1; window.scrollTo({top:0,behavior:'smooth'}); render(); break;
-                case 'kcOpenDetail':
+                case 'kcOpenDetail': {
                     state.kcDetail={type:param,id:param2}; window.scrollTo({top:0,behavior:'instant'});
-                    if (typeof ensureKcItemContent==='function') ensureKcItemContent(param2,param).then(()=>{ if (state.kcDetail && state.kcDetail.type===param && state.kcDetail.id===param2) render(); });
-                    render(); break;
+                    window._kcJustOpenedDetail = true;
+                    const kcItem = typeof kcFindItem==='function' ? kcFindItem(param,param2) : null;
+                    if (kcItem && kcItem.hasFullData) {
+                        render(); // already fully loaded — a single render is enough
+                    } else {
+                        render(); // immediate render with whatever's available (e.g. question only)
+                        if (typeof ensureKcItemContent==='function') {
+                            ensureKcItemContent(param2,param).then(()=>{
+                                if (state.kcDetail && state.kcDetail.type===param && state.kcDetail.id===param2) render();
+                            });
+                        }
+                    }
+                    break;
+                }
                 case 'kcCloseDetail': state.kcDetail=null; render(); break;
                 case 'kcCopy': if(typeof kcCopyItem==='function') kcCopyItem(param,param2); break;
                 case 'kcShare': if(typeof kcShareItem==='function') kcShareItem(param,param2); break;

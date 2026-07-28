@@ -215,18 +215,28 @@ function kcSimulateLoad() {
     window._kcLoadTimer = setTimeout(() => { state.kcLoading = false; render(); }, 260);
 }
 
-// Like kcSimulateLoad(), but also waits for the tab's real data (loadKcSection)
-// before turning the skeleton off — so the card grid mounts (and its reveal/
-// fadeInUp animation plays) exactly ONCE, not once for the skeleton timeout
-// and again when the fetch resolves.
+// Loads a tab's full data, then renders exactly once — no artificial
+// skeleton-then-content two-step, which was playing the card entrance
+// animation twice per tab click. A skeleton only appears as a fallback
+// if the data genuinely takes a moment (slow device/connection); for the
+// normal case (local JSON, near-instant) it never shows, so the tab
+// switch produces a single clean render/animation.
 function kcLoadTab(tab) {
-    state.kcLoading = true;
-    clearTimeout(window._kcLoadTimer);
-    const minDelay = new Promise(resolve => { window._kcLoadTimer = setTimeout(resolve, 260); });
-    const dataReady = (typeof loadKcSection === 'function') ? loadKcSection(tab) : Promise.resolve();
+    clearTimeout(window._kcSkeletonTimer);
     const requestId = (window._kcLoadRequestId = (window._kcLoadRequestId || 0) + 1);
-    Promise.all([minDelay, dataReady]).then(() => {
-        if (window._kcLoadRequestId !== requestId) return; // a newer tab load superseded this one
+    let settled = false;
+
+    window._kcSkeletonTimer = setTimeout(() => {
+        if (settled || window._kcLoadRequestId !== requestId) return;
+        state.kcLoading = true;
+        render();
+    }, 150);
+
+    const dataReady = (typeof loadKcSection === 'function') ? loadKcSection(tab) : Promise.resolve();
+    dataReady.then(() => {
+        settled = true;
+        if (window._kcLoadRequestId !== requestId) return;
+        clearTimeout(window._kcSkeletonTimer);
         state.kcLoading = false;
         render();
     });
@@ -421,7 +431,7 @@ function kcCardHadith(item, cfg, d, l, pi) {
     const source = l==='bn' ? (item.sourceBn||'') : (item.sourceEn||item.sourceBn||'');
     const ref = l==='bn' ? (item.refBn||'') : (item.refEn||item.refBn||'');
     return `
-    <article class="kc-card kc-card-hadith border flex flex-col reveal" style="background:${d?'#1e2a22':'#ffffff'};
+    <article class="kc-card kc-card-hadith border flex flex-col" style="background:${d?'#1e2a22':'#ffffff'};
         border-color:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'};box-shadow:var(--shadow-sm);
         animation:fadeInUp .35s ease-out ${(pi%9)*.04}s both">
         <div class="kc-gold-bar"></div>
@@ -449,7 +459,7 @@ function kcCardMasail(item, cfg, d, l, pi) {
     const answer = l==='bn' ? (item.answerBn||'') : (item.answerEn||item.answerBn||'');
     const detail = l==='bn' ? (item.detailBn||'') : (item.detailEn||item.detailBn||'');
     return `
-    <article class="kc-card kc-card-masail border reveal" style="background:${d?'#1e2a22':'#ffffff'};
+    <article class="kc-card kc-card-masail border" style="background:${d?'#1e2a22':'#ffffff'};
         border-color:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'};box-shadow:var(--shadow-sm);
         animation:fadeInUp .35s ease-out ${(pi%9)*.04}s both">
         <div class="kc-masail-tab" style="background:${meta.color}"></div>
@@ -479,7 +489,7 @@ function kcCardQa(item, cfg, d, l, pi) {
     const question = l==='bn' ? item.questionBn : (item.questionEn||item.questionBn);
     const answer = l==='bn' ? (item.answerBn||'') : (item.answerEn||item.answerBn||'');
     return `
-    <article class="kc-card kc-card-qa border flex flex-col reveal" style="background:${d?'#1e2a22':'#ffffff'};
+    <article class="kc-card kc-card-qa border flex flex-col" style="background:${d?'#1e2a22':'#ffffff'};
         border-color:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'};box-shadow:var(--shadow-sm);
         animation:fadeInUp .35s ease-out ${(pi%9)*.04}s both">
         <div class="kc-qa-body flex flex-col flex-1">
@@ -514,7 +524,7 @@ function kcCardFatwa(item, cfg, d, l, pi) {
     const marjaLabel = marjaEntry ? (l==='bn'?marjaEntry.bn:marjaEntry.en) : (item.marja||'');
     const initial = (marjaEntry ? marjaEntry.en : item.marja || '?').trim().charAt(0).toUpperCase();
     return `
-    <article class="kc-card kc-card-fatwa border flex flex-col reveal" style="background:${d?'#1e2a22':'#ffffff'};
+    <article class="kc-card kc-card-fatwa border flex flex-col" style="background:${d?'#1e2a22':'#ffffff'};
         border-color:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'};box-shadow:var(--shadow-sm);
         animation:fadeInUp .35s ease-out ${(pi%9)*.04}s both">
         ${item.sample?`<div class="kc-fatwa-ribbon">${l==='bn'?'নমুনা':'SAMPLE'}</div>`:''}
@@ -672,8 +682,11 @@ function renderKcDetailView() {
         </div>`;
     }
 
+    const pageEnterClass = window._kcJustOpenedDetail ? ' page-enter' : '';
+    window._kcJustOpenedDetail = false;
+
     return `
-    <div class="space-y-5 page-enter">
+    <div class="space-y-5${pageEnterClass}">
         ${kcBreadcrumb(d,l,breadcrumbParts)}
         <div class="flex items-center justify-between flex-wrap gap-3">
             <button data-action="kcCloseDetail" data-param=""
@@ -688,7 +701,7 @@ function renderKcDetailView() {
         <article class="card-luxury border p-6" style="background:${d?'#1e2a22':'#ffffff'};border-color:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'};box-shadow:var(--shadow-md)">
             ${fields}
         </article>
-        <div class="flex flex-wrap gap-2.5 reveal">
+        <div class="flex flex-wrap gap-2.5">
             ${actionBtn('📋', l==='bn'?'কপি':'Copy', 'kcCopy', item.id)}
             ${actionBtn('📤', l==='bn'?'শেয়ার':'Share', 'kcShare', item.id)}
             <button data-action="toggleBookmark" data-param="${item.id}" data-param2="${cfg.bookmarkType}"
@@ -792,8 +805,11 @@ function renderKnowledgeCenterPage() {
         return '';
     })();
 
+    const pageEnterClass = window._kcJustEnteredPage ? ' page-enter' : '';
+    window._kcJustEnteredPage = false;
+
     return `
-    <div class="space-y-6 page-enter">
+    <div class="space-y-6${pageEnterClass}">
         <div class="reveal">
             <h1 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#059669,#0369a1);
                 -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
