@@ -2281,6 +2281,7 @@ function renderAhlulBaytUnifiedPage() {
 // personality card, with a button that calls that same existing modal for
 // masumeen/imam entries.
 function renderAhlulBaytUnifiedPageSection1Preview() {
+    const hasSelection = !!getAhlulBaytPersonBySelection(state.ahlulBaytSelectedPerson);
     return `
     <div class="space-y-2 page-enter">
         ${renderAhlulBaytHero()}
@@ -2288,17 +2289,15 @@ function renderAhlulBaytUnifiedPageSection1Preview() {
         ${renderAhlulBaytSearchBox()}
         ${renderAhlulBaytStats()}
 
-        <div class="ab-main-grid" style="display:grid;grid-template-columns:1fr;gap:1.25rem;margin-top:1.25rem">
+        <div class="ab-main-grid${hasSelection ? ' ab-main-grid--split' : ''}" style="display:grid;grid-template-columns:1fr;gap:1.25rem;margin-top:1.25rem">
             <div id="ab-tab-panel-anchor" class="ab-tab-panel" style="scroll-margin-top:80px">
                 ${renderAhlulBaytTabPanel()}
             </div>
-            <div class="ab-side-panel-wrap">
-                ${renderAhlulBaytSidePanel()}
-            </div>
+            ${hasSelection ? `<div class="ab-side-panel-wrap">${renderAhlulBaytSidePanel()}</div>` : ''}
         </div>
         <style>
             @media (min-width:1024px){
-                .ab-main-grid{ grid-template-columns:minmax(0,2fr) minmax(260px,1fr) !important; align-items:start; }
+                .ab-main-grid.ab-main-grid--split{ grid-template-columns:minmax(0,2fr) minmax(260px,1fr) !important; align-items:start; }
                 .ab-side-panel-wrap{ position:sticky; top:90px; }
             }
         </style>
