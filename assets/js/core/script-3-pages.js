@@ -381,7 +381,7 @@ function renderDuaPage() {
 
         <!-- DUA TAB content -->
         ${tab==='dua'?`
-        <div class="space-y-4">
+        <div class="space-y-2">
             ${filteredDuas.length===0?`
             <div class="text-center py-16" style="color:${d?'#6b7280':'#9ca3af'}">
                 <div style="font-size:3rem;margin-bottom:.75rem">🤲</div>
@@ -402,53 +402,37 @@ function renderDuaPage() {
                 // not its position in the filtered list. Using `duas.indexOf(dua)`
                 // gives the correct stable index regardless of any active filter.
                 const idx=isCustom?('c'+dua.id):duas.indexOf(dua);
+                // Compact row style ("ক"): background/border tinted per the dua's own
+                // category color, reusing the existing catFilters color/bg values
+                // (same palette as the category filter chips above) so no new color
+                // system is introduced. Falls back to the "all" entry's colors.
+                const catInfo = catFilters.find(f=>f.key===dua.category) || catFilters[0];
                 return `
-                <article class="card-luxury border reveal"
-                    style="background:${d?'#1e2a22':'#ffffff'};
-                    border-color:${d?'rgba(5,150,105,.15)':'rgba(5,150,105,.1)'};
-                    box-shadow:var(--shadow-sm)">
-                    <div style="height:3px;background:linear-gradient(90deg,#059669,#c9a227,#059669);background-size:200% 100%;animation:goldShimmer 3s linear infinite;border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
-                    <div class="p-5">
-                        <!-- Title row -->
-                        <div class="flex items-start justify-between gap-3 mb-4">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                    ${isCustom?`<span class="${d?'gold-badge-dark':'gold-badge'}">${l==='bn'?'কাস্টম':'Custom'}</span>`:''}
-                                    <h2 class="font-bold text-base" style="color:${d?'#f9fafb':'#111827'}">${sanitize(l==='bn'?dua.titleBn:dua.titleEn)}</h2>
-                                </div>
-                                ${dua.source?`<p class="text-xs" style="color:${d?'#6b7280':'#9ca3af'}">${sanitize(dua.source)}</p>`:''}
-                            </div>
-                            ${state.isAdmin&&isCustom?`
-                            <div class="flex gap-1 flex-shrink-0">
-                                <button data-action="editCustomDua" data-param="${dua.id}" data-dtype="dua"
-                                    aria-label="${l==='bn'?'সম্পাদনা করুন':'Edit'} ${sanitize(l==='bn'?dua.titleBn:dua.titleEn)}"
-                                    style="width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;background:${d?'rgba(59,130,246,.15)':'rgba(59,130,246,.1)'};border:1px solid rgba(59,130,246,.25);color:${d?'#93c5fd':'#1d4ed8'}">✏️</button>
-                                <button data-action="deleteCustomDua" data-param="${dua.id}" data-dtype="dua"
-                                    aria-label="${l==='bn'?'মুছুন':'Delete'} ${sanitize(l==='bn'?dua.titleBn:dua.titleEn)}"
-                                    style="width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.2);color:#ef4444">🗑</button>
-                            </div>`:''}
-                        </div>
-                        <!-- Arabic block -->
-                        <div class="rounded-2xl p-5 mb-4"
-                            style="background:${d?'rgba(180,83,9,.08)':'rgba(254,243,199,.6)'};border:1px solid ${d?'rgba(180,83,9,.18)':'rgba(180,83,9,.14)'}">
-                            <p class="arabic-text arabic-reveal text-center mb-3" dir="rtl" lang="ar"
-                                style="font-size:1.6rem;line-height:2.2;color:${d?'#fbbf24':'#78350f'}">
-                                ${sanitize(dua.arabic)}
-                            </p>
-                            ${dua.transliteration?`<p class="text-center text-xs italic mb-2" style="color:${d?'#9ca3af':'#6b7280'}">${sanitize(dua.transliteration)}</p>`:''}
-                            <p class="text-center text-sm leading-relaxed" style="color:${d?'#d1d5db':'#374151'}">${sanitize(l==='bn'?dua.meaningBn:dua.meaningEn)}</p>
-                        </div>
-                        <!-- Read more -->
-                        <button data-action="readDua" data-param="${idx}"
-                            style="font-size:12.5px;font-weight:700;padding:8px 20px;border-radius:50px;
-                            background:rgba(5,150,105,.12);color:${d?'#34d399':'#059669'};
-                            border:1.5px solid rgba(5,150,105,.25);cursor:pointer;
-                            display:inline-flex;align-items:center;gap:6px;transition:all .2s">
-                            ${t('readMore')}
-                            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
-                        </button>
+                <div class="reveal" data-action="readDua" data-param="${idx}"
+                    style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:14px;cursor:pointer;
+                    background:${d?catInfo.color+'22':catInfo.bg};border:1px solid ${catInfo.color}${d?'55':'40'};transition:all .18s">
+                    <div style="flex-shrink:0;width:32px;height:32px;border-radius:10px;
+                        background:${catInfo.color};display:flex;align-items:center;justify-content:center;font-size:14px">
+                        ${catInfo.icon}
                     </div>
-                </article>`;
+                    <div style="flex:1;min-width:0">
+                        <div class="flex items-center gap-1.5 flex-wrap" style="margin-bottom:1px">
+                            ${isCustom?`<span class="${d?'gold-badge-dark':'gold-badge'}" style="font-size:9px;padding:1px 6px">${l==='bn'?'কাস্টম':'Custom'}</span>`:''}
+                            <p class="font-bold" style="font-size:13.5px;color:${d?'#f9fafb':'#111827'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sanitize(l==='bn'?dua.titleBn:dua.titleEn)}</p>
+                        </div>
+                        <p class="arabic-text" dir="rtl" lang="ar" style="font-size:12px;color:${d?'#9ca3af':'#6b7280'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sanitize(dua.arabic)}</p>
+                    </div>
+                    ${state.isAdmin&&isCustom?`
+                    <div class="flex gap-1 flex-shrink-0" onclick="event.stopPropagation()">
+                        <button data-action="editCustomDua" data-param="${dua.id}" data-dtype="dua"
+                            aria-label="${l==='bn'?'সম্পাদনা করুন':'Edit'} ${sanitize(l==='bn'?dua.titleBn:dua.titleEn)}"
+                            style="width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;background:${d?'rgba(59,130,246,.15)':'rgba(59,130,246,.1)'};border:1px solid rgba(59,130,246,.25);color:${d?'#93c5fd':'#1d4ed8'}">✏️</button>
+                        <button data-action="deleteCustomDua" data-param="${dua.id}" data-dtype="dua"
+                            aria-label="${l==='bn'?'মুছুন':'Delete'} ${sanitize(l==='bn'?dua.titleBn:dua.titleEn)}"
+                            style="width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.2);color:#ef4444">🗑</button>
+                    </div>`:''}
+                    <svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="${catInfo.color}" stroke-width="2.3" stroke-linecap="round" style="flex-shrink:0" aria-hidden="true"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+                </div>`;
             }).join('')}
         </div>`:''}
 
@@ -463,57 +447,43 @@ function renderDuaPage() {
                 ${state.isAdmin?`<p class="text-sm">${l==='bn'?'উপরের বাটন থেকে যিয়ারত যোগ করুন':'Use the button above to add Ziyarat'}</p>`:''}
             </div>`:
             groupedZiyarat.map(group=>`
-            <div class="space-y-4">
+            <div class="space-y-2">
                 ${selectedZiyaratCategory==='all'?`
                 <h3 class="font-bold text-sm" style="color:${d?'#fbbf24':'#92400e'}">
                     ${l==='bn'?ziyaratCatGroupLabel[group.cat].bn:ziyaratCatGroupLabel[group.cat].en}
                     <span style="font-size:.7rem;font-weight:600;opacity:.7;margin-left:4px">${group.items.length}</span>
                 </h3>`:''}
-                ${group.items.map(({z,idx})=>`
-                <article class="card-luxury border reveal"
-                    style="background:${d?'#1e1a14':'#fffbf0'};
-                    border-color:${d?'rgba(180,83,9,.2)':'rgba(180,83,9,.15)'};
-                    box-shadow:var(--shadow-sm)">
-                    <div style="height:3px;background:linear-gradient(90deg,#b45309,#c9a227,#b45309);background-size:200% 100%;animation:goldShimmer 3s linear infinite;border-radius:var(--r-lg) var(--r-lg) 0 0"></div>
-                    <div class="p-5">
-                        <div class="flex items-start justify-between gap-3 mb-4">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                    <span class="${d?'gold-badge-dark':'gold-badge'}">☪️ ${l==='bn'?'যিয়ারত':'Ziyarat'}</span>
-                                    <h2 class="font-bold text-base" style="color:${d?'#f9fafb':'#111827'}">${sanitize(l==='bn'?z.titleBn:z.titleEn)}</h2>
-                                </div>
-                                ${z.occasion?`<p class="text-xs font-semibold mt-1" style="color:${d?'#fbbf24':'#92400e'}">📅 ${sanitize(z.occasion)}</p>`:''}
-                                ${z.source?`<p class="text-xs mt-0.5" style="color:${d?'#6b7280':'#9ca3af'}">${sanitize(z.source)}</p>`:''}
-                            </div>
-                            ${state.isAdmin?`
-                            <div class="flex gap-1 flex-shrink-0">
-                                <button data-action="editCustomDua" data-param="${z.id}" data-dtype="ziyarat"
-                                    aria-label="${l==='bn'?'সম্পাদনা করুন':'Edit'} ${sanitize(l==='bn'?z.titleBn:z.titleEn)}"
-                                    style="width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;background:${d?'rgba(59,130,246,.15)':'rgba(59,130,246,.1)'};border:1px solid rgba(59,130,246,.25)">✏️</button>
-                                <button data-action="deleteCustomDua" data-param="${z.id}" data-dtype="ziyarat"
-                                    aria-label="${l==='bn'?'মুছুন':'Delete'} ${sanitize(l==='bn'?z.titleBn:z.titleEn)}"
-                                    style="width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.2)">🗑</button>
-                            </div>`:''}
-                        </div>
-                        <div class="rounded-2xl p-5 mb-4"
-                            style="background:${d?'rgba(180,83,9,.08)':'rgba(254,243,199,.6)'};border:1px solid ${d?'rgba(180,83,9,.18)':'rgba(180,83,9,.14)'}">
-                            <p class="arabic-text text-center mb-3" dir="rtl" lang="ar"
-                                style="font-size:1.6rem;line-height:2.3;color:${d?'#fbbf24':'#78350f'}">
-                                ${sanitize(z.arabic)}
-                            </p>
-                            ${z.transliteration?`<p class="text-center text-xs italic mb-2" style="color:${d?'#9ca3af':'#6b7280'}">${sanitize(z.transliteration)}</p>`:''}
-                            <p class="text-center text-sm leading-relaxed" style="color:${d?'#d1d5db':'#374151'}">${sanitize(l==='bn'?z.meaningBn:z.meaningEn)}</p>
-                        </div>
-                        <button data-action="readZiyarat" data-param="${z.id||idx}"
-                            style="font-size:12.5px;font-weight:700;padding:8px 20px;border-radius:50px;
-                            background:rgba(180,83,9,.12);color:${d?'#fbbf24':'#92400e'};
-                            border:1.5px solid rgba(180,83,9,.25);cursor:pointer;
-                            display:inline-flex;align-items:center;gap:6px;transition:all .2s">
-                            ${t('readMore')}
-                            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
-                        </button>
+                ${group.items.map(({z,idx})=>{
+                    // Compact row style ("ক"): background/border tinted per the
+                    // ziyarat's own category color, reusing ziyaratCatFilters'
+                    // existing color values (same palette as the ziyarat category
+                    // chips above). ziyaratCatFilters has no separate `bg` field
+                    // (unlike catFilters), so the tint is derived here by appending
+                    // a hex alpha suffix to the same color — no new palette added.
+                    const zCatInfo = ziyaratCatFilters.find(f=>f.key===z.category) || ziyaratCatFilters[0];
+                    return `
+                <div class="reveal" data-action="readZiyarat" data-param="${z.id||idx}"
+                    style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:14px;cursor:pointer;
+                    background:${zCatInfo.color}${d?'22':'1a'};border:1px solid ${zCatInfo.color}${d?'55':'40'};transition:all .18s">
+                    <div style="flex-shrink:0;width:32px;height:32px;border-radius:10px;
+                        background:${zCatInfo.color};display:flex;align-items:center;justify-content:center;font-size:14px">
+                        ${zCatInfo.icon}
                     </div>
-                </article>`).join('')}
+                    <div style="flex:1;min-width:0">
+                        <p class="font-bold" style="font-size:13.5px;color:${d?'#f9fafb':'#111827'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sanitize(l==='bn'?z.titleBn:z.titleEn)}</p>
+                        <p class="arabic-text" dir="rtl" lang="ar" style="font-size:12px;color:${d?'#9ca3af':'#6b7280'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sanitize(z.arabic)}</p>
+                    </div>
+                    ${state.isAdmin?`
+                    <div class="flex gap-1 flex-shrink-0" onclick="event.stopPropagation()">
+                        <button data-action="editCustomDua" data-param="${z.id}" data-dtype="ziyarat"
+                            aria-label="${l==='bn'?'সম্পাদনা করুন':'Edit'} ${sanitize(l==='bn'?z.titleBn:z.titleEn)}"
+                            style="width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;background:${d?'rgba(59,130,246,.15)':'rgba(59,130,246,.1)'};border:1px solid rgba(59,130,246,.25)">✏️</button>
+                        <button data-action="deleteCustomDua" data-param="${z.id}" data-dtype="ziyarat"
+                            aria-label="${l==='bn'?'মুছুন':'Delete'} ${sanitize(l==='bn'?z.titleBn:z.titleEn)}"
+                            style="width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.2)">🗑</button>
+                    </div>`:''}
+                    <svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="${zCatInfo.color}" stroke-width="2.3" stroke-linecap="round" style="flex-shrink:0" aria-hidden="true"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+                </div>`;}).join('')}
             </div>`).join('')}
         </div>`:''}
 
