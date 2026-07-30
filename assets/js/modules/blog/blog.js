@@ -134,8 +134,9 @@ function renderBlogPage() {
         'কুরআন':    {color:'#EF9F27', bg:d?'rgba(239,159,39,.18)':'#FAEEDA', fg:d?'#FAC775':'#854F0B', en:'Quran'},
         'ইবাদত':    {color:'#1D9E75', bg:d?'rgba(29,158,117,.18)':'#E1F5EE', fg:d?'#5DCAA5':'#0F6E56', en:'Worship'},
         'আখলাক':    {color:'#D4537E', bg:d?'rgba(212,83,126,.18)':'#FBEAF0', fg:d?'#ED93B1':'#72243E', en:'Ethics'},
+        'ইতিহাস':   {color:'#B5651D', bg:d?'rgba(181,101,29,.18)':'#FBEEDD', fg:d?'#E3A96B':'#7A4212', en:'History'},
     };
-    const catIcon = {'রমজান':'🌙','আহলে বাইত':'👑','দোয়া':'🤲','কুরআন':'📗','ইবাদত':'🕌','আখলাক':'⚖️'};
+    const catIcon = {'রমজান':'🌙','আহলে বাইত':'👑','দোয়া':'🤲','কুরআন':'📗','ইবাদত':'🕌','আখলাক':'⚖️','ইতিহাস':'📜'};
     const defaultCat = {color:'#888780', bg:d?'rgba(136,135,128,.18)':'#F1EFE8', fg:d?'#B4B2A9':'#5F5E5A'};
 
     // Bug #4 fix: custom posts (added via the admin editor's free-text category
@@ -145,7 +146,7 @@ function renderBlogPage() {
     // normalizes either form to the Bengali key so filtering works regardless
     // of which language a post's category was saved in.
     // Bug #12 fix: keys lowercase — "ramadan"/"Ramadan"/"RAMADAN" সব "রমজান" দেবে
-    const EN_TO_BN = {'ramadan':'রমজান','ahl al-bayt':'আহলে বাইত','duas':'দোয়া','quran':'কুরআন','worship':'ইবাদত','ethics':'আখলাক'};
+    const EN_TO_BN = {'ramadan':'রমজান','ahl al-bayt':'আহলে বাইত','duas':'দোয়া','quran':'কুরআন','worship':'ইবাদত','ethics':'আখলাক','history':'ইতিহাস'};
     function canonicalCat(cat) { if (!cat) return cat; return EN_TO_BN[cat.toLowerCase()] || cat; }
 
     function getCat(cat) { return CAT[canonicalCat(cat)] || defaultCat; }
