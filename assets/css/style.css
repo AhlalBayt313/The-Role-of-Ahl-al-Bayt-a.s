@@ -1796,3 +1796,24 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
     .kc-hadith-quote-mark { font-size: 3rem; }
     .kc-fatwa-ribbon { width: 118px; right: -30px; top: 10px; }
 }
+
+/* ============================================================
+   AMAL (📿) ACCENT — VIOLET
+   Tailwind's CSS above is a purged production build: it only ships the
+   exact utility classes literally present in the JS source at build time.
+   "violet"/"purple" weren't used with hover/focus-ring/opacity variants
+   before this feature, so those specific combinations were never compiled.
+   Rather than rebuild the whole Tailwind bundle (risk of drift from
+   whatever original build config/plugins/content-paths aren't included in
+   this export), these few rules cover just the gap — pure additions, they
+   don't touch or override anything above.
+   ============================================================ */
+.bg-violet-custom { background: #7c3aed; }
+.bg-violet-50-custom { background: #f5f3ff; }
+.bg-violet-100-custom { background: #ede9fe; }
+.bg-violet-900-40-custom { background: rgba(124, 58, 237, .32); }
+.text-violet-400-custom { color: #a78bfa; }
+.text-violet-700-custom { color: #6d28d9; }
+.amal-btn-violet { background: #7c3aed; transition: background .15s; }
+.amal-btn-violet:hover { background: #6d28d9; }
+.amal-focus-ring:focus { --tw-ring-color: #7c3aed; }

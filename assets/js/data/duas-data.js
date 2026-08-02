@@ -57,6 +57,7 @@
   // duplicate fetches for the same file, even if called from multiple spots)
   const __categoryCache = Object.create(null);
   let __ziyaratPromise = null;
+  let __amalPromise = null; // NEW: Amal — mirrors __ziyaratPromise
 
   function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -91,7 +92,7 @@
   // pages) is unchanged. metadata.json is small (~90KB) by design.
   const __metadata = (typeof loadJSONSync === 'function'
     ? loadJSONSync(METADATA_URL)
-    : null) || { duas: [], ziyarats: [], categoryFiles: {}, ziyaratFile: DUAS_DIR + 'ziyarat.json' };
+    : null) || { duas: [], ziyarats: [], amals: [], categoryFiles: {}, ziyaratFile: DUAS_DIR + 'ziyarat.json', amalFile: DUAS_DIR + 'amal.json' };
 
   function byOriginalIndex(a, b) {
     return (a.originalIndex || 0) - (b.originalIndex || 0);
@@ -99,15 +100,20 @@
 
   const __liteDuas = (__metadata.duas || []).slice().sort(byOriginalIndex);
   const __liteZiyarats = (__metadata.ziyarats || []).slice().sort(byOriginalIndex);
+  // NEW: Amal — third content type alongside Dua/Ziyarat (single-file
+  // dataset, same lite/full hydration split as ziyarats — see loadAmals()).
+  const __liteAmals = (__metadata.amals || []).slice().sort(byOriginalIndex);
 
   // Public arrays — SAME reference for the lifetime of the page, and the
-  // SAME variable names (`duas`, `ziyarats`) every existing render/search/
-  // bookmark function already uses.
+  // SAME variable names (`duas`, `ziyarats`, `amals`) every existing render/
+  // search/bookmark function already uses.
   const duas = __liteDuas;
   const ziyarats = __liteZiyarats;
+  const amals = __liteAmals;
 
   const __categoryFiles = __metadata.categoryFiles || {};
   const __ziyaratFile = __metadata.ziyaratFile || DUAS_DIR + 'ziyarat.json';
+  const __amalFile = __metadata.amalFile || DUAS_DIR + 'amal.json';
 
   // ---- lazy per-category loading -----------------------------------------
   // Loads and caches one category's full dua data (with `verses`), then
@@ -158,6 +164,28 @@
     return __ziyaratPromise;
   }
 
+  // NEW: Amal — same single-file lazy-load pattern as loadZiyarats() above.
+  function loadAmals() {
+    if (__amalPromise) return __amalPromise;
+
+    __amalPromise = fetchJSONWithRetry(__amalFile).then((fullList) => {
+      const list = fullList || [];
+      const byId = Object.create(null);
+      for (const full of list) byId[full.id] = full;
+
+      for (const entry of amals) {
+        const full = byId[entry.id];
+        if (full && !entry.hasFullData) {
+          Object.assign(entry, full);
+          entry.hasFullData = true;
+        }
+      }
+      return list;
+    });
+
+    return __amalPromise;
+  }
+
   // Ensure one specific dua (by id or by object reference) has its full
   // content (verses, etc.) loaded. Resolves with the SAME object, now
   // hydrated — safe to call repeatedly, only fetches once per category.
@@ -179,11 +207,24 @@
     return entry;
   }
 
+  // NEW: Amal — mirrors ensureZiyaratContent() above.
+  async function ensureAmalContent(idOrA) {
+    const id = typeof idOrA === 'string' ? idOrA : idOrA.id;
+    const entry = amals.find((a) => a.id === id);
+    if (!entry) return null;
+    if (entry.hasFullData) return entry;
+    await loadAmals();
+    return entry;
+  }
+
   // ---- expose on window / global scope, same as the old top-level consts ---
   window.duas = duas;
   window.ziyarats = ziyarats;
+  window.amals = amals;
   window.loadDuaCategory = loadDuaCategory;
   window.loadZiyarats = loadZiyarats;
+  window.loadAmals = loadAmals;
   window.ensureDuaContent = ensureDuaContent;
   window.ensureZiyaratContent = ensureZiyaratContent;
+  window.ensureAmalContent = ensureAmalContent;
 })();

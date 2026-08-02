@@ -501,20 +501,33 @@ function renderDuaEditorModal() {
     if (!state.showDuaEditor || !state.editingDua) return '';
     const d=state.darkMode; const l=state.language;
     const item=state.editingDua;
-    const type=state.duaEditorType; // 'dua' | 'ziyarat'
-    const isNew=!item.id || !((type==='dua'?state.customDuas:state.customZiyarat).find(x=>x.id===item.id));
+    const type=state.duaEditorType; // 'dua' | 'ziyarat' | 'amal'
+    const isNew=!item.id || !(customArrayForType(type).find(x=>x.id===item.id));
     const isZiyarat=type==='ziyarat';
+    const isAmal=type==='amal'; // NEW: Amal
+    // NEW: Amal uses a violet accent. Tailwind's compiled CSS only ships the
+    // exact classes literally used in the JS source at build time, and this
+    // codebase never used violet with hover/focus-ring variants before, so
+    // `bg-violet-600`/`focus:ring-violet-500` etc. would silently render
+    // unstyled. `.amal-btn-violet` / `.amal-focus-ring` (added to style.css)
+    // cover that gap; dua/ziyarat keep their original, already-working
+    // Tailwind-class-based styling untouched below.
     const accentColor=isZiyarat?'amber':'green';
+    const typeLabel = isAmal ? {bn:'আমল',en:'Amal'} : isZiyarat ? {bn:'যিয়ারত',en:'Ziyarat'} : {bn:'দোয়া',en:'Dua'};
+    const typeIcon = isAmal ? '📿' : isZiyarat ? '☪️' : '🤲';
+    const badgeBg = isAmal ? '#7c3aed22' : isZiyarat ? '#92400e22' : '#05966922';
+    const ringClass = isAmal ? 'amal-focus-ring' : `focus:ring-${accentColor}-500`;
+    const saveBtnClass = isAmal ? 'amal-btn-violet' : (isZiyarat?'bg-amber-600 hover:bg-amber-700':'bg-green-600 hover:bg-green-700');
     return `
     <div class="fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4 overflow-y-auto" id="dua-editor-overlay">
         <div class="${d?'bg-gray-900 border-gray-700':'bg-white border-gray-200'} border rounded-2xl w-full max-w-2xl shadow-2xl fade-in my-4">
             <!-- Header -->
             <div class="flex justify-between items-center p-6 border-b ${d?'border-gray-700':'border-gray-100'}">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style="background:${isZiyarat?'#92400e22':'#05966922'}">${isZiyarat?'☪️':'🤲'}</div>
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style="background:${badgeBg}">${typeIcon}</div>
                     <div>
-                        <h3 class="font-bold text-lg">${isNew?(isZiyarat?(l==='bn'?'নতুন যিয়ারত যোগ':'Add New Ziyarat'):(l==='bn'?'নতুন দোয়া যোগ':'Add New Dua')):(isZiyarat?(l==='bn'?'যিয়ারত সম্পাদনা':'Edit Ziyarat'):(l==='bn'?'দোয়া সম্পাদনা':'Edit Dua'))}</h3>
-                        <p class="text-xs ${d?'text-gray-400':'text-gray-500'}">${isZiyarat?(l==='bn'?'যিয়ারত ট্যাবে দেখাবে':'Will appear in Ziyarat tab'):(l==='bn'?'দোয়া ট্যাবে দেখাবে':'Will appear in Duas tab')}</p>
+                        <h3 class="font-bold text-lg">${isNew?(l==='bn'?`নতুন ${typeLabel.bn} যোগ`:`Add New ${typeLabel.en}`):(l==='bn'?`${typeLabel.bn} সম্পাদনা`:`Edit ${typeLabel.en}`)}</h3>
+                        <p class="text-xs ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?`${typeLabel.bn} ট্যাবে দেখাবে`:`Will appear in ${typeLabel.en} tab`}</p>
                     </div>
                 </div>
                 <button data-action="closeDuaEditor" class="${d?'text-gray-400 hover:text-white':'text-gray-400 hover:text-gray-700'} text-2xl leading-none p-1 rounded-lg hover:bg-gray-100/10 transition-colors">&times;</button>
@@ -526,22 +539,22 @@ function renderDuaEditorModal() {
                 <div>
                     <label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'শিরোনাম (বাংলা)':'Title (Bengali)'} <span class="text-red-500">*</span></label>
                     <input id="dua-ed-titleBn" type="text" value="${sanitize(item.titleBn||'')}"
-                        placeholder="${isZiyarat?'যেমন: যিয়ারত আশুরা':'যেমন: দোয়ায়ে কুমাইল'}"
-                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-${accentColor}-500" />
+                        placeholder="${isAmal?'যেমন: আমলে উম্মে দাউদ':isZiyarat?'যেমন: যিয়ারত আশুরা':'যেমন: দোয়ায়ে কুমাইল'}"
+                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 ${ringClass}" />
                 </div>
                 <!-- Title English -->
                 <div>
                     <label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'শিরোনাম (ইংরেজি)':'Title (English)'}</label>
                     <input id="dua-ed-titleEn" type="text" value="${sanitize(item.titleEn||'')}"
-                        placeholder="${isZiyarat?'e.g. Ziyarat Ashura':'e.g. Dua Kumayl'}"
-                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-${accentColor}-500" />
+                        placeholder="${isAmal?'e.g. Amal of Umm Dawud':isZiyarat?'e.g. Ziyarat Ashura':'e.g. Dua Kumayl'}"
+                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 ${ringClass}" />
                 </div>
                 <!-- Arabic Text -->
                 <div>
                     <label class="block mb-1.5 text-sm font-semibold">عربي — ${l==='bn'?'আরবি পাঠ':'Arabic Text'} <span class="text-red-500">*</span></label>
                     <textarea id="dua-ed-arabic" dir="rtl" lang="ar"
                         placeholder="${l==='bn'?'এখানে আরবি পাঠ লিখুন...':'Enter Arabic text here...'}"
-                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full h-28 focus:outline-none focus:ring-2 focus:ring-${accentColor}-500"
+                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full h-28 focus:outline-none focus:ring-2 ${ringClass}"
                         style="font-family:'Amiri',serif;font-size:1.2rem;line-height:2">${sanitize(item.arabic||'')}</textarea>
                 </div>
                 <!-- Transliteration -->
@@ -549,65 +562,67 @@ function renderDuaEditorModal() {
                     <label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'উচ্চারণ (ঐচ্ছিক)':'Transliteration (optional)'}</label>
                     <input id="dua-ed-translit" type="text" value="${sanitize(item.transliteration||'')}"
                         placeholder="${l==='bn'?'যেমন: Allahumma inni as\'aluka...':'e.g. Allahumma inni as\'aluka...'}"
-                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-${accentColor}-500" />
+                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 ${ringClass}" />
                 </div>
                 <!-- Meaning Bengali -->
                 <div>
                     <label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'বাংলা অর্থ':'Bengali Meaning'} <span class="text-red-500">*</span></label>
                     <textarea id="dua-ed-meaningBn"
                         placeholder="${l==='bn'?'বাংলা অনুবাদ লিখুন...':'Enter Bengali translation...'}"
-                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full h-24 focus:outline-none focus:ring-2 focus:ring-${accentColor}-500">${sanitize(item.meaningBn||'')}</textarea>
+                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full h-24 focus:outline-none focus:ring-2 ${ringClass}">${sanitize(item.meaningBn||'')}</textarea>
                 </div>
                 <!-- Meaning English -->
                 <div>
                     <label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'ইংরেজি অর্থ':'English Meaning'}</label>
                     <textarea id="dua-ed-meaningEn"
                         placeholder="${l==='bn'?'ইংরেজি অনুবাদ লিখুন...':'Enter English translation...'}"
-                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full h-20 focus:outline-none focus:ring-2 focus:ring-${accentColor}-500">${sanitize(item.meaningEn||'')}</textarea>
+                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full h-20 focus:outline-none focus:ring-2 ${ringClass}">${sanitize(item.meaningEn||'')}</textarea>
                 </div>
                 <!-- Full Text Bengali -->
                 <div>
                     <label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'পূর্ণ পাঠ (বাংলা, ঐচ্ছিক)':'Full Text (Bengali, optional)'}</label>
                     <textarea id="dua-ed-fullBn"
-                        placeholder="${l==='bn'?'সম্পূর্ণ দোয়া/যিয়ারতের পাঠ ও ব্যাখ্যা...':'Full text and explanation...'}"
-                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full h-28 focus:outline-none focus:ring-2 focus:ring-${accentColor}-500">${sanitize(item.fullTextBn||'')}</textarea>
+                        placeholder="${l==='bn'?`সম্পূর্ণ ${typeLabel.bn}র পাঠ ও ব্যাখ্যা...`:'Full text and explanation...'}"
+                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full h-28 focus:outline-none focus:ring-2 ${ringClass}">${sanitize(item.fullTextBn||'')}</textarea>
                 </div>
                 <!-- Source -->
                 <div>
                     <label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'উৎস / সূত্র':'Source / Reference'}</label>
                     <input id="dua-ed-source" type="text" value="${sanitize(item.source||'')}"
                         placeholder="${l==='bn'?'যেমন: সাহিফায়ে সাজ্জাদিয়্যা, বিহারুল আনওয়ার...':'e.g. Sahifa al-Sajjadiyya, Bihar al-Anwar...'}"
-                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-${accentColor}-500" />
+                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 ${ringClass}" />
                 </div>
-                ${isZiyarat ? `
-                <!-- Occasion (Ziyarat only) -->
+                ${(isZiyarat||isAmal) ? `
+                <!-- Occasion (Ziyarat & Amal only) -->
                 <div>
-                    <label class="block mb-1.5 text-sm font-semibold">${l==='bn'?'উপলক্ষ (যিয়ারতের জন্য)':'Occasion (for Ziyarat)'}</label>
+                    <label class="block mb-1.5 text-sm font-semibold">${l==='bn'?`উপলক্ষ (${typeLabel.bn}র জন্য)`:`Occasion (for ${typeLabel.en})`}</label>
                     <input id="dua-ed-occasion" type="text" value="${sanitize(item.occasion||'')}"
-                        placeholder="${l==='bn'?'যেমন: আশুরা, প্রতি জুমা...':'e.g. Ashura, Every Friday...'}"
-                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                        placeholder="${isAmal?(l==='bn'?'যেমন: প্রতি শুক্রবার, ১৫ রজব...':'e.g. Every Friday, 15th Rajab...'):(l==='bn'?'যেমন: আশুরা, প্রতি জুমা...':'e.g. Ashura, Every Friday...')}"
+                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 ${ringClass}" />
                 </div>` : ''}
 
                 <!-- Verses (আয়াত বাই আয়াত) -->
                 <div>
                     <label class="block mb-1.5 text-sm font-semibold">
-                        📖 ${l==='bn'?'আয়াত বাই আয়াত (JSON, ঐচ্ছিক)':'Verse-by-Verse (JSON, optional)'}
+                        📖 ${isAmal?(l==='bn'?'ধাপে ধাপে আমল (JSON, ঐচ্ছিক)':'Step-by-Step (JSON, optional)'):(l==='bn'?'আয়াত বাই আয়াত (JSON, ঐচ্ছিক)':'Verse-by-Verse (JSON, optional)')}
                     </label>
                     <p class="text-xs mb-2 ${d?'text-gray-400':'text-gray-500'}">
-                        ${l==='bn'?'প্রতিটি পঙক্তির আরবি + বাংলা অনুবাদ। ফরম্যাট: [{"ar":"আরবি","bn":"বাংলা অর্থ"},...]':'Each line Arabic + Bengali. Format: [{"ar":"Arabic","bn":"Bengali meaning"},...]'}
+                        ${isAmal
+                            ? (l==='bn'?'প্রতিটি ধাপ। আরবি ঐচ্ছিক — শুধু নির্দেশনা হলে শুধু bn দিন। ফরম্যাট: [{"bn":"নির্দেশনা"},{"ar":"আরবি","tr":"উচ্চারণ","bn":"অনুবাদ"},{"ar":"...","bn":"...","repeat100":true,"repeatLabel":"৩৪ বার"}]':'Each step. Arabic is optional — for instruction-only steps just give "bn". Format: [{"bn":"Instruction"},{"ar":"Arabic","tr":"Transliteration","bn":"Meaning"},{"ar":"...","bn":"...","repeat100":true,"repeatLabel":"34 times"}]')
+                            : (l==='bn'?'প্রতিটি পঙক্তির আরবি + বাংলা অনুবাদ। ফরম্যাট: [{"ar":"আরবি","bn":"বাংলা অর্থ"},...]':'Each line Arabic + Bengali. Format: [{"ar":"Arabic","bn":"Bengali meaning"},...]')}
                     </p>
                     <textarea id="dua-ed-verses"
-                        placeholder='[{"ar":"اللَّهُمَّ","bn":"হে আল্লাহ!"},{"ar":"إِنِّي","bn":"নিশ্চয়ই আমি"}]'
+                        placeholder='${isAmal?'[{"bn":"গোসল করুন"},{"ar":"اللَّهُ أَكْبَرُ","bn":"আল্লাহ মহান","repeat100":true,"repeatLabel":"৩৪ বার"}]':'[{"ar":"اللَّهُمَّ","bn":"হে আল্লাহ!"},{"ar":"إِنِّي","bn":"নিশ্চয়ই আমি"}]'}'
                         spellcheck="false"
-                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full h-32 focus:outline-none focus:ring-2 focus:ring-${accentColor}-500 font-mono text-xs">${item.verses ? sanitize(JSON.stringify(item.verses, null, 2)) : ''}</textarea>
+                        class="${d?'bg-gray-800 border-gray-600 text-white':'bg-gray-50 border-gray-300'} border rounded-xl px-4 py-3 w-full h-32 focus:outline-none focus:ring-2 ${ringClass} font-mono text-xs">${item.verses ? sanitize(JSON.stringify(item.verses, null, 2)) : ''}</textarea>
                     <div id="dua-ed-verses-error" class="text-xs text-red-500 mt-1 hidden">${l==='bn'?'JSON ফরম্যাট ঠিক নেই! উদাহরণ: [{"ar":"...","bn":"..."}]':'Invalid JSON! Example: [{"ar":"...","bn":"..."}]'}</div>
                 </div>
             </div>
 
             <!-- Footer -->
             <div class="flex gap-3 p-6 border-t ${d?'border-gray-700':'border-gray-100'}">
-                <button data-action="saveDuaItem" class="${isZiyarat?'bg-amber-600 hover:bg-amber-700':'bg-green-600 hover:bg-green-700'} text-white flex-1 py-3 rounded-xl font-bold text-base transition-colors">
-                    💾 ${isNew?(isZiyarat?(l==='bn'?'যিয়ারত সেভ করুন':'Save Ziyarat'):(l==='bn'?'দোয়া সেভ করুন':'Save Dua')):(l==='bn'?'আপডেট করুন':'Update')}
+                <button data-action="saveDuaItem" class="${saveBtnClass} text-white flex-1 py-3 rounded-xl font-bold text-base transition-colors">
+                    💾 ${isNew?(l==='bn'?`${typeLabel.bn} সেভ করুন`:`Save ${typeLabel.en}`):(l==='bn'?'আপডেট করুন':'Update')}
                 </button>
                 <button data-action="closeDuaEditor" class="${d?'bg-gray-700 hover:bg-gray-600':'bg-gray-100 hover:bg-gray-200'} px-6 py-3 rounded-xl font-semibold transition-colors">${l==='bn'?'বাতিল':'Cancel'}</button>
             </div>
@@ -801,9 +816,220 @@ function renderReadZiyaratPage() {
     </div>`;
 }
 
-// ============================================================================
-// MOBILE BOTTOM NAV
-// ============================================================================
+// NEW: Amal — mirrors renderReadZiyaratPage() above exactly (same verse-row /
+// repeat-block layout, since amal.json uses the identical {ar,tr,bn,repeat100,
+// repeatLabel} verse shape as ziyarat.json), with a violet accent instead of
+// amber/green so it reads as visually distinct from both Dua and Ziyarat.
+function renderReadAmalPage() {
+    const a=state.currentAmal; const d=state.darkMode; const l=state.language;
+    if(!a) return renderDuaPage();
+    const hasVerses = Array.isArray(a.verses) && a.verses.length > 0;
+
+    const versesHtml = hasVerses ? a.verses.map((v, i) => {
+        const isRepeat = !!v.repeat100;
+        const label = v.repeatLabel || (l==='bn'?'১০০ বার পড়তে হবে':'Read 100 times');
+        if(isRepeat) {
+            // Special full-width block for counted-repetition steps (e.g.
+            // Tasbih Fatima's 34/33/33 counts)
+            return `
+            <div class="dua-verse-row fade-in" style="
+                border-bottom:2px solid ${d?'rgba(124,58,237,.35)':'rgba(124,58,237,.2)'};
+                background:${d?'rgba(124,58,237,.09)':'rgba(237,233,254,.6)'};
+                transition:background .2s;
+            "
+            onmouseenter="this.style.background='${d?'rgba(124,58,237,.16)':'rgba(221,214,254,.55)'}'"
+            onmouseleave="this.style.background='${d?'rgba(124,58,237,.09)':'rgba(237,233,254,.6)'}'">
+                <!-- Repeat badge bar -->
+                <div style="
+                    display:flex;align-items:center;gap:.6rem;
+                    padding:.6rem 1.4rem;
+                    border-bottom:1px solid ${d?'rgba(124,58,237,.2)':'rgba(124,58,237,.12)'};
+                    background:${d?'rgba(124,58,237,.15)':'rgba(167,139,250,.18)'};
+                ">
+                    <span style="
+                        font-size:.7rem;font-weight:800;letter-spacing:.06em;
+                        background:linear-gradient(135deg,#7c3aed,#a78bfa);
+                        color:#fff;padding:.25rem .75rem;border-radius:999px;
+                        white-space:nowrap;
+                    ">🔁 ${sanitize(label)}</span>
+                    <span style="font-size:.72rem;color:${d?'#c4b5fd':'#6d28d9'};font-weight:600;">
+                        ${l==='bn'?'(নির্দেশিত সংখ্যক বার পাঠ করুন)':'(Recite the indicated number of times)'}
+                    </span>
+                </div>
+                <!-- Two-column content -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+                    <div style="
+                        padding:1.4rem 1.6rem;
+                        border-right:2px solid ${d?'rgba(124,58,237,.3)':'rgba(124,58,237,.18)'};
+                        text-align:right;direction:rtl;position:relative;
+                    ">
+                        <span style="
+                            position:absolute;top:.7rem;left:.7rem;
+                            width:22px;height:22px;border-radius:50%;
+                            background:linear-gradient(135deg,#7c3aed,#a78bfa);
+                            color:#fff;font-size:.6rem;font-weight:700;
+                            display:flex;align-items:center;justify-content:center;
+                            font-family:sans-serif;direction:ltr;
+                        ">${i+1}</span>
+                        <p class="arabic-text" lang="ar" style="
+                            font-size:1.45rem;line-height:2.2;
+                            color:${d?'#ddd6fe':'#6d28d9'};
+                            text-shadow:0 0 18px ${d?'rgba(221,214,254,.15)':'rgba(124,58,237,.1)'};
+                            margin:0;white-space:pre-line;
+                        ">${sanitize(v.ar||'')}</p>
+                    </div>
+                    <div style="padding:1.4rem 1.6rem;display:flex;align-items:center;">
+                        <p style="
+                            font-size:.95rem;line-height:1.85;
+                            color:${d?'#ddd6fe':'#6d28d9'};
+                            margin:0;font-weight:500;white-space:pre-line;
+                        ">${sanitize(v.bn||'')}</p>
+                    </div>
+                </div>
+            </div>`;
+        }
+        // Normal step row. Amal steps are often instruction-only (no Arabic —
+        // e.g. "গোসল করুন"), so when v.ar is empty this collapses to a single
+        // full-width Bengali column instead of leaving the Arabic side blank.
+        if (!v.ar) {
+            return `
+            <div class="dua-verse-row fade-in" style="
+                padding:1.1rem 1.6rem;
+                border-bottom:1px solid ${d?'rgba(255,255,255,.06)':'rgba(124,58,237,.08)'};
+                display:flex;align-items:flex-start;gap:.8rem;
+                transition:background .2s;
+            "
+            onmouseenter="this.style.background='${d?'rgba(124,58,237,.07)':'rgba(124,58,237,.04)'}'"
+            onmouseleave="this.style.background='transparent'">
+                <span style="
+                    flex-shrink:0;width:22px;height:22px;border-radius:50%;margin-top:.1rem;
+                    background:linear-gradient(135deg,#7c3aed,#6d28d9);
+                    color:#fff;font-size:.6rem;font-weight:700;
+                    display:flex;align-items:center;justify-content:center;
+                ">${i+1}</span>
+                <p style="
+                    font-size:.95rem;line-height:1.85;
+                    color:${d?'#e5e7eb':'#374151'};
+                    margin:0;font-weight:500;
+                ">${sanitize(v.bn||'')}</p>
+            </div>`;
+        }
+        return `
+        <div class="dua-verse-row fade-in" style="
+            display:grid;grid-template-columns:1fr 1fr;gap:0;
+            border-bottom:1px solid ${d?'rgba(255,255,255,.06)':'rgba(124,58,237,.08)'};
+            transition:background .2s;
+        "
+        onmouseenter="this.style.background='${d?'rgba(124,58,237,.07)':'rgba(124,58,237,.04)'}'"
+        onmouseleave="this.style.background='transparent'">
+            <div style="
+                padding:1.4rem 1.6rem;
+                border-right:2px solid ${d?'rgba(124,58,237,.25)':'rgba(124,58,237,.15)'};
+                text-align:right;direction:rtl;position:relative;
+            ">
+                <span style="
+                    position:absolute;top:.7rem;left:.7rem;
+                    width:22px;height:22px;border-radius:50%;
+                    background:linear-gradient(135deg,#7c3aed,#6d28d9);
+                    color:#fff;font-size:.6rem;font-weight:700;
+                    display:flex;align-items:center;justify-content:center;
+                    font-family:sans-serif;direction:ltr;
+                ">${i+1}</span>
+                <p class="arabic-text" lang="ar" style="
+                    font-size:1.45rem;line-height:2.2;
+                    color:${d?'#ddd6fe':'#6d28d9'};
+                    text-shadow:0 0 18px ${d?'rgba(221,214,254,.12)':'rgba(124,58,237,.08)'};
+                    margin:0;
+                ">${sanitize(v.ar)}</p>
+                ${v.tr?`<p style="font-size:.75rem;margin:.35rem 0 0;color:${d?'#a78bfa':'#8b5cf6'};font-style:italic">${sanitize(v.tr)}</p>`:''}
+            </div>
+            <div style="padding:1.4rem 1.6rem;display:flex;align-items:center;">
+                <p style="
+                    font-size:.95rem;line-height:1.85;
+                    color:${d?'#e5e7eb':'#374151'};
+                    margin:0;font-weight:500;
+                ">${sanitize(v.bn)}</p>
+            </div>
+        </div>`;
+    }).join('') : '';
+
+    const fallbackHtml = `
+        <div class="rounded-2xl p-6 mb-4" style="background:${d?'linear-gradient(135deg,rgba(124,58,237,.1),rgba(109,40,217,.06))':'linear-gradient(135deg,#f5f3ff,#faf5ff)'};border:1px solid ${d?'rgba(124,58,237,.18)':'rgba(124,58,237,.12)'}">
+            <p class="arabic-text text-center" dir="rtl" lang="ar" style="font-size:1.9rem;line-height:2.5;color:${d?'#ddd6fe':'#6d28d9'}">${sanitize(a.arabic)}</p>
+        </div>
+        <div class="${d?'bg-gray-900/60':''} rounded-2xl p-5 mb-4" style="border-left:3px solid #7c3aed;${d?'':'background:rgba(245,243,255,.6)'}">
+            <p class="text-base leading-relaxed ${d?'text-gray-200':'text-gray-700'}">${sanitize(a.meaningBn)}</p>
+        </div>
+    `;
+
+    const amalPageEnterClass = window._amalJustOpened ? ' page-enter' : '';
+    window._amalJustOpened = false;
+
+    return `
+    <div class="max-w-4xl mx-auto${amalPageEnterClass}">
+
+        <button data-action="changePage" data-param="${state.previousPage||'dua'}"
+            class="flex items-center gap-2 mb-6 px-4 py-2 rounded-xl font-semibold text-sm hover:scale-[1.02] transition-all"
+            style="background:rgba(124,58,237,.1);color:#7c3aed">
+            ← ${l==='bn'?'আমলে ফিরুন':'Back to Amal'}
+        </button>
+
+        <article style="border-radius:var(--r-xl,1rem);overflow:hidden;box-shadow:var(--shadow-lg);border:1px solid ${d?'rgba(255,255,255,.07)':'rgba(124,58,237,.12)'}">
+
+            <!-- Gradient top bar -->
+            <div style="height:5px;background:linear-gradient(90deg,#7c3aed,#c4b5fd,#6d28d9,#c4b5fd,#7c3aed);background-size:300%;animation:gradMove 4s linear infinite"></div>
+
+            <!-- Header -->
+            <div style="background:${d?'linear-gradient(135deg,#1a1330,#170f2e)':'linear-gradient(135deg,#f5f3ff,#faf5ff)'};padding:2rem 2rem 1.5rem">
+                <div class="flex justify-between items-start gap-4 flex-wrap">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-3 flex-wrap">
+                            <span class="text-xs px-3 py-1.5 rounded-full font-bold" style="background:rgba(124,58,237,.15);color:#7c3aed;border:1px solid rgba(124,58,237,.3)">📿 ${l==='bn'?'আমল':'Amal'}</span>
+                            ${a.occasion?`<span class="text-xs px-2 py-1 rounded-full font-semibold" style="background:rgba(167,139,250,.15);color:#6d28d9;border:1px solid rgba(167,139,250,.3)">📅 ${sanitize(a.occasion)}</span>`:''}
+                            ${hasVerses?`<span class="text-xs px-2 py-1 rounded-full font-semibold" style="background:rgba(124,58,237,.12);color:#6d28d9;border:1px solid rgba(124,58,237,.25)">${a.verses.length} ${l==='bn'?'ধাপ':'steps'}</span>`:''}
+                        </div>
+                        <h1 class="text-2xl md:text-3xl font-black leading-tight mb-1">${sanitize(l==='bn'?a.titleBn:a.titleEn)}</h1>
+                        ${a.meaningBn?`<p class="text-sm mt-3 leading-relaxed" style="color:${d?'#d1d5db':'#4b5563'}">${sanitize(l==='bn'?a.meaningBn:(a.meaningEn||a.meaningBn))}</p>`:''}
+                        ${a.source?`<p class="text-sm mt-2" style="color:${d?'#c4b5fd':'#7c3aed'}">📚 ${sanitize(a.source)}</p>`:''}
+                    </div>
+                </div>
+            </div>
+
+            ${hasVerses ? `
+            <!-- Column headers -->
+            <div style="
+                display:grid;grid-template-columns:1fr 1fr;
+                background:${d?'rgba(124,58,237,.12)':'rgba(124,58,237,.07)'};
+                border-bottom:2px solid ${d?'rgba(124,58,237,.25)':'rgba(124,58,237,.15)'};
+                padding:.6rem 1.6rem;gap:0;
+            ">
+                <div style="text-align:right;direction:rtl">
+                    <span class="text-xs font-black tracking-widest uppercase" style="color:${d?'#c4b5fd':'#7c3aed'}">العربية • আরবি পাঠ</span>
+                </div>
+                <div>
+                    <span class="text-xs font-black tracking-widest uppercase" style="color:${d?'#c4b5fd':'#7c3aed'}">বাংলা / নির্দেশনা</span>
+                </div>
+            </div>
+
+            <div style="background:${d?'#150f26':'#fdfcff'}">
+                ${versesHtml}
+            </div>
+
+            <div style="padding:1.2rem 1.6rem;background:${d?'rgba(124,58,237,.06)':'rgba(124,58,237,.04)'};border-top:1px solid ${d?'rgba(255,255,255,.05)':'rgba(124,58,237,.08)'}">
+                <p class="text-xs text-center" style="color:${d?'#6b7280':'#9ca3af'}">
+                    ${l==='bn'?'মোট '+a.verses.length+' ধাপ':'Total '+a.verses.length+' steps'}
+                    ${a.source?' • '+sanitize(a.source):''}
+                </p>
+            </div>
+
+            ` : `
+            <div style="padding:2rem;background:${d?'#150f26':'#fdfcff'}">
+                ${fallbackHtml}
+            </div>`}
+
+        </article>
+    </div>`;
+}
 function renderMobileBottomNav() {
     const d=state.darkMode; const l=state.language;
     const nav=document.getElementById('mobile-bottom-nav'); // ✅ FIXED: placeholder created in render() (Bug #15)
@@ -866,6 +1092,7 @@ function renderMainContent() {
             tasbeeh:renderTasbeehPage, quiz:renderQuizPage,
             searchPage:renderSearchPage, analytics:renderAnalyticsPage,
             readZiyarat:renderReadZiyaratPage,
+            readAmal:renderReadAmalPage,
             asmaul:renderAsmaulHusnaPage, qibla:renderQiblaPage, worldMap:renderWorldMapPage,
             muharram:renderMuharramPage,
             'shia-days':renderShiaDaysPage,

@@ -1,0 +1,278 @@
+[
+  {
+    "id": "amal-tasbih-fatima",
+    "slug": "amal-tasbih-fatima",
+    "titleBn": "তাসবীহে হযরত ফাতিমা (আ.)",
+    "titleEn": "Tasbih of Lady Fatima (a.s)",
+    "category": "daily",
+    "occasion": "প্রতি ফরজ নামাজের পর",
+    "arabic": "اللَّهُ أَكْبَرُ ﴿٣٤﴾ الْحَمْدُ لِلَّهِ ﴿٣٣﴾ سُبْحَانَ اللَّهِ ﴿٣٣﴾",
+    "meaningBn": "নবী করীম (সা.) তাঁর কন্যা ফাতিমা (আ.)-কে ঘরের কাজে সাহায্যকারীর পরিবর্তে শিখিয়েছিলেন এই ১০০ বারের ছোট্ট তাসবীহ, যা প্রতিটি ফরজ নামাজের পর পাঠ করা অত্যন্ত ফজিলতপূর্ণ।",
+    "meaningEn": "The Prophet (s) taught this short 100-count tasbih to his daughter Fatima (a.s) in place of a house-helper; it is recited after every obligatory prayer.",
+    "source": "বিহারুল আনওয়ার; মাফাতিহুল জিনান — শায়খ আব্বাস কুম্মী",
+    "verses": [
+      {
+        "ar": "اللَّهُ أَكْبَرُ",
+        "tr": "আল্লাহু আকবার",
+        "bn": "আল্লাহ সবচেয়ে মহান — মোট ৩৪ বার পাঠ করুন",
+        "repeat100": true,
+        "repeatLabel": "৩৪ বার"
+      },
+      {
+        "ar": "الْحَمْدُ لِلَّهِ",
+        "tr": "আলহামদুলিল্লাহ",
+        "bn": "সমস্ত প্রশংসা একমাত্র আল্লাহর জন্য — মোট ৩৩ বার পাঠ করুন",
+        "repeat100": true,
+        "repeatLabel": "৩৩ বার"
+      },
+      {
+        "ar": "سُبْحَانَ اللَّهِ",
+        "tr": "সুবহানআল্লাহ",
+        "bn": "আল্লাহ পবিত্র, সকল ত্রুটি থেকে মুক্ত — মোট ৩৩ বার পাঠ করুন",
+        "repeat100": true,
+        "repeatLabel": "৩৩ বার"
+      }
+    ]
+  },
+  {
+    "id": "amal-before-sleep",
+    "slug": "amal-before-sleep",
+    "titleBn": "ঘুমানোর পূর্বের আমল",
+    "titleEn": "Bedtime Amal",
+    "category": "daily",
+    "occasion": "প্রতি রাতে ঘুমানোর আগে",
+    "arabic": "اللَّهُمَّ بِاسْمِكَ أَمُوتُ وَأَحْيَا",
+    "meaningBn": "ঘুমকে হাদিসে ছোট মৃত্যুর সাথে তুলনা করা হয়েছে। তাই ঘুমানোর আগে অজু অবস্থায় কিছু নির্দিষ্ট দোয়া ও তাসবীহ পাঠ করা রাতের নিরাপত্তা ও প্রশান্তির কারণ বলে বর্ণিত হয়েছে।",
+    "meaningEn": "Sleep is likened in hadith to a small death, so reciting certain duas and tasbih before sleeping — in a state of wudu — is described as a source of protection and peace through the night.",
+    "source": "মাফাতিহুল জিনান; বিভিন্ন হাদিস গ্রন্থ",
+    "verses": [
+      {
+        "bn": "সম্ভব হলে অজু অবস্থায় শোবার প্রস্তুতি নিন এবং কিবলামুখী হয়ে ডান কাতে শুয়ে পড়ুন।"
+      },
+      {
+        "bn": "আয়াতুল কুরসি একবার পাঠ করুন।"
+      },
+      {
+        "bn": "সূরা ইখলাস, সূরা ফালাক ও সূরা নাস একবার করে পাঠ করুন।"
+      },
+      {
+        "bn": "তাসবীহে হযরত ফাতিমা (আ.) পাঠ করুন — আলাদা এই আমল বিভাগে দেখুন।"
+      },
+      {
+        "ar": "اللَّهُمَّ بِاسْمِكَ أَمُوتُ وَأَحْيَا",
+        "tr": "আল্লাহুম্মা বিসমিকা আমূতু ওয়া আহইয়া",
+        "bn": "হে আল্লাহ! তোমারই নামে আমি মৃত্যুবরণ করি এবং জীবিত হই।"
+      }
+    ]
+  },
+  {
+    "id": "amal-jumma-day",
+    "slug": "amal-jumma-day",
+    "titleBn": "জুমার দিনের আমল",
+    "titleEn": "Friday (Jumu'ah) Day Amal",
+    "category": "weekly",
+    "occasion": "প্রতি শুক্রবার",
+    "arabic": "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَآلِ مُحَمَّدٍ",
+    "meaningBn": "জুমাবার মুসলিম উম্মাহর জন্য সপ্তাহের সবচেয়ে ফজিলতপূর্ণ দিন। এই দিনে গোসল করা, সূরা কাহফ পাঠ করা এবং অধিক পরিমাণে সালাওয়াত পাঠ করা বিশেষভাবে সুপারিশকৃত।",
+    "meaningEn": "Friday is the most virtuous day of the week. Ghusl, reciting Surah al-Kahf, and abundant Salawat are especially recommended on this day.",
+    "source": "মাফাতিহুল জিনান — শায়খ আব্বাস কুম্মী",
+    "verses": [
+      {
+        "bn": "জুমার গোসল করুন — সম্ভব হলে দুপুরের আগেই।"
+      },
+      {
+        "bn": "সূরা কাহফ সম্পূর্ণ পাঠ করুন।"
+      },
+      {
+        "ar": "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَآلِ مُحَمَّدٍ",
+        "tr": "আল্লাহুম্মা সাল্লি আলা মুহাম্মাদিন ওয়া আলি মুহাম্মাদ",
+        "bn": "হে আল্লাহ! মুহাম্মাদ ও তাঁর পবিত্র পরিবারের প্রতি রহমত বর্ষণ করুন — দিনভর বেশি বেশি পাঠ করুন।"
+      },
+      {
+        "bn": "আসরের নামাজের পর দোয়ায়ে কুমাইল পাঠ করার প্রচলন বহু স্থানে রয়েছে — দোয়া বিভাগে দেখুন।"
+      }
+    ]
+  },
+  {
+    "id": "amal-shab-e-juma",
+    "slug": "amal-shab-e-juma",
+    "titleBn": "শবে জুমার আমল",
+    "titleEn": "Eve of Friday (Shab-e-Jumu'ah) Amal",
+    "category": "weekly",
+    "occasion": "বৃহস্পতিবার দিবাগত রাত",
+    "arabic": "أَسْتَغْفِرُ اللَّهَ رَبِّي وَأَتُوبُ إِلَيْهِ",
+    "meaningBn": "জুমার রাত ইবাদত ও দোয়া কবুলের একটি বিশেষ সময় হিসেবে বিবেচিত। এই রাতে দোয়ায়ে কুমাইল পাঠ ও প্রয়াত আত্মীয়দের জন্য দোয়ার প্রচলন সুপরিচিত।",
+    "meaningEn": "The night before Friday is regarded as a special time for worship and answered prayers. Reciting Dua Kumayl and praying for deceased relatives are well-known practices of this night.",
+    "source": "মাফাতিহুল জিনান — শায়খ আব্বাস কুম্মী",
+    "verses": [
+      {
+        "bn": "এই রাতে দোয়ায়ে কুমাইল পাঠ করুন — দোয়া বিভাগে সম্পূর্ণ পাঠ পাবেন।"
+      },
+      {
+        "ar": "أَسْتَغْفِرُ اللَّهَ رَبِّي وَأَتُوبُ إِلَيْهِ",
+        "tr": "আসতাগফিরুল্লাহা রাব্বী ওয়া আতূবু ইলাইহ",
+        "bn": "আমি আমার প্রতিপালক আল্লাহর কাছে ক্ষমা চাই এবং তাঁরই দিকে ফিরে যাই — বেশি বেশি পাঠ করুন।"
+      },
+      {
+        "bn": "প্রয়াত পিতা-মাতা ও আত্মীয়দের জন্য সূরা ফাতিহা পাঠ করে দোয়া করুন।"
+      }
+    ]
+  },
+  {
+    "id": "amal-laylatul-qadr",
+    "slug": "amal-laylatul-qadr",
+    "titleBn": "লাইলাতুল কদরের আমল",
+    "titleEn": "Amal of Laylatul Qadr",
+    "category": "ramadan",
+    "occasion": "রমজানের ১৯, ২১ ও ২৩ তম রাত",
+    "arabic": "اللَّهُمَّ بِكِتَابِكَ الْمُنْزَلِ",
+    "meaningBn": "লাইলাতুল কদর হাজার মাসের চেয়েও উত্তম একটি রাত (সূরা আল-কদর)। এই রাতগুলোতে গোসল, রাত জেগে ইবাদত, কুরআন মাথায় রেখে দোয়া এবং জোশানে কাবীর ও জোশানে সাগীর পাঠের প্রচলন রয়েছে।",
+    "meaningEn": "Laylatul Qadr is better than a thousand months (Surah al-Qadr). Ghusl, staying up in worship, holding the Qur'an over one's head while supplicating, and reciting Jawshan Kabir/Saghir are practiced on these nights.",
+    "source": "মাফাতিহুল জিনান — শায়খ আব্বাস কুম্মী",
+    "verses": [
+      {
+        "bn": "গোসল করুন এবং রাতভর জাগ্রত থেকে ইবাদতের নিয়ত করুন।"
+      },
+      {
+        "ar": "اللَّهُمَّ بِكِتَابِكَ الْمُنْزَلِ",
+        "tr": "আল্লাহুম্মা বিকিতাবিকাল মুনযাল",
+        "bn": "কুরআন মাজীদ মাথার উপর রেখে এই দোয়ার প্রসিদ্ধ সূচনাংশ পাঠ করা হয় — \"হে আল্লাহ! তোমার অবতীর্ণ কিতাবের ওসিলায়...\" (সম্পূর্ণ পাঠ মাফাতিহুল জিনানে দেখুন)।"
+      },
+      {
+        "bn": "জোশানে কাবীর ও জোশানে সাগীর পাঠ করুন — দোয়া বিভাগে (রমজান ক্যাটাগরি) সংকলিত আছে।"
+      },
+      {
+        "bn": "সূরা কদর ও সূরা দুখান পাঠ করুন।"
+      },
+      {
+        "bn": "নিজের ও উম্মাহর জন্য ক্ষমা প্রার্থনা ও দোয়া করুন।"
+      }
+    ]
+  },
+  {
+    "id": "amal-ramadan-daily",
+    "slug": "amal-ramadan-daily",
+    "titleBn": "রমজান মাসের দৈনন্দিন আমল",
+    "titleEn": "Daily Amal of Ramadan",
+    "category": "ramadan",
+    "occasion": "রমজানের প্রতিটি দিন",
+    "arabic": "اللَّهُمَّ رَبَّ الشَّهْرِ الْعَظِيمِ",
+    "meaningBn": "রমজান মাসে সাহরি, ইফতার ও পাঁচ ওয়াক্ত নামাজের পাশাপাশি প্রতিদিনের জন্য নির্ধারিত পৃথক দোয়া পাঠের প্রচলন রয়েছে, যা এই সাইটের দোয়া বিভাগে \"রমজান\" ক্যাটাগরির অধীনে ৩০ দিনের দোয়া হিসেবে বিস্তারিত সংকলিত আছে।",
+    "meaningEn": "Alongside Suhoor, Iftar and the five daily prayers, Ramadan has a separate recommended dua for each day of the month — compiled in full under the \"Ramadan\" category of the Dua section on this site.",
+    "source": "মাফাতিহুল জিনান — শায়খ আব্বাস কুম্মী",
+    "verses": [
+      {
+        "bn": "সাহরির শেষ সময়ে খাওয়া শেষ করে সাহরির দোয়া পাঠ করুন।"
+      },
+      {
+        "bn": "ইফতারের পূর্বমুহূর্তে ইফতারের দোয়া পাঠ করে রোজা খুলুন।"
+      },
+      {
+        "bn": "প্রতিদিনের জন্য নির্ধারিত পৃথক দোয়া পাঠ করুন — দোয়া বিভাগ → রমজান ক্যাটাগরিতে দেখুন।"
+      },
+      {
+        "bn": "রমজানের শেষ জুমায় বিদায়ী দোয়া পাঠ করুন।"
+      }
+    ]
+  },
+  {
+    "id": "amal-umm-dawud",
+    "slug": "amal-umm-dawud",
+    "titleBn": "আমলে উম্মে দাউদ",
+    "titleEn": "Amal of Umm Dawud",
+    "category": "special",
+    "occasion": "১৫ই রজব (মধ্য-রজব)",
+    "arabic": "دُعَاءُ أُمِّ دَاوُد",
+    "meaningBn": "দোয়া কবুল হওয়ার অন্যতম প্রসিদ্ধ আমল, যা রজব মাসের মধ্য দিবসে পালন করা হয়। এতে রোজা, নির্দিষ্ট নিয়মে নামাজ এবং একটি দীর্ঘ ও প্রসিদ্ধ দোয়া পাঠ অন্তর্ভুক্ত।",
+    "meaningEn": "One of the most famous practices for having a prayer answered, observed on the middle day of Rajab. It includes fasting, a specific prayer, and a long, well-known dua.",
+    "source": "মিসবাহুল মুতাহাজ্জিদ — শায়খ তুসী; মাফাতিহুল জিনান",
+    "verses": [
+      {
+        "bn": "সম্ভব হলে এই দিন রোজা রাখুন।"
+      },
+      {
+        "bn": "দুপুরের পর নির্দিষ্ট নিয়মে ১৪ রাকাত নামাজ পড়ুন (প্রতি ২ রাকাতে সালাম ফিরিয়ে)।"
+      },
+      {
+        "bn": "নামাজ শেষে দীর্ঘ ও প্রসিদ্ধ \"দোয়ায়ে উম্মে দাউদ\" পাঠ করুন। এটি দৈর্ঘ্যে অনেক বড় বলে এখানে সম্পূর্ণ সংকলিত নয় — সম্পূর্ণ পাঠের জন্য মাফাতিহুল জিনান গ্রন্থ দেখুন।"
+      },
+      {
+        "bn": "নিজের ও অন্যদের জন্য আন্তরিকভাবে দোয়া করুন — এই আমল বিশেষভাবে দোয়া কবুলের জন্য প্রসিদ্ধ।"
+      }
+    ]
+  },
+  {
+    "id": "amal-nisf-shaban",
+    "slug": "amal-nisf-shaban",
+    "titleBn": "নিসফে শাবানের আমল (শবে বরাত)",
+    "titleEn": "Amal of Mid-Sha'ban (Shab-e-Barat)",
+    "category": "special",
+    "occasion": "১৪ শাবান দিবাগত রাত (১৫ শাবান)",
+    "arabic": "لَا إِلَٰهَ إِلَّا اللَّهُ",
+    "meaningBn": "১৫ শাবান ইমাম মাহদী (আ.)-এর জন্মবার্ষিকী হিসেবেও পরিচিত। এই রাতে গোসল, নফল নামাজ, দোয়ায়ে কুমাইল পাঠ এবং ইমাম হুসাইন (আ.)-এর যিয়ারতের প্রচলন রয়েছে।",
+    "meaningEn": "The 15th of Sha'ban is also observed as the birth anniversary of Imam Mahdi (a.s). Ghusl, voluntary prayers, reciting Dua Kumayl, and Ziyarat of Imam Hussain (a.s) are practiced on this night.",
+    "source": "মাফাতিহুল জিনান — শায়খ আব্বাস কুম্মী",
+    "verses": [
+      {
+        "bn": "গোসল করুন।"
+      },
+      {
+        "bn": "সম্ভব হলে নফল নামাজ আদায় করুন।"
+      },
+      {
+        "bn": "দোয়ায়ে কুমাইল পাঠ করুন — দোয়া বিভাগে সম্পূর্ণ পাঠ পাবেন।"
+      },
+      {
+        "bn": "সম্ভব হলে ইমাম হুসাইন (আ.)-এর যিয়ারত পাঠ করুন — যিয়ারত বিভাগে দেখুন।"
+      }
+    ]
+  },
+  {
+    "id": "amal-istikhara",
+    "slug": "amal-istikhara",
+    "titleBn": "ইস্তেখারার আমল",
+    "titleEn": "Amal of Istikhara",
+    "category": "special",
+    "occasion": "যেকোনো গুরুত্বপূর্ণ সিদ্ধান্তের পূর্বে",
+    "arabic": "اللَّهُمَّ إِنِّي أَسْتَخِيرُكَ بِعِلْمِكَ",
+    "meaningBn": "কোনো বিষয়ে দ্বিধায় থাকলে আল্লাহর কাছে হৃদয়ে প্রশান্তি ও সঠিক পথের নির্দেশনা চেয়ে ইস্তেখারা করা হয়। এটি একটি স্বীকৃত সুন্নত আমল।",
+    "meaningEn": "When uncertain about a decision, one turns to Allah in Istikhara, seeking guidance and peace of heart toward the right path. This is a well-established recommended practice.",
+    "source": "হাদিস গ্রন্থসমূহ; মাফাতিহুল জিনান",
+    "verses": [
+      {
+        "bn": "২ রাকাত নামাজ পড়ুন।"
+      },
+      {
+        "ar": "اللَّهُمَّ إِنِّي أَسْتَخِيرُكَ بِعِلْمِكَ",
+        "tr": "আল্লাহুম্মা ইন্নী আসতাখীরুকা বিইলমিক",
+        "bn": "হে আল্লাহ! আমি তোমার জ্ঞানের ওসিলায় তোমার কাছে উত্তম পথের নির্দেশনা চাইছি — এই প্রসিদ্ধ ইস্তেখারার দোয়ার সূচনাংশ।"
+      },
+      {
+        "bn": "এরপর আন্তরিকভাবে হৃদয়ে যা প্রশান্তি দেয় সেই সিদ্ধান্তের জন্য আল্লাহর কাছে সাহায্য চান।"
+      }
+    ]
+  },
+  {
+    "id": "amal-ashura-day",
+    "slug": "amal-ashura-day",
+    "titleBn": "আশুরার দিনের আমল",
+    "titleEn": "Amal of the Day of Ashura",
+    "category": "special",
+    "occasion": "১০ই মহররম (আশুরা)",
+    "arabic": "السَّلَامُ عَلَيْكَ يَا أَبَا عَبْدِ اللَّهِ",
+    "meaningBn": "আশুরার দিন ইমাম হুসাইন (আ.)-এর কারবালার শাহাদাতের স্মরণে শোক পালনের দিন। এই দিনে যিয়ারতে আশুরা পাঠ, শোকসভা এবং কারবালার আদর্শ স্মরণের প্রচলন রয়েছে।",
+    "meaningEn": "Ashura is a day of mourning in remembrance of Imam Hussain's (a.s) martyrdom at Karbala. Reciting Ziyarat Ashura, attending mourning gatherings, and remembering Karbala's ideals mark this day.",
+    "source": "কামিলুয যিয়ারাত; মাফাতিহুল জিনান",
+    "verses": [
+      {
+        "bn": "যিয়ারতে আশুরা পাঠ করুন — যিয়ারত বিভাগে সম্পূর্ণ পাঠ পাবেন।"
+      },
+      {
+        "bn": "শোক পালন করুন এবং আনন্দ-উৎসব ও বিলাসিতা পরিহার করুন।"
+      },
+      {
+        "bn": "কারবালার ঘটনা স্মরণ করুন এবং ইমাম হুসাইন (আ.)-এর সত্য ও ন্যায়ের আদর্শ চর্চা করুন।"
+      }
+    ]
+  }
+]

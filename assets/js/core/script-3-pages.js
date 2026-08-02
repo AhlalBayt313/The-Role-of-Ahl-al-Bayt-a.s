@@ -280,6 +280,35 @@ function renderDuaPage() {
             .filter(g => g.items.length>0)
         : [{cat:selectedZiyaratCategory, items:filteredZiyarat}];
 
+    // NEW: AMAL tab — third category alongside Dua/Ziyarat, per user's request.
+    // Mirrors the Ziyarat block above exactly (single dataset, grouped by
+    // occasion-type category) rather than the Dua block, since Amal — like
+    // Ziyarat — is a flat, un-split dataset best browsed grouped by category.
+    const allAmal = [...amals, ...state.customAmal];
+    const selectedAmalCategory = state.amalCategory || 'all';
+    const amalCatFilters=[
+        {key:'all',     icon:'✦', label:l==='bn'?'সকল আমল':'All Amal',              color:'#7c3aed'},
+        {key:'daily',   icon:'🕐', label:l==='bn'?'দৈনন্দিন':'Daily',                 color:'#0ea5e9'},
+        {key:'weekly',  icon:'📅', label:l==='bn'?'সাপ্তাহিক':'Weekly',               color:'#059669'},
+        {key:'ramadan', icon:'🌙', label:l==='bn'?'রমজান':'Ramadan',                  color:'#f97316'},
+        {key:'special', icon:'⭐', label:l==='bn'?'বিশেষ দিন/রাত':'Special Days/Nights', color:'#b45309'},
+    ];
+    const amalCatOrder=['daily','weekly','ramadan','special'];
+    const amalCatGroupLabel={
+        daily:  {bn:'🕐 দৈনন্দিন আমল',        en:'🕐 Daily Amal'},
+        weekly: {bn:'📅 সাপ্তাহিক আমল',        en:'📅 Weekly Amal'},
+        ramadan:{bn:'🌙 রমজান ও লাইলাতুল কদর', en:'🌙 Ramadan & Laylatul Qadr'},
+        special:{bn:'⭐ বিশেষ দিন/রাতের আমল',  en:'⭐ Special Days & Nights'},
+    };
+    const indexedAmal = allAmal.map((a,idx)=>({a,idx}));
+    const filteredAmal = indexedAmal
+        .filter(({a}) => selectedAmalCategory==='all' || a.category===selectedAmalCategory);
+    const groupedAmal = selectedAmalCategory==='all'
+        ? amalCatOrder
+            .map(cat => ({cat, items:filteredAmal.filter(({a})=>a.category===cat)}))
+            .filter(g => g.items.length>0)
+        : [{cat:selectedAmalCategory, items:filteredAmal}];
+
     return `
     <div class="space-y-6 page-enter">
 
@@ -290,7 +319,7 @@ function renderDuaPage() {
                     🤲 ${t('dua')}
                 </h1>
                 <p class="text-sm mt-1" style="color:${d?'#9ca3af':'#6b7280'}">
-                    ${l==='bn'?`${allDuas.length} দোয়া · ${allZiyarat.length} যিয়ারত`:`${allDuas.length} Duas · ${allZiyarat.length} Ziyarat`}
+                    ${l==='bn'?`${allDuas.length} দোয়া · ${allZiyarat.length} যিয়ারত · ${allAmal.length} আমল`:`${allDuas.length} Duas · ${allZiyarat.length} Ziyarat · ${allAmal.length} Amal`}
                 </p>
             </div>
             ${state.isAdmin?`
@@ -310,6 +339,14 @@ function renderDuaPage() {
                     cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(180,83,9,.38)">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     ${l==='bn'?'নতুন যিয়ারত':'Add Ziyarat'}
+                </button>`:''}
+                ${tab==='amal'?`
+                <button data-action="openDuaEditor" data-param="amal"
+                    style="font-size:12.5px;font-weight:700;padding:9px 18px;border-radius:50px;
+                    background:linear-gradient(135deg,#7c3aed,#6d28d9);color:white;border:none;
+                    cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(124,58,237,.38)">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    ${l==='bn'?'নতুন আমল':'Add Amal'}
                 </button>`:''}
             </div>`:''
         }
@@ -335,6 +372,15 @@ function renderDuaPage() {
                 box-shadow:${tab==='ziyarat'?'0 4px 14px rgba(180,83,9,.35)':'none'}">
                 ☪️ ${l==='bn'?'যিয়ারত':'Ziyarat'}
                 <span style="font-size:.7rem;opacity:.75;margin-left:4px">${allZiyarat.length}</span>
+            </button>
+            <button data-action="setDuaTab" data-param="amal" aria-pressed="${tab==='amal'?'true':'false'}"
+                style="padding:9px 22px;border-radius:14px;font-size:.85rem;font-weight:700;
+                cursor:pointer;transition:all .22s;border:none;
+                background:${tab==='amal'?'linear-gradient(135deg,#7c3aed,#6d28d9)':'transparent'};
+                color:${tab==='amal'?'white':(d?'#9ca3af':'#6b7280')};
+                box-shadow:${tab==='amal'?'0 4px 14px rgba(124,58,237,.35)':'none'}">
+                📿 ${l==='bn'?'আমল':'Amal'}
+                <span style="font-size:.7rem;opacity:.75;margin-left:4px">${allAmal.length}</span>
             </button>
         </div>
 
@@ -368,6 +414,24 @@ function renderDuaPage() {
                 ${ziyaratCatFilters.map(f=>{
                     const isActive=selectedZiyaratCategory===f.key;
                     return `<button data-action="setZiyaratCategory" data-param="${f.key}" aria-pressed="${isActive?'true':'false'}"
+                        style="flex-shrink:0;font-size:11.5px;font-weight:700;padding:6px 16px;border-radius:50px;
+                        cursor:pointer;white-space:nowrap;transition:all .18s;
+                        background:${isActive?f.color:(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)')};
+                        color:${isActive?'#fff':(d?'#9ca3af':'#6b7280')};
+                        border:1.5px solid ${isActive?f.color:(d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)')}">
+                        ${f.icon} ${f.label}
+                    </button>`;
+                }).join('')}
+            </div>
+        </div>`:''}
+
+        <!-- Category filter (amal tab only) -->
+        ${tab==='amal'?`
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 1px 6px">
+            <div style="display:flex;gap:7px;width:max-content">
+                ${amalCatFilters.map(f=>{
+                    const isActive=selectedAmalCategory===f.key;
+                    return `<button data-action="setAmalCategory" data-param="${f.key}" aria-pressed="${isActive?'true':'false'}"
                         style="flex-shrink:0;font-size:11.5px;font-weight:700;padding:6px 16px;border-radius:50px;
                         cursor:pointer;white-space:nowrap;transition:all .18s;
                         background:${isActive?f.color:(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)')};
@@ -483,6 +547,53 @@ function renderDuaPage() {
                             style="width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.2)">🗑</button>
                     </div>`:''}
                     <svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="${zCatInfo.color}" stroke-width="2.3" stroke-linecap="round" style="flex-shrink:0" aria-hidden="true"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+                </div>`;}).join('')}
+            </div>`).join('')}
+        </div>`:''}
+
+        <!-- AMAL TAB content — grouped by category (daily → weekly → ramadan
+             → special), mirroring the Ziyarat tab's layout above -->
+        ${tab==='amal'?`
+        <div class="space-y-6">
+            ${filteredAmal.length===0?`
+            <div class="text-center py-16" style="color:${d?'#6b7280':'#9ca3af'}">
+                <div style="font-size:3rem;margin-bottom:.75rem">📿</div>
+                <p class="font-semibold text-lg mb-1">${l==='bn'?'কোনো আমল নেই':'No Amal yet'}</p>
+                ${state.isAdmin?`<p class="text-sm">${l==='bn'?'উপরের বাটন থেকে আমল যোগ করুন':'Use the button above to add Amal'}</p>`:''}
+            </div>`:
+            groupedAmal.map(group=>`
+            <div class="space-y-2">
+                ${selectedAmalCategory==='all'?`
+                <h3 class="font-bold text-sm" style="color:${d?'#c4b5fd':'#6d28d9'}">
+                    ${l==='bn'?amalCatGroupLabel[group.cat].bn:amalCatGroupLabel[group.cat].en}
+                    <span style="font-size:.7rem;font-weight:600;opacity:.7;margin-left:4px">${group.items.length}</span>
+                </h3>`:''}
+                ${group.items.map(({a,idx})=>{
+                    // Same compact-row tint pattern as the Ziyarat list above,
+                    // keyed off amalCatFilters' colors instead of ziyaratCatFilters'.
+                    const aCatInfo = amalCatFilters.find(f=>f.key===a.category) || amalCatFilters[0];
+                    return `
+                <div class="reveal" data-action="readAmal" data-param="${a.id||idx}"
+                    style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:14px;cursor:pointer;
+                    background:${aCatInfo.color}${d?'22':'1a'};border:1px solid ${aCatInfo.color}${d?'55':'40'};transition:all .18s">
+                    <div style="flex-shrink:0;width:32px;height:32px;border-radius:10px;
+                        background:${aCatInfo.color};display:flex;align-items:center;justify-content:center;font-size:14px">
+                        ${aCatInfo.icon}
+                    </div>
+                    <div style="flex:1;min-width:0">
+                        <p class="font-bold" style="font-size:13.5px;color:${d?'#f9fafb':'#111827'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sanitize(l==='bn'?a.titleBn:a.titleEn)}</p>
+                        <p style="font-size:12px;color:${d?'#9ca3af':'#6b7280'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sanitize(a.occasion || (l==='bn'?a.meaningBn:a.meaningEn))}</p>
+                    </div>
+                    ${state.isAdmin?`
+                    <div class="flex gap-1 flex-shrink-0" onclick="event.stopPropagation()">
+                        <button data-action="editCustomDua" data-param="${a.id}" data-dtype="amal"
+                            aria-label="${l==='bn'?'সম্পাদনা করুন':'Edit'} ${sanitize(l==='bn'?a.titleBn:a.titleEn)}"
+                            style="width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;background:${d?'rgba(59,130,246,.15)':'rgba(59,130,246,.1)'};border:1px solid rgba(59,130,246,.25)">✏️</button>
+                        <button data-action="deleteCustomDua" data-param="${a.id}" data-dtype="amal"
+                            aria-label="${l==='bn'?'মুছুন':'Delete'} ${sanitize(l==='bn'?a.titleBn:a.titleEn)}"
+                            style="width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.2)">🗑</button>
+                    </div>`:''}
+                    <svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="${aCatInfo.color}" stroke-width="2.3" stroke-linecap="round" style="flex-shrink:0" aria-hidden="true"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
                 </div>`;}).join('')}
             </div>`).join('')}
         </div>`:''}
@@ -1535,6 +1646,14 @@ function performSearch(q) {
             results.push({title,subtitle:z.occasion||'',icon:'☪️',color:'#b45309',type:l==='bn'?'যিয়ারত':'Ziyarat',action:'readZiyarat',param:z.id||i});
         }
     });
+    // Search amal — NEW
+    const allA=[...amals,...state.customAmal];
+    allA.forEach((a,i)=>{
+        const title=l==='bn'?a.titleBn:a.titleEn;
+        if((title||'').toLowerCase().includes(lower)||(a.arabic||'').includes(q)){
+            results.push({title,subtitle:a.occasion||'',icon:'📿',color:'#7c3aed',type:l==='bn'?'আমল':'Amal',action:'readAmal',param:a.id||i});
+        }
+    });
     // Search hadiths (pool: custom if any, else built-in)
     const hadithPool=(state.customHadiths&&state.customHadiths.length>0)?state.customHadiths:hadiths;
     hadithPool.forEach((h,i)=>{
@@ -2026,12 +2145,12 @@ function renderAnalyticsPage() {
         <div class="${d?'bg-gray-800':'bg-white'} border rounded-2xl p-6">
             <div class="flex justify-between items-center mb-5">
                 <div>
-                    <h3 class="font-bold text-lg">🤲 ${l==='bn'?'দোয়া ও যিয়ারত ব্যবস্থাপনা':'Dua & Ziyarat Management'}</h3>
-                    <p class="text-sm ${d?'text-gray-400':'text-gray-500'} mt-0.5">${l==='bn'?'কাস্টম দোয়া ও যিয়ারত যোগ, সম্পাদনা বা মুছুন':'Add, edit or delete custom duas and ziyarats'}</p>
+                    <h3 class="font-bold text-lg">🤲 ${l==='bn'?'দোয়া, যিয়ারত ও আমল ব্যবস্থাপনা':'Dua, Ziyarat & Amal Management'}</h3>
+                    <p class="text-sm ${d?'text-gray-400':'text-gray-500'} mt-0.5">${l==='bn'?'কাস্টম দোয়া, যিয়ারত ও আমল যোগ, সম্পাদনা বা মুছুন':'Add, edit or delete custom duas, ziyarats and amal'}</p>
                 </div>
                 <button data-action="changePage" data-param="dua" class="${d?'text-green-400':'text-green-600'} text-sm font-semibold hover:underline">${l==='bn'?'পেজে যান →':'Go to page →'}</button>
             </div>
-            <div class="grid sm:grid-cols-2 gap-4 mb-5">
+            <div class="grid sm:grid-cols-3 gap-4 mb-5">
                 <!-- Duas count card -->
                 <div class="${d?'bg-gray-900':'bg-green-50'} rounded-xl p-4 flex items-center gap-4">
                     <div class="w-12 h-12 rounded-xl bg-green-600 flex items-center justify-center text-2xl flex-shrink-0">🤲</div>
@@ -2056,6 +2175,18 @@ function renderAnalyticsPage() {
                         + ${l==='bn'?'যোগ':'Add'}
                     </button>
                 </div>
+                <!-- Amal count card — NEW -->
+                <div class="${d?'bg-gray-900':'bg-violet-50-custom'} rounded-xl p-4 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-violet-custom flex items-center justify-center text-2xl flex-shrink-0">📿</div>
+                    <div>
+                        <p class="text-2xl font-bold">${state.customAmal.length}</p>
+                        <p class="text-sm ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?'কাস্টম আমল':'Custom Amal'}</p>
+                    </div>
+                    <button data-action="openDuaEditor" data-param="amal"
+                        class="ml-auto amal-btn-violet text-white px-4 py-2 rounded-xl text-sm font-semibold">
+                        + ${l==='bn'?'যোগ':'Add'}
+                    </button>
+                </div>
             </div>
             <!-- Recent custom duas list -->
             ${state.customDuas.length>0?`
@@ -2074,7 +2205,7 @@ function renderAnalyticsPage() {
             </div>`:''}
             <!-- Recent custom ziyarat list -->
             ${state.customZiyarat.length>0?`
-            <div>
+            <div class="mb-4">
                 <h4 class="text-sm font-bold mb-3 ${d?'text-amber-400':'text-amber-700'}">${l==='bn'?'সাম্প্রতিক যিয়ারত':'Recent Ziyarat'}</h4>
                 <div class="space-y-2">
                     ${state.customZiyarat.slice(0,3).map(z=>`
@@ -2084,6 +2215,22 @@ function renderAnalyticsPage() {
                         <button data-action="editCustomDua" data-param="${z.id}" data-dtype="ziyarat"
                             class="${d?'text-blue-400 hover:text-blue-300':'text-blue-600 hover:text-blue-800'} text-sm p-1 rounded transition-colors">✏️</button>
                         <button data-action="deleteCustomDua" data-param="${z.id}" data-dtype="ziyarat"
+                            class="${d?'text-red-400 hover:text-red-300':'text-red-500 hover:text-red-700'} text-sm p-1 rounded transition-colors">🗑</button>
+                    </div>`).join('')}
+                </div>
+            </div>`:''}
+            <!-- Recent custom amal list — NEW -->
+            ${state.customAmal.length>0?`
+            <div>
+                <h4 class="text-sm font-bold mb-3 text-violet-400-custom">${l==='bn'?'সাম্প্রতিক আমল':'Recent Amal'}</h4>
+                <div class="space-y-2">
+                    ${state.customAmal.slice(0,3).map(a=>`
+                    <div class="flex items-center gap-3 ${d?'bg-gray-900':'bg-gray-50'} rounded-xl px-4 py-3">
+                        <span class="flex-1 font-medium text-sm truncate">${sanitize(a.titleBn||a.titleEn||'-')}</span>
+                        ${a.occasion?`<span class="text-xs px-2 py-0.5 rounded-full ${d?'bg-violet-900-40-custom text-violet-400-custom':'bg-violet-100-custom text-violet-700-custom'}">${sanitize(a.occasion)}</span>`:''}
+                        <button data-action="editCustomDua" data-param="${a.id}" data-dtype="amal"
+                            class="${d?'text-blue-400 hover:text-blue-300':'text-blue-600 hover:text-blue-800'} text-sm p-1 rounded transition-colors">✏️</button>
+                        <button data-action="deleteCustomDua" data-param="${a.id}" data-dtype="amal"
                             class="${d?'text-red-400 hover:text-red-300':'text-red-500 hover:text-red-700'} text-sm p-1 rounded transition-colors">🗑</button>
                     </div>`).join('')}
                 </div>

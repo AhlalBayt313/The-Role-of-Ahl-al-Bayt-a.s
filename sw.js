@@ -1,10 +1,5 @@
 
-const CACHE = 'ahlbayt-v7';
-// NOTE (2026-07-30): bumped v6 -> v7. blog.js and data/blog-posts.json were
-// updated (new "ইতিহাস" category), but both are served stale-while-revalidate
-// by the fetch handler below — an existing visitor's cached copy keeps
-// rendering with the old category list until this version bump forces the
-// old cache to be dropped on activate.
+const CACHE = 'ahlbayt-v8'; // v8: added Amal category (data/duas/amal.json + updated JS)
 // NOTE (2026-07-23): paths updated to match the reorganized assets/ + data/
 // folder structure. Old entries (./script.js, ./family-tree-data.js) removed
 // since those files no longer exist — script.js was split into 4 files under
@@ -45,6 +40,7 @@ const STATIC = [
     './data/ahlul-bayt/quotes.json',
     './data/ahlul-bayt/timeline.json',
     './data/duas/ahlul-bayt.json',
+  './data/duas/amal.json',
     './data/duas/daily.json',
     './data/duas/family.json',
     './data/duas/forgiveness.json',
@@ -114,7 +110,14 @@ self.addEventListener('fetch', e => {
     if (url.hostname.includes('aladhan')) {
         e.respondWith(
             fetch(e.request).then(res => {
-                caches.open(CACHE).then(c => c.put(e.request, res.clone()));
+                // Clone MUST happen synchronously, in this same tick, before
+                // the original `res` is returned and its body potentially
+                // starts being read by the page. caches.open() is async, so
+                // calling res.clone() only after it resolves risks the body
+                // already being "used" — throwing "Failed to execute
+                // 'clone' on 'Response': Response body is already used".
+                const copy = res.clone();
+                caches.open(CACHE).then(c => c.put(e.request, copy));
                 return res;
             }).catch(() => caches.match(e.request))
         );
@@ -146,7 +149,12 @@ self.addEventListener('fetch', e => {
         caches.match(e.request).then(cached => {
             const net = fetch(e.request).then(res => {
                 if (res && res.status === 200 && res.type !== 'opaque') {
-                    caches.open(CACHE).then(c => c.put(e.request, res.clone()));
+                    // Same fix as the AlAdhan branch above: clone
+                    // synchronously, before `return res` hands the original
+                    // off for consumption, so caches.open()'s async delay
+                    // can never race against the body being read/locked.
+                    const copy = res.clone();
+                    caches.open(CACHE).then(c => c.put(e.request, copy));
                 }
                 return res;
             }).catch(() => {

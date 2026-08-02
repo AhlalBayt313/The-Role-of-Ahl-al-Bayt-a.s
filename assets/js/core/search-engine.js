@@ -150,6 +150,10 @@
     function ziyaratPool() {
         return [].concat((typeof ziyarats !== 'undefined' ? ziyarats : []), state.customZiyarat || []);
     }
+    // NEW: Amal — mirrors ziyaratPool() (single dataset, built-in first)
+    function amalPool() {
+        return [].concat((typeof amals !== 'undefined' ? amals : []), state.customAmal || []);
+    }
     function hadithPool() {
         return (state.customHadiths && state.customHadiths.length > 0)
             ? state.customHadiths
@@ -235,6 +239,17 @@
         return { title: l === 'bn' ? z.titleBn : z.titleEn, subtitle: z.occasion || '', icon: '☪️', color: '#b45309', type: l === 'bn' ? 'যিয়ারত' : 'Ziyarat', action: 'readZiyarat', param: z.id || i };
     }
 
+    // NEW: Amal — mirrors ziyaratFields/ziyaratResult. Uses #4f46e5 (indigo)
+    // rather than Amal's usual #7c3aed (violet, used in the tab/reader/editor
+    // UI) purely because #7c3aed is already Dua's search-result badge color
+    // here — a different shade keeps the two visually distinct side-by-side
+    // in a mixed results list (icon + type label already disambiguate too).
+    function amalFields(a) { return { titleBn: a.titleBn, titleEn: a.titleEn, parts: [a.occasion, a.meaningBn, a.meaningEn, a.arabic] }; }
+    function amalResult(a, i) {
+        var l = state.language;
+        return { title: l === 'bn' ? a.titleBn : a.titleEn, subtitle: a.occasion || '', icon: '📿', color: '#4f46e5', type: l === 'bn' ? 'আমল' : 'Amal', action: 'readAmal', param: a.id || i };
+    }
+
     function hadithFields(h) { return { titleBn: h.textBn, titleEn: h.textEn, parts: [h.sourceBn, h.sourceEn] }; }
     function hadithResultFactory(pool) {
         return function (h, i) {
@@ -285,7 +300,13 @@
     function historyFields(h) { return { titleBn: h.titleBn, titleEn: h.titleEn, parts: [] }; }
     function historyResult(h) {
         var l = state.language;
+        // ✅ FIXED: this used to always render history entries as a Dua
+        // (only 'post' was special-cased), so an Amal — or Ziyarat, if that
+        // ever starts recording history too — entry would show the wrong
+        // icon/label and try to open via readDua(), which wouldn't find it.
         if (h.type === 'post') return { title: l === 'bn' ? h.titleBn : h.titleEn, subtitle: l === 'bn' ? 'ব্লগ' : 'Blog', icon: '📝', color: '#0369a1', type: l === 'bn' ? 'সাম্প্রতিক পঠিত' : 'Recently Read', action: 'readPost', param: h.id };
+        if (h.type === 'ziyarat') return { title: l === 'bn' ? h.titleBn : h.titleEn, subtitle: l === 'bn' ? 'যিয়ারত' : 'Ziyarat', icon: '☪️', color: '#b45309', type: l === 'bn' ? 'সাম্প্রতিক পঠিত' : 'Recently Read', action: 'readZiyarat', param: h.id };
+        if (h.type === 'amal') return { title: l === 'bn' ? h.titleBn : h.titleEn, subtitle: l === 'bn' ? 'আমল' : 'Amal', icon: '📿', color: '#4f46e5', type: l === 'bn' ? 'সাম্প্রতিক পঠিত' : 'Recently Read', action: 'readAmal', param: h.id };
         return { title: l === 'bn' ? h.titleBn : h.titleEn, subtitle: l === 'bn' ? 'দোয়া' : 'Dua', icon: '🤲', color: '#7c3aed', type: l === 'bn' ? 'সাম্প্রতিক পঠিত' : 'Recently Read', action: 'readDua', param: h.id };
     }
 
@@ -307,6 +328,7 @@
                         case 'dua': scored = scored.concat(searchCategory('dua', duasPool(), duaFields, duaResultFactory(), qNorm, qTokens, lang)); break;
                         case 'blog': scored = scored.concat(searchCategory('blog', blogPool(), blogFields, blogResult, qNorm, qTokens, lang)); break;
                         case 'ziyarat': scored = scored.concat(searchCategory('ziyarat', ziyaratPool(), ziyaratFields, ziyaratResult, qNorm, qTokens, lang)); break;
+                        case 'amal': scored = scored.concat(searchCategory('amal', amalPool(), amalFields, amalResult, qNorm, qTokens, lang)); break;
                         case 'hadith': (function () { var pool = hadithPool(); scored = scored.concat(searchCategory('hadith', pool, hadithFields, hadithResultFactory(pool), qNorm, qTokens, lang)); })(); break;
                         case 'family': scored = scored.concat(searchCategory('family', familyPool(), familyFields, familyResult, qNorm, qTokens, lang)); break;
                         case 'kc': ['hadith', 'masail', 'qa', 'fatwa'].forEach(function (tab) {
@@ -351,7 +373,7 @@
 function performSearch(q) {
     return window.SearchEngine.searchAll(
         q,
-        ['imam', 'dua', 'blog', 'ziyarat', 'hadith', 'kc', 'family', 'timeline', 'quotes', 'bookmark', 'history'],
+        ['imam', 'dua', 'blog', 'ziyarat', 'amal', 'hadith', 'kc', 'family', 'timeline', 'quotes', 'bookmark', 'history'],
         30
     );
 }

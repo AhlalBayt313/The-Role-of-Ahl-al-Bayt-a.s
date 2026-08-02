@@ -25,9 +25,10 @@ function setupEventListeners() {
                     if (idx > -1) arr.splice(idx,1); else arr.push(param);
                     render(); break;
                 }
-                case 'setDuaTab': state.duaTab=param; render(); break;  // NEW: Set dua/ziyarat tab
+                case 'setDuaTab': state.duaTab=param; render(); break;  // NEW: Set dua/ziyarat/amal tab
                 case 'setDuaCategory': state.duaCategory=param; render(); break;  // NEW: Set dua category filter
                 case 'setZiyaratCategory': state.ziyaratCategory=param; render(); break;  // NEW: Set ziyarat category filter (12 Imams / Masumeen / Comprehensive)
+                case 'setAmalCategory': state.amalCategory=param; render(); break;  // NEW: Set amal category filter (daily / weekly / ramadan / special)
                 case 'setDuaCollection': state.duaCollection=param; render(); break;  // NEW: Set dua collection filter (Ahl al-Bayt / Sahifa / Ramadan etc.)
                 case 'sharePost': { const allP=[...(typeof blogPosts!=='undefined'?blogPosts:[]),...state.customPosts]; const p=allP.find(x=>String(x.id)===String(param)); if(p) sharePost(p,state.language); break; }
                 case 'shareHadith': shareHadith(getDailyHadith(),state.language); break;
@@ -212,7 +213,7 @@ function setupEventListeners() {
         case 'openDuaEditor': openDuaEditor(null, param); break;
                 case 'editCustomDua': {
                     const dtype=btn.getAttribute('data-dtype')||'dua';
-                    const arr=dtype==='ziyarat'?state.customZiyarat:state.customDuas;
+                    const arr=customArrayForType(dtype);
                     const item=arr.find(x=>x.id===param);
                     if(item) openDuaEditor(item, dtype);
                     break;
@@ -277,7 +278,15 @@ function setupEventListeners() {
                     saveState(); render(); break;
                 }
                 case 'readZiyarat': {
-                    const zitem=state.customZiyarat.find(x=>x.id===param) || ziyarats.find(x=>x.titleEn===param||x.titleBn===param) || ziyarats[parseInt(param)];
+                    // ✅ FIXED: built-in ziyarat entries (which carry the same
+                    // kind of string `id` as custom ones, e.g. "ziyarat-ashura")
+                    // were never matched by id here — only customZiyarat-by-id,
+                    // a title-string match that can't match an id, and a
+                    // parseInt() fallback that's always NaN for a non-numeric
+                    // id — so clicking any built-in Ziyarat card silently did
+                    // nothing. Checking `ziyarats` by id (like customZiyarat)
+                    // fixes this without touching either existing fallback.
+                    const zitem=state.customZiyarat.find(x=>x.id===param) || ziyarats.find(x=>x.id===param) || ziyarats.find(x=>x.titleEn===param||x.titleBn===param) || ziyarats[parseInt(param)];
                     if(zitem){
                         state.currentZiyarat=zitem;state.previousPage=state.currentPage;state.currentPage='readZiyarat';
                         window._ziyaratJustOpened = true;
@@ -291,6 +300,7 @@ function setupEventListeners() {
                     }
                     break;
                 }
+                case 'readAmal': readAmal(param); break;  // NEW: Amal — logic lives in readAmal() (script-1-core.js)
                 // IMAM PAGE
                 case 'viewImam': {
                     state.currentImam=imams.find(im=>im.id===parseInt(param)) || masumeen.find(m=>m.id===param);

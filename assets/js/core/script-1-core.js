@@ -104,6 +104,7 @@ const contentState = {
     currentPost: null,
     currentDua: null,
     currentZiyarat: null,
+    currentAmal: null,  // NEW: Amal — mirrors currentZiyarat
     // imam detail
     currentImam: null,
     // search
@@ -117,14 +118,16 @@ const contentState = {
 const duaState = {
     duaCategory: 'all',  // NEW: Category filter for duas
     ziyaratCategory: 'all',  // NEW: Category filter for ziyarat (12 Imams / Masumeen / Comprehensive)
-    duaTab: 'dua',  // NEW: Track dua/ziyarat tab
+    amalCategory: 'all',  // NEW: Category filter for amal (daily / weekly / ramadan / special)
+    duaTab: 'dua',  // NEW: Track dua/ziyarat/amal tab
     bookmarksTab: 'bookmarks',  // NEW: Track bookmarks/history tab
-    // custom dua / ziyarat editor
+    // custom dua / ziyarat / amal editor
     showDuaEditor: false,
     editingDua: null,
-    duaEditorType: 'dua', // 'dua' | 'ziyarat'
+    duaEditorType: 'dua', // 'dua' | 'ziyarat' | 'amal'
     customDuas: [],
     customZiyarat: [],
+    customAmal: [],  // NEW: Amal — mirrors customZiyarat
 };
 
 // Imam timeline / Muharram event expand-in-place UI
@@ -285,6 +288,7 @@ const NavigationState = createStateSlice(state, ['currentPage', 'previousPage', 
 const BlogState       = createStateSlice(state, ['showBlogEditor', 'editingPost', 'customPosts', 'blogFilter', 'currentPost']);
 const DuaState        = createStateSlice(state, ['duaCategory', 'duaTab', 'showDuaEditor', 'editingDua', 'duaEditorType', 'customDuas', 'currentDua']);
 const ZiyaratState    = createStateSlice(state, ['ziyaratCategory', 'customZiyarat', 'currentZiyarat']);
+const AmalState       = createStateSlice(state, ['amalCategory', 'customAmal', 'currentAmal']);  // NEW: Amal — mirrors ZiyaratState
 const KnowledgeState  = createStateSlice(state, [
     'kcTab', 'kcCategory', 'kcSearch', 'kcPage', 'kcFatwaMarja', 'kcSourceFilter',
     'kcDetail', 'kcFavorites', 'kcFilter', 'kcLoading',
@@ -314,7 +318,7 @@ const AppState         = createStateSlice(state, ['currentImam']);
 // such as blog.js / knowledge-center.js / ahlul-bayt-unified.js read window.*
 // in a few places, so this keeps the modular API reachable the same way).
 Object.assign(window, {
-    ThemeState, NavigationState, BlogState, DuaState, ZiyaratState,
+    ThemeState, NavigationState, BlogState, DuaState, ZiyaratState, AmalState,
     KnowledgeState, SearchState, BookmarkState, HistoryState, PrayerState,
     QiblaState, QuizState, TasbeehState, TimelineState, AdminState,
     AnalyticsState, AppState
@@ -840,6 +844,7 @@ const KEYS = {
     FONT_SIZE:'ahlbayt_fontsize',
     CUSTOM_DUAS:'ahlbayt_custom_duas',
     CUSTOM_ZIYARAT:'ahlbayt_custom_ziyarat',
+    CUSTOM_AMAL:'ahlbayt_custom_amal',
     TASBEEH_COUNT:'ahlbayt_tasbeeh_count',
     TASBEEH_LABEL:'ahlbayt_tasbeeh_label',
     TASBEEH_TARGET:'ahlbayt_tasbeeh_target',
@@ -908,6 +913,7 @@ function loadState() {
         state.fontSize = lsGetValidated(KEYS.FONT_SIZE, 'medium', v => fontSizes.includes(v));
         state.customDuas = lsGetValidated(KEYS.CUSTOM_DUAS, [], isArr);
         state.customZiyarat = lsGetValidated(KEYS.CUSTOM_ZIYARAT, [], isArr);
+        state.customAmal = lsGetValidated(KEYS.CUSTOM_AMAL, [], isArr);
         state.customHadiths = lsGetValidated(KEYS.CUSTOM_HADITHS, [], isArr);
         state.customAyahs = lsGetValidated(KEYS.CUSTOM_AYAHS, [], isArr);
         state.nahjulBalagha = lsGetValidated(KEYS.NAHJUL_BALAGHA, [], isArr);
@@ -943,10 +949,10 @@ function getStateDefaults() {
         darkMode: false, language: 'bn', fontSize: 'medium',
         currentPage: 'home', previousPage: 'home', menuOpen: false,
         bookmarks: [], readingHistory: [], currentPost: null, currentDua: null,
-        currentZiyarat: null, currentImam: null, searchQuery: '', searchResults: [],
+        currentZiyarat: null, currentAmal: null, currentImam: null, searchQuery: '', searchResults: [],
         pageViews: {},
-        duaCategory: 'all', ziyaratCategory: 'all', duaTab: 'dua', bookmarksTab: 'bookmarks',
-        showDuaEditor: false, editingDua: null, duaEditorType: 'dua', customDuas: [], customZiyarat: [],
+        duaCategory: 'all', ziyaratCategory: 'all', amalCategory: 'all', duaTab: 'dua', bookmarksTab: 'bookmarks',
+        showDuaEditor: false, editingDua: null, duaEditorType: 'dua', customDuas: [], customZiyarat: [], customAmal: [],
         showTimeline: false, timelineEra: 'all', expandedMuharramEvents: [],
         prayerTimes: { fajr:'04:15 AM', dhuhr:'12:05 PM', asr:'03:30 PM', maghrib:'06:20 PM', isha:'07:35 PM' },
         prayerTimesLoading: false, prayerTimesError: null, userLocation: null,
@@ -991,6 +997,7 @@ function saveState() {
     lsSet(KEYS.FONT_SIZE, state.fontSize);
     lsSet(KEYS.CUSTOM_DUAS, state.customDuas);
     lsSet(KEYS.CUSTOM_ZIYARAT, state.customZiyarat);
+    lsSet(KEYS.CUSTOM_AMAL, state.customAmal);
     lsSet(KEYS.CUSTOM_HADITHS, state.customHadiths);
     lsSet(KEYS.CUSTOM_AYAHS, state.customAyahs);
     lsSet(KEYS.NAHJUL_BALAGHA, state.nahjulBalagha);
@@ -1398,7 +1405,7 @@ function changePage(page) {
     
     state.previousPage=state.currentPage; state.currentPage=page;
     state.menuOpen=false; state.currentPost=null; state.currentDua=null;
-    state.currentZiyarat=null;
+    state.currentZiyarat=null; state.currentAmal=null;
     if (page==='knowledgeCenter') { state.kcDetail=null; window._kcJustEnteredPage=true; if (typeof kcLoadTab==='function') kcLoadTab(state.kcTab||'hadith'); else if (typeof kcSimulateLoad==='function') kcSimulateLoad(); }
     else if (typeof kcUpdateSeoSchema==='function') { kcUpdateSeoSchema(null); }
     state.pageViews[page] = (state.pageViews[page]||0) + 1;
@@ -1578,6 +1585,11 @@ function _performSearch(query) {
         const hit = z.titleBn?.toLowerCase().includes(q) || z.titleEn?.toLowerCase().includes(q) || z.meaningBn?.toLowerCase().includes(q);
         if(hit) results.push({type:'ziyarat',item:z});
     });
+    // search custom amal — NEW
+    state.customAmal.forEach(a=>{
+        const hit = a.titleBn?.toLowerCase().includes(q) || a.titleEn?.toLowerCase().includes(q) || a.meaningBn?.toLowerCase().includes(q);
+        if(hit) results.push({type:'amal',item:a});
+    });
     // search masumeen
     masumeen.forEach(im=>{
         const hit = im.nameBn?.toLowerCase().includes(q) || im.nameEn?.toLowerCase().includes(q) || im.descBn?.toLowerCase().includes(q);
@@ -1654,7 +1666,17 @@ function schedulePrayerNotifications() {
 // ============================================================================
 // ✓ Blog editor functions moved to blog.js
 
-// ── DUA / ZIYARAT EDITOR ──────────────────────────────────────────────────
+// ── DUA / ZIYARAT / AMAL EDITOR ───────────────────────────────────────────
+// Shared 3-way lookup so saveDuaItem()/deleteCustomDua()/editCustomDua() (the
+// last one in script-2-ui.js) never have to repeat the dua/ziyarat/amal
+// ternary — one place to extend if a 4th custom-content type is ever added.
+function customArrayForType(type) {
+    if (type==='ziyarat') return state.customZiyarat;
+    if (type==='amal') return state.customAmal;
+    return state.customDuas;
+}
+window.customArrayForType = customArrayForType;
+
 function openDuaEditor(item=null, type='dua') {
     if (!state.isAdmin) return;
     state.duaEditorType = type;
@@ -1664,7 +1686,7 @@ function openDuaEditor(item=null, type='dua') {
         arabic:'', transliteration:'',
         meaningBn:'', meaningEn:'',
         fullTextBn:'', source:'',
-        ...(type==='ziyarat' ? {occasion:''} : {}),
+        ...((type==='ziyarat'||type==='amal') ? {occasion:''} : {}),
         createdAt: localDate(),
     };
     state.showDuaEditor = true;
@@ -1690,7 +1712,7 @@ function saveDuaItem() {
     state.editingDua.meaningEn    = get('dua-ed-meaningEn');
     state.editingDua.fullTextBn   = get('dua-ed-fullBn');
     state.editingDua.source       = get('dua-ed-source');
-    if (state.duaEditorType==='ziyarat') {
+    if (state.duaEditorType==='ziyarat' || state.duaEditorType==='amal') {
         state.editingDua.occasion = get('dua-ed-occasion');
     }
     // Parse verses JSON (আয়াত বাই আয়াত)
@@ -1698,14 +1720,27 @@ function saveDuaItem() {
     if (versesRaw) {
         try {
             const parsed = JSON.parse(versesRaw);
-            if (Array.isArray(parsed) && parsed.every(v => v.ar && v.bn)) {
+            // NEW: Amal steps are often instruction-only (e.g. {"bn":"গোসল
+            // করুন"}, no "ar") — renderReadAmalPage() already renders those
+            // as a single-column instruction row, so only "bn" is required
+            // for amal. Dua/Ziyarat keep the original, stricter ar+bn
+            // requirement unchanged (every verse there is a recitation).
+            const versesValid = state.duaEditorType==='amal'
+                ? parsed.every(v => v.bn)
+                : parsed.every(v => v.ar && v.bn);
+            if (Array.isArray(parsed) && versesValid) {
                 state.editingDua.verses = parsed;
                 const errEl = document.getElementById('dua-ed-verses-error');
                 if (errEl) errEl.classList.add('hidden');
             } else {
                 const errEl = document.getElementById('dua-ed-verses-error');
                 if (errEl) errEl.classList.remove('hidden');
-                showToast(l==='bn'?'Verses JSON-এ প্রতিটিতে "ar" ও "bn" থাকতে হবে':'Each verse needs "ar" and "bn" keys','warning');
+                showToast(
+                    state.duaEditorType==='amal'
+                        ? (l==='bn'?'Verses JSON-এ প্রতিটিতে অন্তত "bn" থাকতে হবে':'Each step needs at least a "bn" key')
+                        : (l==='bn'?'Verses JSON-এ প্রতিটিতে "ar" ও "bn" থাকতে হবে':'Each verse needs "ar" and "bn" keys'),
+                    'warning'
+                );
                 return;
             }
         } catch(e) {
@@ -1730,7 +1765,7 @@ function saveDuaItem() {
         showToast(l==='bn'?'বাংলা অর্থ আবশ্যক':'Bengali meaning is required','warning');
         return;
     }
-    const arr = state.duaEditorType==='ziyarat' ? state.customZiyarat : state.customDuas;
+    const arr = customArrayForType(state.duaEditorType);
     const idx = arr.findIndex(x=>x.id===state.editingDua.id);
     if (idx>-1) arr[idx] = state.editingDua;
     else arr.unshift(state.editingDua);
@@ -1740,6 +1775,8 @@ function saveDuaItem() {
     showToast(
         state.duaEditorType==='ziyarat'
             ? (l==='bn'?'যিয়ারত সংরক্ষিত হয়েছে ✨':'Ziyarat saved successfully ✨')
+            : state.duaEditorType==='amal'
+            ? (l==='bn'?'আমল সংরক্ষিত হয়েছে ✨':'Amal saved successfully ✨')
             : (l==='bn'?'দোয়া সংরক্ষিত হয়েছে ✨':'Dua saved successfully ✨'),
         'success'
     );
@@ -1750,13 +1787,18 @@ function deleteCustomDua(id, type='dua') {
     const l = state.language;
     const msg = type==='ziyarat'
         ? (l==='bn'?'যিয়ারতটি মুছবেন?':'Delete this ziyarat?')
+        : type==='amal'
+        ? (l==='bn'?'আমলটি মুছবেন?':'Delete this amal?')
         : (l==='bn'?'দোয়াটি মুছবেন?':'Delete this dua?');
     if (!confirm(msg)) return;
     if (type==='ziyarat') state.customZiyarat = state.customZiyarat.filter(x=>x.id!==id);
+    else if (type==='amal') state.customAmal = state.customAmal.filter(x=>x.id!==id);
     else state.customDuas = state.customDuas.filter(x=>x.id!==id);
     saveState(); render();
     showToast(type==='ziyarat'
         ? (l==='bn'?'যিয়ারত মুছে ফেলা হয়েছে':'Ziyarat deleted')
+        : type==='amal'
+        ? (l==='bn'?'আমল মুছে ফেলা হয়েছে':'Amal deleted')
         : (l==='bn'?'দোয়া মুছে ফেলা হয়েছে':'Dua deleted'),
         'warning');
 }
@@ -1807,6 +1849,29 @@ function readDua(index) {
         const openedDua = state.currentDua;
         render(); window.scrollTo(0,0);
         ensureDuaContent(openedDua).then(()=>{ if (state.currentDua===openedDua) render(); });
+        return;
+    }
+    render(); window.scrollTo(0,0);
+}
+
+// NEW: Amal — id-based lookup (matches how Amal cards render data-param, same
+// as Ziyarat). Checks custom entries AND the built-in `amals` array by id
+// (unlike the older readZiyarat handler in script-2-ui.js, which only
+// resolves custom-by-id and falls back to title-matching for built-ins —
+// this checks built-in-by-id directly so every Amal card always opens).
+function readAmal(param) {
+    state.previousPage=state.currentPage;
+    const aitem = state.customAmal.find(x=>x.id===param)
+        || (typeof amals!=='undefined' && amals.find(x=>x.id===param))
+        || (typeof amals!=='undefined' && amals[parseInt(param)]);
+    if (!aitem) return;
+    state.currentAmal = aitem;
+    recordReadingHistory('amal', aitem.id, aitem.titleBn, aitem.titleEn);
+    state.currentPage='readAmal';
+    window._amalJustOpened = true;
+    if (typeof ensureAmalContent==='function' && !aitem.hasFullData) {
+        render(); window.scrollTo(0,0);
+        ensureAmalContent(aitem).then(()=>{ if (state.currentAmal===aitem) render(); });
         return;
     }
     render(); window.scrollTo(0,0);
