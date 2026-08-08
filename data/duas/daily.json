@@ -832,5 +832,60 @@
     "meaningBn": "আল্লাহই আমাদের জন্য যথেষ্ট, আর তিনিই উত্তম কর্মবিধায়ক।",
     "meaningEn": "Allah is sufficient for us, and He is the best Disposer of affairs.",
     "source": "পবিত্র কুরআন, সূরা আলে ইমরান (৩:১৭৩)"
+  },
+  {
+    "id": "dua-ghusl",
+    "slug": "dua-ghusl",
+    "titleBn": "গোসলের দোয়া",
+    "titleEn": "Dua Before Ghusl (Ritual Bath)",
+    "category": "daily",
+    "arabic": "بِسْمِ اللَّهِ وَبِاللَّهِ، اللَّهُمَّ اجْعَلْنِي مِنَ التَّوَّابِينَ وَاجْعَلْنِي مِنَ الْمُتَطَهِّرِينَ",
+    "meaningBn": "আল্লাহর নামে এবং আল্লাহরই সাহায্যে (শুরু করছি)। হে আল্লাহ! আমাকে তওবাকারীদের অন্তর্ভুক্ত করো এবং পবিত্রতা অর্জনকারীদের অন্তর্ভুক্ত করো।",
+    "meaningEn": "In the name of Allah and by Allah. O Allah, make me among those who repent and among those who purify themselves.",
+    "source": "আল-কাফী, শায়খ কুলাইনী — গোসল শুরুর পূর্বে প্রচলিত দোয়া"
+  },
+  {
+    "id": "dua-giving-salam",
+    "slug": "dua-giving-salam",
+    "titleBn": "সালাম দেওয়া ও উত্তর দেওয়ার দোয়া",
+    "titleEn": "Dua of Greeting (Salam) and Its Reply",
+    "category": "daily",
+    "arabic": "السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ، وَعَلَيْكُمُ السَّلَامُ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ",
+    "meaningBn": "তোমাদের উপর শান্তি বর্ষিত হোক, আল্লাহর রহমত ও বরকতসহ — (এবং জবাবে বলা হয়) তোমাদের উপরও শান্তি বর্ষিত হোক, আল্লাহর রহমত ও বরকতসহ।",
+    "meaningEn": "Peace be upon you, and the mercy of Allah and His blessings — (the reply) And upon you be peace, and the mercy of Allah and His blessings.",
+    "source": "পবিত্র কুরআন, সূরা আন-নিসা (৪:৮৬) — সালামের জবাব উত্তমরূপে বা অন্তত সমানভাবে দেওয়ার নির্দেশ"
+  },
+  {
+    "id": "dua-new-home",
+    "slug": "dua-new-home",
+    "titleBn": "নতুন বাড়ি/ঘরে ওঠার দোয়া",
+    "titleEn": "Dua When Moving Into a New Home",
+    "category": "daily",
+    "arabic": "اللَّهُمَّ بَارِكْ لَنَا فِي مَنْزِلِنَا هَذَا، وَبَارِكْ لَنَا فِيمَا رَزَقْتَنَا، وَقِنَا عَذَابَ النَّارِ",
+    "meaningBn": "হে আল্লাহ! আমাদের এই বাসস্থানে বরকত দাও, আর তুমি আমাদের যা দিয়েছ তাতে বরকত দাও, এবং আমাদের জাহান্নামের শাস্তি থেকে রক্ষা করো।",
+    "meaningEn": "O Allah, bless us in this dwelling of ours, bless us in what You have provided for us, and protect us from the punishment of the Fire.",
+    "source": "মাফাতিহুল জিনান — নতুন বাসস্থানে প্রবেশের সময়ের প্রচলিত দোয়া"
+  },
+  {
+    "id": "dua-newborn-adhan",
+    "slug": "dua-newborn-adhan",
+    "titleBn": "নবজাতকের কানে আজান-ইকামত দেওয়ার রীতি",
+    "titleEn": "Adhan and Iqamah in a Newborn's Ears",
+    "category": "daily",
+    "arabic": "اللَّهُ أَكْبَرُ، أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا اللَّهُ، أَشْهَدُ أَنَّ مُحَمَّدًا رَسُولُ اللَّهِ",
+    "meaningBn": "সন্তান জন্মের পর তার ডান কানে পূর্ণ আজান এবং বাম কানে ইকামত পাঠ করার রীতি রয়েছে — যাতে সে দুনিয়ায় প্রথম যে কথা শোনে তা হয় আল্লাহর একত্ব ও নবুওয়াতের সাক্ষ্য। (নমুনা: আল্লাহ মহান, আমি সাক্ষ্য দিচ্ছি আল্লাহ ব্যতীত কোনো উপাস্য নেই, আমি সাক্ষ্য দিচ্ছি মুহাম্মাদ আল্লাহর রাসূল।)",
+    "meaningEn": "It is a recommended practice to recite the full Adhan in a newborn's right ear and the Iqamah in the left ear, so that the first words the child hears are the testimony of Allah's oneness and the Prophethood of Muhammad.",
+    "source": "আল-কাফী ও মান লা ইয়াহদুরুহুল ফকীহ — নবজাতকের জন্য প্রচলিত সুন্নত রীতি"
+  },
+  {
+    "id": "dua-success-in-task",
+    "slug": "dua-success-in-task",
+    "titleBn": "পরীক্ষা/কাজে সফলতার দোয়া",
+    "titleEn": "Dua for Success in an Exam or Task",
+    "category": "daily",
+    "arabic": "رَبِّ اشْرَحْ لِي صَدْرِي، وَيَسِّرْ لِي أَمْرِي، وَاحْلُلْ عُقْدَةً مِنْ لِسَانِي، يَفْقَهُوا قَوْلِي",
+    "meaningBn": "হে আমার প্রতিপালক! আমার বক্ষ প্রশস্ত করে দাও, আমার কাজ সহজ করে দাও, আর আমার জিহ্বার জড়তা দূর করে দাও, যাতে তারা আমার কথা বুঝতে পারে।",
+    "meaningEn": "My Lord, expand for me my chest, ease for me my task, and untie the knot from my tongue, that they may understand my speech.",
+    "source": "পবিত্র কুরআন, সূরা ত্বহা (২০:২৫-২৮) — মুসা (আ.)-এর দোয়া"
   }
 ]

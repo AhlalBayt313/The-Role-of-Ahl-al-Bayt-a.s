@@ -1,5 +1,5 @@
 
-const CACHE = 'ahlbayt-v8'; // v8: added Amal category (data/duas/amal.json + updated JS)
+const CACHE = 'ahlbayt-v14'; // v14: amal accordion header detection broadened to also match "◆" marker (amal-laylatul-qadr's 14 sections, amal-salat-jafar-tayyar's 4 — was only matching "▶" before)
 // NOTE (2026-07-23): paths updated to match the reorganized assets/ + data/
 // folder structure. Old entries (./script.js, ./family-tree-data.js) removed
 // since those files no longer exist — script.js was split into 4 files under

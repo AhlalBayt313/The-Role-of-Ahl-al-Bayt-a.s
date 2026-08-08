@@ -825,7 +825,11 @@ function renderReadAmalPage() {
     if(!a) return renderDuaPage();
     const hasVerses = Array.isArray(a.verses) && a.verses.length > 0;
 
-    const versesHtml = hasVerses ? a.verses.map((v, i) => {
+    // Renders one step row. Extracted into a function (previously an inline
+    // .map callback) so the same row markup can be reused both in the plain
+    // flat list AND inside collapsible accordion sections below — the row
+    // HTML itself is unchanged from before.
+    const stepRowHtml = (v, i) => {
         const isRepeat = !!v.repeat100;
         const label = v.repeatLabel || (l==='bn'?'১০০ বার পড়তে হবে':'Read 100 times');
         if(isRepeat) {
@@ -951,7 +955,68 @@ function renderReadAmalPage() {
                 ">${sanitize(v.bn)}</p>
             </div>
         </div>`;
-    }).join('') : '';
+    };
+
+    // NEW: some longer amal entries (15th Sha'ban night, Istighatha Imam
+    // Zaman, Ariza to the 12th Imam) embed their own section headers as
+    // instruction-only steps whose text starts with "▶ N. " (e.g. "▶ ১.
+    // ভূমিকা ও ফজিলত") — that marker was already in the data but the old
+    // renderer showed every step identically, so a 171-step page had no
+    // visual structure at all. When that pattern is detected, group the
+    // steps under real collapsible section bars instead; entries WITHOUT
+    // the pattern (the other 10 amals) fall through to the exact same flat
+    // list as before, unchanged.
+    const headerRe = /^[▶◆]\s*/;
+    const hasSections = hasVerses && a.verses.some(v => !v.ar && headerRe.test((v.bn||'').trim()));
+
+    let versesHtml;
+    if (hasSections) {
+        const sections = [];
+        let current = null;
+        a.verses.forEach((v, i) => {
+            const bn = (v.bn||'').trim();
+            if (!v.ar && headerRe.test(bn)) {
+                current = { title: bn.replace(headerRe,''), rows: [] };
+                sections.push(current);
+            } else if (current) {
+                current.rows.push(stepRowHtml(v, i));
+            } else {
+                // steps appearing before the first header (rare) — keep an
+                // untitled leading section so nothing is dropped
+                current = { title: null, rows: [stepRowHtml(v, i)] };
+                sections.push(current);
+            }
+        });
+        versesHtml = sections.map((sec, si) => {
+            if (sec.title === null) return sec.rows.join('');
+            const bodyId = `amalSec_${(a.id||'x').replace(/[^a-zA-Z0-9_]/g,'')}_${si}`;
+            const openDefault = si === 0;
+            return `
+            <div class="amal-section">
+                <button type="button" aria-expanded="${openDefault}" onclick="
+                    var b=document.getElementById('${bodyId}');
+                    var open=b.style.display!=='none';
+                    b.style.display=open?'none':'block';
+                    this.setAttribute('aria-expanded', String(!open));
+                    this.querySelector('.amal-chevron').style.transform=open?'rotate(-90deg)':'rotate(0deg)';
+                " style="
+                    width:100%;display:flex;align-items:center;gap:.6rem;
+                    padding:.9rem 1.6rem;border:none;cursor:pointer;text-align:left;direction:ltr;
+                    background:${d?'linear-gradient(135deg,rgba(124,58,237,.22),rgba(109,40,217,.14))':'linear-gradient(135deg,rgba(124,58,237,.12),rgba(167,139,250,.1))'};
+                    border-top:1px solid ${d?'rgba(124,58,237,.3)':'rgba(124,58,237,.18)'};
+                    border-bottom:1px solid ${d?'rgba(124,58,237,.3)':'rgba(124,58,237,.18)'};
+                ">
+                    <span style="font-weight:800;font-size:1rem;color:${d?'#ede9fe':'#5b21b6'};flex:1;text-align:left">${sanitize(sec.title)}</span>
+                    <span class="amal-chevron" style="transition:transform .2s;display:inline-block;color:${d?'#c4b5fd':'#7c3aed'};font-size:.75rem;transform:rotate(${openDefault?'0deg':'-90deg'})">▼</span>
+                </button>
+                <div id="${bodyId}" style="display:${openDefault?'block':'none'}">
+                    ${sec.rows.join('')}
+                </div>
+            </div>`;
+        }).join('');
+    } else {
+        versesHtml = hasVerses ? a.verses.map((v, i) => stepRowHtml(v, i)).join('') : '';
+    }
 
     const fallbackHtml = `
         <div class="rounded-2xl p-6 mb-4" style="background:${d?'linear-gradient(135deg,rgba(124,58,237,.1),rgba(109,40,217,.06))':'linear-gradient(135deg,#f5f3ff,#faf5ff)'};border:1px solid ${d?'rgba(124,58,237,.18)':'rgba(124,58,237,.12)'}">
@@ -2015,8 +2080,13 @@ function renderShiaDaysPage() {
             </div>
             <p class="text-sm ${d?'text-gray-300':'text-gray-700'} leading-relaxed mb-3">${sanitize(item.descBn||'')}</p>
             ${item.amaal?`<div class="${d?'bg-gray-900 border-gray-700':'bg-emerald-50 border-emerald-100'} border rounded-xl p-3 mb-2">
-                <p class="text-xs font-bold mb-1" style="color:#059669">${l==='bn'?'📿 বিশেষ আমল':'📿 Special Practices'}</p>
-                <p class="text-xs ${d?'text-gray-300':'text-gray-700'}">${sanitize(item.amaal)}</p>
+                <p class="text-xs font-bold mb-2" style="color:#059669">${l==='bn'?'📿 বিশেষ আমল':'📿 Special Practices'}</p>
+                <div class="flex flex-wrap gap-1.5">
+                    ${item.amaal.split(/[,،]/).map(a=>a.trim()).filter(Boolean).map((a,i)=>{
+                        const chipIcons=['🤲','📿','🙏','✨','🕌','🔄','🌙','📖','💫','🕯️'];
+                        return `<span class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full" style="background:${d?'rgba(5,150,105,.18)':'rgba(5,150,105,.1)'};color:${d?'#6ee7b7':'#047857'};border:1px solid ${d?'rgba(5,150,105,.3)':'rgba(5,150,105,.2)'}">${chipIcons[i%chipIcons.length]} ${sanitize(a)}</span>`;
+                    }).join('')}
+                </div>
             </div>`:''}
             ${item.importance?`<div class="${d?'bg-amber-950 border-amber-900':'bg-amber-50 border-amber-200'} border rounded-xl p-3">
                 <p class="text-xs font-bold mb-1" style="color:#b45309">${l==='bn'?'✨ গুরুত্ব':'✨ Significance'}</p>
