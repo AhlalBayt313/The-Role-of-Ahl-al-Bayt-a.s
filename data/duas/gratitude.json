@@ -1,0 +1,46 @@
+[
+  {
+    "id": "dua-gratitude-sahifa-37",
+    "slug": "dua-gratitude-sahifa-37",
+    "titleBn": "কৃতজ্ঞতা প্রকাশের দোয়া",
+    "titleEn": "Dua in Giving Thanks",
+    "category": "gratitude",
+    "arabic": "اللَّهُمَّ إِنَّ أَحَداً لَا يَبْلُغُ مِنْ شُكْرِكَ غَايَةً إِلَّا حَصَلَ عَلَيْهِ مِنْ إِحْسَانِكَ مَا يُلْزِمُهُ شُكْراً، وَلَا يَبْلُغُ مَبْلَغاً مِنْ طَاعَتِكَ وَإِنِ اجْتَهَدَ إِلَّا كَانَ مُقَصِّراً دُونَ اسْتِحْقَاقِكَ بِفَضْلِكَ",
+    "meaningBn": "হে আল্লাহ! কেউই তোমার শোকরের কোনো শেষ সীমায় পৌঁছাতে পারে না, বরং যতই শোকর করুক তোমার অনুগ্রহ তাকে আরও বেশি শোকর করতে বাধ্য করে। আর কেউই যথাসাধ্য চেষ্টা করেও তোমার আনুগত্যের প্রকৃত মাত্রায় পৌঁছাতে পারে না — তোমার অনুগ্রহের তুলনায় সে সবসময় ঘাটতিতেই থেকে যায়।",
+    "meaningEn": "O God, no one reaches a limit in thanking Thee without acquiring that of Thy beneficence which enjoins upon him further thanksgiving, nor does anyone reach a degree in obeying Thee, even if he strives, without falling short of what Thou deservest because of Thy bounty.",
+    "source": "সহিফায়ে সাজ্জাদিয়া, দোয়া নং ৩৭ (কৃতজ্ঞতা প্রকাশের দোয়া) — ইমাম আলী জয়নুল আবিদীন (আ.)"
+  },
+  {
+    "id": "dua-sajda-shukr",
+    "slug": "dua-sajda-shukr",
+    "titleBn": "সিজদায়ে শোকরের জিকির",
+    "titleEn": "Dhikr for the Prostration of Gratitude",
+    "category": "gratitude",
+    "arabic": "شُكْراً شُكْراً",
+    "meaningBn": "(সিজদায় গিয়ে বলুন) শোকর, শোকর। ইমাম আলী আর-রিদা (আ.) এটি ১০০ বার পাঠের নির্দেশ দিয়েছেন; ইমাম জাফর সাদিক (আ.) বলেছেন, কমপক্ষে \"শুকরান লিল্লাহ\" (আল্লাহর জন্য শোকর) তিনবার বললেও যথেষ্ট।",
+    "meaningEn": "(In prostration, say) \"Thanks, thanks.\" Imam Ali al-Rida instructed reciting this 100 times; Imam Ja'far al-Sadiq said that saying \"Shukran Lillah\" (Thanks be to Allah) three times suffices as a minimum.",
+    "source": "উয়ূনু আখবারির রিদা ও আল-কাফী, শায়খ কুলাইনী — সিজদায়ে শোকরের প্রচলিত জিকির"
+  },
+  {
+    "id": "dua-gratitude-quran-ibrahim",
+    "slug": "dua-gratitude-quran-ibrahim",
+    "titleBn": "কৃতজ্ঞতা সম্পর্কে কুরআনের প্রতিশ্রুতি",
+    "titleEn": "The Qur'an's Promise on Gratitude",
+    "category": "gratitude",
+    "arabic": "لَئِن شَكَرْتُمْ لَأَزِيدَنَّكُمْ",
+    "meaningBn": "যদি তোমরা কৃতজ্ঞতা প্রকাশ করো, তবে আমি অবশ্যই তোমাদের (নিয়ামত) আরও বাড়িয়ে দেব।",
+    "meaningEn": "If you are grateful, I will surely increase you [in favor].",
+    "source": "পবিত্র কুরআন, সূরা ইবরাহীম (১৪:৭)"
+  },
+  {
+    "id": "dua-gratitude-quran-sulayman",
+    "slug": "dua-gratitude-quran-sulayman",
+    "titleBn": "নিয়ামত পাওয়ার পর কৃতজ্ঞতার দোয়া (কুরআনিক)",
+    "titleEn": "Dua of Gratitude for a Blessing (Quranic)",
+    "category": "gratitude",
+    "arabic": "رَبِّ أَوْزِعْنِي أَنْ أَشْكُرَ نِعْمَتَكَ الَّتِي أَنْعَمْتَ عَلَيَّ وَعَلَىٰ وَالِدَيَّ",
+    "meaningBn": "হে আমার প্রতিপালক! আমাকে তোমার সেই নিয়ামতের কৃতজ্ঞতা প্রকাশ করার তাওফিক দাও, যা তুমি আমাকে ও আমার পিতা-মাতাকে দান করেছ।",
+    "meaningEn": "My Lord, enable me to be grateful for Your favor which You have bestowed upon me and upon my parents.",
+    "source": "পবিত্র কুরআন, সূরা আন-নামল (২৭:১৯) — হযরত সুলাইমান (আ.)-এর দোয়া"
+  }
+]
