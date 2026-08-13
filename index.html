@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="bn" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <!-- Theme color: matches light/dark hero gradients so mobile browser chrome doesn't clash -->
+    <meta name="theme-color" content="#022c22" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#ecfdf5" media="(prefers-color-scheme: light)">
+
+    <meta name="description" content="আহলে বাইত (আ.) - ইসলামিক জ্ঞান ও শিক্ষার জন্য আপনার বিশ্বস্ত উৎস | Ahl al-Bayt (a.s) — Islamic Knowledge">
+    <meta name="author" content="MD Baker Ali">
+    <meta name="robots" content="index, follow">
+
+    <!-- ⚠️ Replace with your real production domain before deploying -->
+    <link rel="canonical" href="https://ahlalbayt313.github.io/The-Role-of-Ahl-al-Bayt-a.s/">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="আহলে বাইত (আ.) | Ahl al-Bayt (a.s)">
+    <meta property="og:title" content="আহলে বাইত (আ.) | Ahl al-Bayt (a.s) — Islamic Knowledge">
+    <meta property="og:description" content="আহলে বাইত (আ.) - ইসলামিক জ্ঞান ও শিক্ষার জন্য আপনার বিশ্বস্ত উৎস | Ahl al-Bayt (a.s) — Islamic Knowledge">
+    <!-- ⚠️ Replace with your real domain + a real 1200x630 share image -->
+    <meta property="og:url" content="https://ahlalbayt313.github.io/The-Role-of-Ahl-al-Bayt-a.s/">
+    <meta property="og:image" content="https://ahlalbayt313.github.io/The-Role-of-Ahl-al-Bayt-a.s/og-image.jpg">
+    <meta property="og:locale" content="bn_BD">
+    <meta property="og:locale:alternate" content="en_US">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="আহলে বাইত (আ.) | Ahl al-Bayt (a.s) — Islamic Knowledge">
+    <meta name="twitter:description" content="আহলে বাইত (আ.) - ইসলামিক জ্ঞান ও শিক্ষার জন্য আপনার বিশ্বস্ত উৎস | Ahl al-Bayt (a.s) — Islamic Knowledge">
+    <meta name="twitter:image" content="https://ahlalbayt313.github.io/The-Role-of-Ahl-al-Bayt-a.s/og-image.jpg">
+
+    <!-- ⚠️ Verify these filenames exist in your project root, or update paths to match your actual icon assets -->
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="আহলে বাইত">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" id="pwa-manifest">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Amiri:wght@400;700&family=Noto+Serif+Bengali:wght@400;600;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Amiri:wght@400;700&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Amiri:wght@400;700&family=Noto+Serif+Bengali:wght@400;600;700&display=swap"></noscript>
+    <!-- Leaflet (World Map page) — NO LONGER loaded here. It previously blocked
+         initial page load for every visitor even though it's only needed on
+         the World Map page. It's now lazy-loaded on demand — see
+         ensureLeafletLoaded() in assets/js/core/script-4-boot.js, called from
+         renderWorldMapPage() the first time that page is opened. The
+         preconnect hint above is kept so that lazy load starts a little
+         faster when it does happen. Same CDN URLs, same version (1.9.4) — see
+         ensureLeafletLoaded() for the exact links. -->
+    <title>আহলে বাইত (আ.) | Ahl al-Bayt (a.s) — Islamic Knowledge</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <!-- Structured data: helps search engines understand this is a bilingual Islamic knowledge PWA -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "আহলে বাইত (আ.) | Ahl al-Bayt (a.s)",
+      "alternateName": "Ahl al-Bayt",
+      "description": "ইসলামিক জ্ঞান ও শিক্ষার জন্য আপনার বিশ্বস্ত উৎস — prayer times, duas, ziyarat, imam biographies, Islamic calendar, and more, in Bengali and English.",
+      "applicationCategory": "LifestyleApplication",
+      "operatingSystem": "Any",
+      "inLanguage": ["bn", "en"],
+      "author": {
+        "@type": "Person",
+        "name": "MD Baker Ali"
+      }
+    }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-900 fs-medium islamic-pattern-bg">
+
+<!-- Fallback for users/crawlers without JavaScript — the app itself is entirely JS-rendered -->
+<noscript>
+    <div style="padding:2rem;text-align:center;font-family:sans-serif;">
+        এই অ্যাপ্লিকেশনটি চালাতে জাভাস্ক্রিপ্ট প্রয়োজন। অনুগ্রহ করে আপনার ব্রাউজারে জাভাস্ক্রিপ্ট সক্রিয় করুন।<br>
+        This application requires JavaScript. Please enable JavaScript in your browser to continue.
+    </div>
+</noscript>
+
+<!-- ══════════════════════════════════════════════════════════
+     SPLASH SCREEN — Premium Moon · Stars · Particles
+     ══════════════════════════════════════════════════════════ -->
+<div id="splash-screen" role="status" aria-live="polite" aria-label="আহলে বাইত অ্যাপ লোড হচ্ছে — Loading">
+    <!-- Geometric grid overlay -->
+    <div class="splash-geo" aria-hidden="true"></div>
+
+    <!-- Concentric rings -->
+    <div class="splash-ring" style="width:340px;height:340px;top:50%;left:50%;margin:-170px 0 0 -170px" aria-hidden="true"></div>
+    <div class="splash-ring" style="width:230px;height:230px;top:50%;left:50%;margin:-115px 0 0 -115px" aria-hidden="true"></div>
+    <div class="splash-ring" style="width:130px;height:130px;top:50%;left:50%;margin:-65px 0 0 -65px" aria-hidden="true"></div>
+
+    <!-- Floating particle dots -->
+    <div id="splash-particles" aria-hidden="true"></div>
+
+    <!-- Star field (CSS) -->
+    <div style="position:absolute;inset:0;pointer-events:none;overflow:hidden" aria-hidden="true">
+        <div style="position:absolute;width:2px;height:2px;border-radius:50%;background:rgba(255,255,255,.8);top:12%;left:18%;animation:starTwinkle 2.1s ease-in-out infinite"></div>
+        <div style="position:absolute;width:1.5px;height:1.5px;border-radius:50%;background:rgba(201,162,39,.9);top:28%;left:72%;animation:starTwinkle 2.8s ease-in-out .4s infinite"></div>
+        <div style="position:absolute;width:2.5px;height:2.5px;border-radius:50%;background:rgba(255,255,255,.7);top:68%;left:85%;animation:starTwinkle 1.9s ease-in-out .8s infinite"></div>
+        <div style="position:absolute;width:1px;height:1px;border-radius:50%;background:rgba(201,162,39,.7);top:78%;left:22%;animation:starTwinkle 3.2s ease-in-out .2s infinite"></div>
+        <div style="position:absolute;width:2px;height:2px;border-radius:50%;background:rgba(255,255,255,.6);top:42%;left:90%;animation:starTwinkle 2.5s ease-in-out 1s infinite"></div>
+        <div style="position:absolute;width:1.5px;height:1.5px;border-radius:50%;background:rgba(255,255,255,.55);top:88%;left:55%;animation:starTwinkle 2.2s ease-in-out .6s infinite"></div>
+        <div style="position:absolute;width:2px;height:2px;border-radius:50%;background:rgba(201,162,39,.8);top:15%;left:45%;animation:starTwinkle 1.7s ease-in-out 1.2s infinite"></div>
+        <div style="position:absolute;width:1px;height:1px;border-radius:50%;background:rgba(255,255,255,.5);top:55%;left:10%;animation:starTwinkle 3s ease-in-out .9s infinite"></div>
+    </div>
+
+    <!-- Main content -->
+    <div style="position:relative;z-index:2;text-align:center;padding:0 24px">
+
+        <!-- Logo mark -->
+        <div style="position:relative;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:center" aria-hidden="true">
+            <div style="width:112px;height:112px;border-radius:50%;background:#fdf6e3;display:flex;align-items:center;justify-content:center;padding:14px;box-shadow:0 0 32px rgba(201,162,39,.45),0 4px 20px rgba(0,0,0,.35)">
+                <img src="assets/images/logo-mark.png" alt="" style="width:100%;height:auto;display:block" />
+            </div>
+        </div>
+
+        <!-- Bismillah -->
+        <div class="splash-calligraphy calli-glow">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+        <div class="splash-gold-line" aria-hidden="true"></div>
+
+        <!-- Arabic title -->
+        <div class="splash-title" style="font-family:'Amiri',serif;letter-spacing:2px">آلُ بَيْتِ النَّبِيِّ</div>
+        <div class="splash-title" style="font-size:1.25rem;font-weight:700;margin-top:.25rem;opacity:.9">আহলে বাইত (আ.)</div>
+        <div class="splash-subtitle" style="margin-top:.5rem">Ahl al-Bayt · a.s</div>
+
+        <!-- Loading dots -->
+        <div class="splash-dots" style="justify-content:center" aria-hidden="true">
+            <div class="splash-dot"></div>
+            <div class="splash-dot"></div>
+            <div class="splash-dot"></div>
+        </div>
+    </div>
+</div>
+<!-- ── END SPLASH ── -->
+
+<!-- Reading progress bar -->
+<div id="reading-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="পড়ার অগ্রগতি"></div>
+
+<!-- Toast notifications -->
+<div id="toast-container" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<!-- Scroll to top -->
+<button type="button" id="scroll-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="উপরে যান" aria-label="Scroll to top">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+        <path d="M10 16v-12m-4 4l4-4 4 4"/>
+    </svg>
+</button>
+
+
+<!-- Mobile bottom navigation -->
+<nav id="mobile-bottom-nav" class="fixed bottom-0 left-0 right-0 md:hidden flex justify-around items-center gap-0.5 z-40" role="navigation" aria-label="মোবাইল নেভিগেশন"></nav>
+
+<!-- App root -->
+<div id="app"></div>
+
+<!-- Scripts -->
+<!-- JSON data-loader utilities (sync + async) — must load before any data/*.js files below -->
+<script src="assets/js/utils/data-loader.js"></script>
+<script src="assets/js/data/duas-data.js"></script>
+<!-- Ahlul Bayt unified page (Masumeen + Family Tree merge) — 2026-07-17: now
+     self-contained. family-tree-data.js content and all 👑 ইমাম ও মাসুমিন
+     (Imams & Masumeen) data/render code were merged directly into this file,
+     so the separate family-tree-data.js file is no longer loaded. -->
+<script src="assets/js/modules/ahlul-bayt/ahlul-bayt-unified.js"></script>
+<script src="assets/js/modules/blog/blog.js"></script>
+<!-- Knowledge Center (replaces the old PDF Library) — data must load before logic -->
+<script src="assets/js/data/knowledge-center-data.js"></script>
+<script src="assets/js/modules/knowledge/knowledge-center.js"></script>
+<!-- Quiz question bank — must load before script-1-core.js, which no longer
+     defines quizQuestions itself (moved to data/quiz/*.json, 2026-08-09) -->
+<script src="assets/js/data/quiz-data.js"></script>
+<!-- script.js split into 4 files for maintainability — ORDER MATTERS, keep exactly as-is -->
+<script src="assets/js/core/script-1-core.js"></script>
+<script src="assets/js/core/script-2-ui.js"></script>
+<script src="assets/js/core/script-3-pages.js"></script>
+<!-- Phase 7: indexed search engine — loads after script-3-pages.js so it can
+     take over performSearch()/searchKnowledgeCenter() (same names, same
+     signatures, same result shape) with a cached/indexed implementation. -->
+<script src="assets/js/core/search-engine.js"></script>
+<!-- Phase C1: World Map/Leaflet extracted from script-4-boot.js into its own
+     file. Must load after script-1-core.js (needs `state`, `sanitize`) and
+     before script-4-boot.js (whose renderMainContent() page map calls
+     renderWorldMapPage() by name, and whose script-1-core.js companion
+     calls cleanupWorldMap() directly). -->
+<script src="assets/js/core/world-map.js"></script>
+<!-- Phase C2: Editor Modal render functions extracted from script-4-boot.js
+     into their own file. Must load after script-1-core.js (needs `state`,
+     `sanitize`, saveQuizQuestion(), closeDuaEditor(), saveDuaItem(),
+     customArrayForType()) and before script-4-boot.js (whose render() calls
+     these 7 functions by name). -->
+<script src="assets/js/core/editor-modal.js"></script>
+<script src="assets/js/core/script-4-boot.js"></script>
+</body>
+</html>
