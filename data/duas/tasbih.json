@@ -1,0 +1,131 @@
+[
+  {
+    "id": "dua-tasbihat-arbaa",
+    "slug": "dua-tasbihat-arbaa",
+    "titleBn": "তাসবিহাতে আরবাআ (চার তাসবিহ)",
+    "titleEn": "Tasbihat al-Arba'ah (The Four Glorifications)",
+    "titleAr": "التسبيحات الأربعة",
+    "category": "tasbih",
+    "collection": "ahlulbayt",
+    "tags": [
+      "tasbih",
+      "salah",
+      "prayer",
+      "dhikr"
+    ],
+    "relatedImams": [],
+    "arabic": "سُبْحَانَ اللَّهِ وَالْحَمْدُ لِلَّهِ وَلَا إِلَٰهَ إِلَّا اللَّهُ وَاللَّهُ أَكْبَرُ",
+    "meaningBn": "আল্লাহ পবিত্র, সকল প্রশংসা আল্লাহর, আল্লাহ ছাড়া কোনো মাবুদ নেই, আল্লাহ সর্বমহান — শিয়া ফিকহ অনুসারে প্রতিদিনের ওয়াজিব নামাজের তৃতীয় ও চতুর্থ রাকাতে সূরা ফাতিহার পরিবর্তে পঠিত চারটি তাসবিহর সমষ্টি।",
+    "meaningEn": "Glory be to Allah, praise be to Allah, there is no god but Allah, and Allah is the greatest — the four-part glorification recited in place of Surah al-Fatiha in the third and fourth units of the daily obligatory prayers, according to Shia jurisprudence.",
+    "source": "প্রতিদিনের নামাজে পঠিত তাসবিহ (ফিকহে জাফরিয়া)",
+    "reference": "Recited in the third and fourth rak'ahs of the daily obligatory prayers per Shia (Ja'fari) jurisprudence; documented in standard Shia prayer manuals (e.g. Islamic Laws / Risalah chapters on Salat)",
+    "compiler": "",
+    "searchKeywords": [
+      "tasbihat arbaa",
+      "four tasbih",
+      "namaz tasbih",
+      "চার তাসবিহ"
+    ],
+    "readingTimeMin": 1,
+    "audioUrl": "",
+    "type": "dua",
+    "hasFullData": false
+  },
+  {
+    "id": "dua-tasbih-ruku",
+    "slug": "dua-tasbih-ruku",
+    "titleBn": "রুকুর তাসবিহ",
+    "titleEn": "The Glorification of Ruku' (Bowing)",
+    "titleAr": "تسبيح الركوع",
+    "category": "tasbih",
+    "collection": "ahlulbayt",
+    "tags": [
+      "tasbih",
+      "salah",
+      "ruku",
+      "prayer"
+    ],
+    "relatedImams": [],
+    "arabic": "سُبْحَانَ رَبِّيَ الْعَظِيمِ وَبِحَمْدِهِ",
+    "meaningBn": "আমার মহান প্রভু পবিত্র, এবং তাঁরই জন্য প্রশংসা — প্রতিদিনের নামাজের প্রতিটি রাকাতে রুকুর সময় ন্যূনতম একবার পঠিত তাসবিহ, শিয়া ফিকহে ওয়াজিব বিধান।",
+    "meaningEn": "Glory be to my Lord, the Magnificent, and praise be to Him — the glorification recited at least once during ruku' (bowing) in every unit of the daily prayers, an obligatory element in Shia jurisprudence.",
+    "source": "প্রতিদিনের নামাজে রুকুর তাসবিহ (ফিকহে জাফরিয়া)",
+    "reference": "Recited during ruku' in every rak'ah of the daily obligatory prayers per Shia (Ja'fari) jurisprudence; documented in standard Shia prayer manuals",
+    "compiler": "",
+    "searchKeywords": [
+      "ruku tasbih",
+      "salah tasbih",
+      "রুকুর তাসবিহ"
+    ],
+    "readingTimeMin": 1,
+    "audioUrl": "",
+    "type": "dua",
+    "hasFullData": false
+  },
+  {
+    "id": "dua-tasbih-sujood",
+    "slug": "dua-tasbih-sujood",
+    "titleBn": "সিজদার তাসবিহ",
+    "titleEn": "The Glorification of Sujud (Prostration)",
+    "titleAr": "تسبيح السجود",
+    "category": "tasbih",
+    "collection": "ahlulbayt",
+    "tags": [
+      "tasbih",
+      "salah",
+      "sujood",
+      "prayer"
+    ],
+    "relatedImams": [],
+    "arabic": "سُبْحَانَ رَبِّيَ الْأَعْلَى وَبِحَمْدِهِ",
+    "meaningBn": "আমার সর্বোচ্চ প্রভু পবিত্র, এবং তাঁরই জন্য প্রশংসা — প্রতিদিনের নামাজের প্রতিটি সিজদায় ন্যূনতম একবার পঠিত তাসবিহ, শিয়া ফিকহে ওয়াজিব বিধান।",
+    "meaningEn": "Glory be to my Lord, the Most High, and praise be to Him — the glorification recited at least once during each prostration in the daily prayers, an obligatory element in Shia jurisprudence.",
+    "source": "প্রতিদিনের নামাজে সিজদার তাসবিহ (ফিকহে জাফরিয়া)",
+    "reference": "Recited during each prostration (sajdah) of the daily obligatory prayers per Shia (Ja'fari) jurisprudence; documented in standard Shia prayer manuals",
+    "compiler": "",
+    "searchKeywords": [
+      "sujood tasbih",
+      "sajdah tasbih",
+      "সিজদার তাসবিহ"
+    ],
+    "readingTimeMin": 1,
+    "audioUrl": "",
+    "type": "dua",
+    "hasFullData": false
+  },
+  {
+    "id": "tasbih-fatima-zahra",
+    "slug": "tasbih-fatima-zahra",
+    "titleBn": "তাসবিহে ফাতিমা (আ.) — তাসবিহে যাহরা",
+    "titleEn": "Tasbih al-Zahra (Tasbih of Fatima)",
+    "titleAr": "اَللهُ أَكْبَرُ (٣٤ بار) — اَلْحَمْدُ لِلّهِ (٣٣ بار) — سُبْحَانَ اللهِ (٣٣ بار)",
+    "category": "tasbih",
+    "collection": "ahlulbayt",
+    "tags": [
+      "tasbih",
+      "fatima",
+      "after-prayer",
+      "dhikr"
+    ],
+    "relatedImams": [
+      "Fatima al-Zahra"
+    ],
+    "arabic": "اَللهُ أَكْبَرُ ٣٤ مرة، ثُمَّ اَلْحَمْدُ لِلّهِ ٣٣ مرة، ثُمَّ سُبْحَانَ اللهِ ٣٣ مرة",
+    "meaningBn": "আল্লাহু আকবার (৩৪ বার) — আল্লাহ সর্বশ্রেষ্ঠ; এরপর আলহামদুলিল্লাহ (৩৩ বার) — সমস্ত প্রশংসা আল্লাহর জন্য; এরপর সুবহানাল্লাহ (৩৩ বার) — আল্লাহ পবিত্র মহান। মোট ১০০ বার, প্রতিটি ফরজ নামাজের পর পঠিত।",
+    "meaningEn": "Allahu Akbar (34 times) — Allah is Greatest; then Alhamdulillah (33 times) — All praise belongs to Allah; then SubhanAllah (33 times) — Glory be to Allah. A total of 100, recited after every obligatory prayer.",
+    "source": "নবী মুহাম্মাদ (সা.) কর্তৃক হযরত ফাতিমা যাহরা (আ.)-কে শিক্ষা দেওয়া",
+    "reference": "Narrated as taught by the Prophet to his daughter Fatima al-Zahra when she asked for a servant; recorded in Al-Kafi (Shaykh al-Kulayni), Kitab al-Salat, chapter on tasbih recited after prayer; also documented in Mafatih al-Jinan (Shaykh Abbas al-Qummi)",
+    "compiler": "শায়খ কুলাইনী (আল-কাফী)",
+    "searchKeywords": [
+      "tasbih fatima",
+      "tasbih zahra",
+      "তাসবিহে ফাতিমা",
+      "after prayer dhikr",
+      "৩৪ ৩৩ ৩৩"
+    ],
+    "readingTimeMin": 2,
+    "audioUrl": "",
+    "type": "dua",
+    "hasFullData": false
+  }
+]
