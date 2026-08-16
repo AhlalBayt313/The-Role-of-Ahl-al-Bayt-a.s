@@ -27,6 +27,7 @@ function setupEventListeners() {
                 }
                 case 'setDuaTab': state.duaTab=param; render(); break;  // NEW: Set dua/ziyarat/amal tab
                 case 'setDuaCategory': state.duaCategory=param; render(); break;  // NEW: Set dua category filter
+                case 'toggleDuaCatExpanded': state.duaCatExpanded=!state.duaCatExpanded; render(); break;  // NEW: "আরও দেখুন" toggle for dua category chips
                 case 'setZiyaratCategory': state.ziyaratCategory=param; render(); break;  // NEW: Set ziyarat category filter (12 Imams / Masumeen / Comprehensive)
                 case 'setAmalCategory': state.amalCategory=param; render(); break;  // NEW: Set amal category filter (daily / weekly / ramadan / special)
                 case 'setDuaCollection': state.duaCollection=param; render(); break;  // NEW: Set dua collection filter (Ahl al-Bayt / Sahifa / Ramadan etc.)

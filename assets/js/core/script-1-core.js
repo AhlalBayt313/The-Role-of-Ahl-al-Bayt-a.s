@@ -120,6 +120,7 @@ const duaState = {
     ziyaratCategory: 'all',  // NEW: Category filter for ziyarat (12 Imams / Masumeen / Comprehensive)
     amalCategory: 'all',  // NEW: Category filter for amal (daily / weekly / ramadan / special)
     duaTab: 'dua',  // NEW: Track dua/ziyarat/amal tab
+    duaCatExpanded: false,  // NEW: "আরও দেখুন" toggle — shows the non-default dua category chips
     bookmarksTab: 'bookmarks',  // NEW: Track bookmarks/history tab
     // custom dua / ziyarat / amal editor
     showDuaEditor: false,
@@ -902,7 +903,7 @@ function getStateDefaults() {
         bookmarks: [], readingHistory: [], currentPost: null, currentDua: null,
         currentZiyarat: null, currentAmal: null, currentImam: null, searchQuery: '', searchResults: [],
         pageViews: {},
-        duaCategory: 'all', ziyaratCategory: 'all', amalCategory: 'all', duaTab: 'dua', bookmarksTab: 'bookmarks',
+        duaCategory: 'all', ziyaratCategory: 'all', amalCategory: 'all', duaTab: 'dua', bookmarksTab: 'bookmarks', duaCatExpanded: false,
         showDuaEditor: false, editingDua: null, duaEditorType: 'dua', customDuas: [], customZiyarat: [], customAmal: [],
         showTimeline: false, timelineEra: 'all', expandedMuharramEvents: [],
         prayerTimes: { fajr:'04:15 AM', dhuhr:'12:05 PM', asr:'03:30 PM', maghrib:'06:20 PM', isha:'07:35 PM' },

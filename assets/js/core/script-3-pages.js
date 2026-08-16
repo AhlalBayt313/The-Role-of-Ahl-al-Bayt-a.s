@@ -314,6 +314,24 @@ function renderDuaPage() {
         {key:'tasbih',   icon:'📿', label:l==='bn'?'তাসবিহ':'Tasbih',        color:'#0369a1', bg:'rgba(3,105,161,.15)'},
         {key:'zikr',     icon:'☪️', label:l==='bn'?'যিকর':'Zikr',            color:'#be185d', bg:'rgba(190,24,93,.15)'},
     ];
+    // Single chip renderer, reused by each of the 3 rows below.
+    const catChip = f => {
+        const isActive=selectedCategory===f.key;
+        return `<button data-action="setDuaCategory" data-param="${f.key}" aria-pressed="${isActive?'true':'false'}"
+            style="flex-shrink:0;font-size:11.5px;font-weight:700;padding:6px 16px;border-radius:50px;
+            cursor:pointer;white-space:nowrap;transition:all .18s;
+            background:${isActive?f.color:(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)')};
+            color:${isActive?'#fff':(d?'#9ca3af':'#6b7280')};
+            border:1.5px solid ${isActive?f.color:(d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)')}">
+            ${f.icon} ${f.label}
+        </button>`;
+    };
+    // 21 category chips: the 7 most commonly used stay always visible in a
+    // wrapping row (flex-wrap — auto-adjusts to however many fit per line on
+    // any screen width, unlike the old fixed 7-per-row horizontal-scroll
+    // layout), the remaining 14 sit behind an "আরও দেখুন" (Show more) toggle.
+    const catFiltersDefault = catFilters.slice(0,7);
+    const catFiltersMore    = catFilters.slice(7);
 
     // NEW: Ziyarat category filter — person-based (12 Imams / Masumeen) plus
     // occasion-based (comprehensive/Jami'a-type) buckets, per user's request
@@ -438,27 +456,30 @@ function renderDuaPage() {
             </button>
         </div>
 
-        <!-- Category filter (dua tab only) — collapsed to a single row on
-             2026-07-19; the second "collection" row (আহলে বাইত/সহিফা/কুরআনিক
-             etc.) was removed from the UI per request. selectedCollection
-             stays at its default 'all' now, so filteredDuas' collection
-             filter is a no-op — harmless, and easy to re-enable later if a
-             single merged row is wanted instead of a full removal. -->
+        <!-- Category filter (dua tab only) — 7 default chips in a wrapping
+             row (flex-wrap; previously 3 fixed rows of 7 with per-row
+             horizontal scroll, then one long horizontally-scrolling line
+             before that; see the hscroll-fade note in style.css for the
+             oldest version) plus the remaining 14 behind an "আরও দেখুন"
+             toggle. The second "collection" row (আহলে বাইত/সহিফা/কুরআনিক
+             etc.) was removed from the UI per an earlier request;
+             selectedCollection stays at its default 'all', so filteredDuas'
+             collection filter is a no-op — harmless, easy to re-enable later. -->
         ${tab==='dua'?`
-        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 1px 6px" class="hscroll-fade">
-            <div style="display:flex;gap:7px;width:max-content">
-                ${catFilters.map(f=>{
-                    const isActive=selectedCategory===f.key;
-                    return `<button data-action="setDuaCategory" data-param="${f.key}" aria-pressed="${isActive?'true':'false'}"
-                        style="flex-shrink:0;font-size:11.5px;font-weight:700;padding:6px 16px;border-radius:50px;
-                        cursor:pointer;white-space:nowrap;transition:all .18s;
-                        background:${isActive?f.color:(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)')};
-                        color:${isActive?'#fff':(d?'#9ca3af':'#6b7280')};
-                        border:1.5px solid ${isActive?f.color:(d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)')}">
-                        ${f.icon} ${f.label}
-                    </button>`;
-                }).join('')}
+        <div style="display:flex;flex-direction:column;gap:7px;padding:2px 1px 6px">
+            <div style="display:flex;flex-wrap:wrap;gap:7px">
+                ${catFiltersDefault.map(catChip).join('')}
             </div>
+            ${state.duaCatExpanded?`
+            <div style="display:flex;flex-wrap:wrap;gap:7px">
+                ${catFiltersMore.map(catChip).join('')}
+            </div>`:''}
+            <button data-action="toggleDuaCatExpanded"
+                style="align-self:flex-start;font-size:11.5px;font-weight:700;padding:5px 14px;border-radius:50px;
+                cursor:pointer;background:transparent;margin-top:1px;
+                color:${d?'#9ca3af':'#6b7280'};border:1.5px dashed ${d?'rgba(255,255,255,.18)':'rgba(0,0,0,.14)'}">
+                ${state.duaCatExpanded?(l==='bn'?'কম দেখুন ▲':'Show less ▲'):(l==='bn'?'আরও দেখুন ▾':'Show more ▾')}
+            </button>
         </div>`:''}
 
         <!-- Category filter (ziyarat tab only) -->
