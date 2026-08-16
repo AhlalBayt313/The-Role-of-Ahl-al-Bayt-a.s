@@ -1,5 +1,21 @@
 
-const CACHE = 'ahlbayt-v28'; // v28: Fixed the dua/ziyarat/amal category chip rows (and the
+const CACHE = 'ahlbayt-v30'; // v30: Dua tab's 21 category chips changed from
+// 3 fixed rows of 7 (v29) to 7 default chips in a flex-wrap row (auto-fits
+// per screen width on desktop/mobile) plus the other 14 behind a new
+// "আরও দেখুন" (Show more) toggle button. New state field
+// duaCatExpanded + new data-action toggleDuaCatExpanded (script-1-core.js,
+// script-2-ui.js, script-3-pages.js). CSS/markup + one small state field
+// only, no data files touched. Bumped so returning/installed-PWA clients
+// pick up the JS change.
+// v29: Dua tab's category-chip row (21
+// categories) split into 3 fixed rows of 7 chips each
+// (assets/js/core/script-3-pages.js, renderDuaPage) instead of one long
+// horizontally-scrolling `.hscroll-fade` line from v28 — all 21 categories
+// are now visible at a glance without scrolling to find them; each row
+// still scrolls horizontally as a fallback on very narrow screens.
+// CSS/markup only, no data files touched. Bumped so returning/installed-PWA
+// clients pick up the JS change.
+// v28: Fixed the dua/ziyarat/amal category chip rows (and the
 // Ahlul Bayt jump-nav + tasbeeh dhikr selector, same pattern) — they scroll horizontally with
 // the scrollbar hidden, so an overflowing row (e.g. all 21 dua categories) just looked cut
 // off/broken with no hint more chips existed. Added a `.hscroll-fade` CSS class (mask-image
