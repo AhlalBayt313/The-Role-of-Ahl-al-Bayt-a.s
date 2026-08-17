@@ -1483,5 +1483,49 @@
         "bn": "হে করুণাশীলদের মধ্যে সর্বাধিক করুণাময়!"
       }
     ]
+  },
+  {
+    "id": "dua-quran-shahru-ramadan",
+    "slug": "dua-quran-shahru-ramadan",
+    "titleBn": "রমজান মাসের মূল আয়াত",
+    "titleEn": "The Foundational Verse of Ramadan",
+    "category": "ramadan",
+    "arabic": "شَهْرُ رَمَضَانَ الَّذِي أُنزِلَ فِيهِ الْقُرْآنُ هُدًى لِّلنَّاسِ وَبَيِّنَاتٍ مِّنَ الْهُدَىٰ وَالْفُرْقَانِ",
+    "meaningBn": "রমজান মাস, যাতে কুরআন নাযিল করা হয়েছে মানুষের জন্য পথনির্দেশ হিসেবে এবং হেদায়েত ও ন্যায়-অন্যায়ের পার্থক্যকারী সুস্পষ্ট নিদর্শন হিসেবে।",
+    "meaningEn": "The month of Ramadan in which was revealed the Quran, a guidance for the people and clear proofs of guidance and criterion.",
+    "source": "কুরআন, সূরা আল-বাকারা ২:১৮৫"
+  },
+  {
+    "id": "dua-iftar",
+    "slug": "dua-iftar",
+    "titleBn": "ইফতারের দোয়া",
+    "titleEn": "Prayer for Breaking the Fast",
+    "category": "ramadan",
+    "arabic": "اللَّهُمَّ لَكَ صُمْتُ وَعَلَى رِزْقِكَ أَفْطَرْتُ",
+    "meaningBn": "হে আল্লাহ! তোমারই জন্য আমি রোজা রেখেছি এবং তোমার দেওয়া রিযিক দ্বারা ইফতার করলাম।",
+    "meaningEn": "O Allah, for You I have fasted, and with Your provision I break my fast.",
+    "source": "নবী মুহাম্মদ (সা.) থেকে বর্ণিত ইফতারের দোয়া, হাদিস গ্রন্থে বর্ণিত"
+  },
+  {
+    "id": "dua-quran-kutiba-alaykumus-siyam",
+    "slug": "dua-quran-kutiba-alaykumus-siyam",
+    "titleBn": "রোজা ফরজ হওয়ার আয়াত",
+    "titleEn": "The Verse Prescribing the Fast",
+    "category": "ramadan",
+    "arabic": "يَا أَيُّهَا الَّذِينَ آمَنُوا كُتِبَ عَلَيْكُمُ الصِّيَامُ كَمَا كُتِبَ عَلَى الَّذِينَ مِن قَبْلِكُمْ لَعَلَّكُمْ تَتَّقُونَ",
+    "meaningBn": "হে মুমিনগণ! তোমাদের উপর রোজা ফরজ করা হয়েছে, যেমন তোমাদের পূর্ববর্তীদের উপর ফরজ করা হয়েছিল, যাতে তোমরা তাকওয়া অর্জন করতে পার।",
+    "meaningEn": "O you who have believed, fasting is prescribed for you as it was prescribed for those before you, that you may become righteous.",
+    "source": "কুরআন, সূরা আল-বাকারা ২:১৮৩"
+  },
+  {
+    "id": "dua-quran-fisiyamin-yasiratil-quran",
+    "slug": "dua-quran-fisiyamin-yasiratil-quran",
+    "titleBn": "রোজায় অসুস্থ ও মুসাফিরের ছাড়",
+    "titleEn": "The Concession for the Sick and Traveller During Fasting",
+    "category": "ramadan",
+    "arabic": "فَمَن كَانَ مِنكُم مَّرِيضًا أَوْ عَلَىٰ سَفَرٍ فَعِدَّةٌ مِّنْ أَيَّامٍ أُخَرَ ۗ يُرِيدُ اللَّهُ بِكُمُ الْيُسْرَ وَلَا يُرِيدُ بِكُمُ الْعُسْرَ",
+    "meaningBn": "সুতরাং তোমাদের মধ্যে যে অসুস্থ বা মুসাফির, সে অন্য দিনগুলোতে গণনা পূরণ করবে। আল্লাহ তোমাদের জন্য সহজ চান, কঠিন চান না।",
+    "meaningEn": "So whoever among you is ill or on a journey [during Ramadan may fast] an equal number of days [after Ramadan]. Allah intends for you ease and does not intend for you hardship.",
+    "source": "কুরআন, সূরা আল-বাকারা ২:১৮৫"
   }
 ]

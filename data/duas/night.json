@@ -6009,5 +6009,71 @@
         "bn": "হে আল্লাহ! আমাকে আমার ঘুমে ও জাগরণে হেফাজত করো।"
       }
     ]
+  },
+  {
+    "id": "dua-amsayna-wa-amsal-mulk",
+    "slug": "dua-amsayna-wa-amsal-mulk",
+    "titleBn": "সন্ধ্যার বিখ্যাত জিকির (আমসাইনা)",
+    "titleEn": "The Famous Evening Remembrance (Amsayna)",
+    "category": "night",
+    "arabic": "اللَّهُمَّ بِكَ أَمْسَيْنَا وَبِكَ أَصْبَحْنَا، وَبِكَ نَحْيَا وَبِكَ نَمُوتُ وَإِلَيْكَ الْمَصِيرُ",
+    "meaningBn": "হে আল্লাহ! তোমারই মাধ্যমে আমরা সন্ধ্যায় উপনীত হয়েছি এবং তোমারই মাধ্যমে সকালে উপনীত হই, তোমারই মাধ্যমে আমরা জীবিত থাকি এবং তোমারই মাধ্যমে মৃত্যুবরণ করি, এবং তোমারই দিকে প্রত্যাবর্তন।",
+    "meaningEn": "O Allah, by You we have reached the evening and by You we reach the morning; by You we live and by You we die, and to You is the return.",
+    "source": "নবী মুহাম্মদ (সা.) থেকে বর্ণিত সন্ধ্যার দোয়া, শিয়া হাদিস গ্রন্থেও (আল-কাফি) অনুরূপ বর্ণনা রয়েছে"
+  },
+  {
+    "id": "dua-quran-ibadur-rahman-night",
+    "slug": "dua-quran-ibadur-rahman-night",
+    "titleBn": "ইবাদুর রহমানের রাত জাগরণের দোয়া",
+    "titleEn": "The Night Prayer of the Servants of the Most Merciful",
+    "category": "night",
+    "arabic": "وَالَّذِينَ يَقُولُونَ رَبَّنَا اصْرِفْ عَنَّا عَذَابَ جَهَنَّمَ ۖ إِنَّ عَذَابَهَا كَانَ غَرَامًا",
+    "meaningBn": "এবং যারা বলে, হে আমাদের রব! আমাদের থেকে জাহান্নামের আজাব দূরে সরিয়ে দাও, নিশ্চয় এর আজাব অবিচ্ছিন্ন দুর্ভোগ।",
+    "meaningEn": "And those who say, Our Lord, avert from us the punishment of Hell. Indeed, its punishment is ever adherent.",
+    "source": "কুরআন, সূরা আল-ফুরকান ২৫:৬৫ — রাতের ইবাদতকারী বান্দাদের বৈশিষ্ট্য বর্ণনায়"
+  },
+  {
+    "id": "dua-quran-qiyam-al-layl",
+    "slug": "dua-quran-qiyam-al-layl",
+    "titleBn": "তাহাজ্জুদের নির্দেশ (সূরা মুযযাম্মিল)",
+    "titleEn": "The Command for Night Vigil Prayer (Surah al-Muzzammil)",
+    "category": "night",
+    "arabic": "يَا أَيُّهَا الْمُزَّمِّلُ * قُمِ اللَّيْلَ إِلَّا قَلِيلًا",
+    "meaningBn": "হে বস্ত্রাবৃতকারী! রাতে দাঁড়াও, কিছু অংশ ব্যতীত।",
+    "meaningEn": "O you who wraps himself [in clothing]! Arise [to pray] the night, except for a little.",
+    "source": "কুরআন, সূরা আল-মুযযাম্মিল ৭৩:১-২"
+  },
+  {
+    "id": "dua-quran-qanit-anaal-layl",
+    "slug": "dua-quran-qanit-anaal-layl",
+    "titleBn": "রাতের সিজদা ও কিয়ামকারী বান্দা",
+    "titleEn": "The Servant Who Prostrates and Stands in Prayer at Night",
+    "category": "night",
+    "arabic": "أَمَّنْ هُوَ قَانِتٌ آنَاءَ اللَّيْلِ سَاجِدًا وَقَائِمًا يَحْذَرُ الْآخِرَةَ وَيَرْجُو رَحْمَةَ رَبِّهِ",
+    "meaningBn": "যে ব্যক্তি রাতের বিভিন্ন সময়ে সিজদাবনত ও দণ্ডায়মান অবস্থায় ইবাদতে রত থাকে, আখিরাতকে ভয় করে এবং তার রবের রহমতের আশা রাখে (সে কি অবাধ্যের সমান)?",
+    "meaningEn": "Is one who is devoutly obedient during periods of the night, prostrating and standing [in prayer], fearing the Hereafter and hoping for the mercy of his Lord, [like one who does not]?",
+    "source": "কুরআন, সূরা আয-যুমার ৩৯:৯"
+  },
+  {
+    "id": "dua-quran-fatahajjad-bihi",
+    "slug": "dua-quran-fatahajjad-bihi",
+    "titleBn": "তাহাজ্জুদের নির্দেশ (নবী মুহাম্মদ সা.-কে)",
+    "titleEn": "The Command of Tahajjud (Night Vigil Prayer)",
+    "category": "night",
+    "arabic": "وَمِنَ اللَّيْلِ فَتَهَجَّدْ بِهِ نَافِلَةً لَّكَ عَسَىٰ أَن يَبْعَثَكَ رَبُّكَ مَقَامًا مَّحْمُودًا",
+    "meaningBn": "এবং রাতের কিছু অংশে তাহাজ্জুদ নামাজ পড়, যা তোমার জন্য অতিরিক্ত নফল, আশা করা যায় তোমার রব তোমাকে প্রশংসিত স্থানে উন্নীত করবেন।",
+    "meaningEn": "And from part of the night, pray with it as additional [worship] for you; it is expected that your Lord will raise you to a praised station.",
+    "source": "কুরআন, সূরা বনী ইসরাঈল ১৭:৭৯"
+  },
+  {
+    "id": "dua-quran-sajud-laylan-taweela",
+    "slug": "dua-quran-sajud-laylan-taweela",
+    "titleBn": "দীর্ঘ রাত্রিব্যাপী তাসবিহ ও সিজদা",
+    "titleEn": "Prostration and Glorification Through the Long Night",
+    "category": "night",
+    "arabic": "وَمِنَ اللَّيْلِ فَاسْجُدْ لَهُ وَسَبِّحْهُ لَيْلًا طَوِيلًا",
+    "meaningBn": "এবং রাতের কিছু অংশে তাঁর প্রতি সিজদাবনত হও এবং দীর্ঘ রাত্রি তাঁর তাসবিহ পাঠ কর।",
+    "meaningEn": "And prostrate to Him during a part of the night and exalt Him a long [part of the] night.",
+    "source": "কুরআন, সূরা আল-ইনসান ৭৬:২৬"
   }
 ]

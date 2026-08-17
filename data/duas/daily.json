@@ -887,5 +887,49 @@
     "meaningBn": "হে আমার প্রতিপালক! আমার বক্ষ প্রশস্ত করে দাও, আমার কাজ সহজ করে দাও, আর আমার জিহ্বার জড়তা দূর করে দাও, যাতে তারা আমার কথা বুঝতে পারে।",
     "meaningEn": "My Lord, expand for me my chest, ease for me my task, and untie the knot from my tongue, that they may understand my speech.",
     "source": "পবিত্র কুরআন, সূরা ত্বহা (২০:২৫-২৮) — মুসা (আ.)-এর দোয়া"
+  },
+  {
+    "id": "dua-entering-home",
+    "slug": "dua-entering-home",
+    "titleBn": "ঘরে প্রবেশের দোয়া",
+    "titleEn": "Prayer for Entering the Home",
+    "category": "daily",
+    "arabic": "بِسْمِ اللَّهِ وَلَجْنَا، وَبِسْمِ اللَّهِ خَرَجْنَا، وَعَلَى رَبِّنَا تَوَكَّلْنَا",
+    "meaningBn": "আল্লাহর নামে আমরা প্রবেশ করলাম, আল্লাহর নামে আমরা বের হলাম, এবং আমাদের রবের উপরই ভরসা করলাম।",
+    "meaningEn": "In the name of Allah we enter, and in the name of Allah we leave, and upon our Lord we rely.",
+    "source": "নবী মুহাম্মদ (সা.) থেকে বর্ণিত ঘরে প্রবেশের দোয়া, হাদিস গ্রন্থে বর্ণিত"
+  },
+  {
+    "id": "dua-new-clothes",
+    "slug": "dua-new-clothes",
+    "titleBn": "নতুন কাপড় পরিধানের দোয়া",
+    "titleEn": "Prayer When Wearing New Clothes",
+    "category": "daily",
+    "arabic": "الْحَمْدُ لِلَّهِ الَّذِي كَسَانِي هَٰذَا وَرَزَقَنِيهِ مِنْ غَيْرِ حَوْلٍ مِّنِّي وَلَا قُوَّةٍ",
+    "meaningBn": "সমস্ত প্রশংসা আল্লাহর জন্য, যিনি আমাকে এটি পরিধান করিয়েছেন এবং আমার কোনো শক্তি-সামর্থ্য ছাড়াই আমাকে এটি দান করেছেন।",
+    "meaningEn": "All praise is due to Allah, who has clothed me with this and provided it for me without any power or strength of my own.",
+    "source": "নবী মুহাম্মদ (সা.) থেকে বর্ণিত নতুন কাপড় পরিধানের দোয়া, হাদিস গ্রন্থে বর্ণিত"
+  },
+  {
+    "id": "dua-visiting-graveyard",
+    "slug": "dua-visiting-graveyard",
+    "titleBn": "কবরস্থান পরিদর্শনের দোয়া",
+    "titleEn": "Prayer for Visiting the Graveyard",
+    "category": "daily",
+    "arabic": "السَّلَامُ عَلَيْكُمْ أَهْلَ الدِّيَارِ مِنَ الْمُؤْمِنِينَ وَالْمُسْلِمِينَ، وَإِنَّا إِن شَاءَ اللَّهُ بِكُمْ لَاحِقُونَ",
+    "meaningBn": "হে মুমিন ও মুসলিম কবরবাসীগণ! তোমাদের প্রতি সালাম। ইনশাআল্লাহ আমরাও তোমাদের সাথে মিলিত হব।",
+    "meaningEn": "Peace be upon you, O inhabitants of these abodes, among the believers and Muslims. And indeed, if Allah wills, we will join you.",
+    "source": "নবী মুহাম্মদ (সা.) থেকে বর্ণিত কবরস্থান পরিদর্শনের দোয়া, হাদিস গ্রন্থে বর্ণিত"
+  },
+  {
+    "id": "dua-when-hearing-bad-news",
+    "slug": "dua-when-hearing-bad-news",
+    "titleBn": "খারাপ সংবাদ শোনার পর ধৈর্যের দোয়া",
+    "titleEn": "Prayer Upon Hearing Bad News",
+    "category": "daily",
+    "arabic": "إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ",
+    "meaningBn": "নিশ্চয় আমরা আল্লাহরই এবং নিশ্চয় আমরা তাঁরই দিকে প্রত্যাবর্তনকারী।",
+    "meaningEn": "Indeed we belong to Allah, and indeed to Him we will return.",
+    "source": "কুরআন, সূরা আল-বাকারা ২:১৫৬ — বিপদের সংবাদে পঠিত"
   }
 ]

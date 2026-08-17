@@ -127,5 +127,71 @@
     "audioUrl": "",
     "type": "dua",
     "hasFullData": false
+  },
+  {
+    "id": "dua-tasbih-subhanallahi-wa-bihamdihi",
+    "slug": "dua-tasbih-subhanallahi-wa-bihamdihi",
+    "titleBn": "সুবহানাল্লাহি ওয়া বিহামদিহি",
+    "titleEn": "Subhanallahi wa Bihamdihi",
+    "category": "tasbih",
+    "arabic": "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ سُبْحَانَ اللَّهِ الْعَظِيمِ",
+    "meaningBn": "আল্লাহ পবিত্র এবং তাঁরই প্রশংসা, আল্লাহ মহান — তিনি পবিত্র।",
+    "meaningEn": "Glory be to Allah and praise be to Him; glory be to Allah, the Magnificent.",
+    "source": "নবী মুহাম্মদ (সা.)-এর অতি পরিচিত তাসবিহ, শিয়া হাদিস গ্রন্থেও (আল-কাফি) বর্ণিত"
+  },
+  {
+    "id": "dua-quran-tusabbihu-lahu",
+    "slug": "dua-quran-tusabbihu-lahu",
+    "titleBn": "সপ্ত আসমান-জমিনের তাসবিহ",
+    "titleEn": "The Glorification of the Seven Heavens and Earth",
+    "category": "tasbih",
+    "arabic": "تُسَبِّحُ لَهُ السَّمَاوَاتُ السَّبْعُ وَالْأَرْضُ وَمَن فِيهِنَّ ۚ وَإِن مِّن شَيْءٍ إِلَّا يُسَبِّحُ بِحَمْدِهِ",
+    "meaningBn": "সপ্ত আসমান, জমিন এবং এদের মধ্যে যা কিছু আছে সবাই তাঁর পবিত্রতা ঘোষণা করে, এবং এমন কোনো কিছু নেই যা তাঁর প্রশংসাসহ পবিত্রতা ঘোষণা করে না।",
+    "meaningEn": "The seven heavens and the earth and whatever is in them exalt Him. And there is not a thing except that it exalts [Allah] by His praise.",
+    "source": "কুরআন, সূরা বনী ইসরাঈল ১৭:৪৪"
+  },
+  {
+    "id": "dua-quran-sabbih-ashiyyi-ibkar",
+    "slug": "dua-quran-sabbih-ashiyyi-ibkar",
+    "titleBn": "সন্ধ্যা ও সকালে তাসবিহের নির্দেশ (জাকারিয়া আ.)",
+    "titleEn": "The Command to Glorify Evening and Morning (Zakariya)",
+    "category": "tasbih",
+    "arabic": "وَاذْكُر رَّبَّكَ كَثِيرًا وَسَبِّحْ بِالْعَشِيِّ وَالْإِبْكَارِ",
+    "meaningBn": "এবং তোমার রবকে অধিক স্মরণ কর এবং সন্ধ্যা ও সকালে তাসবিহ পাঠ কর।",
+    "meaningEn": "And remember your Lord much and exalt [Him] in the evening and the morning.",
+    "source": "কুরআন, সূরা আলে ইমরান ৩:৪১ — জাকারিয়া (আ.)-কে প্রদত্ত নির্দেশ"
+  },
+  {
+    "id": "dua-alhamdulillahi-hamdan-kathiran",
+    "slug": "dua-alhamdulillahi-hamdan-kathiran",
+    "titleBn": "প্রশংসার তাসবিহ (আলহামদুলিল্লাহি হামদান কাসিরান)",
+    "titleEn": "The Tasbih of Abundant Praise",
+    "category": "tasbih",
+    "arabic": "الْحَمْدُ لِلَّهِ حَمْدًا كَثِيرًا طَيِّبًا مُبَارَكًا فِيهِ",
+    "meaningBn": "সমস্ত প্রশংসা আল্লাহর জন্য, অগণিত, পবিত্র ও বরকতপূর্ণ প্রশংসা।",
+    "meaningEn": "All praise is due to Allah, abundant, good, and blessed praise.",
+    "source": "নবী মুহাম্মদ (সা.)-এর নামাজে পঠিত পরিচিত তাসবিহ, হাদিস গ্রন্থে বর্ণিত"
+  },
+  {
+    "id": "dua-subhanaka-allahumma-istiftah",
+    "slug": "dua-subhanaka-allahumma-istiftah",
+    "titleBn": "নামাজ শুরুর তাসবিহ (দোয়ায়ে ইস্তিফতাহ)",
+    "titleEn": "The Opening Glorification of Prayer",
+    "category": "tasbih",
+    "arabic": "سُبْحَانَكَ اللَّهُمَّ وَبِحَمْدِكَ، وَتَبَارَكَ اسْمُكَ، وَتَعَالَىٰ جَدُّكَ",
+    "meaningBn": "হে আল্লাহ! তুমি পবিত্র এবং তোমারই প্রশংসা, তোমার নাম বরকতময় এবং তোমার মহিমা সর্বোচ্চ।",
+    "meaningEn": "Glory be to You, O Allah, and praise be to You; blessed is Your name, and exalted is Your majesty.",
+    "source": "নামাজ শুরুর পূর্বে পঠিত সুপরিচিত তাসবিহ, হাদিস গ্রন্থে বর্ণিত"
+  },
+  {
+    "id": "dua-quran-yusabbihu-lillahi-jumuah",
+    "slug": "dua-quran-yusabbihu-lillahi-jumuah",
+    "titleBn": "আসমান-জমিনের সবকিছু আল্লাহর তাসবিহ পাঠ করে (সূরা জুমুআ)",
+    "titleEn": "All That is in the Heavens and Earth Glorifies Allah (Surah al-Jumu'ah)",
+    "category": "tasbih",
+    "arabic": "يُسَبِّحُ لِلَّهِ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ الْمَلِكِ الْقُدُّوسِ الْعَزِيزِ الْحَكِيمِ",
+    "meaningBn": "আসমান ও জমিনে যা কিছু আছে, সবই আল্লাহর তাসবিহ পাঠ করে — যিনি অধিপতি, পবিত্র, পরাক্রমশালী, প্রজ্ঞাময়।",
+    "meaningEn": "Whatever is in the heavens and whatever is on the earth exalts Allah, the Sovereign, the Pure, the Exalted in Might, the Wise.",
+    "source": "কুরআন, সূরা আল-জুমুআ ৬২:১"
   }
 ]

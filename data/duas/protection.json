@@ -216,5 +216,71 @@
     "audioUrl": "",
     "type": "dua",
     "hasFullData": false
+  },
+  {
+    "id": "dua-quran-ufawwidu-amri",
+    "slug": "dua-quran-ufawwidu-amri",
+    "titleBn": "আল্লাহর কাছে সব বিষয় সমর্পণ",
+    "titleEn": "Entrusting All Affairs to Allah",
+    "category": "protection",
+    "arabic": "وَأُفَوِّضُ أَمْرِي إِلَى اللَّهِ ۚ إِنَّ اللَّهَ بَصِيرٌ بِالْعِبَادِ",
+    "meaningBn": "এবং আমি আমার সকল বিষয় আল্লাহর কাছে সমর্পণ করছি, নিশ্চয় আল্লাহ বান্দাদের সম্পর্কে সম্যক দ্রষ্টা।",
+    "meaningEn": "And I entrust my affair to Allah. Indeed, Allah is Seeing of [His] servants.",
+    "source": "কুরআন, সূরা গাফের ৪০:৪৪ — ফিরআউনের দরবারের মুমিন ব্যক্তির উক্তি"
+  },
+  {
+    "id": "dua-quran-lan-yusibana",
+    "slug": "dua-quran-lan-yusibana",
+    "titleBn": "আল্লাহর ফয়সালার প্রতি আস্থা",
+    "titleEn": "Trust in Allah's Decree",
+    "category": "protection",
+    "arabic": "قُل لَّن يُصِيبَنَا إِلَّا مَا كَتَبَ اللَّهُ لَنَا هُوَ مَوْلَانَا ۚ وَعَلَى اللَّهِ فَلْيَتَوَكَّلِ الْمُؤْمِنُونَ",
+    "meaningBn": "বল, আল্লাহ আমাদের জন্য যা লিখে রেখেছেন তা ছাড়া আমাদের কিছুই স্পর্শ করবে না, তিনিই আমাদের অভিভাবক — আর আল্লাহর উপরই মুমিনদের ভরসা করা উচিত।",
+    "meaningEn": "Say, never will we be struck except by what Allah has decreed for us; He is our protector. And upon Allah let the believers rely.",
+    "source": "কুরআন, সূরা আত-তাওবা ৯:৫১"
+  },
+  {
+    "id": "dua-quran-muaqqibat",
+    "slug": "dua-quran-muaqqibat",
+    "titleBn": "রক্ষাকারী ফেরেশতাদের আয়াত",
+    "titleEn": "The Verse of the Guardian Angels",
+    "category": "protection",
+    "arabic": "لَهُ مُعَقِّبَاتٌ مِّن بَيْنِ يَدَيْهِ وَمِنْ خَلْفِهِ يَحْفَظُونَهُ مِنْ أَمْرِ اللَّهِ",
+    "meaningBn": "তার সামনে ও পেছনে ধারাবাহিক ফেরেশতা রয়েছে, যারা আল্লাহর নির্দেশে তাকে হেফাজত করে।",
+    "meaningEn": "For each one are angels succeeding one another, before him and behind him, who protect him by the decree of Allah.",
+    "source": "কুরআন, সূরা আর-রাদ ১৩:১১"
+  },
+  {
+    "id": "dua-quran-fallahu-khairun-hafizan",
+    "slug": "dua-quran-fallahu-khairun-hafizan",
+    "titleBn": "আল্লাহই সর্বোত্তম রক্ষক (ইয়াকুব আ.)",
+    "titleEn": "Allah is the Best Guardian (Prophet Yaqub)",
+    "category": "protection",
+    "arabic": "فَاللَّهُ خَيْرٌ حَافِظًا ۖ وَهُوَ أَرْحَمُ الرَّاحِمِينَ",
+    "meaningBn": "সুতরাং আল্লাহই সর্বোত্তম রক্ষক, এবং তিনি পরম দয়ালুদের মধ্যে সর্বাধিক দয়ালু।",
+    "meaningEn": "But Allah is the best guardian, and He is the most merciful of the merciful.",
+    "source": "কুরআন, সূরা ইউসুফ ১২:৬৪ — ইয়াকুব (আ.)-এর উক্তি"
+  },
+  {
+    "id": "dua-maryam-mother-uidhuha",
+    "slug": "dua-maryam-mother-uidhuha",
+    "titleBn": "মারইয়ামের মায়ের সন্তানের জন্য আশ্রয় প্রার্থনা",
+    "titleEn": "Maryam's Mother's Prayer of Refuge for Her Child",
+    "category": "protection",
+    "arabic": "وَإِنِّي أُعِيذُهَا بِكَ وَذُرِّيَّتَهَا مِنَ الشَّيْطَانِ الرَّجِيمِ",
+    "meaningBn": "এবং আমি তাকে ও তার সন্তানদের বিতাড়িত শয়তান থেকে তোমার আশ্রয়ে সমর্পণ করছি।",
+    "meaningEn": "And indeed I have named her Maryam, and I seek refuge for her and her descendants in You from Satan, the expelled.",
+    "source": "কুরআন, সূরা আলে ইমরান ৩:৩৬"
+  },
+  {
+    "id": "dua-quran-hamazatish-shayateen",
+    "slug": "dua-quran-hamazatish-shayateen",
+    "titleBn": "শয়তানের প্ররোচনা থেকে আশ্রয়",
+    "titleEn": "Seeking Refuge from the Whisperings of Satans",
+    "category": "protection",
+    "arabic": "وَقُل رَّبِّ أَعُوذُ بِكَ مِنْ هَمَزَاتِ الشَّيَاطِينِ وَأَعُوذُ بِكَ رَبِّ أَن يَحْضُرُونِ",
+    "meaningBn": "এবং বল, হে আমার রব! আমি শয়তানদের প্ররোচনা থেকে তোমার আশ্রয় চাই, এবং হে আমার রব! আমি তাদের উপস্থিতি থেকেও তোমার আশ্রয় চাই।",
+    "meaningEn": "And say, My Lord, I seek refuge in You from the incitements of the devils, and I seek refuge in You, my Lord, lest they be present with me.",
+    "source": "কুরআন, সূরা আল-মুমিনূন ২৩:৯৭-৯৮"
   }
 ]

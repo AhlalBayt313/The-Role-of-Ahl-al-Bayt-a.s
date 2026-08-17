@@ -155,5 +155,71 @@
     "audioUrl": "",
     "type": "dua",
     "hasFullData": false
+  },
+  {
+    "id": "dua-quran-istainu-bissabr",
+    "slug": "dua-quran-istainu-bissabr",
+    "titleBn": "ধৈর্য ও নামাজের মাধ্যমে সাহায্য প্রার্থনা",
+    "titleEn": "Seeking Help Through Patience and Prayer",
+    "category": "patience",
+    "arabic": "يَا أَيُّهَا الَّذِينَ آمَنُوا اسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ ۚ إِنَّ اللَّهَ مَعَ الصَّابِرِينَ",
+    "meaningBn": "হে মুমিনগণ! তোমরা ধৈর্য ও নামাজের মাধ্যমে সাহায্য প্রার্থনা কর, নিশ্চয় আল্লাহ ধৈর্যশীলদের সাথে আছেন।",
+    "meaningEn": "O you who believe, seek help through patience and prayer. Indeed, Allah is with the patient.",
+    "source": "কুরআন, সূরা আল-বাকারা ২:১৫৩"
+  },
+  {
+    "id": "dua-quran-wasbir-billah",
+    "slug": "dua-quran-wasbir-billah",
+    "titleBn": "আল্লাহর সাহায্যেই ধৈর্য সম্ভব",
+    "titleEn": "Patience is Only Possible Through Allah",
+    "category": "patience",
+    "arabic": "وَاصْبِرْ وَمَا صَبْرُكَ إِلَّا بِاللَّهِ ۚ وَلَا تَحْزَنْ عَلَيْهِمْ وَلَا تَكُ فِي ضَيْقٍ مِّمَّا يَمْكُرُونَ",
+    "meaningBn": "এবং ধৈর্য ধারণ কর, তোমার ধৈর্য তো কেবল আল্লাহরই মাধ্যমে সম্ভব — এবং তাদের জন্য দুঃখ করো না এবং তাদের চক্রান্তে মন সংকুচিত করো না।",
+    "meaningEn": "And be patient, and your patience is not but through Allah. Do not grieve over them and do not be in distress over what they conspire.",
+    "source": "কুরআন, সূরা আন-নাহল ১৬:১২৭"
+  },
+  {
+    "id": "dua-quran-sabiroon-bighayri-hisab",
+    "slug": "dua-quran-sabiroon-bighayri-hisab",
+    "titleBn": "ধৈর্যশীলদের অগণিত প্রতিদান",
+    "titleEn": "The Patient Will Be Given Their Reward Without Account",
+    "category": "patience",
+    "arabic": "إِنَّمَا يُوَفَّى الصَّابِرُونَ أَجْرَهُم بِغَيْرِ حِسَابٍ",
+    "meaningBn": "নিশ্চয় ধৈর্যশীলদের প্রতিদান অগণিতভাবে পূর্ণরূপে দেওয়া হবে।",
+    "meaningEn": "Indeed, the patient will be given their reward without account.",
+    "source": "কুরআন, সূরা আয-যুমার ৩৯:১০"
+  },
+  {
+    "id": "dua-quran-allahu-yuhibbus-sabireen",
+    "slug": "dua-quran-allahu-yuhibbus-sabireen",
+    "titleBn": "আল্লাহ ধৈর্যশীলদের ভালোবাসেন",
+    "titleEn": "Allah Loves the Patient",
+    "category": "patience",
+    "arabic": "وَاللَّهُ يُحِبُّ الصَّابِرِينَ",
+    "meaningBn": "এবং আল্লাহ ধৈর্যশীলদের ভালোবাসেন।",
+    "meaningEn": "And Allah loves the steadfast.",
+    "source": "কুরআন, সূরা আলে ইমরান ৩:১৪৬"
+  },
+  {
+    "id": "dua-quran-wa-tawasaw-bissabr",
+    "slug": "dua-quran-wa-tawasaw-bissabr",
+    "titleBn": "একে অপরকে ধৈর্যের উপদেশ (সূরা আসর)",
+    "titleEn": "Enjoining One Another to Patience (Surah al-Asr)",
+    "category": "patience",
+    "arabic": "إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ وَتَوَاصَوْا بِالْحَقِّ وَتَوَاصَوْا بِالصَّبْرِ",
+    "meaningBn": "তবে তারা ব্যতীত যারা ঈমান এনেছে, সৎকর্ম করেছে এবং একে অপরকে সত্যের ও ধৈর্যের উপদেশ দিয়েছে।",
+    "meaningEn": "Except for those who have believed and done righteous deeds and advised each other to truth and advised each other to patience.",
+    "source": "কুরআন, সূরা আল-আসর ১০৩:৩"
+  },
+  {
+    "id": "dua-luqman-inna-dhalika-min-azmil-umoor",
+    "slug": "dua-luqman-inna-dhalika-min-azmil-umoor",
+    "titleBn": "লুকমান (আ.)-এর ধৈর্যের উপদেশ",
+    "titleEn": "Luqman's Counsel on Patience",
+    "category": "patience",
+    "arabic": "وَأْمُرْ بِالْمَعْرُوفِ وَانْهَ عَنِ الْمُنكَرِ وَاصْبِرْ عَلَىٰ مَا أَصَابَكَ ۖ إِنَّ ذَٰلِكَ مِنْ عَزْمِ الْأُمُورِ",
+    "meaningBn": "সৎকাজের নির্দেশ দাও, অসৎকাজ থেকে নিষেধ কর, এবং তোমার উপর যা কিছু বিপদ আসে তাতে ধৈর্য ধারণ কর, নিশ্চয় এটি দৃঢ়সংকল্পের কাজের অন্তর্ভুক্ত।",
+    "meaningEn": "Enjoin what is right, forbid what is wrong, and be patient over what befalls you. Indeed, that is of the matters [requiring] determination.",
+    "source": "কুরআন, সূরা লুকমান ৩১:১৭"
   }
 ]

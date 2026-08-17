@@ -155,5 +155,93 @@
     "audioUrl": "",
     "type": "dua",
     "hasFullData": false
+  },
+  {
+    "id": "dua-quran-rabbana-la-tuakhidhna",
+    "slug": "dua-quran-rabbana-la-tuakhidhna",
+    "titleBn": "ভুল-ত্রুটি মার্জনার দোয়া (সূরা বাকারার সমাপনী দোয়া)",
+    "titleEn": "Prayer for Forgiveness of Mistakes (Closing Prayer of Surah al-Baqarah)",
+    "category": "quranic",
+    "arabic": "رَبَّنَا لَا تُؤَاخِذْنَا إِن نَّسِينَا أَوْ أَخْطَأْنَا ۚ رَبَّنَا وَلَا تَحْمِلْ عَلَيْنَا إِصْرًا كَمَا حَمَلْتَهُ عَلَى الَّذِينَ مِن قَبْلِنَا",
+    "meaningBn": "হে আমাদের রব! আমরা ভুলে গেলে বা ভুল করলে আমাদের পাকড়াও করো না। হে আমাদের রব! আমাদের উপর এমন ভার চাপিয়ো না, যেমন আমাদের পূর্ববর্তীদের উপর চাপিয়েছিলে।",
+    "meaningEn": "Our Lord, do not impose blame upon us if we have forgotten or erred. Our Lord, and lay not upon us a burden like that which You laid upon those before us.",
+    "source": "কুরআন, সূরা আল-বাকারা ২:২৮৬ (সূরার সমাপনী দোয়া)"
+  },
+  {
+    "id": "dua-quran-la-tajalna-fitnah",
+    "slug": "dua-quran-la-tajalna-fitnah",
+    "titleBn": "শত্রুদের কাছে পরীক্ষার বিষয় না হওয়ার দোয়া",
+    "titleEn": "Prayer Not to Be a Trial for the Disbelievers",
+    "category": "quranic",
+    "arabic": "رَبَّنَا لَا تَجْعَلْنَا فِتْنَةً لِّلَّذِينَ كَفَرُوا وَاغْفِرْ لَنَا رَبَّنَا ۖ إِنَّكَ أَنتَ الْعَزِيزُ الْحَكِيمُ",
+    "meaningBn": "হে আমাদের রব! আমাদের কাফেরদের জন্য পরীক্ষার বিষয় করো না, এবং হে আমাদের রব! আমাদের ক্ষমা কর, নিশ্চয় তুমি পরাক্রমশালী, প্রজ্ঞাময়।",
+    "meaningEn": "Our Lord, make us not a trial for those who disbelieve, and forgive us, our Lord. Indeed, You are the Exalted in Might, the Wise.",
+    "source": "কুরআন, সূরা আল-মুমতাহিনা ৬০:৫"
+  },
+  {
+    "id": "dua-quran-atmim-lana-nurana",
+    "slug": "dua-quran-atmim-lana-nurana",
+    "titleBn": "নূর পরিপূর্ণ করার দোয়া",
+    "titleEn": "Prayer for the Completion of Light",
+    "category": "quranic",
+    "arabic": "رَبَّنَا أَتْمِمْ لَنَا نُورَنَا وَاغْفِرْ لَنَا ۖ إِنَّكَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ",
+    "meaningBn": "হে আমাদের রব! আমাদের নূর পরিপূর্ণ কর এবং আমাদের ক্ষমা কর, নিশ্চয় তুমি সকল কিছুর উপর ক্ষমতাবান।",
+    "meaningEn": "Our Lord, perfect for us our light and forgive us. Indeed, You are over all things competent.",
+    "source": "কুরআন, সূরা আত-তাহরীম ৬৬:৮"
+  },
+  {
+    "id": "dua-yunus-la-ilaha-illa-anta",
+    "slug": "dua-yunus-la-ilaha-illa-anta",
+    "titleBn": "ইউনুস (আ.)-এর মাছের পেটের দোয়া",
+    "titleEn": "Prophet Yunus's Prayer from the Belly of the Fish",
+    "category": "quranic",
+    "arabic": "لَّا إِلَٰهَ إِلَّا أَنتَ سُبْحَانَكَ إِنِّي كُنتُ مِنَ الظَّالِمِينَ",
+    "meaningBn": "তুমি ব্যতীত কোনো উপাস্য নেই, তুমি পবিত্র, নিশ্চয় আমি জালিমদের অন্তর্ভুক্ত হয়ে গিয়েছিলাম।",
+    "meaningEn": "There is no deity except You; exalted are You. Indeed, I have been of the wrongdoers.",
+    "source": "কুরআন, সূরা আল-আম্বিয়া ২১:৮৭"
+  },
+  {
+    "id": "dua-zakariya-la-tadharni",
+    "slug": "dua-zakariya-la-tadharni",
+    "titleBn": "জাকারিয়া (আ.)-এর সন্তান প্রার্থনার দোয়া",
+    "titleEn": "Prophet Zakariya's Prayer for a Child",
+    "category": "quranic",
+    "arabic": "رَبِّ لَا تَذَرْنِي فَرْدًا وَأَنتَ خَيْرُ الْوَارِثِينَ",
+    "meaningBn": "হে আমার রব! আমাকে একাকী রেখো না, এবং তুমিই সর্বশ্রেষ্ঠ উত্তরাধিকারী।",
+    "meaningEn": "My Lord, do not leave me alone [with no heir], while You are the best of inheritors.",
+    "source": "কুরআন, সূরা আল-আম্বিয়া ২১:৮৯"
+  },
+  {
+    "id": "dua-musa-madyan-faqir",
+    "slug": "dua-musa-madyan-faqir",
+    "titleBn": "মাদইয়ানে মুসা (আ.)-এর দোয়া",
+    "titleEn": "Musa's Prayer at the Well of Madyan",
+    "category": "quranic",
+    "arabic": "رَبِّ إِنِّي لِمَا أَنزَلْتَ إِلَيَّ مِنْ خَيْرٍ فَقِيرٌ",
+    "meaningBn": "হে আমার রব! তুমি আমার প্রতি যে কল্যাণই নাযিল কর না কেন, আমি তার মুখাপেক্ষী।",
+    "meaningEn": "My Lord, indeed I am, for whatever good You would send down to me, in need.",
+    "source": "কুরআন, সূরা আল-কাসাস ২৮:২৪"
+  },
+  {
+    "id": "dua-quran-la-taj-al-ghillan",
+    "slug": "dua-quran-la-taj-al-ghillan",
+    "titleBn": "মুমিনদের জন্য ক্ষমা ও হৃদয় থেকে বিদ্বেষ দূরীকরণের দোয়া",
+    "titleEn": "Prayer for Forgiveness of the Believers and Removal of Rancour",
+    "category": "quranic",
+    "arabic": "رَبَّنَا اغْفِرْ لَنَا وَلِإِخْوَانِنَا الَّذِينَ سَبَقُونَا بِالْإِيمَانِ وَلَا تَجْعَلْ فِي قُلُوبِنَا غِلًّا لِّلَّذِينَ آمَنُوا",
+    "meaningBn": "হে আমাদের রব! আমাদের এবং আমাদের সেই ভাইদের ক্ষমা কর, যারা ঈমানে আমাদের অগ্রগামী হয়েছে, এবং মুমিনদের প্রতি আমাদের অন্তরে কোনো বিদ্বেষ রেখো না।",
+    "meaningEn": "Our Lord, forgive us and our brothers who preceded us in faith, and put not in our hearts any resentment toward those who have believed.",
+    "source": "কুরআন, সূরা আল-হাশর ৫৯:১০"
+  },
+  {
+    "id": "dua-magicians-firaun-sabran-wa-tawaffana",
+    "slug": "dua-magicians-firaun-sabran-wa-tawaffana",
+    "titleBn": "ফিরআউনের জাদুকরদের ঈমান আনার পরের দোয়া",
+    "titleEn": "The Prayer of Pharaoh's Magicians After Believing",
+    "category": "quranic",
+    "arabic": "رَبَّنَا أَفْرِغْ عَلَيْنَا صَبْرًا وَتَوَفَّنَا مُسْلِمِينَ",
+    "meaningBn": "হে আমাদের রব! আমাদের উপর ধৈর্য বর্ষণ কর এবং আমাদের মুসলিম হিসেবে মৃত্যু দাও।",
+    "meaningEn": "Our Lord, pour upon us patience and let us die as Muslims [in submission to You].",
+    "source": "কুরআন, সূরা আল-আরাফ ৭:১২৬"
   }
 ]

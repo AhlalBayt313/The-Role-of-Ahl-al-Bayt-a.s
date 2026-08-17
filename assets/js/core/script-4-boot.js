@@ -767,7 +767,6 @@ function registerPWA() {
 
     // ── 3. Dynamic PWA Manifest ──
     try {
-        const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="%23065f46"/><text x="50" y="62" text-anchor="middle" font-size="52" fill="%23c9a227">☽</text><circle cx="75" cy="22" r="8" fill="white" opacity=".9"/></svg>`;
         const manifest = {
             name: 'আহলে বাইত (আ.)',
             short_name: 'আহলে বাইত',
@@ -780,7 +779,6 @@ function registerPWA() {
             lang: 'bn',
             categories: ['education', 'lifestyle'],
             icons: [
-                {src:`data:image/svg+xml,${iconSvg}`, sizes:'any', type:'image/svg+xml'},
                 {src:'./icon-192.png', sizes:'192x192', type:'image/png', purpose:'any'},
                 {src:'./icon-512.png', sizes:'512x512', type:'image/png', purpose:'any'},
                 {src:'./icon-512-maskable.png', sizes:'512x512', type:'image/png', purpose:'maskable'}

@@ -1597,5 +1597,82 @@
         "bn": "সমস্ত প্রশংসা আল্লাহর, যিনি আমাকে মৃত্যুর (ঘুমের) পর জীবন দিয়েছেন, আর তাঁরই দিকে পুনরুত্থান।"
       }
     ]
+  },
+  {
+    "id": "dua-asbahna-wa-asbahal-mulk",
+    "slug": "dua-asbahna-wa-asbahal-mulk",
+    "titleBn": "সকালের বিখ্যাত জিকির (আসবাহনা)",
+    "titleEn": "The Famous Morning Remembrance (Asbahna)",
+    "category": "morning",
+    "arabic": "اللَّهُمَّ بِكَ أَصْبَحْنَا وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا وَبِكَ نَمُوتُ وَإِلَيْكَ النُّشُورُ",
+    "meaningBn": "হে আল্লাহ! তোমারই মাধ্যমে আমরা সকালে উপনীত হয়েছি এবং তোমারই মাধ্যমে সন্ধ্যায় উপনীত হই, তোমারই মাধ্যমে আমরা জীবিত থাকি এবং তোমারই মাধ্যমে মৃত্যুবরণ করি, এবং তোমারই দিকে পুনরুত্থান।",
+    "meaningEn": "O Allah, by You we have reached the morning and by You we reach the evening; by You we live and by You we die, and to You is the resurrection.",
+    "source": "নবী মুহাম্মদ (সা.) থেকে বর্ণিত সকালের দোয়া, শিয়া হাদিস গ্রন্থেও (আল-কাফি) অনুরূপ বর্ণনা রয়েছে"
+  },
+  {
+    "id": "dua-quran-tusibhoon-tumsoon",
+    "slug": "dua-quran-tusibhoon-tumsoon",
+    "titleBn": "সকাল-সন্ধ্যায় আল্লাহর পবিত্রতা ঘোষণা",
+    "titleEn": "Glorifying Allah Morning and Evening",
+    "category": "morning",
+    "arabic": "فَسُبْحَانَ اللَّهِ حِينَ تُمْسُونَ وَحِينَ تُصْبِحُونَ",
+    "meaningBn": "সুতরাং তোমরা আল্লাহর পবিত্রতা ঘোষণা কর যখন তোমরা সন্ধ্যায় উপনীত হও এবং যখন সকালে উপনীত হও।",
+    "meaningEn": "So exalted is Allah when you reach the evening and when you reach the morning.",
+    "source": "কুরআন, সূরা আর-রূম ৩০:১৭"
+  },
+  {
+    "id": "dua-quran-malikal-mulk",
+    "slug": "dua-quran-malikal-mulk",
+    "titleBn": "রাজত্বের মালিক আল্লাহর প্রশংসা",
+    "titleEn": "Praise of Allah, the Owner of Sovereignty",
+    "category": "morning",
+    "arabic": "قُلِ اللَّهُمَّ مَالِكَ الْمُلْكِ تُؤْتِي الْمُلْكَ مَن تَشَاءُ وَتَنزِعُ الْمُلْكَ مِمَّن تَشَاءُ",
+    "meaningBn": "বল, হে আল্লাহ! রাজত্বের মালিক! তুমি যাকে ইচ্ছা রাজত্ব দান কর এবং যার কাছ থেকে ইচ্ছা রাজত্ব কেড়ে নাও।",
+    "meaningEn": "Say, O Allah, Owner of Sovereignty, You give sovereignty to whom You will and You take it away from whom You will.",
+    "source": "কুরআন, সূরা আলে ইমরান ৩:২৬ — সকাল-সন্ধ্যার আমল হিসেবে পঠিত"
+  },
+  {
+    "id": "dua-quran-aqimis-salata-tarafayn",
+    "slug": "dua-quran-aqimis-salata-tarafayn",
+    "titleBn": "দিনের দুই প্রান্তে নামাজ কায়েমের নির্দেশ",
+    "titleEn": "Establish Prayer at the Two Ends of the Day",
+    "category": "morning",
+    "arabic": "وَأَقِمِ الصَّلَاةَ طَرَفَيِ النَّهَارِ وَزُلَفًا مِّنَ اللَّيْلِ ۚ إِنَّ الْحَسَنَاتِ يُذْهِبْنَ السَّيِّئَاتِ",
+    "meaningBn": "এবং দিনের দুই প্রান্তে ও রাতের কিছু অংশে নামাজ কায়েম কর, নিশ্চয় সৎকাজ মন্দ কাজকে দূর করে দেয়।",
+    "meaningEn": "And establish prayer at the two ends of the day and at the approach of the night. Indeed, good deeds do away with misdeeds.",
+    "source": "কুরআন, সূরা হুদ ১১:১১৪"
+  },
+  {
+    "id": "dua-quran-sabbih-qabla-tulu",
+    "slug": "dua-quran-sabbih-qabla-tulu",
+    "titleBn": "সূর্যোদয়ের পূর্বে ও অস্তের পূর্বে তাসবিহ",
+    "titleEn": "Glorify Before Sunrise and Before Sunset",
+    "category": "morning",
+    "arabic": "فَاصْبِرْ عَلَىٰ مَا يَقُولُونَ وَسَبِّحْ بِحَمْدِ رَبِّكَ قَبْلَ طُلُوعِ الشَّمْسِ وَقَبْلَ الْغُرُوبِ",
+    "meaningBn": "সুতরাং তারা যা বলে তাতে ধৈর্য ধারণ কর, এবং সূর্যোদয়ের পূর্বে ও সূর্যাস্তের পূর্বে তোমার রবের প্রশংসাসহ পবিত্রতা ঘোষণা কর।",
+    "meaningEn": "So be patient over what they say and exalt [Allah] with praise of your Lord before the rising of the sun and before its setting.",
+    "source": "কুরআন, সূরা ত্বা-হা ২০:১৩০"
+  },
+  {
+    "id": "dua-quran-falaqil-isbah",
+    "slug": "dua-quran-falaqil-isbah",
+    "titleBn": "উষার বিদারণকারী আল্লাহ",
+    "titleEn": "Allah, the One Who Breaks the Dawn",
+    "category": "morning",
+    "arabic": "فَالِقُ الْإِصْبَاحِ وَجَعَلَ اللَّيْلَ سَكَنًا وَالشَّمْسَ وَالْقَمَرَ حُسْبَانًا",
+    "meaningBn": "তিনি উষা বিদারণকারী, এবং তিনি রাতকে প্রশান্তির এবং সূর্য-চন্দ্রকে হিসাবের মাধ্যম বানিয়েছেন।",
+    "meaningEn": "[He is] the cleaver of daybreak and has made the night for rest and the sun and moon for calculation.",
+    "source": "কুরআন, সূরা আল-আনআম ৬:৯৬"
+  },
+  {
+    "id": "dua-quran-wal-fajr",
+    "slug": "dua-quran-wal-fajr",
+    "titleBn": "ফজরের শপথ",
+    "titleEn": "The Oath by the Dawn",
+    "category": "morning",
+    "arabic": "وَالْفَجْرِ * وَلَيَالٍ عَشْرٍ",
+    "meaningBn": "শপথ ফজরের, এবং দশ রাত্রির।",
+    "meaningEn": "By the dawn and by the ten nights.",
+    "source": "কুরআন, সূরা আল-ফাজর ৮৯:১-২"
   }
 ]

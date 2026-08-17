@@ -306,5 +306,71 @@
         "bn": "হে আল্লাহ! আমি তোমার কাছে তোমার ভালোবাসা প্রার্থনা করছি, আর যারা তোমাকে ভালোবাসে তাদের ভালোবাসা, আর এমন আমল যা আমাকে তোমার ভালোবাসায় পৌঁছে দেয়।"
       }
     ]
+  },
+  {
+    "id": "dua-quran-liyabudoon",
+    "slug": "dua-quran-liyabudoon",
+    "titleBn": "ইবাদতের উদ্দেশ্য",
+    "titleEn": "The Purpose of Worship",
+    "category": "sahifa-sajjadiya",
+    "arabic": "وَمَا خَلَقْتُ الْجِنَّ وَالْإِنسَ إِلَّا لِيَعْبُدُونِ",
+    "meaningBn": "আমি জিন ও মানুষকে কেবল আমার ইবাদতের জন্যই সৃষ্টি করেছি।",
+    "meaningEn": "And I did not create the jinn and mankind except to worship Me.",
+    "source": "কুরআন, সূরা আয-যারিয়াত ৫১:৫৬"
+  },
+  {
+    "id": "dua-quran-inni-qareeb",
+    "slug": "dua-quran-inni-qareeb",
+    "titleBn": "বান্দার নিকটবর্তী আল্লাহ",
+    "titleEn": "Allah is Near to His Servant",
+    "category": "sahifa-sajjadiya",
+    "arabic": "وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌ أُجِيبُ دَعْوَةَ الدَّاعِ إِذَا دَعَانِ",
+    "meaningBn": "এবং যখন আমার বান্দারা আমার সম্পর্কে তোমাকে জিজ্ঞাসা করে, তখন (বল) আমি নিকটেই আছি — আমি আহ্বানকারীর ডাকে সাড়া দিই, যখন সে আমাকে ডাকে।",
+    "meaningEn": "And when My servants ask you concerning Me, indeed I am near. I respond to the invocation of the supplicant when he calls upon Me.",
+    "source": "কুরআন, সূরা আল-বাকারা ২:১৮৬"
+  },
+  {
+    "id": "dua-quran-ana-allah-la-ilaha",
+    "slug": "dua-quran-ana-allah-la-ilaha",
+    "titleBn": "আল্লাহর একত্বের ও নামাজ কায়েমের ঘোষণা",
+    "titleEn": "Declaration of Allah's Oneness and the Command to Pray",
+    "category": "sahifa-sajjadiya",
+    "arabic": "إِنَّنِي أَنَا اللَّهُ لَا إِلَٰهَ إِلَّا أَنَا فَاعْبُدْنِي وَأَقِمِ الصَّلَاةَ لِذِكْرِي",
+    "meaningBn": "নিশ্চয় আমিই আল্লাহ, আমি ব্যতীত কোনো উপাস্য নেই, সুতরাং আমার ইবাদত কর এবং আমার স্মরণার্থে নামাজ কায়েম কর।",
+    "meaningEn": "Indeed, I am Allah. There is no deity except Me, so worship Me and establish prayer for My remembrance.",
+    "source": "কুরআন, সূরা ত্বা-হা ২০:১৪"
+  },
+  {
+    "id": "dua-quran-surah-ikhlas",
+    "slug": "dua-quran-surah-ikhlas",
+    "titleBn": "সূরা আল-ইখলাস — তাওহীদের ঘোষণা",
+    "titleEn": "Surah al-Ikhlas — The Declaration of Divine Oneness",
+    "category": "sahifa-sajjadiya",
+    "arabic": "قُلْ هُوَ اللَّهُ أَحَدٌ * اللَّهُ الصَّمَدُ * لَمْ يَلِدْ وَلَمْ يُولَدْ * وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ",
+    "meaningBn": "বল, তিনি আল্লাহ, একক। আল্লাহ অমুখাপেক্ষী। তিনি জন্ম দেননি এবং তাঁকে জন্ম দেওয়া হয়নি। এবং তাঁর সমতুল্য কেউ নেই।",
+    "meaningEn": "Say, He is Allah, [who is] One. Allah, the Eternal Refuge. He neither begets nor is born. Nor is there to Him any equivalent.",
+    "source": "কুরআন, সূরা আল-ইখলাস ১১২:১-৪"
+  },
+  {
+    "id": "dua-quran-ayat-an-nur",
+    "slug": "dua-quran-ayat-an-nur",
+    "titleBn": "নূরের আয়াত",
+    "titleEn": "The Verse of Light",
+    "category": "sahifa-sajjadiya",
+    "arabic": "اللَّهُ نُورُ السَّمَاوَاتِ وَالْأَرْضِ",
+    "meaningBn": "আল্লাহ আসমান ও জমিনের নূর।",
+    "meaningEn": "Allah is the Light of the heavens and the earth.",
+    "source": "কুরআন, সূরা আন-নূর ২৪:৩৫"
+  },
+  {
+    "id": "dua-quran-huwallahulladhi-la-ilaha-illa-huwa",
+    "slug": "dua-quran-huwallahulladhi-la-ilaha-illa-huwa",
+    "titleBn": "আল্লাহর সুন্দর নামসমূহের ঘোষণা (সূরা হাশরের সমাপনী)",
+    "titleEn": "The Declaration of Allah's Beautiful Names (Closing of Surah al-Hashr)",
+    "category": "sahifa-sajjadiya",
+    "arabic": "هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ عَالِمُ الْغَيْبِ وَالشَّهَادَةِ ۖ هُوَ الرَّحْمَٰنُ الرَّحِيمُ",
+    "meaningBn": "তিনিই আল্লাহ, তিনি ব্যতীত কোনো উপাস্য নেই, তিনি অদৃশ্য ও দৃশ্যমান সবকিছুর জ্ঞানী, তিনি পরম করুণাময়, অসীম দয়ালু।",
+    "meaningEn": "He is Allah, other than whom there is no deity, Knower of the unseen and the witnessed. He is the Entirely Merciful, the Especially Merciful.",
+    "source": "কুরআন, সূরা আল-হাশর ৫৯:২২"
   }
 ]

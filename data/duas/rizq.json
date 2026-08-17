@@ -178,5 +178,82 @@
     "audioUrl": "",
     "type": "dua",
     "hasFullData": false
+  },
+  {
+    "id": "dua-quran-yajal-lahu-makhraja",
+    "slug": "dua-quran-yajal-lahu-makhraja",
+    "titleBn": "তাকওয়ার মাধ্যমে রিযিকের পথ খোলার আয়াত",
+    "titleEn": "The Verse of Provision Through God-Consciousness",
+    "category": "rizq",
+    "arabic": "وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا وَيَرْزُقْهُ مِنْ حَيْثُ لَا يَحْتَسِبُ",
+    "meaningBn": "এবং যে আল্লাহকে ভয় করে, তিনি তার জন্য উত্তরণের পথ তৈরি করে দেন এবং তাকে এমন উৎস থেকে রিযিক দেন যা সে কল্পনাও করে না।",
+    "meaningEn": "And whoever fears Allah, He will make for him a way out, and will provide for him from where he does not expect.",
+    "source": "কুরআন, সূরা আত-তালাক ৬৫:২-৩"
+  },
+  {
+    "id": "dua-quran-rizq-ala-allah",
+    "slug": "dua-quran-rizq-ala-allah",
+    "titleBn": "প্রতিটি জীবের রিযিক আল্লাহর দায়িত্বে",
+    "titleEn": "Every Creature's Provision is Guaranteed by Allah",
+    "category": "rizq",
+    "arabic": "وَمَا مِن دَابَّةٍ فِي الْأَرْضِ إِلَّا عَلَى اللَّهِ رِزْقُهَا",
+    "meaningBn": "এবং পৃথিবীতে এমন কোনো জীব নেই, যার রিযিকের দায়িত্ব আল্লাহর উপর নয়।",
+    "meaningEn": "And there is no creature on earth but that its provision is due from Allah.",
+    "source": "কুরআন, সূরা হুদ ১১:৬"
+  },
+  {
+    "id": "dua-quran-huwa-razzaq",
+    "slug": "dua-quran-huwa-razzaq",
+    "titleBn": "আল্লাহই মহারিযিকদাতা",
+    "titleEn": "Allah is the Great Provider",
+    "category": "rizq",
+    "arabic": "إِنَّ اللَّهَ هُوَ الرَّزَّاقُ ذُو الْقُوَّةِ الْمَتِينُ",
+    "meaningBn": "নিশ্চয় আল্লাহই মহারিযিকদাতা, পরম শক্তির অধিকারী, সুদৃঢ়।",
+    "meaningEn": "Indeed, it is Allah who is the [continual] Provider, the firm possessor of strength.",
+    "source": "কুরআন, সূরা আয-যারিয়াত ৫১:৫৮"
+  },
+  {
+    "id": "dua-quran-yantashiru-fadl",
+    "slug": "dua-quran-yantashiru-fadl",
+    "titleBn": "জুমার নামাজের পর রিযিক অন্বেষণের নির্দেশ",
+    "titleEn": "Seeking Allah's Bounty After the Friday Prayer",
+    "category": "rizq",
+    "arabic": "فَإِذَا قُضِيَتِ الصَّلَاةُ فَانتَشِرُوا فِي الْأَرْضِ وَابْتَغُوا مِن فَضْلِ اللَّهِ",
+    "meaningBn": "অতঃপর যখন নামাজ শেষ হয়, তখন তোমরা পৃথিবীতে ছড়িয়ে পড় এবং আল্লাহর অনুগ্রহ থেকে অন্বেষণ কর।",
+    "meaningEn": "And when the prayer has been concluded, disperse within the land and seek from the bounty of Allah.",
+    "source": "কুরআন, সূরা আল-জুমুআ ৬২:১০"
+  },
+  {
+    "id": "dua-quran-khairur-raziqeen",
+    "slug": "dua-quran-khairur-raziqeen",
+    "titleBn": "আল্লাহ সর্বোত্তম রিযিকদাতা",
+    "titleEn": "Allah is the Best of Providers",
+    "category": "rizq",
+    "arabic": "وَمَا أَنفَقْتُم مِّن شَيْءٍ فَهُوَ يُخْلِفُهُ ۖ وَهُوَ خَيْرُ الرَّازِقِينَ",
+    "meaningBn": "এবং তোমরা যা কিছু ব্যয় কর, তিনি তা পূরণ করে দেন, এবং তিনি সর্বোত্তম রিযিকদাতা।",
+    "meaningEn": "And whatever you spend, He will compensate it; and He is the best of providers.",
+    "source": "কুরআন, সূরা সাবা ৩৪:৩৯"
+  },
+  {
+    "id": "dua-maryam-mihrab-rizq",
+    "slug": "dua-maryam-mihrab-rizq",
+    "titleBn": "মারইয়ামের কক্ষে অসীম রিযিকের নিদর্শন",
+    "titleEn": "The Sign of Boundless Provision in Maryam's Chamber",
+    "category": "rizq",
+    "arabic": "كُلَّمَا دَخَلَ عَلَيْهَا زَكَرِيَّا الْمِحْرَابَ وَجَدَ عِندَهَا رِزْقًا ... إِنَّ اللَّهَ يَرْزُقُ مَن يَشَاءُ بِغَيْرِ حِسَابٍ",
+    "meaningBn": "যখনই জাকারিয়া তার কক্ষে প্রবেশ করতেন, তার কাছে রিযিক দেখতে পেতেন... নিশ্চয় আল্লাহ যাকে ইচ্ছা অগণিতভাবে রিযিক দান করেন।",
+    "meaningEn": "Every time Zakariya entered upon her in the chamber, he found with her provision... Indeed, Allah provides for whom He wills without account.",
+    "source": "কুরআন, সূরা আলে ইমরান ৩:৩৭"
+  },
+  {
+    "id": "dua-quran-fatahna-alayhim-barakat",
+    "slug": "dua-quran-fatahna-alayhim-barakat",
+    "titleBn": "তাকওয়ার বিনিময়ে আসমান-জমিনের বরকত",
+    "titleEn": "Blessings from Heaven and Earth in Return for Piety",
+    "category": "rizq",
+    "arabic": "وَلَوْ أَنَّ أَهْلَ الْقُرَىٰ آمَنُوا وَاتَّقَوْا لَفَتَحْنَا عَلَيْهِم بَرَكَاتٍ مِّنَ السَّمَاءِ وَالْأَرْضِ",
+    "meaningBn": "এবং যদি জনপদবাসীরা ঈমান আনত ও তাকওয়া অবলম্বন করত, তবে আমি তাদের জন্য আসমান ও জমিন থেকে বরকতের দ্বার উন্মুক্ত করে দিতাম।",
+    "meaningEn": "And if only the people of the cities had believed and feared Allah, We would have opened upon them blessings from the heaven and the earth.",
+    "source": "কুরআন, সূরা আল-আরাফ ৭:৯৬"
   }
 ]

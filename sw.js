@@ -1,5 +1,31 @@
 
-const CACHE = 'ahlbayt-v30'; // v30: Dua tab's 21 category chips changed from
+const CACHE = 'ahlbayt-v34'; // v34: Fixed PWA install icon — removed old placeholder
+// SVG (green box + crescent) from manifest icons list so browsers use the real
+// AHLULBAYT MARKAZ logo (icon-192.png / icon-512.png) on the install prompt.
+// v33: Added 40 more duas (round 3, light top-up,
+// ~2 per category) across all 20 dua category files — mostly Quran-sourced
+// (Ayat al-Tathir for ahlul-bayt, Tahajjud verse for night, etc.), a couple
+// of well-known prophetic duas (graveyard visit, istiftah tasbih). Only
+// data/duas/*.json (all 20 category files) + data/duas/metadata.json
+// touched, no JS logic changed. Bumped so returning/installed-PWA clients
+// see the new duas.
+// v32: Added 48 more duas (round 2, medium top-up)
+// across all 20 dua category files this time — including ramadan/daily/
+// hardship/special-days which round-1 skipped — mostly Quran-sourced, plus
+// one verified Sahifa Sajjadiya dua 13 excerpt and a few well-known
+// prophetic duas (iftar, entering home, new clothes, Eid takbir). Only
+// data/duas/*.json (all 20 category files) + data/duas/metadata.json
+// touched, no JS logic changed. Bumped so returning/installed-PWA clients
+// see the new duas.
+// v31: Added 42 new duas (Quran-sourced + Sahifa
+// Sajjadiya 24 + two well-known prophetic dhikr) as a light top-up across
+// the 16 thinnest dua categories (~2-3 each): ahlul-bayt, family,
+// forgiveness, gratitude, hajj-umrah, healing, knowledge, morning, night,
+// patience, protection, quranic, rizq, sahifa-sajjadiya, tasbih, zikr.
+// Only data/duas/*.json (16 category files) + data/duas/metadata.json
+// touched — no JS logic changed. Bumped so returning/installed-PWA clients
+// see the new duas.
+// v30: Dua tab's 21 category chips changed from
 // 3 fixed rows of 7 (v29) to 7 default chips in a flex-wrap row (auto-fits
 // per screen width on desktop/mobile) plus the other 14 behind a new
 // "আরও দেখুন" (Show more) toggle button. New state field

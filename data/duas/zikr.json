@@ -125,5 +125,71 @@
     "audioUrl": "",
     "type": "dua",
     "hasFullData": false
+  },
+  {
+    "id": "dua-la-ilaha-illallah-wahdahu",
+    "slug": "dua-la-ilaha-illallah-wahdahu",
+    "titleBn": "লা ইলাহা ইল্লাল্লাহু ওয়াহদাহু",
+    "titleEn": "La ilaha illallahu Wahdahu",
+    "category": "zikr",
+    "arabic": "لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ",
+    "meaningBn": "আল্লাহ ব্যতীত কোনো উপাস্য নেই, তিনি একক, তাঁর কোনো শরীক নেই, রাজত্ব তাঁরই এবং সমস্ত প্রশংসা তাঁরই, এবং তিনি সকল কিছুর উপর ক্ষমতাবান।",
+    "meaningEn": "There is no god but Allah, alone, without partner. His is the dominion and His is the praise, and He is over all things competent.",
+    "source": "নবী মুহাম্মদ (সা.)-এর অতি পরিচিত তাহলিল জিকির, শিয়া হাদিস গ্রন্থেও বর্ণিত"
+  },
+  {
+    "id": "dua-quran-udhkurullah-kathira",
+    "slug": "dua-quran-udhkurullah-kathira",
+    "titleBn": "অধিক পরিমাণে আল্লাহকে স্মরণ করার নির্দেশ",
+    "titleEn": "The Command to Remember Allah Abundantly",
+    "category": "zikr",
+    "arabic": "يَا أَيُّهَا الَّذِينَ آمَنُوا اذْكُرُوا اللَّهَ ذِكْرًا كَثِيرًا",
+    "meaningBn": "হে মুমিনগণ! তোমরা আল্লাহকে অধিক পরিমাণে স্মরণ কর।",
+    "meaningEn": "O you who believe, remember Allah with much remembrance.",
+    "source": "কুরআন, সূরা আল-আহযাব ৩৩:৪১"
+  },
+  {
+    "id": "dua-quran-ala-bidhikrillah",
+    "slug": "dua-quran-ala-bidhikrillah",
+    "titleBn": "আল্লাহর স্মরণেই অন্তরের প্রশান্তি",
+    "titleEn": "Hearts Find Rest in the Remembrance of Allah",
+    "category": "zikr",
+    "arabic": "أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ",
+    "meaningBn": "জেনে রাখ, আল্লাহর স্মরণেই অন্তর প্রশান্তি লাভ করে।",
+    "meaningEn": "Verily, in the remembrance of Allah do hearts find rest.",
+    "source": "কুরআন, সূরা আর-রাদ ১৩:২৮"
+  },
+  {
+    "id": "dua-quran-la-tulhikum-amwalukum",
+    "slug": "dua-quran-la-tulhikum-amwalukum",
+    "titleBn": "ধন-সম্পদ যেন আল্লাহর স্মরণ থেকে গাফেল না করে",
+    "titleEn": "Let Not Wealth Divert You from the Remembrance of Allah",
+    "category": "zikr",
+    "arabic": "يَا أَيُّهَا الَّذِينَ آمَنُوا لَا تُلْهِكُمْ أَمْوَالُكُمْ وَلَا أَوْلَادُكُمْ عَن ذِكْرِ اللَّهِ",
+    "meaningBn": "হে মুমিনগণ! তোমাদের ধন-সম্পদ ও সন্তান-সন্ততি যেন তোমাদের আল্লাহর স্মরণ থেকে গাফেল না করে।",
+    "meaningEn": "O you who have believed, let not your wealth and your children divert you from the remembrance of Allah.",
+    "source": "কুরআন, সূরা আল-মুনাফিকুন ৬৩:৯"
+  },
+  {
+    "id": "dua-quran-wa-ladhikrullahi-akbar",
+    "slug": "dua-quran-wa-ladhikrullahi-akbar",
+    "titleBn": "আল্লাহর স্মরণই সর্বশ্রেষ্ঠ",
+    "titleEn": "The Remembrance of Allah is the Greatest",
+    "category": "zikr",
+    "arabic": "وَلَذِكْرُ اللَّهِ أَكْبَرُ",
+    "meaningBn": "এবং নিশ্চয় আল্লাহর স্মরণই সর্বশ্রেষ্ঠ।",
+    "meaningEn": "And the remembrance of Allah is greater.",
+    "source": "কুরআন, সূরা আল-আনকাবুত ২৯:৪৫"
+  },
+  {
+    "id": "dua-quran-adh-dhakirina-wadh-dhakirat",
+    "slug": "dua-quran-adh-dhakirina-wadh-dhakirat",
+    "titleBn": "অধিক স্মরণকারী নর-নারীর মর্যাদা",
+    "titleEn": "The Honour of Men and Women Who Remember Allah Often",
+    "category": "zikr",
+    "arabic": "وَالذَّاكِرِينَ اللَّهَ كَثِيرًا وَالذَّاكِرَاتِ أَعَدَّ اللَّهُ لَهُم مَّغْفِرَةً وَأَجْرًا عَظِيمًا",
+    "meaningBn": "এবং যেসব পুরুষ ও নারী আল্লাহকে অধিক স্মরণ করে, তাদের জন্য আল্লাহ ক্ষমা ও মহাপ্রতিদান প্রস্তুত রেখেছেন।",
+    "meaningEn": "And the men who remember Allah often and the women who do so — for them Allah has prepared forgiveness and a great reward.",
+    "source": "কুরআন, সূরা আল-আহযাব ৩৩:৩৫ (শেষাংশ)"
   }
 ]

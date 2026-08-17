@@ -180,5 +180,93 @@
     "audioUrl": "",
     "type": "dua",
     "hasFullData": false
+  },
+  {
+    "id": "dua-quran-yusuf-tawil",
+    "slug": "dua-quran-yusuf-tawil",
+    "titleBn": "ইউসুফ (আ.)-এর জ্ঞানের জন্য কৃতজ্ঞতা",
+    "titleEn": "Prophet Yusuf's Gratitude for Knowledge",
+    "category": "knowledge",
+    "arabic": "رَبِّ قَدْ آتَيْتَنِي مِنَ الْمُلْكِ وَعَلَّمْتَنِي مِن تَأْوِيلِ الْأَحَادِيثِ ۚ فَاطِرَ السَّمَاوَاتِ وَالْأَرْضِ",
+    "meaningBn": "হে আমার রব! তুমি আমাকে রাজত্ব দান করেছ এবং স্বপ্নের ব্যাখ্যার জ্ঞান শিখিয়েছ। হে আসমান-জমিনের স্রষ্টা!",
+    "meaningEn": "My Lord, You have given me [something] of sovereignty and taught me of the interpretation of events. Originator of the heavens and earth!",
+    "source": "কুরআন, সূরা ইউসুফ ১২:১০১"
+  },
+  {
+    "id": "dua-quran-la-tuzigh-hikma",
+    "slug": "dua-quran-la-tuzigh-hikma",
+    "titleBn": "অন্তর যেন বিচ্যুত না হয় এবং প্রজ্ঞা লাভের দোয়া",
+    "titleEn": "Prayer That the Heart Not Deviate, and for Wisdom",
+    "category": "knowledge",
+    "arabic": "رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ لَنَا مِن لَّدُنكَ رَحْمَةً ۚ إِنَّكَ أَنتَ الْوَهَّابُ",
+    "meaningBn": "হে আমাদের রব! আমাদের হেদায়েত দানের পর আমাদের অন্তরকে বিচ্যুত করো না, এবং তোমার পক্ষ থেকে আমাদের রহমত দান কর, নিশ্চয় তুমি মহাদাতা।",
+    "meaningEn": "Our Lord, let not our hearts deviate after You have guided us, and grant us mercy from Yourself. Indeed, You are the Bestower.",
+    "source": "কুরআন, সূরা আলে ইমরান ৩:৮"
+  },
+  {
+    "id": "dua-musa-khidr-knowledge",
+    "slug": "dua-musa-khidr-knowledge",
+    "titleBn": "মুসা (আ.)-এর খিজিরের কাছে জ্ঞান শেখার আগ্রহ",
+    "titleEn": "Musa's Request to Learn from Khidr",
+    "category": "knowledge",
+    "arabic": "هَلْ أَتَّبِعُكَ عَلَىٰ أَن تُعَلِّمَنِ مِمَّا عُلِّمْتَ رُشْدًا",
+    "meaningBn": "আমি কি আপনার অনুসরণ করতে পারি এই শর্তে যে, আপনি আমাকে সঠিক পথের যে জ্ঞান আপনাকে শেখানো হয়েছে তা থেকে শিক্ষা দেবেন?",
+    "meaningEn": "May I follow you on [the condition] that you teach me from what you have been taught of sound judgement?",
+    "source": "কুরআন, সূরা আল-কাহফ ১৮:৬৬"
+  },
+  {
+    "id": "dua-quran-yarfa-allah",
+    "slug": "dua-quran-yarfa-allah",
+    "titleBn": "জ্ঞানীদের মর্যাদা বৃদ্ধির আয়াত",
+    "titleEn": "Allah Raises the Ranks of the Knowledgeable",
+    "category": "knowledge",
+    "arabic": "يَرْفَعِ اللَّهُ الَّذِينَ آمَنُوا مِنكُمْ وَالَّذِينَ أُوتُوا الْعِلْمَ دَرَجَاتٍ",
+    "meaningBn": "আল্লাহ তোমাদের মধ্যে যারা ঈমান এনেছে এবং যাদের জ্ঞান দান করা হয়েছে, তাদের মর্যাদা উঁচু করে দেবেন।",
+    "meaningEn": "Allah will raise those who have believed among you and those who were given knowledge, by degrees.",
+    "source": "কুরআন, সূরা আল-মুজাদালা ৫৮:১১"
+  },
+  {
+    "id": "dua-quran-innama-yakhsha",
+    "slug": "dua-quran-innama-yakhsha",
+    "titleBn": "জ্ঞানীরাই আল্লাহকে ভয় করে",
+    "titleEn": "Only Those with Knowledge Truly Fear Allah",
+    "category": "knowledge",
+    "arabic": "إِنَّمَا يَخْشَى اللَّهَ مِنْ عِبَادِهِ الْعُلَمَاءُ",
+    "meaningBn": "তাঁর বান্দাদের মধ্যে কেবল জ্ঞানীরাই আল্লাহকে যথাযথভাবে ভয় করে।",
+    "meaningEn": "It is only those who have knowledge among His servants who fear Allah.",
+    "source": "কুরআন, সূরা ফাতির ৩৫:২৮"
+  },
+  {
+    "id": "dua-quran-iqra-bismi-rabbik",
+    "slug": "dua-quran-iqra-bismi-rabbik",
+    "titleBn": "পড় তোমার রবের নামে (প্রথম ওহি)",
+    "titleEn": "Read in the Name of Your Lord (The First Revelation)",
+    "category": "knowledge",
+    "arabic": "اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ ۚ عَلَّمَ الْإِنسَانَ مَا لَمْ يَعْلَمْ",
+    "meaningBn": "পড়, তোমার রবের নামে, যিনি সৃষ্টি করেছেন... তিনি মানুষকে শিখিয়েছেন যা সে জানত না।",
+    "meaningEn": "Read in the name of your Lord who created... He taught man that which he knew not.",
+    "source": "কুরআন, সূরা আল-আলাক ৯৬:১,৫ — প্রথম নাযিলকৃত ওহি"
+  },
+  {
+    "id": "dua-quran-shahida-allah-ulul-ilm",
+    "slug": "dua-quran-shahida-allah-ulul-ilm",
+    "titleBn": "জ্ঞানীদের সাক্ষ্য ও আল্লাহর একত্ব",
+    "titleEn": "The Testimony of the People of Knowledge to Allah's Oneness",
+    "category": "knowledge",
+    "arabic": "شَهِدَ اللَّهُ أَنَّهُ لَا إِلَٰهَ إِلَّا هُوَ وَالْمَلَائِكَةُ وَأُولُو الْعِلْمِ قَائِمًا بِالْقِسْطِ",
+    "meaningBn": "আল্লাহ সাক্ষ্য দিয়েছেন যে, তিনি ব্যতীত কোনো উপাস্য নেই, এবং ফেরেশতাগণ ও জ্ঞানীগণও ন্যায়ের উপর প্রতিষ্ঠিত থেকে এই সাক্ষ্য দেন।",
+    "meaningEn": "Allah witnesses that there is no deity except Him, and [so do] the angels and those of knowledge — standing firm in justice.",
+    "source": "কুরআন, সূরা আলে ইমরান ৩:১৮"
+  },
+  {
+    "id": "dua-quran-rabbi-inni-limaa-anzalta",
+    "slug": "dua-quran-rabbi-inni-limaa-anzalta",
+    "titleBn": "হজরত খিজিরের কাছে শেখার শিষ্টাচার",
+    "titleEn": "The Etiquette of Learning from a Teacher",
+    "category": "knowledge",
+    "arabic": "قَالَ إِنَّكَ لَن تَسْتَطِيعَ مَعِيَ صَبْرًا",
+    "meaningBn": "তিনি বললেন, তুমি কখনো আমার সাথে ধৈর্য ধরে থাকতে পারবে না।",
+    "meaningEn": "He said, indeed, with me you will never be able to have patience.",
+    "source": "কুরআন, সূরা আল-কাহফ ১৮:৬৭ — শিক্ষকের প্রতি বিনয়ের শিক্ষা"
   }
 ]

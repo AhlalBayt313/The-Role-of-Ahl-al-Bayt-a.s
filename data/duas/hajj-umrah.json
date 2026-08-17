@@ -169,5 +169,93 @@
         "bn": "হে আল্লাহ! আমার জন্য তোমার রহমতের দরজাসমূহ খুলে দাও এবং আমাকে তোমার আনুগত্য ও সন্তুষ্টির কাজে নিয়োজিত রাখো।"
       }
     ]
+  },
+  {
+    "id": "dua-quran-hasanah-dunya-akhirah",
+    "slug": "dua-quran-hasanah-dunya-akhirah",
+    "titleBn": "দুনিয়া ও আখিরাতের কল্যাণের দোয়া (তাওয়াফের দোয়া)",
+    "titleEn": "Prayer for Good in This World and the Hereafter (Recited During Tawaf)",
+    "category": "hajj-umrah",
+    "arabic": "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ",
+    "meaningBn": "হে আমাদের রব! আমাদের দুনিয়াতে কল্যাণ দাও এবং আখিরাতেও কল্যাণ দাও, এবং আমাদের জাহান্নামের আজাব থেকে রক্ষা কর।",
+    "meaningEn": "Our Lord, give us good in this world and good in the Hereafter, and protect us from the punishment of the Fire.",
+    "source": "কুরআন, সূরা আল-বাকারা ২:২০১ — তাওয়াফের সময় বিশেষভাবে পঠিত"
+  },
+  {
+    "id": "dua-ibrahim-mecca",
+    "slug": "dua-ibrahim-mecca",
+    "titleBn": "ইবরাহীম (আ.)-এর মক্কার জন্য দোয়া",
+    "titleEn": "Prophet Ibrahim's Prayer for Mecca",
+    "category": "hajj-umrah",
+    "arabic": "رَّبَّنَا إِنِّي أَسْكَنتُ مِن ذُرِّيَّتِي بِوَادٍ غَيْرِ ذِي زَرْعٍ عِندَ بَيْتِكَ الْمُحَرَّمِ",
+    "meaningBn": "হে আমাদের রব! আমি আমার সন্তানদের কিছু অংশকে তোমার সম্মানিত ঘরের নিকট শস্যহীন উপত্যকায় বসবাস করিয়েছি।",
+    "meaningEn": "Our Lord, I have settled some of my descendants in an uncultivated valley near Your sacred House.",
+    "source": "কুরআন, সূরা ইবরাহীম ১৪:৩৭"
+  },
+  {
+    "id": "dua-ibrahim-ismail-kaaba",
+    "slug": "dua-ibrahim-ismail-kaaba",
+    "titleBn": "কাবাঘর নির্মাণের সময় ইবরাহীম ও ইসমাঈলের দোয়া",
+    "titleEn": "The Prayer of Ibrahim and Ismail While Building the Kaaba",
+    "category": "hajj-umrah",
+    "arabic": "رَبَّنَا تَقَبَّلْ مِنَّا ۖ إِنَّكَ أَنتَ السَّمِيعُ الْعَلِيمُ",
+    "meaningBn": "হে আমাদের রব! আমাদের এই কাজ কবুল কর, নিশ্চয় তুমি সর্বশ্রোতা, সর্বজ্ঞ।",
+    "meaningEn": "Our Lord, accept this from us. Indeed You are the Hearing, the Knowing.",
+    "source": "কুরআন, সূরা আল-বাকারা ২:১২৭"
+  },
+  {
+    "id": "dua-quran-awwala-bait",
+    "slug": "dua-quran-awwala-bait",
+    "titleBn": "মানবজাতির জন্য প্রথম ঘর (কাবা)",
+    "titleEn": "The First House Established for Mankind",
+    "category": "hajj-umrah",
+    "arabic": "إِنَّ أَوَّلَ بَيْتٍ وُضِعَ لِلنَّاسِ لَلَّذِي بِبَكَّةَ مُبَارَكًا وَهُدًى لِّلْعَالَمِينَ",
+    "meaningBn": "নিশ্চয় মানবজাতির জন্য স্থাপিত প্রথম ঘর সেটিই, যা মক্কায় অবস্থিত — বরকতময় ও বিশ্ববাসীর জন্য পথনির্দেশক।",
+    "meaningEn": "Indeed, the first House established for mankind was that at Bakkah (Mecca) — blessed and a guidance for the worlds.",
+    "source": "কুরআন, সূরা আলে ইমরান ৩:৯৬"
+  },
+  {
+    "id": "dua-quran-adhdhin-fin-nas",
+    "slug": "dua-quran-adhdhin-fin-nas",
+    "titleBn": "ইবরাহীম (আ.)-কে হজের ঘোষণার নির্দেশ",
+    "titleEn": "Ibrahim's Commission to Proclaim the Hajj",
+    "category": "hajj-umrah",
+    "arabic": "وَأَذِّن فِي النَّاسِ بِالْحَجِّ يَأْتُوكَ رِجَالًا وَعَلَىٰ كُلِّ ضَامِرٍ يَأْتِينَ مِن كُلِّ فَجٍّ عَمِيقٍ",
+    "meaningBn": "এবং মানুষের মধ্যে হজের ঘোষণা দাও, তারা তোমার কাছে আসবে পায়ে হেঁটে এবং দূরবর্তী প্রতিটি পথ থেকে ক্ষীণকায় উটে চড়ে।",
+    "meaningEn": "And proclaim to the people the Hajj; they will come to you on foot and on every lean camel, arriving from every distant pass.",
+    "source": "কুরআন, সূরা আল-হাজ্জ ২২:২৭"
+  },
+  {
+    "id": "dua-quran-safa-marwa",
+    "slug": "dua-quran-safa-marwa",
+    "titleBn": "সাফা-মারওয়া আল্লাহর নিদর্শন",
+    "titleEn": "Safa and Marwah are Among the Symbols of Allah",
+    "category": "hajj-umrah",
+    "arabic": "إِنَّ الصَّفَا وَالْمَرْوَةَ مِن شَعَائِرِ اللَّهِ ۖ فَمَنْ حَجَّ الْبَيْتَ أَوِ اعْتَمَرَ فَلَا جُنَاحَ عَلَيْهِ أَن يَطَّوَّفَ بِهِمَا",
+    "meaningBn": "নিশ্চয় সাফা ও মারওয়া আল্লাহর নিদর্শনসমূহের অন্তর্ভুক্ত, সুতরাং যে ব্যক্তি বাইতুল্লাহর হজ বা উমরাহ করে, তার জন্য এ দুটির মাঝে সাঈ করাতে কোনো দোষ নেই।",
+    "meaningEn": "Indeed, Safa and Marwah are among the symbols of Allah. So whoever makes Hajj to the House or performs Umrah — there is no blame upon him for walking between them.",
+    "source": "কুরআন, সূরা আল-বাকারা ২:১৫৮"
+  },
+  {
+    "id": "dua-quran-tawaf-atiq",
+    "slug": "dua-quran-tawaf-atiq",
+    "titleBn": "কাবাঘর তওয়াফের নির্দেশ",
+    "titleEn": "The Command to Circumambulate the Ancient House",
+    "category": "hajj-umrah",
+    "arabic": "ثُمَّ لْيَقْضُوا تَفَثَهُمْ وَلْيُوفُوا نُذُورَهُمْ وَلْيَطَّوَّفُوا بِالْبَيْتِ الْعَتِيقِ",
+    "meaningBn": "অতঃপর তারা যেন তাদের অপরিচ্ছন্নতা দূর করে, তাদের মানত পূর্ণ করে এবং প্রাচীন ঘর (কাবা) তওয়াফ করে।",
+    "meaningEn": "Then let them end their untidiness, fulfil their vows, and circumambulate the ancient House.",
+    "source": "কুরআন, সূরা আল-হাজ্জ ২২:২৯"
+  },
+  {
+    "id": "dua-quran-waman-dakhalahu-kana-amina",
+    "slug": "dua-quran-waman-dakhalahu-kana-amina",
+    "titleBn": "বাইতুল্লাহর নিরাপত্তা ও হজের দায়িত্ব",
+    "titleEn": "The Sanctuary and the Duty of Pilgrimage",
+    "category": "hajj-umrah",
+    "arabic": "وَمَن دَخَلَهُ كَانَ آمِنًا ۗ وَلِلَّهِ عَلَى النَّاسِ حِجُّ الْبَيْتِ مَنِ اسْتَطَاعَ إِلَيْهِ سَبِيلًا",
+    "meaningBn": "এবং যে তাতে প্রবেশ করে, সে নিরাপদ হয়ে যায়। আর আল্লাহর জন্য মানুষের উপর ফরজ, যে তার সামর্থ্য রাখে, বাইতুল্লাহর হজ করা।",
+    "meaningEn": "And whoever enters it shall be safe. And Hajj to the House is a duty owed to Allah by mankind for whoever is able to find a way.",
+    "source": "কুরআন, সূরা আলে ইমরান ৩:৯৭"
   }
 ]

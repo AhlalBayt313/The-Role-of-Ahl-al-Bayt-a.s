@@ -3688,5 +3688,49 @@
     "meaningBn": "হে আমার প্রতিপালক! কত শত্রু আমার বিরুদ্ধে তার শত্রুতার তরবারি উন্মুক্ত করেছে, আমার জন্য তার ছুরির ধার শাণিত করেছে, আমার বিরুদ্ধে তার অস্ত্রের ফলা তীক্ষ্ণ করেছে, আমার জন্য তার প্রাণঘাতী বিষ মিশিয়েছে, আমার দিকে তার তীরের লক্ষ্য স্থির করেছে, আর আমার প্রতি তার প্রহরার দৃষ্টি এক মুহূর্তের জন্যও ঘুমায়নি — (তবু তুমিই আমাকে রক্ষা করেছ)।",
     "meaningEn": "My God, many an enemy has drawn against me the sword of his hostility, sharpened for me the edge of his blade, honed for me the point of his weapon, mixed for me his deadly poisons, aimed at me the arrows of his malice, and never let the eye of his vigilance sleep concerning me — yet You protected me.",
     "source": "দোয়ায়ে জওশানে সগীর — ইমাম মুসা কাজিম (আ.) কর্তৃক বর্ণিত। আব্বাসীয় শাসক যখন তাঁকে হত্যার ষড়যন্ত্র করেছিল, তখন কারাগারে/বিপদের মুহূর্তে তিনি এই দোয়া পাঠ করেছিলেন। মুহাজুদ-দাওয়াত (সাইয়িদ ইবনে তাউস), বিহারুল আনওয়ার ও মাফাতিহুল জিনানে বর্ণিত।"
+  },
+  {
+    "id": "dua-quran-asa-an-takrahu",
+    "slug": "dua-quran-asa-an-takrahu",
+    "titleBn": "অপছন্দনীয় বিষয়ে কল্যাণ থাকার সম্ভাবনা",
+    "titleEn": "What You Dislike May Contain Good",
+    "category": "hardship",
+    "arabic": "وَعَسَىٰ أَن تَكْرَهُوا شَيْئًا وَهُوَ خَيْرٌ لَّكُمْ",
+    "meaningBn": "এবং হতে পারে তোমরা এমন কিছু অপছন্দ কর, অথচ তা তোমাদের জন্য কল্যাণকর।",
+    "meaningEn": "And perhaps you dislike a thing which is good for you.",
+    "source": "কুরআন, সূরা আল-বাকারা ২:২১৬"
+  },
+  {
+    "id": "dua-yaqub-la-taysau",
+    "slug": "dua-yaqub-la-taysau",
+    "titleBn": "ইয়াকুব (আ.)-এর আশাবাদের উপদেশ",
+    "titleEn": "Prophet Yaqub's Counsel of Hope",
+    "category": "hardship",
+    "arabic": "يَا بَنِيَّ اذْهَبُوا فَتَحَسَّسُوا مِن يُوسُفَ وَأَخِيهِ وَلَا تَيْأَسُوا مِن رَّوْحِ اللَّهِ",
+    "meaningBn": "হে আমার সন্তানগণ! যাও, ইউসুফ ও তার ভাইয়ের সন্ধান কর, এবং আল্লাহর রহমত থেকে নিরাশ হয়ো না।",
+    "meaningEn": "O my sons, go and find out about Joseph and his brother, and despair not of relief from Allah.",
+    "source": "কুরআন, সূরা ইউসুফ ১২:৮৭"
+  },
+  {
+    "id": "dua-quran-alam-nashrah",
+    "slug": "dua-quran-alam-nashrah",
+    "titleBn": "কষ্টের সাথে স্বস্তির প্রতিশ্রুতি (সূরা আশ-শারহ)",
+    "titleEn": "The Promise of Ease with Hardship (Surah al-Sharh)",
+    "category": "hardship",
+    "arabic": "أَلَمْ نَشْرَحْ لَكَ صَدْرَكَ ... فَإِنَّ مَعَ الْعُسْرِ يُسْرًا",
+    "meaningBn": "আমি কি তোমার বক্ষ প্রশস্ত করে দিইনি?... নিশ্চয় কষ্টের সাথে স্বস্তি রয়েছে।",
+    "meaningEn": "Did We not expand for you your breast?... For indeed, with hardship [will be] ease.",
+    "source": "কুরআন, সূরা আশ-শারহ ৯৪:১,৫"
+  },
+  {
+    "id": "dua-quran-la-tahzan-innallaha-maana",
+    "slug": "dua-quran-la-tahzan-innallaha-maana",
+    "titleBn": "দুঃখ করো না, আল্লাহ আমাদের সাথে আছেন",
+    "titleEn": "Do Not Grieve, Indeed Allah is With Us",
+    "category": "hardship",
+    "arabic": "إِذْ يَقُولُ لِصَاحِبِهِ لَا تَحْزَنْ إِنَّ اللَّهَ مَعَنَا",
+    "meaningBn": "যখন তিনি তাঁর সঙ্গীকে বলেছিলেন, দুঃখ করো না, নিশ্চয় আল্লাহ আমাদের সাথে আছেন।",
+    "meaningEn": "When he said to his companion, do not grieve; indeed Allah is with us.",
+    "source": "কুরআন, সূরা আত-তাওবা ৯:৪০ — নবী মুহাম্মদ (সা.)-এর হিজরতের সময়ের ঘটনা"
   }
 ]

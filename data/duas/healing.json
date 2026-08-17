@@ -165,5 +165,93 @@
     "audioUrl": "",
     "type": "dua",
     "hasFullData": false
+  },
+  {
+    "id": "dua-quran-shifa-quran",
+    "slug": "dua-quran-shifa-quran",
+    "titleBn": "কুরআন আরোগ্য ও রহমতস্বরূপ",
+    "titleEn": "The Quran as Healing and Mercy",
+    "category": "healing",
+    "arabic": "وَنُنَزِّلُ مِنَ الْقُرْآنِ مَا هُوَ شِفَاءٌ وَرَحْمَةٌ لِّلْمُؤْمِنِينَ",
+    "meaningBn": "আমি কুরআন থেকে এমন কিছু নাযিল করি যা মুমিনদের জন্য আরোগ্য ও রহমতস্বরূপ।",
+    "meaningEn": "And We send down of the Quran that which is healing and mercy for the believers.",
+    "source": "কুরআন, সূরা বনী ইসরাঈল ১৭:৮২"
+  },
+  {
+    "id": "dua-sick-prophetic",
+    "slug": "dua-sick-prophetic",
+    "titleBn": "রোগীর জন্য দোয়া (নবী মুহাম্মদ সা.)",
+    "titleEn": "Prayer for the Sick",
+    "category": "healing",
+    "arabic": "اللَّهُمَّ رَبَّ النَّاسِ أَذْهِبِ الْبَاسَ، اشْفِ أَنْتَ الشَّافِي، لَا شِفَاءَ إِلَّا شِفَاؤُكَ، شِفَاءً لَا يُغَادِرُ سَقَمًا",
+    "meaningBn": "হে আল্লাহ! হে মানুষের প্রতিপালক! কষ্ট দূর কর, আরোগ্য দাও — তুমিই আরোগ্যদাতা, তোমার আরোগ্য ছাড়া কোনো আরোগ্য নেই — এমন আরোগ্য যা কোনো রোগ অবশিষ্ট রাখে না।",
+    "meaningEn": "O Allah, Lord of mankind, remove the affliction and heal — You are the Healer, there is no healing except Your healing, a healing that leaves no illness behind.",
+    "source": "নবী মুহাম্মদ (সা.) থেকে বর্ণিত রোগীর জন্য দোয়া, শিয়া হাদিস গ্রন্থেও (যেমন বিহারুল আনওয়ার) উল্লেখ আছে"
+  },
+  {
+    "id": "dua-quran-yashfi-sudoor",
+    "slug": "dua-quran-yashfi-sudoor",
+    "titleBn": "অন্তরের প্রশান্তি ও আরোগ্যের আয়াত",
+    "titleEn": "The Verse of Healing for the Hearts",
+    "category": "healing",
+    "arabic": "وَشِفَاءٌ لِّمَا فِي الصُّدُورِ وَهُدًى وَرَحْمَةٌ لِّلْمُؤْمِنِينَ",
+    "meaningBn": "এবং এটি (কুরআন) অন্তরে যা কিছু আছে তার আরোগ্য, এবং মুমিনদের জন্য হেদায়েত ও রহমত।",
+    "meaningEn": "And a healing for what is in the breasts and a guidance and mercy for the believers.",
+    "source": "কুরআন, সূরা ইউনুস ১০:৫৭"
+  },
+  {
+    "id": "dua-quran-in-yamsaska-allah",
+    "slug": "dua-quran-in-yamsaska-allah",
+    "titleBn": "বিপদে একমাত্র আল্লাহই দূরকারী",
+    "titleEn": "Only Allah Can Remove Adversity",
+    "category": "healing",
+    "arabic": "وَإِن يَمْسَسْكَ اللَّهُ بِضُرٍّ فَلَا كَاشِفَ لَهُ إِلَّا هُوَ",
+    "meaningBn": "এবং আল্লাহ যদি তোমাকে কোনো ক্ষতি দিয়ে স্পর্শ করেন, তবে তিনি ব্যতীত তা দূরকারী কেউ নেই।",
+    "meaningEn": "And if Allah should touch you with adversity, there is no remover of it except Him.",
+    "source": "কুরআন, সূরা আল-আনআম ৬:১৭"
+  },
+  {
+    "id": "dua-quran-honey-shifa",
+    "slug": "dua-quran-honey-shifa",
+    "titleBn": "মধুতে আরোগ্যের আয়াত",
+    "titleEn": "The Verse of Healing in Honey",
+    "category": "healing",
+    "arabic": "يَخْرُجُ مِن بُطُونِهَا شَرَابٌ مُّخْتَلِفٌ أَلْوَانُهُ فِيهِ شِفَاءٌ لِّلنَّاسِ",
+    "meaningBn": "তাদের (মৌমাছির) পেট থেকে বের হয় বিভিন্ন রঙের পানীয় (মধু), যাতে মানুষের জন্য আরোগ্য রয়েছে।",
+    "meaningEn": "There emerges from their bellies a drink, varying in colours, in which there is healing for people.",
+    "source": "কুরআন, সূরা আন-নাহল ১৬:৬৯"
+  },
+  {
+    "id": "dua-sahifa-13-needs-excerpt",
+    "slug": "dua-sahifa-13-needs-excerpt",
+    "titleBn": "প্রয়োজন পূরণের দোয়া (সহিফা, দোয়া নং ১৩)",
+    "titleEn": "Prayer for Fulfilling Needs (Sahifa, Dua 13)",
+    "category": "healing",
+    "arabic": "اَللَّهُمَّ يَا مُنْتَهَى مَطْلَبِ الْحَاجَاتِ، وَيَا مَنْ عِنْدَهُ نَيْلُ الطَّلِبَاتِ",
+    "meaningBn": "হে আল্লাহ! হে সমস্ত প্রয়োজনের চূড়ান্ত ঠিকানা! হে তিনি, যাঁর কাছেই সকল আবেদন পূরণ হয়!",
+    "meaningEn": "O Allah, O ultimate destination of all needs, O the One with whom all requests are fulfilled!",
+    "source": "সহিফায়ে সাজ্জাদিয়া, দোয়া নং ১৩ (প্রয়োজন প্রার্থনার দোয়া) — ইমাম আলী জয়নুল আবিদীন (আ.)"
+  },
+  {
+    "id": "dua-ibrahim-wa-idha-maridtu",
+    "slug": "dua-ibrahim-wa-idha-maridtu",
+    "titleBn": "ইবরাহীম (আ.)-এর আরোগ্যের ঘোষণা",
+    "titleEn": "Ibrahim's Declaration on Healing",
+    "category": "healing",
+    "arabic": "وَإِذَا مَرِضْتُ فَهُوَ يَشْفِينِ",
+    "meaningBn": "এবং যখন আমি অসুস্থ হই, তখন তিনিই আমাকে আরোগ্য দান করেন।",
+    "meaningEn": "And when I am ill, it is He who cures me.",
+    "source": "কুরআন, সূরা আশ-শুআরা ২৬:৮০ — ইবরাহীম (আ.)-এর উক্তি"
+  },
+  {
+    "id": "dua-quran-huda-wa-shifa-41-44",
+    "slug": "dua-quran-huda-wa-shifa-41-44",
+    "titleBn": "মুমিনদের জন্য হেদায়েত ও আরোগ্য",
+    "titleEn": "Guidance and Healing for the Believers",
+    "category": "healing",
+    "arabic": "قُلْ هُوَ لِلَّذِينَ آمَنُوا هُدًى وَشِفَاءٌ",
+    "meaningBn": "বল, এটি (কুরআন) মুমিনদের জন্য হেদায়েত ও আরোগ্য।",
+    "meaningEn": "Say, it is, for those who believe, a guidance and healing.",
+    "source": "কুরআন, সূরা হা-মীম আস-সাজদা ৪১:৪৪"
   }
 ]
