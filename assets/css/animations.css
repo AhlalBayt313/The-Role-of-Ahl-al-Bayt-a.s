@@ -1,0 +1,305 @@
+/* ══════════════════════════════════════════════════════════════
+   STEP 11 — CSS-ONLY ANIMATION SYSTEM
+   STEP 12 — + scroll-triggered reveal states (section 3 below),
+             driven by IntersectionObserver in
+             assets/js/core/phase4-animations.js
+   ──────────────────────────────────────────────────────────────
+   Sections 1–2 are pure CSS, no JS required — opt-in utility
+   classes (add them to any element's `class` list in the existing
+   HTML/render templates) plus global micro-interaction utilities
+   for buttons, cards, links, icons, and inputs. Section 3 adds the
+   paused/running hook that phase4-animations.js toggles once an
+   element scrolls into view.
+
+   Does NOT add an animation library.
+
+   Timing (reuses the site's existing design tokens from style.css
+   so this system stays visually consistent with everything else):
+     --t-fast  = .15s  → micro-interactions (hover/focus)
+     --t-base  = .25s  → micro-interactions (upper end)
+     --t-slow  = .45s  → section / entrance animations
+
+   All motion is intentionally subtle: small offsets (≤ 16px),
+   small scale deltas (≤ 4%), no glow, no infinite loops.
+
+   ── FINAL AUDIT PASS ──
+   Full review against: duplicates, conflicts, unnecessary/excessive
+   motion, duration, transition consistency, hover behavior, fade/
+   slide correctness, mobile compatibility, prefers-reduced-motion.
+   No duplicate or conflicting keyframes found (cross-checked against
+   style.css — zero name collisions). Three small issues fixed, all
+   scoped to this file only:
+     1. .anim-icon:hover scale(1.08) exceeded this file's own ≤4%
+        cap → tightened to scale(1.04).
+     2. All :hover micro-interactions (btn/card/link/icon) are now
+        scoped to `(hover: hover) and (pointer: fine)` so a tap on a
+        touch screen can't leave the hover state visually "stuck."
+        Tap/active feedback is untouched.
+     3. .anim-input:focus box-shadow got a plain-color fallback ahead
+        of the color-mix() version, for older browsers without
+        color-mix() support.
+   Nothing was renamed, removed, or restructured beyond these fixes —
+   every existing class, keyframe, and selector still works exactly
+   as before for any code that already references them.
+
+   ── STEP 3 — style.css ↔ animations.css INTEGRATION AUDIT ──
+   Full cross-file review against: duplicate class-name/keyframe
+   collisions, animation/transition conflicts, overrides in either
+   direction, multiple transitions on one element, hover/transform/
+   opacity conflicts, z-index/position issues, mobile-breakpoint
+   conflicts, prefers-reduced-motion coverage. Zero class-name or
+   @keyframes collisions with style.css (confirmed above and
+   re-verified this pass). One real conflict found and fixed, scoped
+   to this file only:
+     4. style.css's --t-fast/--t-base/--t-slow tokens are NOT bare
+        durations — each already bundles its cubic-bezier easing
+        (e.g. `--t-fast:.15s cubic-bezier(.4,0,.2,1);`), which is how
+        style.css itself uses them everywhere else. This file's
+        transition rules (.anim-btn/.anim-card/.anim-link/.anim-icon/
+        .anim-input) were appending a *second*, literal
+        cubic-bezier(...) after var(--t-fast/--t-base, ...), producing
+        two timing-functions in one transition item — invalid CSS, so
+        browsers silently dropped those transitions (hover would snap
+        instead of animate). Likewise `animation-duration: var(--t-slow,
+        .45s);` tried to put a compound duration+easing value into a
+        property that only accepts a plain time, also invalid. Fixed
+        by folding the easing into each var()'s own fallback instead of
+        appending it (`var(--t-fast, .15s cubic-bezier(.4,0,.2,1))`),
+        and using the plain literal `.45s` for animation-duration.
+        Same visual timing as originally intended, now valid CSS.
+   Confirmed via a full DOM+CSSOM audit (see delivery notes): every
+   .anim-* transition/animation now resolves to a valid computed value,
+   card/button/link hover transitions are smooth, and the mobile /
+   prefers-reduced-motion behavior above is unaffected by this fix
+   (motion is subtle either way; this fix makes the *existing* subtle
+   motion actually run instead of silently no-op).
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── 1. ENTRANCE ANIMATIONS ───────────────────────────────────
+   Apply one class per element, e.g. class="card anim-fade-up".
+   Fires once on paint (fill-mode: both keeps the pre-animation
+   state until the animation starts, so there's no flash of the
+   final state before it runs). */
+
+.anim-fade-in,
+.anim-fade-up,
+.anim-fade-down,
+.anim-scale-in,
+.anim-slide-left,
+.anim-slide-right {
+    animation-duration: .45s;
+    animation-timing-function: cubic-bezier(.4, 0, .2, 1);
+    animation-fill-mode: both;
+}
+
+.anim-fade-in   { animation-name: animFadeIn; }
+.anim-fade-up   { animation-name: animFadeUp; }
+.anim-fade-down { animation-name: animFadeDown; }
+.anim-scale-in  { animation-name: animScaleIn; }
+.anim-slide-left  { animation-name: animSlideLeft; }
+.anim-slide-right { animation-name: animSlideRight; }
+
+@keyframes animFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes animFadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes animFadeDown {
+    from { opacity: 0; transform: translateY(-14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes animScaleIn {
+    from { opacity: 0; transform: scale(.96); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes animSlideLeft {
+    from { opacity: 0; transform: translateX(16px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes animSlideRight {
+    from { opacity: 0; transform: translateX(-16px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Optional small stagger helpers for a list/grid of entrance-
+   animated siblings (e.g. cards rendered in a loop) — subtle,
+   capped at 6 steps so a long list never ends up waiting long. */
+.anim-delay-1 { animation-delay: .06s; }
+.anim-delay-2 { animation-delay: .12s; }
+.anim-delay-3 { animation-delay: .18s; }
+.anim-delay-4 { animation-delay: .24s; }
+.anim-delay-5 { animation-delay: .30s; }
+.anim-delay-6 { animation-delay: .36s; }
+
+/* ── 2. MICRO-INTERACTIONS ────────────────────────────────────
+   Opt-in utility classes — add alongside existing component
+   classes without changing any current hover/focus styling
+   elsewhere in the project. Kept subtle: small lift, no glow,
+   no scale beyond 1.04.
+
+   Audit fix: the four `:hover` blocks below are now scoped to
+   `(hover: hover) and (pointer: fine)` — real mouse/trackpad
+   input only. Without this, a tap on a touch screen fires the
+   hover state and it can stay "stuck" until the user taps
+   elsewhere (a well-known mobile UX papercut). Touch/tap
+   feedback is unaffected — `.anim-btn:active` stays outside the
+   query and still fires on every device. */
+
+/* Button hover */
+.anim-btn {
+    transition: transform var(--t-fast, .15s cubic-bezier(.4, 0, .2, 1)),
+                box-shadow var(--t-fast, .15s cubic-bezier(.4, 0, .2, 1)),
+                filter var(--t-fast, .15s cubic-bezier(.4, 0, .2, 1));
+}
+.anim-btn:active {
+    transform: translateY(0);
+    filter: brightness(.98);
+}
+
+/* Card base (transition only — hover lift is in the media block below) */
+.anim-card {
+    transition: transform var(--t-base, .25s cubic-bezier(.4, 0, .2, 1)),
+                box-shadow var(--t-base, .25s cubic-bezier(.4, 0, .2, 1));
+}
+
+/* Link underline base */
+.anim-link {
+    position: relative;
+    transition: color var(--t-fast, .15s cubic-bezier(.4, 0, .2, 1));
+}
+.anim-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 100%;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform var(--t-fast, .15s cubic-bezier(.4, 0, .2, 1));
+}
+
+/* Icon base */
+.anim-icon {
+    display: inline-flex;
+    transition: transform var(--t-fast, .15s cubic-bezier(.4, 0, .2, 1)),
+                opacity var(--t-fast, .15s cubic-bezier(.4, 0, .2, 1));
+}
+
+/* Mouse/trackpad-only hover states (see audit note above) */
+@media (hover: hover) and (pointer: fine) {
+    .anim-btn:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.04);
+    }
+    .anim-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-card-hover, 0 16px 48px rgba(0,0,0,.15));
+    }
+    .anim-link:hover::after {
+        transform: scaleX(1);
+        transform-origin: left;
+    }
+    .anim-icon:hover {
+        /* Audit fix: was scale(1.08), which exceeded this file's own
+           ≤4% subtlety cap. Tightened to stay in line with every other
+           hover effect in this system. */
+        transform: scale(1.04);
+    }
+}
+
+/* Input focus */
+.anim-input {
+    transition: border-color var(--t-fast, .15s cubic-bezier(.4, 0, .2, 1)),
+                box-shadow var(--t-fast, .15s cubic-bezier(.4, 0, .2, 1));
+}
+.anim-input:focus {
+    outline: none;
+    border-color: var(--focus-ring-color, var(--emerald-600));
+    /* Audit fix: plain rgba fallback first for browsers without
+       color-mix() support — they simply keep this line since the
+       color-mix() line below is invalid and ignored. Browsers that
+       do support it apply the theme-aware version as before. */
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, .2);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--focus-ring-color, var(--emerald-600)) 20%, transparent);
+}
+
+/* ── 3. STEP 12 — SCROLL-TRIGGERED REVEALS (IntersectionObserver) ─
+   Deferred versions of the entrance animations above. `.anim-onscroll`
+   pairs with any `.anim-fade-*` / `.anim-scale-in` / `.anim-slide-*`
+   class to hold that animation paused at its 0% (hidden) frame until
+   assets/js/core/phase4-animations.js adds `.in-view` once the element
+   scrolls into the viewport. `.anim-reveal-image` / `-section` / `-card`
+   are ready-made shorthands (fade-in / fade-up / fade-up respectively)
+   for callers who don't need a specific direction — same paused → running
+   mechanism, no separate keyframes needed. Progressive enhancement: if
+   JS never runs, the element simply stays at its hidden 0% frame, so
+   this is opt-in only where the JS observer is guaranteed to run. */
+.anim-onscroll { animation-play-state: paused; }
+.anim-onscroll.in-view { animation-play-state: running; }
+
+.anim-reveal-image,
+.anim-reveal-section,
+.anim-reveal-card {
+    animation-duration: .45s;
+    animation-timing-function: cubic-bezier(.4, 0, .2, 1);
+    animation-fill-mode: both;
+    animation-play-state: paused;
+}
+.anim-reveal-image   { animation-name: animFadeIn; }
+.anim-reveal-section { animation-name: animFadeUp; }
+.anim-reveal-card    { animation-name: animFadeUp; }
+
+.anim-reveal-image.in-view,
+.anim-reveal-section.in-view,
+.anim-reveal-card.in-view {
+    animation-play-state: running;
+}
+
+/* ── 4. ACCESSIBILITY — prefers-reduced-motion ────────────────
+   Anyone with this OS setting gets every class above collapsed
+   to an instant, static state: no keyframe motion, no transform
+   transitions, content simply present with full opacity. This
+   only touches the new `.anim-*` classes added in this file — it
+   does not alter any pre-existing animation elsewhere in the
+   project. */
+@media (prefers-reduced-motion: reduce) {
+    .anim-fade-in,
+    .anim-fade-up,
+    .anim-fade-down,
+    .anim-scale-in,
+    .anim-slide-left,
+    .anim-slide-right,
+    .anim-reveal-image,
+    .anim-reveal-section,
+    .anim-reveal-card {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .anim-btn,
+    .anim-card,
+    .anim-link,
+    .anim-link::after,
+    .anim-icon,
+    .anim-input {
+        transition: none !important;
+    }
+
+    .anim-btn:hover,
+    .anim-btn:active,
+    .anim-card:hover,
+    .anim-icon:hover {
+        transform: none !important;
+    }
+}
