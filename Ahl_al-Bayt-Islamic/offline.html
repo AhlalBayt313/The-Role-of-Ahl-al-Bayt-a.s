@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>অফলাইন — আহলে বাইত (আ.)</title>
+<meta name="theme-color" content="#065f46">
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; height: 100%;
+    font-family: 'Hind Siliguri', 'Noto Sans Bengali', system-ui, sans-serif;
+    background: radial-gradient(circle at 30% 20%, #0a3d30 0%, #061410 70%);
+    color: #f0fdf8;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .wrap { text-align: center; max-width: 420px; }
+  .icon {
+    width: 88px; height: 88px; margin: 0 auto 24px;
+    border-radius: 22px; background: #065f46;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.4rem; box-shadow: 0 12px 32px rgba(0,0,0,.4);
+    border: 1px solid rgba(201,162,39,.35);
+  }
+  h1 { font-size: 1.3rem; font-weight: 800; margin: 0 0 10px; color: #ecfdf5; }
+  p { font-size: .92rem; line-height: 1.6; opacity: .82; margin: 0 0 22px; }
+  button {
+    background: linear-gradient(135deg,#059669,#065f46);
+    color: white; border: none; border-radius: 12px;
+    padding: 12px 28px; font-size: .9rem; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+    box-shadow: 0 6px 20px rgba(5,150,105,.35);
+  }
+  button:focus-visible { outline: 2px solid #c9a227; outline-offset: 2px; }
+  .hint { margin-top: 18px; font-size: .78rem; opacity: .55; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="icon" aria-hidden="true">☽</div>
+    <h1>আপনি এখন অফলাইনে আছেন</h1>
+    <p>এই পেজটি আগে থেকে সংরক্ষণ করা নেই, তাই ইন্টারনেট ছাড়া দেখানো যাচ্ছে না। ইতিমধ্যে দেখা পেজগুলো (হোম, দোয়া, প্রার্থনার সময়সূচী ইত্যাদি) অফলাইনেও কাজ করবে।</p>
+    <button onclick="location.reload()">আবার চেষ্টা করুন</button>
+    <p class="hint">You're offline — pages you've already visited will still work.</p>
+  </div>
+</body>
+</html>

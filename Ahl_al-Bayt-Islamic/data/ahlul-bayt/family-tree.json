@@ -1,0 +1,91 @@
+{
+  "1": {
+    "spouse": [
+      "fatima"
+    ],
+    "children": [
+      2,
+      3
+    ]
+  },
+  "2": {
+    "parents": [
+      1,
+      "fatima"
+    ],
+    "siblings": [
+      3
+    ]
+  },
+  "3": {
+    "parents": [
+      1,
+      "fatima"
+    ],
+    "siblings": [
+      2
+    ]
+  },
+  "4": {
+    "parents": [
+      3
+    ]
+  },
+  "5": {
+    "parents": [
+      4
+    ]
+  },
+  "6": {
+    "parents": [
+      5
+    ]
+  },
+  "7": {
+    "parents": [
+      6
+    ]
+  },
+  "8": {
+    "parents": [
+      7
+    ]
+  },
+  "9": {
+    "parents": [
+      8
+    ]
+  },
+  "10": {
+    "parents": [
+      9
+    ]
+  },
+  "11": {
+    "parents": [
+      10
+    ]
+  },
+  "12": {
+    "parents": [
+      11
+    ]
+  },
+  "prophet": {
+    "children": [
+      "fatima"
+    ]
+  },
+  "fatima": {
+    "parents": [
+      "prophet"
+    ],
+    "spouse": [
+      1
+    ],
+    "children": [
+      2,
+      3
+    ]
+  }
+}

@@ -1,0 +1,261 @@
+[
+  {
+    "id": "dua-talbiya",
+    "slug": "dua-talbiya",
+    "titleBn": "তালবিয়া",
+    "titleEn": "The Talbiya",
+    "titleAr": "التلبية",
+    "category": "hajj-umrah",
+    "collection": "ahlulbayt",
+    "tags": [
+      "hajj",
+      "umrah",
+      "ihram",
+      "talbiya"
+    ],
+    "relatedImams": [],
+    "arabic": "لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ لَبَّيْكَ لَا شَرِيكَ لَكَ لَبَّيْكَ",
+    "meaningBn": "আমি হাজির, হে আল্লাহ, আমি হাজির। তোমার কোনো শরিক নেই, আমি হাজির — ইহরাম বাঁধার পর মীকাত থেকে পাঠ করা হজ্জ ও উমরাহর মৌলিক ঘোষণা।",
+    "meaningEn": "Here I am, O Allah, here I am. You have no partner, here I am — the foundational declaration of Hajj and Umrah, recited from the Miqat after entering the state of Ihram.",
+    "source": "নবী মুহাম্মাদ (সা.) থেকে বর্ণিত ও আহলুল বাইতের ইমামগণ কর্তৃক ধারাবাহিকভাবে পঠিত",
+    "reference": "Narrated from the Prophet (Sahih al-Bukhari 1549; Sahih Muslim 1184) and continued in Shia hajj practice as recorded in Man La Yahduruhu al-Faqih and al-Kafi's chapters on Hajj; also documented at wikishia.net (\"Talbiya\")",
+    "compiler": "",
+    "searchKeywords": [
+      "talbiya",
+      "labbayk",
+      "hajj dua",
+      "umrah dua",
+      "তালবিয়া",
+      "ইহরাম"
+    ],
+    "readingTimeMin": 1,
+    "audioUrl": "",
+    "type": "dua",
+    "hasFullData": false,
+    "verses": [
+      {
+        "ar": "لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ",
+        "bn": "আমি হাজির, হে আল্লাহ, আমি হাজির।"
+      },
+      {
+        "ar": "لَبَّيْكَ لَا شَرِيكَ لَكَ لَبَّيْكَ",
+        "bn": "আমি হাজির, তোমার কোনো শরিক নেই, আমি হাজির।"
+      },
+      {
+        "ar": "إِنَّ الْحَمْدَ وَالنِّعْمَةَ لَكَ وَالْمُلْكَ لَا شَرِيكَ لَكَ",
+        "bn": "নিশ্চয় সকল প্রশংসা ও নিয়ামত তোমারই, এবং সার্বভৌমত্ব তোমারই — তোমার কোনো শরিক নেই।"
+      }
+    ]
+  },
+  {
+    "id": "dua-entering-ihram",
+    "slug": "dua-entering-ihram",
+    "titleBn": "ইহরাম বাঁধার দোয়া",
+    "titleEn": "Dua Upon Entering the State of Ihram",
+    "titleAr": "دعاء عند لبس الإحرام",
+    "category": "hajj-umrah",
+    "collection": "ahlulbayt",
+    "tags": [
+      "hajj",
+      "umrah",
+      "ihram",
+      "miqat"
+    ],
+    "relatedImams": [],
+    "arabic": "اَللَّهُمَّ إِنِّي أَسْأَلُكَ أَنْ تَجْعَلَنِي مِمَّنِ اسْتَجَابَ لَكَ",
+    "meaningBn": "হে আল্লাহ! আমাকে তোমার আহ্বানে সাড়া দানকারীদের অন্তর্ভুক্ত করো — মীকাতে ইহরাম বাঁধার পর ওয়াজিব নামাজের পরে পঠিত এই দোয়া, ইমামগণের নির্দেশনা অনুসারে হজ্জ ও উমরাহর নিয়্যাত সুদৃঢ় করে।",
+    "meaningEn": "O Allah, include me among those who have responded to Your call — recited after the obligatory prayer upon donning the Ihram cloth at the Miqat, affirming the intention for Hajj or Umrah as instructed in Shia hajj manuals.",
+    "source": "আহলুল বাইতের রীতি অনুসারে হজ্জ ও উমরাহর দোয়া",
+    "reference": "Recorded in Shia hajj-manual literature (documented at Duas.org's Hajj-Umra Duas compilation, drawing on Misbah al-Mutahajjid and Iqbal al-A'mal traditions for the rites of Ihram)",
+    "compiler": "",
+    "searchKeywords": [
+      "ihram dua",
+      "miqat dua",
+      "hajj dua",
+      "ইহরাম",
+      "উমরাহ"
+    ],
+    "readingTimeMin": 2,
+    "audioUrl": "",
+    "type": "dua",
+    "hasFullData": false,
+    "verses": [
+      {
+        "ar": "اَللَّهُمَّ إِنِّي أَسْأَلُكَ أَنْ تَجْعَلَنِي مِمَّنِ اسْتَجَابَ لَكَ",
+        "bn": "হে আল্লাহ! আমি তোমার কাছে চাই যে, আমাকে তাদের অন্তর্ভুক্ত করো যারা তোমার আহ্বানে সাড়া দিয়েছে।"
+      },
+      {
+        "ar": "وَآمَنَ بِوَعْدِكَ وَاتَّبَعَ أَمْرَكَ فَإِنِّي عَبْدُكَ وَفِي قَبْضَتِكَ",
+        "bn": "এবং তোমার প্রতিশ্রুতিতে বিশ্বাস করেছে ও তোমার নির্দেশ পালন করেছে — কেননা আমি তোমার বান্দা এবং তোমারই মুঠোয়।"
+      },
+      {
+        "ar": "لَا أُوقَى إِلَّا مَا وَقَيْتَ وَلَا آخُذُ إِلَّا مَا أَعْطَيْتَ",
+        "bn": "তুমি যা থেকে রক্ষা করো তা ছাড়া আমি রক্ষা পাই না, আর তুমি যা দাও তা ছাড়া আমি কিছু গ্রহণ করি না।"
+      },
+      {
+        "ar": "وَقَدْ ذَكَرْتَ الْحَجَّ فَأَسْأَلُكَ أَنْ تَعْزِمَ لِي عَلَيْهِ عَلَى كِتَابِكَ وَسُنَّةِ نَبِيِّكَ",
+        "bn": "তুমি হজ্জের কথা উল্লেখ করেছ, তাই আমি চাই তুমি আমাকে তোমার কিতাব ও তোমার নবীর সুন্নাহ অনুযায়ী তা সম্পন্ন করার দৃঢ় সংকল্প দাও।"
+      },
+      {
+        "ar": "وَتُقَوِّيَنِي عَلَى مَا ضَعُفْتُ عَنْهُ وَتُسَلِّمَ مِنِّي مَنَاسِكِي فِي يُسْرٍ مِنْكَ وَعَافِيَةٍ",
+        "bn": "আমি যাতে দুর্বল, তাতে আমাকে শক্তি দাও এবং তোমার পক্ষ থেকে সহজতা ও সুস্থতার সাথে আমার হজ্জের অনুষ্ঠানগুলো কবুল করো।"
+      },
+      {
+        "ar": "اَللَّهُمَّ إِنِّي خَرَجْتُ مِنْ شُقَّةٍ بَعِيدَةٍ وَأَنْفَقْتُ مَالِي ابْتِغَاءَ مَرْضَاتِكَ",
+        "bn": "হে আল্লাহ! আমি বহু দূর থেকে বের হয়েছি এবং তোমার সন্তুষ্টি লাভের আশায় আমার সম্পদ ব্যয় করেছি।"
+      },
+      {
+        "ar": "اَللَّهُمَّ فَتَمِّمْ لِي حَجَّتِي وَعُمْرَتِي",
+        "bn": "হে আল্লাহ! আমার হজ্জ ও উমরাহ সম্পূর্ণ করে দাও।"
+      }
+    ]
+  },
+  {
+    "id": "dua-facing-kaaba",
+    "slug": "dua-facing-kaaba",
+    "titleBn": "কাবাঘরের সম্মুখে দোয়া",
+    "titleEn": "Dua Upon Facing the Ka'bah",
+    "titleAr": "دعاء عند مشاهدة الكعبة",
+    "category": "hajj-umrah",
+    "collection": "ahlulbayt",
+    "tags": [
+      "hajj",
+      "umrah",
+      "kaaba",
+      "masjid al-haram"
+    ],
+    "relatedImams": [
+      "Ja'far al-Sadiq"
+    ],
+    "arabic": "اَللَّهُمَّ إِنِّي أَسْأَلُكَ فِي مَقَامِي هَذَا وَفِي أَوَّلِ مَنَاسِكِي أَنْ تَقْبَلَ تَوْبَتِي",
+    "meaningBn": "হে আল্লাহ! আমার এই দাঁড়ানোর স্থানে আমার তওবা কবুল করো — ইমাম জাফর আস-সাদিক (আ.) থেকে বর্ণিত, মসজিদুল হারামে প্রবেশ করে কাবাঘর দেখার পর হাত তুলে পঠিত দোয়া।",
+    "meaningEn": "O Allah, accept my repentance at this standing place — narrated from Imam Ja'far al-Sadiq, recited with raised hands upon entering Masjid al-Haram and beholding the Ka'bah.",
+    "source": "ইমাম জাফর আস-সাদিক (আ.) থেকে বর্ণিত",
+    "reference": "Attributed to Imam Ja'far al-Sadiq; recorded in Shia hajj-manual literature (documented at Duas.org's Hajj-Umra Duas compilation)",
+    "compiler": "",
+    "searchKeywords": [
+      "kaaba dua",
+      "masjid al-haram dua",
+      "hajj dua imam sadiq",
+      "কাবা"
+    ],
+    "readingTimeMin": 2,
+    "audioUrl": "",
+    "type": "dua",
+    "hasFullData": false,
+    "verses": [
+      {
+        "ar": "اَللَّهُمَّ إِنِّي أَسْأَلُكَ فِي مَقَامِي هَذَا وَفِي أَوَّلِ مَنَاسِكِي أَنْ تَقْبَلَ تَوْبَتِي",
+        "bn": "হে আল্লাহ! আমার এই দাঁড়ানোর স্থানে এবং আমার হজ্জের প্রথম আনুষ্ঠানিকতায় আমি চাই যে তুমি আমার তওবা কবুল করো।"
+      },
+      {
+        "ar": "وَأَنْ تَتَجَاوَزَ عَنْ خَطِيئَتِي وَتَضَعَ عَنِّي وِزْرِي",
+        "bn": "এবং আমার ভুলত্রুটি ক্ষমা করো ও আমার বোঝা হালকা করে দাও।"
+      },
+      {
+        "ar": "اَلْحَمْدُ لِلَّهِ الَّذِي بَلَّغَنِي بَيْتَهُ الْحَرَامَ",
+        "bn": "সকল প্রশংসা আল্লাহর, যিনি আমাকে তাঁর পবিত্র ঘরে পৌঁছে দিয়েছেন।"
+      },
+      {
+        "ar": "اَللَّهُمَّ إِنِّي أَشْهَدُ أَنَّ هَذَا بَيْتُكَ الْحَرَامُ الَّذِي جَعَلْتَهُ مَثَابَةً لِلنَّاسِ وَأَمْنًا",
+        "bn": "হে আল্লাহ! আমি সাক্ষ্য দিচ্ছি যে, এটি তোমার পবিত্র ঘর, যাকে তুমি মানুষের জন্য প্রত্যাবর্তনস্থল ও নিরাপত্তার স্থান বানিয়েছ।"
+      },
+      {
+        "ar": "اَللَّهُمَّ إِنِّي عَبْدُكَ وَالْبَلَدُ بَلَدُكَ وَالْبَيْتُ بَيْتُكَ جِئْتُ أَطْلُبُ رَحْمَتَكَ",
+        "bn": "হে আল্লাহ! আমি তোমার বান্দা, এই শহর তোমার শহর, এই ঘর তোমার ঘর — আমি তোমার রহমতের সন্ধানে এসেছি।"
+      },
+      {
+        "ar": "اَللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ وَاسْتَعْمِلْنِي بِطَاعَتِكَ وَمَرْضَاتِكَ",
+        "bn": "হে আল্লাহ! আমার জন্য তোমার রহমতের দরজাসমূহ খুলে দাও এবং আমাকে তোমার আনুগত্য ও সন্তুষ্টির কাজে নিয়োজিত রাখো।"
+      }
+    ]
+  },
+  {
+    "id": "dua-quran-hasanah-dunya-akhirah",
+    "slug": "dua-quran-hasanah-dunya-akhirah",
+    "titleBn": "দুনিয়া ও আখিরাতের কল্যাণের দোয়া (তাওয়াফের দোয়া)",
+    "titleEn": "Prayer for Good in This World and the Hereafter (Recited During Tawaf)",
+    "category": "hajj-umrah",
+    "arabic": "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ",
+    "meaningBn": "হে আমাদের রব! আমাদের দুনিয়াতে কল্যাণ দাও এবং আখিরাতেও কল্যাণ দাও, এবং আমাদের জাহান্নামের আজাব থেকে রক্ষা কর।",
+    "meaningEn": "Our Lord, give us good in this world and good in the Hereafter, and protect us from the punishment of the Fire.",
+    "source": "কুরআন, সূরা আল-বাকারা ২:২০১ — তাওয়াফের সময় বিশেষভাবে পঠিত"
+  },
+  {
+    "id": "dua-ibrahim-mecca",
+    "slug": "dua-ibrahim-mecca",
+    "titleBn": "ইবরাহীম (আ.)-এর মক্কার জন্য দোয়া",
+    "titleEn": "Prophet Ibrahim's Prayer for Mecca",
+    "category": "hajj-umrah",
+    "arabic": "رَّبَّنَا إِنِّي أَسْكَنتُ مِن ذُرِّيَّتِي بِوَادٍ غَيْرِ ذِي زَرْعٍ عِندَ بَيْتِكَ الْمُحَرَّمِ",
+    "meaningBn": "হে আমাদের রব! আমি আমার সন্তানদের কিছু অংশকে তোমার সম্মানিত ঘরের নিকট শস্যহীন উপত্যকায় বসবাস করিয়েছি।",
+    "meaningEn": "Our Lord, I have settled some of my descendants in an uncultivated valley near Your sacred House.",
+    "source": "কুরআন, সূরা ইবরাহীম ১৪:৩৭"
+  },
+  {
+    "id": "dua-ibrahim-ismail-kaaba",
+    "slug": "dua-ibrahim-ismail-kaaba",
+    "titleBn": "কাবাঘর নির্মাণের সময় ইবরাহীম ও ইসমাঈলের দোয়া",
+    "titleEn": "The Prayer of Ibrahim and Ismail While Building the Kaaba",
+    "category": "hajj-umrah",
+    "arabic": "رَبَّنَا تَقَبَّلْ مِنَّا ۖ إِنَّكَ أَنتَ السَّمِيعُ الْعَلِيمُ",
+    "meaningBn": "হে আমাদের রব! আমাদের এই কাজ কবুল কর, নিশ্চয় তুমি সর্বশ্রোতা, সর্বজ্ঞ।",
+    "meaningEn": "Our Lord, accept this from us. Indeed You are the Hearing, the Knowing.",
+    "source": "কুরআন, সূরা আল-বাকারা ২:১২৭"
+  },
+  {
+    "id": "dua-quran-awwala-bait",
+    "slug": "dua-quran-awwala-bait",
+    "titleBn": "মানবজাতির জন্য প্রথম ঘর (কাবা)",
+    "titleEn": "The First House Established for Mankind",
+    "category": "hajj-umrah",
+    "arabic": "إِنَّ أَوَّلَ بَيْتٍ وُضِعَ لِلنَّاسِ لَلَّذِي بِبَكَّةَ مُبَارَكًا وَهُدًى لِّلْعَالَمِينَ",
+    "meaningBn": "নিশ্চয় মানবজাতির জন্য স্থাপিত প্রথম ঘর সেটিই, যা মক্কায় অবস্থিত — বরকতময় ও বিশ্ববাসীর জন্য পথনির্দেশক।",
+    "meaningEn": "Indeed, the first House established for mankind was that at Bakkah (Mecca) — blessed and a guidance for the worlds.",
+    "source": "কুরআন, সূরা আলে ইমরান ৩:৯৬"
+  },
+  {
+    "id": "dua-quran-adhdhin-fin-nas",
+    "slug": "dua-quran-adhdhin-fin-nas",
+    "titleBn": "ইবরাহীম (আ.)-কে হজের ঘোষণার নির্দেশ",
+    "titleEn": "Ibrahim's Commission to Proclaim the Hajj",
+    "category": "hajj-umrah",
+    "arabic": "وَأَذِّن فِي النَّاسِ بِالْحَجِّ يَأْتُوكَ رِجَالًا وَعَلَىٰ كُلِّ ضَامِرٍ يَأْتِينَ مِن كُلِّ فَجٍّ عَمِيقٍ",
+    "meaningBn": "এবং মানুষের মধ্যে হজের ঘোষণা দাও, তারা তোমার কাছে আসবে পায়ে হেঁটে এবং দূরবর্তী প্রতিটি পথ থেকে ক্ষীণকায় উটে চড়ে।",
+    "meaningEn": "And proclaim to the people the Hajj; they will come to you on foot and on every lean camel, arriving from every distant pass.",
+    "source": "কুরআন, সূরা আল-হাজ্জ ২২:২৭"
+  },
+  {
+    "id": "dua-quran-safa-marwa",
+    "slug": "dua-quran-safa-marwa",
+    "titleBn": "সাফা-মারওয়া আল্লাহর নিদর্শন",
+    "titleEn": "Safa and Marwah are Among the Symbols of Allah",
+    "category": "hajj-umrah",
+    "arabic": "إِنَّ الصَّفَا وَالْمَرْوَةَ مِن شَعَائِرِ اللَّهِ ۖ فَمَنْ حَجَّ الْبَيْتَ أَوِ اعْتَمَرَ فَلَا جُنَاحَ عَلَيْهِ أَن يَطَّوَّفَ بِهِمَا",
+    "meaningBn": "নিশ্চয় সাফা ও মারওয়া আল্লাহর নিদর্শনসমূহের অন্তর্ভুক্ত, সুতরাং যে ব্যক্তি বাইতুল্লাহর হজ বা উমরাহ করে, তার জন্য এ দুটির মাঝে সাঈ করাতে কোনো দোষ নেই।",
+    "meaningEn": "Indeed, Safa and Marwah are among the symbols of Allah. So whoever makes Hajj to the House or performs Umrah — there is no blame upon him for walking between them.",
+    "source": "কুরআন, সূরা আল-বাকারা ২:১৫৮"
+  },
+  {
+    "id": "dua-quran-tawaf-atiq",
+    "slug": "dua-quran-tawaf-atiq",
+    "titleBn": "কাবাঘর তওয়াফের নির্দেশ",
+    "titleEn": "The Command to Circumambulate the Ancient House",
+    "category": "hajj-umrah",
+    "arabic": "ثُمَّ لْيَقْضُوا تَفَثَهُمْ وَلْيُوفُوا نُذُورَهُمْ وَلْيَطَّوَّفُوا بِالْبَيْتِ الْعَتِيقِ",
+    "meaningBn": "অতঃপর তারা যেন তাদের অপরিচ্ছন্নতা দূর করে, তাদের মানত পূর্ণ করে এবং প্রাচীন ঘর (কাবা) তওয়াফ করে।",
+    "meaningEn": "Then let them end their untidiness, fulfil their vows, and circumambulate the ancient House.",
+    "source": "কুরআন, সূরা আল-হাজ্জ ২২:২৯"
+  },
+  {
+    "id": "dua-quran-waman-dakhalahu-kana-amina",
+    "slug": "dua-quran-waman-dakhalahu-kana-amina",
+    "titleBn": "বাইতুল্লাহর নিরাপত্তা ও হজের দায়িত্ব",
+    "titleEn": "The Sanctuary and the Duty of Pilgrimage",
+    "category": "hajj-umrah",
+    "arabic": "وَمَن دَخَلَهُ كَانَ آمِنًا ۗ وَلِلَّهِ عَلَى النَّاسِ حِجُّ الْبَيْتِ مَنِ اسْتَطَاعَ إِلَيْهِ سَبِيلًا",
+    "meaningBn": "এবং যে তাতে প্রবেশ করে, সে নিরাপদ হয়ে যায়। আর আল্লাহর জন্য মানুষের উপর ফরজ, যে তার সামর্থ্য রাখে, বাইতুল্লাহর হজ করা।",
+    "meaningEn": "And whoever enters it shall be safe. And Hajj to the House is a duty owed to Allah by mankind for whoever is able to find a way.",
+    "source": "কুরআন, সূরা আলে ইমরান ৩:৯৭"
+  }
+]
