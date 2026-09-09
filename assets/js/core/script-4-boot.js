@@ -778,33 +778,29 @@ function registerPWA() {
         })
         .catch(e => console.error('SW registration failed:', e));
 
-    // ── 3. Dynamic PWA Manifest ──
-    try {
-        const manifest = {
-            name: 'আহলে বাইত (আ.)',
-            short_name: 'আহলে বাইত',
-            description: 'ইসলামিক জ্ঞান ও শিক্ষার জন্য আপনার বিশ্বস্ত উৎস',
-            start_url: './',
-            display: 'standalone',
-            orientation: 'portrait',
-            background_color: '#065f46',
-            theme_color: '#059669',
-            lang: 'bn',
-            categories: ['education', 'lifestyle'],
-            icons: [
-                {src:'./icon-192.png', sizes:'192x192', type:'image/png', purpose:'any'},
-                {src:'./icon-512.png', sizes:'512x512', type:'image/png', purpose:'any'},
-                {src:'./icon-512-maskable.png', sizes:'512x512', type:'image/png', purpose:'maskable'}
-            ],
-            shortcuts: [
-                {name:'নামাজের সময়', short_name:'নামাজ', url:'./?page=home', icons:[{src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><text y="20" font-size="20">🕌</text></svg>',sizes:'24x24'}]},
-                {name:'দোয়া', short_name:'দোয়া', url:'./?page=dua', icons:[{src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><text y="20" font-size="20">🤲</text></svg>',sizes:'24x24'}]}
-            ]
-        };
-        const mBlob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
-        const mUrl = URL.createObjectURL(mBlob);
-        document.getElementById('pwa-manifest').href = mUrl;
-    } catch(e) {}
+    // ── Auto-reload once when a new Service Worker takes control, so an
+    //    already-open tab (the common case on mobile, where people rarely
+    //    force-close a browser tab or PWA) actually picks up the new
+    //    JS/CSS after an update instead of continuing to run whatever it
+    //    loaded with until someone manually pulls-to-refresh. sw.js's
+    //    skipWaiting()/clients.claim() already make the new worker take
+    //    over quickly — this is the missing other half, reacting to that
+    //    handover on the page side. `_pwaReloading` guards against a
+    //    reload loop, since some browsers can fire 'controllerchange' more
+    //    than once. ──
+    let _pwaReloading = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (_pwaReloading) return;
+        _pwaReloading = true;
+        window.location.reload();
+    });
+
+    // ── 3. PWA Manifest — now a real static file (./manifest.json), linked
+    //      directly in index.html and sw.js-precached. No JS needed here
+    //      anymore; this used to build the manifest at runtime as a Blob
+    //      URL with a silent try/catch, which meant no manifest existed
+    //      until this ran (or at all, if it failed) — bad for
+    //      installability and impossible to precache for offline. ──
 }
 
 function showPWAInstallBanner() {
@@ -1895,10 +1891,11 @@ function closePersonDetail() {
   // prefers-reduced-motion collapses that 180ms to ~0 via the existing
   // global transition/animation-duration override, so no separate branch
   // is needed here.
+  // Uses the shared _animatedClose() helper (script-2-ui.js) for the
+  // reduceMotion/.closing/delay mechanics — only this callback (remove
+  // .closing, add .hidden) is specific to this modal.
   if (modal) {
-    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    modal.classList.add('closing');
-    setTimeout(() => { modal.classList.remove('closing'); modal.classList.add('hidden'); }, reduceMotion ? 0 : 180);
+    _animatedClose(modal, () => { modal.classList.remove('closing'); modal.classList.add('hidden'); });
   }
   if (window._personDetailEscHandler) {
     document.removeEventListener('keydown', window._personDetailEscHandler);
