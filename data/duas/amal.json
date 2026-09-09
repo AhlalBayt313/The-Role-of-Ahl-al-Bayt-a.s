@@ -1535,5 +1535,33 @@
         "bn": "অতঃপর ২ রাক‘আত যিয়ারতের নামায পড়বেন (প্রত্যেক রাক‘আতে সূরা ফাতিহার পর যেকোনো সূরা পড়তে পারেন)। নামায শেষে আল্লাহর কাছে নিজের প্রয়োজনসমূহ জানাবেন।"
       }
     ]
+  },
+  {
+    "titleBn": "ইমাম আলী নাকী আল-হাদী (আ.)-এর মাজারে যিয়ারত-পরবর্তী আমল",
+    "id": "amal-post-ziyarat-imam-hadi",
+    "slug": "amal-post-ziyarat-imam-hadi",
+    "titleEn": "Post-Ziyarat Rituals at the Shrine of Imam Ali al-Naqi al-Hadi (a.s.)",
+    "category": "special",
+    "occasion": "ইমাম আলী নাকী আল-হাদী (আ.)-এর যিয়ারতের পর, কাযিমাইনে",
+    "arabic": "اَللَّهُمَّ صَلِّ عَلَىٰ مُحَمَّدٍ وَآلِ مُحَمَّدٍ",
+    "meaningBn": "সমাধি চুম্বন, গাল মাটিতে রাখা, ২ রাকআত যিয়ারতের নামায ও সিজদায় প্রয়োজন প্রার্থনা",
+    "meaningEn": "Kissing the grave, placing the cheeks on the ground, a 2-rak'ah ziyarat prayer, and supplicating in sajda",
+    "source": "ইমাম আলী নাকী আল-হাদী (আ.)-এর যিয়ারত-পরবর্তী আমল",
+    "reference": "Mafatih al-Jinan (Sheikh Abbas Qummi)",
+    "compiler": "Sheikh Abbas Qummi",
+    "verses": [
+      {
+        "bn": "▶ যিয়ারত-পরবর্তী আমল"
+      },
+      {
+        "bn": "সমাধি চুম্বন করবেন এবং ডান গাল ও বাম গাল মাটিতে রাখবেন।"
+      },
+      {
+        "bn": "অতঃপর ২ রাক‘আত যিয়ারতের নামায পড়বেন।"
+      },
+      {
+        "bn": "ইচ্ছা করলে সিজদায় গিয়ে নিজের প্রয়োজনসমূহ প্রার্থনা করবেন।"
+      }
+    ]
   }
 ]

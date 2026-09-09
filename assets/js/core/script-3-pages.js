@@ -1534,8 +1534,8 @@ function renderImamsPage()
         ${state.showTimeline ? renderImamTimeline(d,l) : ''}
 
         <!-- ── Jump nav chips ── -->
-        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 1px 6px" class="hscroll-fade">
-            <div style="display:flex;gap:7px;width:max-content">${chips}</div>
+        <div style="padding:2px 1px 6px">
+            <div style="display:flex;flex-wrap:wrap;gap:7px;justify-content:center">${chips}</div>
         </div>
 
         <!-- ── মাসুমিন section: same 3D coverflow carousel design as the Imams ── -->
