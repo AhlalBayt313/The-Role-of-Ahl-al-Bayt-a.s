@@ -1,5 +1,13 @@
 
-const CACHE = 'ahlbayt-v78'; // v78: FIX — install-time STATIC precaching used
+const CACHE = 'ahlbayt-v79'; // v79: Content fix — metadata.json's "ziyarats"
+// lite-index was missing 5 entries that already existed in the full
+// ziyarat.json (ziyarat-imam-kazim-1/2, ziyarat-imam-jawad-3/4/5), so they
+// never appeared in the Ziyarat tab or its count at all — the UI list is
+// built from this metadata index, not from ziyarat.json directly. Added
+// the 5 missing lite entries (originalIndex 31,32,33,34,38 — the exact
+// gap left in the existing sequence). No JS changed; this is a data-only
+// fix, still needs a CACHE bump since metadata.json is itself precached.
+// v78: FIX — install-time STATIC precaching used
 // c.add()/c.addAll(), which honors the browser's own HTTP cache for its
 // internal fetch. A stale HTTP-cached copy of style.css/script-3-pages.js
 // etc. could therefore get written into a brand-new CACHE bucket, meaning
