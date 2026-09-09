@@ -1,5 +1,136 @@
 
-const CACHE = 'ahlbayt-v58'; // v58: Step 9 — Page/route transition polish. Discovered changePage() (script-1-core.js) already implements a full vanilla-JS fade+translateY page transition (exit: opacity/translateY over a timed delay → render() swaps <main> → enter: fade+translateY back in via double-rAF) — the single dispatcher every nav path (desktop header, mobile bottom nav, feature cards, footer, sidebar links) already funnels through via the one `case 'changePage'` handler, so no new integration points were needed. Three small, scoped fixes to that existing function only: (1) tightened 160ms exit + 280ms enter (440ms total) → 130ms + 230ms (360ms total) to land inside the requested ~200–400ms window, same easing/approach; (2) added an explicit prefers-reduced-motion check (same matchMedia idiom already used in toggleMenu()) that skips the fade entirely — instant render, no transition — for reduced-motion users, on top of the pre-existing global `*{transition-duration:.01ms!important}` reduced-motion rule already in style.css; (3) added a pending-timer guard (window._pageTransitionTimer, cleared/reset at the top of changePage()) so rapid repeat navigation cancels the previous in-flight transition instead of stacking two render() calls and restarting the enter-fade mid-flight. Detail-view navigations that set state.currentPage directly (readPost/readDua/readAmal/readZiyarat, imamDetail, familyTree) were left untouched — they already get a smooth CSS `page-enter`/`fade-in` entrance (fadeInUp keyframe) from their own render template, and wrapping them in the same JS exit/enter cycle risked double-firing against their existing async content-loading flows (ensureDuaContent/ensureAmalContent). No routing rewrite, no framework, no build step — everything above is the site's existing vanilla-JS `changePage()`/`render()` pipeline, minimally adjusted.
+const CACHE = 'ahlbayt-v78'; // v78: FIX — install-time STATIC precaching used
+// c.add()/c.addAll(), which honors the browser's own HTTP cache for its
+// internal fetch. A stale HTTP-cached copy of style.css/script-3-pages.js
+// etc. could therefore get written into a brand-new CACHE bucket, meaning
+// bumping this version string alone didn't guarantee fresh *content* —
+// this is why the imam/masumeen coverflow, family-tree, and calendar
+// animations weren't showing up on mobile even after several version
+// bumps. Now uses fetch(url,{cache:'reload'}) to force a real network
+// round-trip. Paired with a new controllerchange auto-reload in
+// script-4-boot.js so an already-open tab picks up a future update
+// without the user needing to manually clear cache.
+// v77: Content — added the standalone/main
+// Ziyarat of Imam Hasan al-Askari (a.s.) (data/duas/ziyarat.json id
+// ziyarat-hasan-askari-standalone, 50 verses, Arabic + Bengali meaning;
+// source: Mafatih al-Jinan, Ch.10 "Ziyarah of the Imams of Samarra", via
+// Sayyid Ibn Tawus). Tagged group:"hasan-askari" together with the
+// pre-existing Thursday-specific ziyarat-hasan-askari entry, so the two
+// now collapse into one expandable card via the v72 grouping mechanism
+// (metadata.json's lite index updated to match, originalIndex:35). No
+// JS touched — clusterZiyaratItems() (script-3-pages.js) is data-driven
+// and already handles any `.group` key generically.
+// v76: Hijri calendar month-switch slide
+// animation (calPrev/calNext, direction-aware) — style.css,
+// script-1-core.js (calState.lastNavDir), script-2-ui.js, script-3-pages.js.
+// v75: Prophet & Masumeen grid replaced with the
+// same 3D coverflow carousel design as the Twelve Imams (script-3-pages.js,
+// ahlul-bayt-unified.js) — separate index/DOM-query set (data-masumeen-*)
+// so the two carousels coexist without colliding; no new CSS (reuses the
+// existing .imam-coverflow-* rules as-is).
+// v74: Family Tree page (style.css only) —
+// generation-by-generation entrance (founder → connector → bridge →
+// connector → founding generation → lineage generation → the awaited
+// 12th), connector-line "growing" effect, slow respectful pulse on the
+// "in occultation" badge. CSS-only, reduced-motion respected, no JS/HTML
+// touched. Bumped so returning/installed-PWA clients pick up the CSS change.
+// v73: The Twelve Imams (AS) grid replaced with a
+// true CSS 3D coverflow carousel (style.css, ahlul-bayt-unified.js,
+// script-3-pages.js) — renderCard() output reused unchanged; outer
+// position/scale/rotation layer only. Bumped so returning/installed-PWA
+// clients pick up the CSS/JS change.
+// v72: Content/UI — the 8 separate Ziyarat
+// texts of Imam Ali ibn Musa al-Rida (a.s.) in the "12 Imams" Ziyarat list
+// (data/duas/ziyarat.json) now collapse into ONE expandable group card
+// instead of 8 flat rows. data/duas/ziyarat.json and metadata.json's
+// `ziyarats` lite index: those 8 entries tagged with a shared `group:
+// "imam-reza"` key plus groupTitleBn/En (shown on the collapsed card) and a
+// short variantLabelBn/En each (shown on its row once expanded) — no
+// existing field changed, all 8 ids/titles/content untouched.
+// script-3-pages.js: new clusterZiyaratItems() groups same-`.group` items
+// (2+ members) into one card, leaving every other Ziyarat entry — including
+// Imam Jawad's own 2 — rendered exactly as before (byte-for-byte identical
+// output, regression-tested). script-2-ui.js: new `toggleZiyaratGroup`
+// action (mirrors the existing toggleMuharramEvent expand/collapse idiom).
+// script-1-core.js: new `state.expandedZiyaratGroups` (mirrors
+// expandedMuharramEvents; ephemeral, not persisted to localStorage, same as
+// duaCatExpanded). Detail page, search results, bookmarks/favorites/copy/
+// share, and admin edit/delete are all unchanged and still operate
+// per-variant. v71: setupScrollReveal() and
+// setupHomeStatsCounter() (script-1-core.js) now guard on
+// 'IntersectionObserver' in window before constructing one, falling back
+// to instantly-visible/final-value instead of throwing on unsupported
+// browsers — mirrors the same fallback already used in
+// phase4-animations.js. Previously, throwing here (inside the render()
+// rAF callback) silently aborted initReadingProgress()+
+// setupHomeStatsCounter() every render on any browser without IO support.
+// v70: closeOverlayAnimated() and
+// closePersonDetail() no longer each hardcode their own copy of the
+// reduceMotion/.closing/setTimeout timing logic — factored into a shared
+// _animatedClose() helper (script-2-ui.js). No behavior change.
+// v69: manifest.json is a real static file again
+// (see comment further down) — precached here, linked directly in
+// index.html, no more runtime Blob generation in script-4-boot.js.
+// v68: removed dead .dua-card-accent CSS rule
+// (style.css) — 0 usages in any JS/HTML; the dua reading page's <article>
+// already has its own working animated gradient top-bar for the same
+// visual purpose, so this rule was fully superseded, not just unused.
+// v67 was already live in CACHE before this edit but its changelog
+// comment still said "v66" — that comment/version mismatch is now fixed.
+// v66: Modal/overlay exit animation — the
+// editor/login overlay family (Admin Login, Quiz, Knowledge, Dua, Hadith,
+// Ayah, Muharram, Shia Day, Blog editors — 9 close cases total) now plays
+// a reverse fade+scale before unmounting, mirroring the Person Detail
+// modal's existing .closing pattern (style.css). New shared helper
+// closeOverlayAnimated() (script-2-ui.js) adds .closing, then delays the
+// existing state-flip + render() by 180ms (0 under prefers-reduced-motion)
+// instead of instantly removing the overlay. Each close case's own state
+// mutation is unchanged — only the timing of render() after it moved.
+// v65: Accessibility fix — uc-card-row (Dua/Ziyarat/Amal
+// list rows, script-3-pages.js) now has role="button" tabindex="0" so keyboard
+// users can reach them; a new delegated keydown listener (script-2-ui.js,
+// [data-action][role="button"] → Enter/Space triggers .click(), existing
+// click listener untouched) also incidentally fixes the same gap on the
+// pre-existing imam-timeline-row, which already had data-action+role="button"
+// but no keyboard handler. No visual/behavioral change for mouse users.
+// v67: Removed the legacy assets/css/master-theme.css stylesheet and its
+// service-worker precache entry. index.html now relies on the remaining CSS files. v63: Correction Step — fixed blurry/washed-out
+// hero background pattern: regenerated hero-pattern-tile-dark/light.png at
+// their actual display resolution with a steeper alpha curve (root cause
+// was the browser upscaling a soft, low-alpha 201px source ~2.1x), raised
+// pattern opacity slightly, steepened the center-fade transition band, and
+// trimmed the glow overlay that was compounding the wash-out (style.css +
+// both tile PNGs). v62: Step 5 Hero Final Polish — light-mode gold/
+// tagline contrast fix, desktop prefers-reduced-motion coverage for hero
+// orbs/particles/dots/star-twinkle/crescent-pulse, minor .hero-orb-3 CSS
+// cleanup (style.css, script-2-ui.js). v61: Content update — added standalone Ziyarat of
+// Imam Muhammad al-Jawad (a.s.) to data/duas/ziyarat.json and the matching
+// lite-index entry in data/duas/metadata.json's `ziyarats` array (now 23
+// total). Sourced from Duas.org / Sayyid Ibn Tawus's al-Mazar. Bengali
+// translation is original. (A standalone Ziyarat for Ali Akbar was searched
+// for but not added — no verified independent text exists in the classical
+// collections; he is addressed within Ziyarat Ashura/al-Nahiya/al-Shuhada,
+// already present on the site.) No JS/CSS/HTML logic changed in this pass.
+// v60: Content update — added 2 more verified Ziyarat
+// entries: Sayyida Ruqayya (s.a., Damascus) and a standalone Ziyarat of Imam
+// Ali al-Rida (a.s.), to data/duas/ziyarat.json and the matching lite-index
+// entries in data/duas/metadata.json's `ziyarats` array (now 22 total).
+// Sourced from Mafatih al-Jinan (Sheikh Abbas Qummi) and Duas.org. Bengali
+// translations are original. No JS/CSS/HTML logic changed in this pass.
+// v59: Content update — added 3 new verified Ziyarat entries
+// (Sayyida Zainab s.a., Sayyida Fatima al-Ma'suma s.a. of Qum, and Ziyarat
+// al-Shuhada for the martyrs of Karbala) to data/duas/ziyarat.json and the
+// matching lite-index entries in data/duas/metadata.json's `ziyarats` array,
+// now with the COMPLETE verified text for all three (38 / 46 / 56 verses
+// respectively) rather than the earlier excerpted selections.
+// Arabic text and sourcing verified against Al-Islam.org (The Victory of
+// Truth: The Life of Zaynab bint Ali by Muna Haeri Bilgrami; Lady Fatima
+// Masuma (a) of Qum by Masuma Jaffer) and Duas.org (Ziyarat Nahiya page,
+// "Ziyarat of Martyrs" section, traced to Ibn Tawus's Iqbal al-A'mal,
+// al-Shaykh al-Mufid's al-Mazar, and Ibn al-Mashhadi's al-Mazar al-Kabir).
+// Bengali translations are original, not copied from any single translator's
+// copyrighted English rendering. No JS/CSS/HTML logic changed in this pass.
+// v58: Step 9 — Page/route transition polish. Discovered changePage() (script-1-core.js) already implements a full vanilla-JS fade+translateY page transition (exit: opacity/translateY over a timed delay → render() swaps <main> → enter: fade+translateY back in via double-rAF) — the single dispatcher every nav path (desktop header, mobile bottom nav, feature cards, footer, sidebar links) already funnels through via the one `case 'changePage'` handler, so no new integration points were needed. Three small, scoped fixes to that existing function only: (1) tightened 160ms exit + 280ms enter (440ms total) → 130ms + 230ms (360ms total) to land inside the requested ~200–400ms window, same easing/approach; (2) added an explicit prefers-reduced-motion check (same matchMedia idiom already used in toggleMenu()) that skips the fade entirely — instant render, no transition — for reduced-motion users, on top of the pre-existing global `*{transition-duration:.01ms!important}` reduced-motion rule already in style.css; (3) added a pending-timer guard (window._pageTransitionTimer, cleared/reset at the top of changePage()) so rapid repeat navigation cancels the previous in-flight transition instead of stacking two render() calls and restarting the enter-fade mid-flight. Detail-view navigations that set state.currentPage directly (readPost/readDua/readAmal/readZiyarat, imamDetail, familyTree) were left untouched — they already get a smooth CSS `page-enter`/`fade-in` entrance (fadeInUp keyframe) from their own render template, and wrapping them in the same JS exit/enter cycle risked double-firing against their existing async content-loading flows (ensureDuaContent/ensureAmalContent). No routing rewrite, no framework, no build step — everything above is the site's existing vanilla-JS `changePage()`/`render()` pipeline, minimally adjusted.
 // (Dua 15 When Sick, Dua 25 For his Children) sourced from Al-Islam.org/Duas.org —
 // sahifa-sajjadiya.json 13 -> 15 entries.
 // v35: Added 3 verified Sahifa al-Sajjadiyya duas
@@ -117,8 +248,11 @@ const CACHE = 'ahlbayt-v58'; // v58: Step 9 — Page/route transition polish. Di
 // folder structure. Old entries (./script.js, ./family-tree-data.js) removed
 // since those files no longer exist — script.js was split into 4 files under
 // assets/js/core/, family-tree-data.js was merged into ahlul-bayt-unified.js.
-// './manifest.json' removed — the manifest is generated at runtime as a Blob
-// URL (see script-4-boot.js), there is no static manifest.json file to fetch.
+// './manifest.json' removed (2026-07-23) — the manifest was generated at
+// runtime as a Blob URL. RE-ADDED (v68) as a real static file — the Blob
+// approach meant no manifest existed until JS ran (or at all, if the
+// try/catch silently failed), which hurt installability and couldn't be
+// precached for offline. See STATIC list below.
 // NOTE (2026-07-26): data/*.json single-file blobs (ahlul-bayt.json, duas.json,
 // knowledge-center.json, posts.json) removed — each was split into the
 // per-category files under data/ahlul-bayt/, data/duas/, and data/knowledge/
@@ -188,6 +322,7 @@ const STATIC = [
     './data/quiz/categories.json',
     './data/quiz/questions.json',
     './offline.html',
+    './manifest.json',
     './favicon.ico',
     './apple-touch-icon.png',
     './icon-192.png',
@@ -199,7 +334,19 @@ const FONT_CACHE = 'ahlbayt-fonts-v1';
 self.addEventListener('install', e => {
     e.waitUntil(
         caches.open(CACHE).then(c => {
-            return Promise.allSettled(STATIC.map(url => c.add(url).catch(()=>{})));
+            // {cache:'reload'} forces a real network round-trip, bypassing
+            // the browser's own HTTP cache (separate from this Cache
+            // Storage API bucket) — c.add()/c.addAll() would otherwise
+            // honor normal HTTP caching for their internal fetch, so a
+            // fresh CACHE *name* alone doesn't guarantee fresh *content*.
+            // This is why bumping CACHE wasn't enough on mobile: the new
+            // bucket could still get populated with a stale HTTP-cached
+            // copy of style.css/script-3-pages.js/etc.
+            return Promise.allSettled(STATIC.map(url =>
+                fetch(url, { cache: 'reload' })
+                    .then(res => { if (res && res.ok) return c.put(url, res); })
+                    .catch(() => {})
+            ));
         }).then(() => self.skipWaiting())
     );
 });
