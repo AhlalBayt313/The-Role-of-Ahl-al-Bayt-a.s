@@ -1086,7 +1086,7 @@ function renderReadDuaPage()
 
     // ── verse-by-verse reader (আয়াত বাই আয়াত) ──
     const versesHtml = hasVerses ? dua.verses.map((v, i) => `
-        <div class="dua-verse-row fade-in" style="
+        <div class="dua-verse-row reveal reveal-delay-${(i % 4) + 1}" style="
             display:grid;
             grid-template-columns:1fr 1fr;
             gap:0;
@@ -1848,8 +1848,8 @@ function renderImamDetailPage()
                 <div class="${d?'bg-gray-900':'bg-gray-50'} rounded-2xl p-5 mt-5">
                     <h3 class="font-bold mb-3 text-sm">📖 বিস্তারিত জীবনী</h3>
                     <div class="${d?'text-gray-300':'text-gray-700'} leading-relaxed text-sm">
-                        ${im.fullBioBn.map(sec => `
-                        <div style="margin-bottom:1rem">
+                        ${im.fullBioBn.map((sec, si) => `
+                        <div class="reveal reveal-delay-${(si % 4) + 1}" style="margin-bottom:1rem">
                             ${sec.heading ? `<h4 class="font-bold text-sm" style="color:${ac};margin-bottom:.5rem">${sanitize(sec.heading)}</h4>` : ''}
                             ${(sec.paragraphs || []).map(p => `<p style="margin-bottom:.6rem">${sanitize(p)}</p>`).join('')}
                         </div>`).join('')}
@@ -2073,7 +2073,7 @@ function renderQuizPlayingPage() {
             <span id="quiz-timer-num" class="text-sm font-bold ${d ? 'text-gray-300' : 'text-gray-600'}" style="min-width:1.6em;text-align:right">${l === 'bn' ? toBengaliDigits(Math.max(0, state.quizTimeLeft)) : Math.max(0, state.quizTimeLeft)}</span>
         </div>` : ''}
 
-        <div class="${d ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} border rounded-2xl p-8 max-w-2xl mx-auto">
+        <div class="reveal ${d ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} border rounded-2xl p-8 max-w-2xl mx-auto">
             <div class="flex items-center gap-2 mb-4">
                 <span class="text-xs font-bold px-2.5 py-1 rounded-full" style="background:${d ? cc.bgD : cc.bg};color:${cc.c}">${quizCatLabel(q.category, l)}</span>
                 <span class="text-xs font-semibold px-2.5 py-1 rounded-full ${d ? 'bg-gray-900 text-gray-400' : 'bg-gray-100 text-gray-500'}">${quizDiffLabel(q.difficulty, l)}</span>
@@ -2081,7 +2081,7 @@ function renderQuizPlayingPage() {
             <h2 class="text-xl font-bold mb-8">${sanitize(l === 'bn' ? q.qBn : q.qEn)}</h2>
             <div class="space-y-3">
                 ${q.options.map((opt, i) => {
-                    let cls = `quiz-option border-2 ${d ? 'bg-gray-900 border-gray-700' : 'bg-gray-50 border-gray-200'} rounded-xl px-5 py-4 w-full text-left font-medium`;
+                    let cls = `quiz-option reveal reveal-delay-${(i % 4) + 1} border-2 ${d ? 'bg-gray-900 border-gray-700' : 'bg-gray-50 border-gray-200'} rounded-xl px-5 py-4 w-full text-left font-medium`;
                     let stateLabel = '';
                     if (answered) {
                         if (i === q.correct) { cls += ' correct'; stateLabel = ` — ${l === 'bn' ? 'সঠিক উত্তর' : 'Correct answer'}`; }

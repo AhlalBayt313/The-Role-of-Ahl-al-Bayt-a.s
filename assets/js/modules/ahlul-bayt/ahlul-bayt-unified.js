@@ -348,22 +348,6 @@ function renderAhlulBaytHero() {
                 ${sanitize(subtitle)}
             </p>
 
-            <!-- Universal Person Search — UI placeholder only, not wired to
-                 existing search logic yet (Smart Search integration is
-                 explicitly out of scope for Section 1) -->
-            <div class="ab-hero-search" style="position:relative;max-width:480px;margin:0 auto">
-                <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);opacity:.55;pointer-events:none" aria-hidden="true">🔍</span>
-                <input type="text" id="ab-hero-search-input" disabled
-                    placeholder="${l==='bn'?'ব্যক্তিত্ব খুঁজুন (শীঘ্রই আসছে)...':'Search personalities (coming soon)...'}"
-                    style="width:100%;padding:13px 16px 13px 44px;border-radius:50px;font-size:.9rem;
-                        border:1.5px solid ${d?'rgba(255,255,255,.14)':'rgba(0,0,0,.08)'};
-                        background:${d?'rgba(255,255,255,.05)':'rgba(255,255,255,.7)'};
-                        color:${d?'#f9fafb':'#111827'};cursor:not-allowed"
-                    aria-label="${l==='bn'?'ব্যক্তিত্ব খুঁজুন':'Search personalities'}">
-            </div>
-            <p style="font-size:.7rem;margin-top:.5rem;opacity:.55">
-                ${l==='bn'?'🔧 সার্চ পরবর্তী ধাপে সক্রিয় হবে':'🔧 Search will be wired up in a later step'}
-            </p>
         </div>
     </div>`;
 }
