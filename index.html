@@ -2,6 +2,21 @@
 <html lang="bn" id="html-root">
 <head>
     <meta charset="UTF-8">
+    <script>
+    // Phase 3B correction 2: avoids a brief <html lang="bn"> flash for a
+    // returning visitor who had previously switched to English. Reads the
+    // SAME localStorage key script-1-core.js's loadState() already reads
+    // (KEYS.LANG = 'ahlbayt_lang') — no second language state, nothing new
+    // written or read. Only ever flips lang to 'en'; every other case (no
+    // saved preference, invalid value, storage unavailable/blocked) keeps
+    // the static default below, which already matches the app's own
+    // default language ('bn'). The app's normal boot still runs afterwards
+    // and re-syncs document.documentElement.lang itself, unchanged.
+    try {
+        var kcLangGuard = JSON.parse(localStorage.getItem('ahlbayt_lang'));
+        if (kcLangGuard === 'en') document.documentElement.lang = 'en';
+    } catch (e) {}
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
     <!-- Theme color: matches light/dark hero gradients so mobile browser chrome doesn't clash -->
@@ -12,7 +27,6 @@
     <meta name="author" content="MD Baker Ali">
     <meta name="robots" content="index, follow">
 
-    <!-- ⚠️ Replace with your real production domain before deploying -->
     <link rel="canonical" href="https://ahlalbayt313.github.io/The-Role-of-Ahl-al-Bayt-a.s/">
 
     <!-- Open Graph -->
@@ -20,9 +34,10 @@
     <meta property="og:site_name" content="আহলে বাইত (আ.) | Ahl al-Bayt (a.s)">
     <meta property="og:title" content="আহলে বাইত (আ.) | Ahl al-Bayt (a.s) — Islamic Knowledge">
     <meta property="og:description" content="আহলে বাইত (আ.) - ইসলামিক জ্ঞান ও শিক্ষার জন্য আপনার বিশ্বস্ত উৎস | Ahl al-Bayt (a.s) — Islamic Knowledge">
-    <!-- ⚠️ Replace with your real domain + a real 1200x630 share image -->
     <meta property="og:url" content="https://ahlalbayt313.github.io/The-Role-of-Ahl-al-Bayt-a.s/">
     <meta property="og:image" content="https://ahlalbayt313.github.io/The-Role-of-Ahl-al-Bayt-a.s/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <meta property="og:locale" content="bn_BD">
     <meta property="og:locale:alternate" content="en_US">
 
@@ -32,7 +47,6 @@
     <meta name="twitter:description" content="আহলে বাইত (আ.) - ইসলামিক জ্ঞান ও শিক্ষার জন্য আপনার বিশ্বস্ত উৎস | Ahl al-Bayt (a.s) — Islamic Knowledge">
     <meta name="twitter:image" content="https://ahlalbayt313.github.io/The-Role-of-Ahl-al-Bayt-a.s/og-image.jpg">
 
-    <!-- ⚠️ Verify these filenames exist in your project root, or update paths to match your actual icon assets -->
     <link rel="icon" href="favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
@@ -79,6 +93,12 @@
     </script>
 </head>
 <body class="bg-gray-50 text-gray-900 fs-medium islamic-pattern-bg">
+
+<!-- Skip-to-content: first focusable element in the document, so keyboard
+     and screen-reader users can bypass the header/nav on every page load
+     and navigation. Targets #main-content, added to the <main> element in
+     render() (script-4-boot.js). -->
+<a href="#main-content" class="skip-link">স্কিপ করে মূল কন্টেন্টে যান / Skip to main content</a>
 
 <!-- Fallback for users/crawlers without JavaScript — the app itself is entirely JS-rendered -->
 <noscript>

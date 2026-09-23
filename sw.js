@@ -1,5 +1,11 @@
 
-const CACHE = 'ahlbayt-v79'; // v79: Content fix — metadata.json's "ziyarats"
+const CACHE = 'ahlbayt-v85'; // v85: Knowledge Center Phase 3C accessibility batch (#16 persistent search-status live region, #17 Coming Soon card semantics, #18 40px touch targets for breadcrumb/pagination, #19 A−/A+ accessible names, #20 filter chips no longer inside a <nav> landmark) — JS/CSS changed, bumped so installed PWAs refresh.
+// v84: Phase 3B corrections (KC search now also finds Blog posts a KC topic actually surfaces — History/Akhlaq/etc. — via the same SearchEngine, no new index; static <html lang> no longer briefly contradicts a saved English preference) — JS/HTML changed, bumped so installed PWAs refresh.
+// v83: Knowledge Center Phase 3B (Hadith title/attribution hierarchy, scope-labelled searches incl. Global Search page text, English-mode Blog excerpts + lang attributes + <html lang>, Blog terminology) — JS/CSS changed, bumped so installed PWAs refresh.
+// v82: Knowledge Center Phase 3A (Related→Back stack extended to cover the new Saved view, topic/search breadcrumb, cross-tab Bookmarked/Favorites entry point, "All Topics" no longer clears an active search) — JS/CSS changed, bumped so installed PWAs refresh.
+// v80: Knowledge Center premium redesign (kcx) — knowledge-center.js (landing/explore/reading views
+// layered over the original renderer) + style.css (new kcx-* block). Bumped so returning/installed-PWA clients pick up the JS/CSS change.
+// v79: Content fix — metadata.json's "ziyarats"
 // lite-index was missing 5 entries that already existed in the full
 // ziyarat.json (ziyarat-imam-kazim-1/2, ziyarat-imam-jawad-3/4/5), so they
 // never appeared in the Ziyarat tab or its count at all — the UI list is
