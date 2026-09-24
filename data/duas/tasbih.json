@@ -193,5 +193,60 @@
     "meaningBn": "আসমান ও জমিনে যা কিছু আছে, সবই আল্লাহর তাসবিহ পাঠ করে — যিনি অধিপতি, পবিত্র, পরাক্রমশালী, প্রজ্ঞাময়।",
     "meaningEn": "Whatever is in the heavens and whatever is on the earth exalts Allah, the Sovereign, the Pure, the Exalted in Might, the Wise.",
     "source": "কুরআন, সূরা আল-জুমুআ ৬২:১"
+  },
+  {
+    "id": "dua-quran-sabbih-isma-rabbika-ala",
+    "slug": "dua-quran-sabbih-isma-rabbika-ala",
+    "titleBn": "সর্বোচ্চ প্রভুর নামের তাসবিহ",
+    "titleEn": "Glorify the Name of Your Most High Lord",
+    "category": "tasbih",
+    "arabic": "سَبِّحِ اسْمَ رَبِّكَ الْأَعْلَى",
+    "meaningBn": "তোমার সর্বোচ্চ প্রভুর নামের পবিত্রতা ঘোষণা কর — সূরা আল-আ'লার প্রথম আয়াত, যা থেকে সূরাটির নামকরণ হয়েছে।",
+    "meaningEn": "Exalt the name of your Lord, the Most High — the opening verse of Surah al-A'la, from which the chapter takes its name.",
+    "source": "কুরআন, সূরা আল-আ'লা ৮৭:১"
+  },
+  {
+    "id": "dua-quran-fasabbih-bihamdi-rabbika-wastaghfirh",
+    "slug": "dua-quran-fasabbih-bihamdi-rabbika-wastaghfirh",
+    "titleBn": "বিজয়ের পর তাসবিহ ও ইস্তিগফারের নির্দেশ",
+    "titleEn": "The Command to Glorify and Seek Forgiveness After Victory",
+    "category": "tasbih",
+    "arabic": "فَسَبِّحْ بِحَمْدِ رَبِّكَ وَاسْتَغْفِرْهُ ۚ إِنَّهُ كَانَ تَوَّابًا",
+    "meaningBn": "তোমার প্রভুর প্রশংসাসহ পবিত্রতা ঘোষণা কর এবং তাঁর কাছে ক্ষমা প্রার্থনা কর — নিশ্চয় তিনি তাওবা কবুলকারী। সূরা আন-নাসরের শেষ আয়াত, মক্কা বিজয়ের প্রেক্ষাপটে অবতীর্ণ।",
+    "meaningEn": "So exalt Allah with praise of your Lord and ask forgiveness of Him. Indeed, He is ever Accepting of repentance — the closing verse of Surah an-Nasr, revealed in the context of the conquest of Makkah.",
+    "source": "কুরআন, সূরা আন-নাসর ১১০:৩"
+  },
+  {
+    "id": "dua-quran-wasabbihu-bukratan-wa-asila",
+    "slug": "dua-quran-wasabbihu-bukratan-wa-asila",
+    "titleBn": "অধিক যিকর ও সকাল-সন্ধ্যা তাসবিহের নির্দেশ",
+    "titleEn": "The Command to Remember Allah Abundantly and Glorify Him Morning and Evening",
+    "category": "tasbih",
+    "arabic": "يَا أَيُّهَا الَّذِينَ آمَنُوا اذْكُرُوا اللَّهَ ذِكْرًا كَثِيرًا وَسَبِّحُوهُ بُكْرَةً وَأَصِيلًا",
+    "meaningBn": "হে ইমানদারগণ! তোমরা আল্লাহকে অধিক পরিমাণে স্মরণ কর এবং সকাল-সন্ধ্যা তাঁর পবিত্রতা ঘোষণা কর।",
+    "meaningEn": "O you who have believed, remember Allah with much remembrance and exalt Him morning and evening.",
+    "source": "কুরআন, সূরা আল-আহযাব ৩৩:৪১-৪২"
+  },
+  {
+    "id": "dua-quran-fasabbih-bismi-rabbikal-azim",
+    "slug": "dua-quran-fasabbih-bismi-rabbikal-azim",
+    "titleBn": "মহান প্রভুর নামের তাসবিহ",
+    "titleEn": "Glorify the Name of Your Great Lord",
+    "category": "tasbih",
+    "arabic": "فَسَبِّحْ بِاسْمِ رَبِّكَ الْعَظِيمِ",
+    "meaningBn": "তোমার মহান প্রভুর নামের পবিত্রতা ঘোষণা কর — সূরা আল-ওয়াকিয়ায় দুইবার (৫৬:৭৪ ও ৯৬) পুনরাবৃত্তি হওয়া এক গুরুত্বপূর্ণ তাসবিহ।",
+    "meaningEn": "So exalt the name of your Lord, the Most Great — an important glorification repeated twice in Surah al-Waqi'ah (verses 74 and 96).",
+    "source": "কুরআন, সূরা আল-ওয়াকিয়া ৫৬:৭৪, ৯৬"
+  },
+  {
+    "id": "dua-quran-wamin-al-layli-fasjud-sabbihhu",
+    "slug": "dua-quran-wamin-al-layli-fasjud-sabbihhu",
+    "titleBn": "সকাল-সন্ধ্যা ও রাতের দীর্ঘ তাসবিহের নির্দেশ",
+    "titleEn": "The Command for Morning, Evening, and Extended Night Glorification",
+    "category": "tasbih",
+    "arabic": "وَاذْكُرِ اسْمَ رَبِّكَ بُكْرَةً وَأَصِيلًا * وَمِنَ اللَّيْلِ فَاسْجُدْ لَهُ وَسَبِّحْهُ لَيْلًا طَوِيلًا",
+    "meaningBn": "তোমার প্রভুর নাম সকাল-সন্ধ্যা স্মরণ কর, আর রাতের কিছু অংশে তাঁর উদ্দেশ্যে সিজদা কর এবং দীর্ঘ রাত তাঁর পবিত্রতা ঘোষণা কর।",
+    "meaningEn": "And remember the name of your Lord morning and evening. And during a part of the night prostrate to Him and exalt Him a long [portion of the] night.",
+    "source": "কুরআন, সূরা আল-ইনসান ৭৬:২৫-২৬"
   }
 ]

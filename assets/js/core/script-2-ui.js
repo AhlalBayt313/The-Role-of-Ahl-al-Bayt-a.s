@@ -226,6 +226,7 @@ function setupEventListeners() {
                 case 'closeBlogEditor': closeBlogEditor(); break;
                 case 'saveBlogPost': saveBlogPost(); break;
                 case 'deleteCustomPost': deleteCustomPost(param); break;
+                case 'promptBlogWorkerSettings': promptBlogWorkerSettings(); break;
                 case 'setBlogFilter': state.blogFilter=param; render(); break;
                 // DUA / ZIYARAT
                 // ✅ REMOVED: duplicate 'setDuaTab' case (identical to the
@@ -558,6 +559,18 @@ function setupEventListeners() {
         if(e.key==='Escape'){
             if(state.menuOpen) toggleMenu();
             else if(state.showAdminLogin){state.showAdminLogin=false;state.adminLoginError='';render();}
+            // Admin content-editor modals — same Escape-to-close behavior as
+            // the menu/login above, just covering the seven editor modals
+            // (blog/dua/ziyarat/amal editors close via their own handlers
+            // already; these six use the showXEditor flag pattern).
+            else if(state.showQuizEditor){state.showQuizEditor=false;state.editingQuizQuestion=null;render();}
+            else if(state.showKnowledgeEditor){state.showKnowledgeEditor=false;state.editingKnowledgeItem=null;render();}
+            else if(state.showHadithEditor){state.showHadithEditor=false;state.editingHadith=null;render();}
+            else if(state.showAyahEditor){state.showAyahEditor=false;state.editingAyah=null;render();}
+            else if(state.showMuharramEditor){state.showMuharramEditor=false;state.editingMuharramEvent=null;render();}
+            else if(state.showShiaDayEditor){state.showShiaDayEditor=false;state.editingShiaDay=null;render();}
+            else if(state.showDuaEditor && typeof closeDuaEditor==='function'){closeDuaEditor();}
+            else if(state.showBlogEditor && typeof closeBlogEditor==='function'){closeBlogEditor();}
         }
         // Quiz keyboard shortcuts — only while actually playing, and only when
         // focus isn't in a text field (so this never interferes with typing,
@@ -857,6 +870,29 @@ function renderAdminLoginModal() {
 // ============================================================================
 // HEADER
 // ============================================================================
+// ─── Theme-aware header logo ────────────────────────────────────────────────
+// Dark/Light মোডের জন্য আলাদা লোগো। শুধু হেডার ব্যবহার করে — ফুটার ও স্প্ল্যাশের
+// ব্যাকগ্রাউন্ড সব সময় ডার্ক, তাই ওগুলো আগের logo-mark.png-ই রেখেছে (অপরিবর্তিত)।
+const THEME_LOGO_SRC = {
+    light: 'assets/images/logo-mark-light.png',
+    dark:  'assets/images/logo-mark-dark.png'
+};
+function getThemeLogoSrc(isDark) {
+    return isDark ? THEME_LOGO_SRC.dark : THEME_LOGO_SRC.light;
+}
+// দুই মোডের ছবিই লোডের পরে idle সময়ে একবার প্রি-ফেচ — প্রথম টগলে হেডারে ফাঁকা ঝলক এড়াতে।
+(function preloadThemeLogos() {
+    try {
+        window.addEventListener('load', function () {
+            setTimeout(function () {
+                [THEME_LOGO_SRC.light, THEME_LOGO_SRC.dark].forEach(function (u) {
+                    var im = new Image(); im.decoding = 'async'; im.src = u;
+                });
+            }, 1500);
+        });
+    } catch (e) { /* preload is best-effort only */ }
+})();
+
 function renderHeader()
 {
     const d=state.darkMode; const l=state.language;
@@ -889,7 +925,7 @@ function renderHeader()
                     <button data-action="changePage" data-param="home"
                         class="flex items-center gap-2.5 focus:outline-none group" aria-label="${t('home')}">
                         <div style="display:flex;align-items:center;flex-shrink:0;transition:transform var(--t-spring)" class="group-hover:scale-105">
-                            <img src="assets/images/logo-mark.png" alt="${l==='bn'?'আহলে বাইত':'Ahl al-Bayt'}" style="height:38px;width:38px;border-radius:50%;display:block" />
+                            <img src="${getThemeLogoSrc(d)}" alt="${l==='bn'?'আহলে বাইত':'Ahl al-Bayt'}" style="height:38px;width:38px;border-radius:50%;display:block" />
                         </div>
                         <div class="hidden sm:block">
                             <div class="font-bold text-sm leading-tight" style="background:linear-gradient(135deg,#059669,#b45309);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${l==='bn'?'আহলে বাইত':'Ahl al-Bayt'}</div>

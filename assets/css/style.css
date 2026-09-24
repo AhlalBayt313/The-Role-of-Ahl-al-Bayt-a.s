@@ -137,6 +137,38 @@ p { line-height: 1.7; }
     html { scroll-behavior: auto; }
 }
 
+/* Accessibility utilities */
+.sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+}
+/* Skip-to-content link: invisible until keyboard-focused, then pinned to
+   the top-left so keyboard/screen-reader users can jump past the header
+   nav straight to the main content instead of tabbing through every nav
+   item on every single page. */
+.skip-link {
+    position: absolute;
+    top: -100px;
+    left: 12px;
+    z-index: 9999;
+    background: #065f46;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 0 0 10px 10px;
+    font-weight: 700;
+    font-size: 14px;
+    text-decoration: none;
+    transition: top .15s ease;
+}
+.skip-link:focus {
+    top: 0;
+}
+
 /* Font size scaling */
 body.fs-small  { font-size: 14px; }
 body.fs-medium { font-size: 16px; }
@@ -3534,3 +3566,354 @@ button[data-action="setKcCategory"].rounded-2xl:hover {
        item here, included for completeness since it never stops. */
     .minaret-crescent { animation: none; }
 }
+
+/* ============================================================================
+   KNOWLEDGE CENTER — PREMIUM REDESIGN  (kcx-*)                    2026-09-19
+   Additive block: every selector here is new and prefixed `kcx-`. The existing
+   `.kc-*` rules above are untouched; the only place they are touched at all is
+   the scoped restyle under `.kcx-browse` (the original 4-tab UI, wrapped).
+   Colors come from the existing theme tokens (--color-*, --r-*, --shadow-*,
+   --t-*); dark mode follows html[data-theme="dark"] like the rest of the site.
+   Fonts are the ones already loaded (Poppins / Noto Serif Bengali / Amiri).
+   ============================================================================ */
+.kcx-scope {
+    --kcx-gold: #a97f1d; --kcx-gold-text: #84600e; --kcx-gold-soft: rgba(176,138,46,.13);
+    --kcx-card: var(--color-card-bg); --kcx-ink: var(--color-text); --kcx-muted: var(--color-text-muted);
+    --kcx-line: var(--color-border-subtle); --kcx-line-strong: var(--color-border);
+    --kcx-shadow: var(--app-shadow-sm); --kcx-paper: #fbf7ec;
+    --kcx-green: var(--emerald-700); --kcx-chip: rgba(5,150,105,.08);
+    --kcx-tag-hadith: #7c3aed; --kcx-tag-masail: #0f766e; --kcx-tag-qa: #2563eb; --kcx-tag-fatwa: #b45309; --kcx-tag-blog: #0369a1;
+    --kcx-serif: 'Noto Serif Bengali', 'Amiri', Georgia, 'Times New Roman', serif;
+    color: var(--kcx-ink);
+}
+html[data-theme="dark"] .kcx-scope {
+    --kcx-gold: #d9b657; --kcx-gold-text: #e6c877; --kcx-gold-soft: rgba(217,182,87,.14);
+    --kcx-paper: #16221d; --kcx-green: var(--emerald-400); --kcx-chip: rgba(52,211,153,.10);
+    --kcx-tag-hadith: #a78bfa; --kcx-tag-masail: #2dd4bf; --kcx-tag-qa: #60a5fa; --kcx-tag-fatwa: #fbbf24; --kcx-tag-blog: #7dd3fc;
+}
+.kcx-scope button { font-family: inherit; }
+.kcx-scope :focus-visible { outline: 2px solid var(--focus-ring-color); outline-offset: 2px; }
+/* The site-wide `button:focus-visible { border-radius: 6px }` (see "Accessibility: focus visible"
+   above) would square off every pill/rounded control while it has keyboard focus. Each kcx
+   control declares its own shape in --kcx-r; this higher-specificity rule applies it on focus,
+   so the outline follows the control's real shape. Controls without --kcx-r keep the 6px default. */
+.kcx-btn, .kcx-link, .kcx-chip, .kcx-seg-btn, .kcx-more, .kcx-act, .kcx-tool { --kcx-r: var(--r-full); }
+.kcx-clear { --kcx-r: 50%; }
+.kcx-topic, .kcx-secbtn { --kcx-r: var(--r-md); }
+.kcx-scope button:focus-visible, .kcx-scope a:focus-visible { border-radius: var(--kcx-r, 6px); }
+/* Phase 3C #18: pagination buttons are a 40px touch target around a 34px pill; pull the focus ring in so it still
+   sits 2px outside the VISIBLE pill, exactly as before. */
+.kcx-scope nav button[data-action="kcSetPage"]:focus-visible { outline-offset: -1px; }
+.kcx-page { display: flex; flex-direction: column; gap: 22px; max-width: 76rem; margin: 0 auto; }
+.kcx-pad { padding-top: 16px; }
+.kcx-ar { font-family: 'Amiri', 'Noto Naskh Arabic', serif; font-size: 1.18em; line-height: 2; }
+
+/* ---------- buttons / links ---------- */
+.kcx-btn, .kcx-link {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 8px 16px; cursor: pointer;
+    font-size: 13px; font-weight: 700; border-radius: var(--r-full);
+    background: var(--kcx-chip); color: var(--kcx-green); border: 1.5px solid rgba(5,150,105,.25);
+    transition: transform var(--t-fast), background var(--t-fast);
+}
+.kcx-link { background: transparent; border-color: transparent; padding: 8px 4px; min-height: 40px; }
+.kcx-btn:hover, .kcx-link:hover { background: rgba(5,150,105,.16); }
+
+/* ---------- hero ---------- */
+.kcx-hero {
+    position: relative; overflow: hidden; isolation: isolate; border-radius: var(--r-lg);
+    padding: 30px 18px 22px; color: #ecfdf5; box-shadow: var(--shadow-md);
+    background: radial-gradient(120% 140% at 12% 0%, #0b6b50 0%, #064e3b 38%, #032b21 72%, #0f1d2e 100%);
+}
+html[data-theme="dark"] .kcx-hero { background: radial-gradient(120% 140% at 12% 0%, #0a5a43 0%, #053d2f 40%, #021c15 75%, #0a1422 100%); box-shadow: var(--shadow-lg); }
+.kcx-hero-pattern {
+    position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; color: #e6c76b; opacity: .2; pointer-events: none;
+    -webkit-mask-image: radial-gradient(ellipse 70% 80% at 50% 45%, transparent 0%, transparent 28%, #000 88%);
+            mask-image: radial-gradient(ellipse 70% 80% at 50% 45%, transparent 0%, transparent 28%, #000 88%);
+}
+.kcx-hero-inner { max-width: 46rem; margin: 0 auto; text-align: center; display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
+.kcx-h1 { font-size: clamp(2rem, 7vw, 3.2rem); line-height: 1.15; font-weight: 800; color: #fff; letter-spacing: -.01em; margin: 0; }
+.kcx-h1::after { content: ''; display: block; width: 64px; height: 3px; margin: 12px auto 0; border-radius: 3px; background: linear-gradient(90deg, transparent, #e6c76b, transparent); }
+.kcx-sub { font-size: clamp(.98rem, 2.6vw, 1.2rem); line-height: 1.6; color: #d1fae5; margin: 4px 0 0; font-weight: 500; }
+.kcx-desc { font-size: .9rem; line-height: 1.7; color: rgba(236,253,245,.82); margin: 0; }
+.kcx-search {
+    display: flex; align-items: center; gap: 8px; min-height: 54px; margin-top: 10px; padding: 0 8px 0 18px;
+    border-radius: var(--r-full); background: #fff; color: #111827; box-shadow: 0 10px 30px rgba(0,0,0,.28);
+    border: 2px solid transparent; transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.kcx-search:focus-within { border-color: #e6c76b; box-shadow: 0 10px 30px rgba(0,0,0,.28), 0 0 0 4px rgba(230,199,107,.28); }
+html[data-theme="dark"] .kcx-search { background: #0d1c16; color: #f9fafb; border-color: rgba(255,255,255,.08); }
+.kcx-search-ico { flex-shrink: 0; opacity: .6; }
+.kcx-search input {
+    flex: 1; min-width: 0; height: 50px; background: transparent; border: 0; outline: 0; color: inherit;
+    font-size: 1rem; font-family: inherit; -webkit-appearance: none; appearance: none;
+}
+.kcx-search input::placeholder { color: #6b7280; opacity: 1; }
+html[data-theme="dark"] .kcx-search input::placeholder { color: #9ca3af; }
+.kcx-search input::-webkit-search-cancel-button, .kcx-search input::-webkit-search-decoration { -webkit-appearance: none; display: none; }
+.kcx-search:focus-within :focus-visible { outline: none; }
+.kcx-clear {
+    flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; border: 0; cursor: pointer; display: inline-flex;
+    align-items: center; justify-content: center; background: rgba(5,150,105,.12); color: #065f46;
+}
+html[data-theme="dark"] .kcx-clear { background: rgba(52,211,153,.16); color: #a7f3d0; }
+.kcx-clear[hidden] { display: none; }
+.kcx-stats { min-height: 4px; }
+.kcx-stats-list { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.kcx-stats-list li { font-size: 12px; padding: 5px 12px; border-radius: var(--r-full); background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.16); color: #ecfdf5; }
+.kcx-stats-list strong { color: #f5d97a; font-weight: 800; }
+
+/* ---------- topic chips (horizontal scroll on mobile) ---------- */
+.kcx-chips-wrap { margin: -8px -8px -10px; }
+.kcx-chips { display: flex; gap: 8px; overflow-x: auto; padding: 8px 8px 16px; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+.kcx-chip {
+    flex: 0 0 auto; scroll-snap-align: start; min-height: 42px; padding: 0 18px; cursor: pointer; white-space: nowrap;
+    font-size: 13.5px; font-weight: 700; border-radius: var(--r-full); color: var(--kcx-muted);
+    background: var(--kcx-card); border: 1.5px solid var(--kcx-line-strong); transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+}
+.kcx-chip:hover { border-color: var(--kcx-gold); color: var(--kcx-ink); }
+.kcx-chip[aria-pressed="true"] { color: #fff; border-color: transparent; background: linear-gradient(135deg, #059669, #065f46); box-shadow: 0 4px 14px rgba(5,150,105,.32); }
+@media (min-width: 900px) { .kcx-chips { flex-wrap: wrap; overflow: visible; } }
+
+/* ---------- sections ---------- */
+.kcx-body { display: flex; flex-direction: column; gap: 34px; }
+.kcx-section { display: block; }
+.kcx-sec-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.kcx-sec-head h2 { font-size: clamp(1.15rem, 3.4vw, 1.5rem); font-weight: 800; margin: 0; line-height: 1.3; }
+.kcx-sec-head h2::after { content: ''; display: block; width: 46px; height: 3px; margin-top: 7px; border-radius: 3px; background: linear-gradient(90deg, var(--kcx-gold), transparent); }
+.kcx-sec-head p { margin: 6px 0 0; font-size: .85rem; color: var(--kcx-muted); line-height: 1.55; }
+.kcx-grid { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 640px)  { .kcx-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .kcx-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; } }
+
+/* ---------- topic cards ---------- */
+.kcx-topics { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 640px)  { .kcx-topics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .kcx-topics { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; } }
+@media (min-width: 1280px) { .kcx-topics { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+
+/* ---------- saved (Bookmarked / Favorites) entry point — Phase 3A #6 ---------- */
+.kcx-saved-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.kcx-saved-row .kcx-btn { font-weight: 600; min-height: 44px; padding: 10px 18px; }
+
+.kcx-topic {
+    position: relative; display: flex; align-items: center; gap: 14px; text-align: left; width: 100%; min-height: 96px; padding: 16px;
+    border-radius: var(--r-md); background: var(--kcx-card); color: var(--kcx-ink); border: 1px solid var(--kcx-line-strong); box-shadow: var(--kcx-shadow);
+    cursor: pointer; transition: transform var(--t-base), box-shadow var(--t-base), border-color var(--t-base);
+}
+@media (min-width: 1280px) { .kcx-topic { flex-direction: column; align-items: flex-start; } }
+.kcx-topic-txt { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.kcx-topic-name, .kcx-soon h3 { font-size: 1rem; font-weight: 800; line-height: 1.3; margin: 0; }
+.kcx-topic-desc, .kcx-soon p { font-size: .78rem; line-height: 1.5; color: var(--kcx-muted); margin: 0; }
+.kcx-count { margin-top: 4px; font-size: .74rem; font-weight: 800; color: var(--kcx-green); }
+@media (hover: hover) and (pointer: fine) {
+    .kcx-topic:not(.kcx-soon):hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: var(--kcx-gold); }
+}
+.kcx-medal { position: relative; flex: 0 0 auto; width: 52px; height: 52px; display: inline-flex; align-items: center; justify-content: center; }
+.kcx-medal::before, .kcx-medal::after {
+    content: ''; position: absolute; inset: 5px; border: 1.5px solid var(--kcx-gold); border-radius: 7px; background: var(--kcx-gold-soft);
+}
+.kcx-medal::after { transform: rotate(45deg); background: transparent; }
+.kcx-medal-ico { position: relative; z-index: 1; font-size: 1.35rem; line-height: 1; }
+.kcx-soon { cursor: default; border-style: dashed; background: transparent; box-shadow: none; }
+.kcx-soon .kcx-medal { opacity: .55; filter: grayscale(.4); }
+.kcx-soon h3, .kcx-soon p { opacity: .85; }
+.kcx-soon-pill {
+    align-self: flex-start; margin-top: 5px; font-size: .68rem; font-weight: 800; letter-spacing: .03em; padding: 3px 10px; border-radius: var(--r-full);
+    color: var(--kcx-gold-text); background: var(--kcx-gold-soft); border: 1px solid rgba(176,138,46,.4);
+}
+
+/* ---------- knowledge card ---------- */
+.kcx-card {
+    position: relative; display: flex; flex-direction: column; gap: 10px; padding: 18px 16px 14px; overflow: hidden;
+    background: var(--kcx-card); border: 1px solid var(--kcx-line-strong); border-radius: var(--r-md); box-shadow: var(--kcx-shadow);
+    transition: transform var(--t-base), box-shadow var(--t-base), border-color var(--t-base);
+    animation: kcxFade .38s ease-out both;
+}
+.kcx-card::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: linear-gradient(90deg, var(--kcx-accent, #059669), var(--kcx-gold), transparent 90%); opacity: .85; }
+.kcx-card::after {
+    content: ''; position: absolute; right: -14px; bottom: -14px; width: 84px; height: 84px; pointer-events: none; opacity: .5;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M24.0 2.0 L28.4 13.4 L39.6 8.4 L34.6 19.6 L46.0 24.0 L34.6 28.4 L39.6 39.6 L28.4 34.6 L24.0 46.0 L19.6 34.6 L8.4 39.6 L13.4 28.4 L2.0 24.0 L13.4 19.6 L8.4 8.4 L19.6 13.4Z' fill='none' stroke='%23b08a2e' stroke-opacity='.4' stroke-width='1'/%3E%3C/svg%3E") no-repeat center / contain;
+}
+@media (hover: hover) and (pointer: fine) { .kcx-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: var(--kcx-gold); } }
+.kcx-card--featured::before { height: 4px; }
+.kcx-static .kcx-card { animation: none; }
+@keyframes kcxFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.kcx-card-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; position: relative; z-index: 1; }
+.kcx-badge {
+    display: inline-flex; align-items: center; gap: 5px; font-size: .72rem; font-weight: 800; padding: 3px 11px; border-radius: var(--r-full);
+    color: var(--kcx-gold-text); background: var(--kcx-gold-soft); border: 1px solid rgba(176,138,46,.32);
+}
+.kcx-tag { font-size: .68rem; font-weight: 800; padding: 3px 10px; border-radius: var(--r-full); color: var(--kcx-tag-color, var(--kcx-green)); border: 1px solid currentColor; }
+/* Tag text colours: one per content kind (keeps Hadith / Masail / Q&A / Fatwa / Blog distinguishable)
+   and each ≥ 4.5:1 on the card AND the reading-mode paper, in both themes. The raw tab colours
+   (--kcx-accent) stay for decorative use only (hairlines, borders) — they fail AA as small text. */
+.kcx-tag[data-kind="hadith"] { --kcx-tag-color: var(--kcx-tag-hadith); }
+.kcx-tag[data-kind="masail"] { --kcx-tag-color: var(--kcx-tag-masail); }
+.kcx-tag[data-kind="qa"]     { --kcx-tag-color: var(--kcx-tag-qa); }
+.kcx-tag[data-kind="fatwa"]  { --kcx-tag-color: var(--kcx-tag-fatwa); }
+.kcx-tag[data-kind="blog"]   { --kcx-tag-color: var(--kcx-tag-blog); }
+.kcx-card-title {
+    position: relative; z-index: 1; margin: 0; font-size: 1.02rem; line-height: 1.5; font-weight: 700; color: var(--kcx-ink);
+    font-family: var(--kcx-serif); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.kcx-card-attr { position: relative; z-index: 1; margin: 0; font-size: .8rem; font-weight: 600; color: var(--kcx-muted); font-family: var(--kcx-serif); }
+.kcx-card-attr::before { content: '— '; }
+.kcx-card-excerpt {
+    position: relative; z-index: 1; margin: 0; font-size: .85rem; line-height: 1.7; color: var(--kcx-muted);
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.kcx-meta { position: relative; z-index: 1; list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .74rem; color: var(--kcx-muted); }
+.kcx-meta li { display: inline-flex; align-items: center; gap: 4px; }
+.kcx-meta-src { flex-basis: 100%; }
+.kcx-more {
+    position: relative; z-index: 1; align-self: flex-start; margin-top: auto; min-height: 42px; padding: 0 18px; cursor: pointer;
+    font-size: .82rem; font-weight: 800; color: #fff; border: 0; border-radius: var(--r-full);
+    background: linear-gradient(135deg, #059669, #065f46); box-shadow: 0 3px 10px rgba(5,150,105,.28);
+    transition: transform var(--t-fast), box-shadow var(--t-fast), filter var(--t-fast);
+}
+.kcx-more:hover { transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 6px 16px rgba(5,150,105,.36); }
+.kcx-card--blog .kcx-more { background: linear-gradient(135deg, #0284c7, #075985); box-shadow: 0 3px 10px rgba(2,132,199,.28); }
+.kcx-mark { background: rgba(230,199,107,.55); color: inherit; padding: 0 2px; border-radius: 3px; }
+html[data-theme="dark"] .kcx-mark { background: rgba(217,182,87,.38); }
+
+/* ---------- browse-by-section buttons ---------- */
+.kcx-sections { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 560px)  { .kcx-sections { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .kcx-sections { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.kcx-secbtn {
+    display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 12px 16px; text-align: left; cursor: pointer;
+    color: var(--kcx-ink); background: var(--kcx-card); border: 1px solid var(--kcx-line-strong); border-left: 4px solid var(--kcx-accent); border-radius: var(--r-md);
+    box-shadow: var(--kcx-shadow); transition: transform var(--t-base), box-shadow var(--t-base);
+}
+.kcx-secbtn-ico { font-size: 1.5rem; }
+.kcx-secbtn-txt { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.kcx-secbtn-txt strong { font-size: .95rem; }
+.kcx-secbtn-txt span { font-size: .75rem; color: var(--kcx-muted); }
+.kcx-secbtn-go { color: var(--kcx-muted); }
+@media (hover: hover) and (pointer: fine) { .kcx-secbtn:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); } }
+
+/* ---------- explore (results) ---------- */
+.kcx-explore-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; scroll-margin-top: 80px; }
+.kcx-explore-head h2 { font-size: clamp(1.15rem, 3.4vw, 1.5rem); font-weight: 800; margin: 0; overflow-wrap: anywhere; }
+.kcx-count-line { margin: 4px 0 0; font-size: .82rem; color: var(--kcx-muted); }
+.kcx-seg { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.kcx-seg-btn { min-height: 40px; padding: 0 14px; border-radius: var(--r-full); font-size: 12.5px; font-weight: 700; cursor: pointer; color: var(--kcx-muted); background: transparent; border: 1.5px solid var(--kcx-line-strong); }
+.kcx-seg-btn[aria-pressed="true"] { color: var(--kcx-green); background: var(--kcx-chip); border-color: rgba(5,150,105,.45); }
+.kcx-empty { text-align: center; padding: 44px 16px; color: var(--kcx-muted); display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.kcx-empty-ico { font-size: 2.6rem; opacity: .55; }
+.kcx-empty-t { margin: 0; font-weight: 800; font-size: 1.05rem; color: var(--kcx-ink); }
+.kcx-empty-s { margin: 0 0 6px; font-size: .88rem; }
+
+/* ---------- article / reading page ---------- */
+.kcx-crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: .8rem; color: var(--kcx-muted); }
+/* Phase 3C #18: ~40px touch target for breadcrumb buttons (were 32px tall, ~22px wide in Bengali). Only the
+   TARGET grows: padding makes the box >= 40px, the negative margins hand the extra space back to the layout
+   (footprint stays label + 4px, row height stays 32px), so the visible spacing around each "/" is unchanged. */
+.kcx-crumbs button { background: none; border: 0; padding: 10px 11.5px; min-height: 40px; min-width: 40px; margin: -4px -9.5px; cursor: pointer; color: var(--kcx-green); font-weight: 600; }
+.kcx-crumbs button:hover { text-decoration: underline; }
+/* Legacy tab-UI breadcrumb (kcBreadcrumb): its buttons were bare 16px-tall text. Same technique. */
+.kc-crumb-btn { padding: 0 12px; min-height: 40px; min-width: 40px; margin: -12px; }
+.kcx-crumbs [aria-current] { color: var(--kcx-ink); font-weight: 700; }
+.kcx-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.kcx-reader-tools { display: flex; align-items: center; gap: 6px; }
+.kcx-tool {
+    min-width: 42px; min-height: 42px; padding: 0 12px; border-radius: var(--r-full); cursor: pointer; font-weight: 800; font-size: 14px;
+    color: var(--kcx-ink); background: var(--kcx-card); border: 1.5px solid var(--kcx-line-strong);
+}
+.kcx-tool small { font-size: 11px; margin-left: 1px; }
+.kcx-tool--wide { font-size: 12.5px; }
+.kcx-tool[aria-pressed="true"] { color: #fff; border-color: transparent; background: linear-gradient(135deg, #059669, #065f46); }
+.kcx-article {
+    --kcx-fs: 1; width: 100%; max-width: 48rem; margin: 0 auto; padding: 22px 18px 20px; position: relative; overflow: hidden;
+    background: var(--kcx-card); border: 1px solid var(--kcx-line-strong); border-radius: var(--r-lg); box-shadow: var(--shadow-md);
+    font-size: calc(1rem * var(--kcx-fs));
+}
+.kcx-article::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: linear-gradient(90deg, var(--kcx-accent, #059669), var(--kcx-gold), transparent 92%); }
+.kcx-article::after {
+    content: ''; position: absolute; right: -22px; top: -22px; width: 130px; height: 130px; pointer-events: none; opacity: .5;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M24.0 2.0 L28.4 13.4 L39.6 8.4 L34.6 19.6 L46.0 24.0 L34.6 28.4 L39.6 39.6 L28.4 34.6 L24.0 46.0 L19.6 34.6 L8.4 39.6 L13.4 28.4 L2.0 24.0 L13.4 19.6 L8.4 8.4 L19.6 13.4Z' fill='none' stroke='%23b08a2e' stroke-opacity='.35' stroke-width='1'/%3E%3C/svg%3E") no-repeat center / contain;
+}
+@media (min-width: 720px) { .kcx-article { padding: 34px 40px 28px; } }
+.kcx-article-head { position: relative; z-index: 1; margin-bottom: 14px; }
+.kcx-article-title { margin: 12px 0 0; font-size: clamp(1.3em, 4.6vw, 1.9em); line-height: 1.45; font-weight: 700; font-family: var(--kcx-serif); overflow-wrap: anywhere; }
+.kcx-article-body { position: relative; z-index: 1; }
+.kcx-h2 { margin: 22px 0 8px; font-size: .78em; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--kcx-gold-text); }
+.kcx-p { margin: 0 0 12px; font-size: 1.02em; line-height: 1.95; font-family: var(--kcx-serif); overflow-wrap: anywhere; }
+.kcx-p--muted { color: var(--kcx-muted); font-size: .92em; font-family: inherit; line-height: 1.75; }
+.kcx-lead { padding: 4px 16px; margin: 0 0 8px; border-inline-start: 4px solid var(--kcx-accent, #059669); background: var(--kcx-chip); border-radius: 0 var(--r-sm) var(--r-sm) 0; }
+.kcx-quote { margin: 8px 0 14px; padding: 18px 18px 14px; border-inline-start: 4px solid var(--kcx-gold); background: var(--kcx-gold-soft); border-radius: 0 var(--r-md) var(--r-md) 0; }
+.kcx-quote blockquote { margin: 0; font-family: var(--kcx-serif); font-size: 1.18em; font-weight: 600; line-height: 1.95; overflow-wrap: anywhere; }
+.kcx-quote figcaption { margin-top: 10px; font-size: .88em; font-weight: 700; color: var(--kcx-gold-text); font-family: var(--kcx-serif); }
+.kcx-refs { position: relative; z-index: 1; margin-top: 18px; padding-top: 6px; border-top: 1px dashed var(--kcx-line-strong); }
+.kcx-refs dl { margin: 0; display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 560px) { .kcx-refs dl { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.kcx-refs dt { font-size: .75em; font-weight: 800; color: var(--kcx-muted); }
+.kcx-refs dd { margin: 2px 0 0; font-size: .92em; line-height: 1.6; overflow-wrap: anywhere; }
+.kcx-callout { position: relative; z-index: 1; margin: 6px 0 12px; padding: 12px 14px; border-radius: var(--r-sm); font-size: .82em; line-height: 1.65; background: rgba(107,114,128,.12); border: 1px solid rgba(107,114,128,.3); }
+.kcx-callout--warn { background: rgba(220,38,38,.08); border-color: rgba(220,38,38,.25); color: #b91c1c; }
+html[data-theme="dark"] .kcx-callout--warn { color: #fca5a5; }
+.kcx-loadline { position: relative; z-index: 1; font-size: .8em; color: var(--kcx-muted); margin: 4px 0 8px; }
+.kcx-actions { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--kcx-line); }
+.kcx-act {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 42px; padding: 0 16px; cursor: pointer; font-size: 12.5px; font-weight: 700; border-radius: var(--r-full);
+    color: var(--kcx-ink); background: var(--kcx-card); border: 1.5px solid var(--kcx-line-strong); transition: background var(--t-fast), border-color var(--t-fast);
+}
+.kcx-act:hover { background: var(--kcx-chip); border-color: rgba(5,150,105,.4); }
+.kcx-act[aria-pressed="true"] { border-color: var(--kcx-gold); background: var(--kcx-gold-soft); }
+.kcx-related { max-width: 76rem; margin: 6px auto 0; width: 100%; }
+
+/* Reading mode: calm paper background, larger serif text, narrower measure,
+   decorative elements and breadcrumbs stepped out of the way. */
+.kcx-reading .kcx-crumbs, .kcx-reading .kcx-article::after { display: none; }
+.kcx-reading .kcx-article { max-width: 42rem; background: var(--kcx-paper); box-shadow: none; font-size: calc(1.12rem * var(--kcx-fs)); border-color: var(--kcx-line); }
+.kcx-reading .kcx-p { line-height: 2.1; }
+.kcx-reading .kcx-actions { border-top-style: dashed; }
+
+/* ---------- original 4-tab UI, wrapped: same components, premium skin ----------
+   Scoped to .kcx-browse so the .kc-* rules themselves are untouched. */
+.kcx-browse { max-width: 76rem; margin: 0 auto; }
+.kcx-browsebar { margin-bottom: 14px; }
+.kcx-browse .kc-card {
+    border-color: var(--kcx-line-strong) !important; border-radius: var(--r-md) !important; box-shadow: var(--kcx-shadow) !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M24.0 2.0 L28.4 13.4 L39.6 8.4 L34.6 19.6 L46.0 24.0 L34.6 28.4 L39.6 39.6 L28.4 34.6 L24.0 46.0 L19.6 34.6 L8.4 39.6 L13.4 28.4 L2.0 24.0 L13.4 19.6 L8.4 8.4 L19.6 13.4Z' fill='none' stroke='%23b08a2e' stroke-opacity='.3' stroke-width='1'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important; background-position: right -38px bottom -38px !important; background-size: 84px 84px !important;
+}
+.kcx-browse .kc-card:hover { border-color: var(--kcx-gold) !important; }
+.kcx-browse [role="tablist"] { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 6px; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+.kcx-browse [role="tablist"] > button { flex: 0 0 auto; min-height: 44px; }
+.kcx-browse .kc-card-actions .kc-act-main, .kcx-browse .kc-card-actions .kc-act-icon { min-height: 40px; }
+.kcx-browse .kc-card-actions .kc-act-icon { min-width: 40px; }
+
+/* ---------- small screens ---------- */
+@media (max-width: 480px) {
+    .kcx-hero { padding: 24px 14px 18px; }
+    .kcx-topic { padding: 14px; }
+    .kcx-medal { width: 46px; height: 46px; }
+    .kcx-tool--wide { padding: 0 10px; flex: 1; }
+    .kcx-toolbar > .kcx-btn { flex: 1 1 100%; justify-content: center; }
+    .kcx-reader-tools { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .kcx-card, .kcx-topic, .kcx-secbtn, .kcx-more, .kcx-btn { animation: none !important; transition: none !important; }
+}
+
+/* ---------- Phase 3B additions (all kcx-*) ---------- */
+/* Hadith reading page (#8): the hadith text is the page's single H1, styled as the quotation it is;
+   the narrator is the byline (figcaption) under it. */
+.kcx-article-head .kcx-quote { margin: 12px 0 0; }
+.kcx-quote .kcx-article-title { margin: 0; font-family: var(--kcx-serif); font-size: clamp(1.15em, 4.2vw, 1.6em); font-weight: 600; line-height: 1.9; overflow-wrap: anywhere; }
+.kcx-byline { margin: 10px 0 0; font-size: .9em; font-weight: 700; color: var(--kcx-gold-text); font-family: var(--kcx-serif); }
+/* Search scope notes (#9): under the hero search (on the dark-green hero), in the results header and
+   under the legacy tab search (both on page colours). */
+.kcx-scope-note { margin: 2px 0 0; font-size: .8rem; line-height: 1.55; color: rgba(236,253,245,.92); text-align: center; }
+.kcx-scope-note--page { margin: 8px 2px 4px; color: var(--kcx-muted); text-align: left; }
+.kcx-scope-note--inline { margin: 4px 0 0; color: var(--kcx-muted); text-align: left; }
+.kcx-note-link {
+    display: inline-flex; align-items: center; min-height: 40px; padding: 0 4px; cursor: pointer; background: none; border: 0;
+    font: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; color: #f5d97a;
+}
+.kcx-note-link:hover { text-decoration-thickness: 2px; }
+.kcx-scope-note--page .kcx-note-link, .kcx-scope-note--inline .kcx-note-link { color: var(--kcx-green); }
+/* the site's green focus ring is too dark against the dark-green hero; gold there */
+.kcx-hero :focus-visible { outline-color: #f5d97a; }
+.kcx-empty-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }

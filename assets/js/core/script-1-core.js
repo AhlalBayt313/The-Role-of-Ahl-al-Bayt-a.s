@@ -1,20 +1,24 @@
-// ── Live Upload Feature — DISABLED ──────────────────────────────────
+// ── Live Upload Feature — CONDITIONALLY ENABLED via Cloudflare Worker ──
 // 2026-07-18/19: Cloudinary → GitHub Contents API migration was attempted
 // and reverted the same day. GitHub automatically revokes any GitHub PAT
 // it detects committed to a public repo (confirmed via GitHub's own docs)
 // — the token died with "Bad credentials" immediately after the first
-// push, regardless of push-protection's "I'll fix it later" option. A
-// working version would need a server-side proxy (e.g. Cloudflare Worker)
-// to keep the token out of client-side code entirely.
+// push, regardless of push-protection's "I'll fix it later" option.
 //
-// Decision: no live upload feature for now. This flag hides admin
-// upload/edit/delete UI that would otherwise need it (currently: the
-// blog's New/Edit/Delete Post buttons in blog.js — the Media Library and
-// PDF Library that used to also depend on this flag have both been
-// removed entirely, along with their upload UI). Content is instead added
-// by editing the relevant data file directly (e.g. blogPosts in blog.js)
-// and pushing via git.
-const UPLOAD_LIVE_FEATURE_ENABLED = window.UPLOAD_LIVE_FEATURE_ENABLED || false;
+// Fix (this session): the GitHub token now lives ONLY as a Cloudflare
+// Worker secret (see /server/publish-worker.js in the repo) — it never
+// touches client-side code. The admin enters the Worker's URL + a shared
+// secret (NOT the GitHub token itself) via "⚙️ Publish Settings" in the
+// Blog page; those two values are stored in this browser's localStorage
+// only. This flag turns on New/Edit/Delete Post UI once both are set.
+// Until the Worker is deployed and configured, the flag stays false and
+// the editor falls back to local-only saves (see saveBlogPost()).
+function _hasBlogWorkerConfigured() {
+    try {
+        return !!(localStorage.getItem('ahlbayt_blog_worker_url') && localStorage.getItem('ahlbayt_blog_worker_secret'));
+    } catch(e) { return false; }
+}
+const UPLOAD_LIVE_FEATURE_ENABLED = window.UPLOAD_LIVE_FEATURE_ENABLED || _hasBlogWorkerConfigured();
 window.UPLOAD_LIVE_FEATURE_ENABLED = UPLOAD_LIVE_FEATURE_ENABLED;
 
 // ============================================================================
@@ -1160,7 +1164,8 @@ const translations = {
         newPost:'নতুন পোস্ট', editPost:'পোস্ট সম্পাদনা', deletePost:'মুছুন',
         savePost:'সংরক্ষণ করুন', cancel:'বাতিল', title:'শিরোনাম', content:'বিষয়বস্তু',
         notifyPrayer:'নামাজের রিমাইন্ডার', enableNotify:'নোটিফিকেশন চালু করুন',
-        ahlulBaytUnified:'আহলুল বাইত (আ)'
+        ahlulBaytUnified:'আহলুল বাইত (আ)',
+        typeImam:'ইমাম', typeDua:'দোয়া', typeBlog:'ব্লগ', typeZiyarat:'যিয়ারত', typeAmal:'আমল'
     },
     en:{
         knowledgeCenter:'Knowledge Center', dua:'Dua', contact:'Contact', blog:'Islamic Blog', home:'Home',
@@ -1178,7 +1183,8 @@ const translations = {
         newPost:'New Post', editPost:'Edit Post', deletePost:'Delete',
         savePost:'Save Post', cancel:'Cancel', title:'Title', content:'Content',
         notifyPrayer:'Prayer Reminder', enableNotify:'Enable Notifications',
-        ahlulBaytUnified:'Ahlul Bayt (AS)'
+        ahlulBaytUnified:'Ahlul Bayt (AS)',
+        typeImam:'Imam', typeDua:'Dua', typeBlog:'Blog', typeZiyarat:'Ziyarat', typeAmal:'Amal'
     }
 };
 function t(key){ return translations[state.language][key]||key; }

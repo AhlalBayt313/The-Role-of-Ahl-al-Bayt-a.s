@@ -720,7 +720,7 @@ function render() {
     appDiv.innerHTML = `
         ${renderMobileMenu()}
         ${renderHeader()}
-        <main class="max-w-7xl mx-auto px-4 py-8" role="main">
+        <main id="main-content" tabindex="-1" class="max-w-7xl mx-auto px-4 py-8" role="main">
             ${renderMainContent()}
         </main>
         ${renderFooter()}

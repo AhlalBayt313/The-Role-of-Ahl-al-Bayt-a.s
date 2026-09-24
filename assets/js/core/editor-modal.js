@@ -12,7 +12,7 @@ function renderHadithEditorModal() {
     const d = state.darkMode; const l = state.language;
     const h = state.editingHadith || {};
     return `
-    <div class="modal-overlay fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto" style="background:rgba(0,0,0,0.7)">
+    <div class="modal-overlay fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto" style="background:rgba(0,0,0,0.7)" role="dialog" aria-modal="true">
         <div class="${d?'bg-gray-900':'bg-white'} rounded-3xl p-6 w-full max-w-lg shadow-2xl my-auto">
             <div class="flex justify-between items-center mb-5">
                 <h3 class="font-bold text-lg">📜 ${l==='bn'?(h._idx!=null?'হাদিস সম্পাদনা':'নতুন হাদিস'):(h._idx!=null?'Edit Hadith':'New Hadith')}</h3>
@@ -53,7 +53,7 @@ function renderQuizEditorModal() {
     const opts = q.options || [{}, {}, {}, {}];
     const correct = q.correct != null ? q.correct : 0;
     return `
-    <div class="modal-overlay fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto" style="background:rgba(0,0,0,0.7)">
+    <div class="modal-overlay fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto" style="background:rgba(0,0,0,0.7)" role="dialog" aria-modal="true">
         <div class="${d?'bg-gray-900':'bg-white'} rounded-3xl p-6 w-full max-w-2xl shadow-2xl my-auto">
             <div class="flex justify-between items-center mb-5">
                 <h3 class="font-bold text-lg">🧠 ${l==='bn'?(q._idx!=null?'প্রশ্ন সম্পাদনা':'নতুন প্রশ্ন'):(q._idx!=null?'Edit Question':'New Question')}</h3>
@@ -128,7 +128,7 @@ function renderAyahEditorModal() {
     const d = state.darkMode; const l = state.language;
     const a = state.editingAyah || {};
     return `
-    <div class="modal-overlay fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto" style="background:rgba(0,0,0,0.7)">
+    <div class="modal-overlay fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto" style="background:rgba(0,0,0,0.7)" role="dialog" aria-modal="true">
         <div class="${d?'bg-gray-900':'bg-white'} rounded-3xl p-6 w-full max-w-lg shadow-2xl my-auto">
             <div class="flex justify-between items-center mb-5">
                 <h3 class="font-bold text-lg">🌙 ${l==='bn'?(a._idx!=null?'আয়াত সম্পাদনা':'নতুন আয়াত'):(a._idx!=null?'Edit Ayah':'New Ayah')}</h3>
@@ -182,7 +182,7 @@ function renderKnowledgeEditorModal() {
     const c=colors[type]||'green';
     const titleLabel=titles[type]||{bn:'',en:''};
     return `
-    <div class="fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4 overflow-y-auto" id="knowledge-editor-overlay">
+    <div class="fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4 overflow-y-auto" id="knowledge-editor-overlay" role="dialog" aria-modal="true">
         <div class="${d?'bg-gray-900 border-gray-700':'bg-white border-gray-200'} border rounded-2xl w-full max-w-2xl shadow-2xl fade-in my-4">
             <div class="flex justify-between items-center p-6 border-b ${d?'border-gray-700':'border-gray-100'}">
                 <h3 class="font-bold text-lg">${isNew?(l==='bn'?'নতুন যোগ করুন':'Add New'):(l==='bn'?'সম্পাদনা':'Edit')} — ${l==='bn'?titleLabel.bn:titleLabel.en}</h3>
@@ -322,7 +322,7 @@ function renderDuaEditorModal() {
     const ringClass = isAmal ? 'amal-focus-ring' : `focus:ring-${accentColor}-500`;
     const saveBtnClass = isAmal ? 'amal-btn-violet' : (isZiyarat?'bg-amber-600 hover:bg-amber-700':'bg-green-600 hover:bg-green-700');
     return `
-    <div class="fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4 overflow-y-auto" id="dua-editor-overlay">
+    <div class="fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4 overflow-y-auto" id="dua-editor-overlay" role="dialog" aria-modal="true">
         <div class="${d?'bg-gray-900 border-gray-700':'bg-white border-gray-200'} border rounded-2xl w-full max-w-2xl shadow-2xl fade-in my-4">
             <!-- Header -->
             <div class="flex justify-between items-center p-6 border-b ${d?'border-gray-700':'border-gray-100'}">
@@ -438,7 +438,7 @@ function renderMuharramEditorModal() {
     const d = state.darkMode, ev = state.editingMuharramEvent;
     const isNew = !state.muharramEvents.find(x=>x.id===ev.id);
     return `
-    <div class="fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4 overflow-y-auto" role="dialog" aria-modal="true">
         <div class="${d?'bg-gray-900 border-gray-700':'bg-white border-gray-200'} border rounded-2xl w-full max-w-lg shadow-2xl fade-in my-4">
             <div class="flex items-center justify-between p-5 border-b ${d?'border-gray-700':'border-gray-100'}">
                 <h3 class="font-bold text-lg flex items-center gap-2">⚔️ ${isNew?'নতুন কারবালা ঘটনা যোগ':'ঘটনা সম্পাদনা'}</h3>
@@ -487,7 +487,7 @@ function renderShiaDayEditorModal() {
     const isNew = !state.shiaSpecialDays.find(x=>x.id===sd.id);
     const types = [['eid','🎉 ঈদ/উৎসব'],['martyrdom','🕊️ শাহাদাত'],['special','⭐ বিশেষ রাত/দিন']];
     return `
-    <div class="fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4 overflow-y-auto" role="dialog" aria-modal="true">
         <div class="${d?'bg-gray-900 border-gray-700':'bg-white border-gray-200'} border rounded-2xl w-full max-w-lg shadow-2xl fade-in my-4">
             <div class="flex items-center justify-between p-5 border-b ${d?'border-gray-700':'border-gray-100'}">
                 <h3 class="font-bold text-lg flex items-center gap-2">✨ ${isNew?'নতুন বিশেষ দিন যোগ':'বিশেষ দিন সম্পাদনা'}</h3>

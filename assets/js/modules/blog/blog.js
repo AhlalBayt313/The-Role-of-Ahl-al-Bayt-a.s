@@ -83,14 +83,66 @@ function closeBlogEditor() {
 // ============================================================================
 
 /**
- * 2026-07-19: live cloud sync removed (see the "Live Upload Feature —
- * DISABLED" note at the top of script-1-core.js — same underlying reason:
- * GitHub auto-revokes any of its own tokens found in a public repo). The
- * "New Post"/edit/delete buttons are hidden in the UI now
- * (UPLOAD_LIVE_FEATURE_ENABLED flag) — permanent posts are added directly
- * to the blogPosts array above and pushed via git, same as any other
- * static content on this site.
+ * Restored via a Cloudflare Worker proxy — see the "Live Upload Feature"
+ * note at the top of script-1-core.js. The Worker (server/publish-worker.js
+ * in the repo) holds the real GitHub token as a secret and is the only
+ * thing that talks to the GitHub Contents API; this file only ever sends
+ * the Worker a shared secret (set via promptBlogWorkerSettings() below),
+ * never the GitHub token itself.
+ *
+ * If the Worker isn't configured yet (or a publish call fails — e.g. no
+ * network), saveBlogPost()/deleteCustomPost() fall back to the original
+ * local-only behavior so the editor never just breaks.
  */
+
+/** Ask the admin for their deployed Worker URL + shared secret, save to
+ *  this browser's localStorage, then reload so UPLOAD_LIVE_FEATURE_ENABLED
+ *  picks up the change. Both values stay local — never committed to git. */
+function promptBlogWorkerSettings() {
+    if (!state.isAdmin) return;
+    const bn = state.language === 'bn';
+    const currentUrl = localStorage.getItem('ahlbayt_blog_worker_url') || '';
+    const url = prompt(bn ? 'Cloudflare Worker URL দিন (যেমন https://xxx.workers.dev):' : 'Enter your Cloudflare Worker URL (e.g. https://xxx.workers.dev):', currentUrl);
+    if (url === null) return;
+    const currentSecret = localStorage.getItem('ahlbayt_blog_worker_secret') || '';
+    const secret = prompt(bn ? 'Worker-এর shared secret দিন (GitHub token নয়):' : 'Enter the Worker\'s shared secret (not the GitHub token):', currentSecret);
+    if (secret === null) return;
+    try {
+        if (url.trim()) localStorage.setItem('ahlbayt_blog_worker_url', url.trim());
+        else localStorage.removeItem('ahlbayt_blog_worker_url');
+        if (secret.trim()) localStorage.setItem('ahlbayt_blog_worker_secret', secret.trim());
+        else localStorage.removeItem('ahlbayt_blog_worker_secret');
+    } catch(e) { /* localStorage unavailable — nothing we can do */ }
+    location.reload();
+}
+window.promptBlogWorkerSettings = promptBlogWorkerSettings;
+
+/** POST a save/delete action to the configured Worker.
+ *  Returns {ok:true} or {ok:false, error}. Never throws. */
+async function publishToWorker(action, post, postId) {
+    const url = localStorage.getItem('ahlbayt_blog_worker_url');
+    const secret = localStorage.getItem('ahlbayt_blog_worker_secret');
+    if (!url || !secret) return {ok:false, error:'not-configured'};
+    try {
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + secret
+            },
+            body: JSON.stringify({action, post, postId})
+        });
+        if (!res.ok) {
+            let msg = 'HTTP ' + res.status;
+            try { const j = await res.json(); if (j && j.error) msg = j.error; } catch(e) {}
+            return {ok:false, error:msg};
+        }
+        const data = await res.json();
+        return data && data.success ? {ok:true} : {ok:false, error:(data && data.error) || 'unknown'};
+    } catch(e) {
+        return {ok:false, error: e.message || 'network-error'};
+    }
+}
 
 // ============================================================================
 // BLOG POST CRUD OPERATIONS
@@ -124,11 +176,33 @@ async function saveBlogPost() {
     // Bug #9 fix: snapshot copy — live reference রাখলে state.editingPost পরে null/mutate
     // হলে customPosts[idx]-ও silently change হয়ে যেত
     const savedPost = {...state.editingPost};
+
+    if (UPLOAD_LIVE_FEATURE_ENABLED) {
+        showToast(state.language==='bn'?'পাবলিশ হচ্ছে…':'Publishing…','info');
+        const result = await publishToWorker('save', savedPost, savedPost.id);
+        if (result.ok) {
+            // Live-published to blog-posts.json via the Worker — put it
+            // straight into blogPosts (the permanent list) and make sure
+            // it's not left behind in the local-only customPosts bucket.
+            const bpIdx = blogPosts.findIndex(p=>p.id===savedPost.id);
+            if (bpIdx>-1) blogPosts[bpIdx]=savedPost; else blogPosts.unshift(savedPost);
+            state.customPosts = state.customPosts.filter(p=>p.id!==savedPost.id);
+            saveState(); closeBlogEditor(); render();
+            showToast(state.language==='bn'?'লাইভ পাবলিশ হয়েছে ✓':'Published live ✓','success');
+            return;
+        }
+        // Worker call failed — fall through to local-only save so the
+        // admin doesn't lose their edit, but make the failure clear.
+        showToast(state.language==='bn'?'লাইভ পাবলিশ ব্যর্থ, শুধু এই ব্রাউজারে সেভ হলো':'Live publish failed — saved to this browser only','warning');
+    }
+
     const idx = state.customPosts.findIndex(p=>p.id===savedPost.id);
     if (idx>-1) state.customPosts[idx]=savedPost;
     else state.customPosts.unshift(savedPost);
     saveState(); closeBlogEditor(); render();
-    showToast(state.language==='bn'?'পোস্ট সেভ হয়েছে (শুধু এই ব্রাউজারে)':'Post saved (this browser only)','success');
+    if (!UPLOAD_LIVE_FEATURE_ENABLED) {
+        showToast(state.language==='bn'?'পোস্ট সেভ হয়েছে (শুধু এই ব্রাউজারে)':'Post saved (this browser only)','success');
+    }
 }
 
 /**
@@ -138,9 +212,55 @@ async function saveBlogPost() {
 async function deleteCustomPost(id) {
     if (!state.isAdmin) return;
     if (!confirm(state.language==='bn'?'পোস্টটি মুছবেন?':'Delete this post?')) return;
+
+    if (UPLOAD_LIVE_FEATURE_ENABLED && blogPosts.some(p=>p.id===id)) {
+        // Published post — remove it from the live blog-posts.json via the
+        // Worker first, only then drop it locally.
+        const result = await publishToWorker('delete', null, id);
+        if (!result.ok) {
+            showToast(state.language==='bn'?'লাইভ থেকে মুছতে ব্যর্থ হয়েছে, পরে আবার চেষ্টা করুন':'Failed to delete from live site — try again later','error');
+            return;
+        }
+        const bpIdx = blogPosts.findIndex(p=>p.id===id);
+        if (bpIdx>-1) blogPosts.splice(bpIdx,1);
+    }
     state.customPosts = state.customPosts.filter(p=>p.id!==id);
     saveState(); render();
     showToast(state.language==='bn'?'পোস্ট মুছে ফেলা হয়েছে ✓':'Post deleted ✓','success');
+}
+
+// ============================================================================
+// BLOG CATEGORY NAMES — single shared mapping (Bengali key → English label)
+// ----------------------------------------------------------------------------
+// Used by BOTH the Blog page (renderBlogPage below: filter bar, badges,
+// canonicalCat) and the Knowledge Center (topics that draw on Blog posts and
+// the category badge on Blog cards). Blog posts store their category as the
+// Bengali key; custom posts added through the admin editor may store the
+// English label instead, so blogCanonicalCategory() accepts either form
+// (case-insensitive) and always returns the Bengali key.
+// Adding/renaming a category = edit this one object (plus the colour/icon
+// styling that is specific to the Blog page inside renderBlogPage).
+// ============================================================================
+const BLOG_CATEGORY_NAMES = {
+    'রমজান': 'Ramadan',
+    'আহলে বাইত': 'Ahl al-Bayt',
+    'দোয়া': 'Duas',
+    'কুরআন': 'Quran',
+    'ইবাদত': 'Worship',
+    'আখলাক': 'Ethics',
+    'ইতিহাস': 'History',
+};
+function blogCanonicalCategory(cat) {
+    if (!cat) return cat;
+    const low = String(cat).toLowerCase();
+    for (const bn in BLOG_CATEGORY_NAMES) {
+        if (BLOG_CATEGORY_NAMES[bn].toLowerCase() === low) return bn;
+    }
+    return cat;
+}
+function blogCategoryLabel(cat, lang) {
+    const bn = blogCanonicalCategory(cat);
+    return lang === 'bn' ? bn : (BLOG_CATEGORY_NAMES[bn] || bn);
 }
 
 // ============================================================================
@@ -176,13 +296,13 @@ function renderBlogPage() {
     // Bug #5 fix: removed duplicate English keys (Ramadan, Ahl al-Bayt, etc.)
     // Store only Bengali keys with `en` field for translations
     const CAT = {
-        'রমজান':    {color:'#1D9E75', bg:d?'rgba(29,158,117,.18)':'#E1F5EE', fg:d?'#5DCAA5':'#0F6E56', en:'Ramadan'},
-        'আহলে বাইত':{color:'#7F77DD', bg:d?'rgba(127,119,221,.18)':'#EEEDFE', fg:d?'#AFA9EC':'#3C3489', en:'Ahl al-Bayt'},
-        'দোয়া':     {color:'#378ADD', bg:d?'rgba(55,138,221,.18)':'#E6F1FB', fg:d?'#85B7EB':'#0C447C', en:'Duas'},
-        'কুরআন':    {color:'#EF9F27', bg:d?'rgba(239,159,39,.18)':'#FAEEDA', fg:d?'#FAC775':'#854F0B', en:'Quran'},
-        'ইবাদত':    {color:'#1D9E75', bg:d?'rgba(29,158,117,.18)':'#E1F5EE', fg:d?'#5DCAA5':'#0F6E56', en:'Worship'},
-        'আখলাক':    {color:'#D4537E', bg:d?'rgba(212,83,126,.18)':'#FBEAF0', fg:d?'#ED93B1':'#72243E', en:'Ethics'},
-        'ইতিহাস':   {color:'#B5651D', bg:d?'rgba(181,101,29,.18)':'#FBEEDD', fg:d?'#E3A96B':'#7A4212', en:'History'},
+        'রমজান':    {color:'#1D9E75', bg:d?'rgba(29,158,117,.18)':'#E1F5EE', fg:d?'#5DCAA5':'#0F6E56', en:BLOG_CATEGORY_NAMES['রমজান']},
+        'আহলে বাইত':{color:'#7F77DD', bg:d?'rgba(127,119,221,.18)':'#EEEDFE', fg:d?'#AFA9EC':'#3C3489', en:BLOG_CATEGORY_NAMES['আহলে বাইত']},
+        'দোয়া':     {color:'#378ADD', bg:d?'rgba(55,138,221,.18)':'#E6F1FB', fg:d?'#85B7EB':'#0C447C', en:BLOG_CATEGORY_NAMES['দোয়া']},
+        'কুরআন':    {color:'#EF9F27', bg:d?'rgba(239,159,39,.18)':'#FAEEDA', fg:d?'#FAC775':'#854F0B', en:BLOG_CATEGORY_NAMES['কুরআন']},
+        'ইবাদত':    {color:'#1D9E75', bg:d?'rgba(29,158,117,.18)':'#E1F5EE', fg:d?'#5DCAA5':'#0F6E56', en:BLOG_CATEGORY_NAMES['ইবাদত']},
+        'আখলাক':    {color:'#D4537E', bg:d?'rgba(212,83,126,.18)':'#FBEAF0', fg:d?'#ED93B1':'#72243E', en:BLOG_CATEGORY_NAMES['আখলাক']},
+        'ইতিহাস':   {color:'#B5651D', bg:d?'rgba(181,101,29,.18)':'#FBEEDD', fg:d?'#E3A96B':'#7A4212', en:BLOG_CATEGORY_NAMES['ইতিহাস']},
     };
     const catIcon = {'রমজান':'🌙','আহলে বাইত':'👑','দোয়া':'🤲','কুরআন':'📗','ইবাদত':'🕌','আখলাক':'⚖️','ইতিহাস':'📜'};
     const defaultCat = {color:'#888780', bg:d?'rgba(136,135,128,.18)':'#F1EFE8', fg:d?'#B4B2A9':'#5F5E5A'};
@@ -194,8 +314,8 @@ function renderBlogPage() {
     // normalizes either form to the Bengali key so filtering works regardless
     // of which language a post's category was saved in.
     // Bug #12 fix: keys lowercase — "ramadan"/"Ramadan"/"RAMADAN" সব "রমজান" দেবে
-    const EN_TO_BN = {'ramadan':'রমজান','ahl al-bayt':'আহলে বাইত','duas':'দোয়া','quran':'কুরআন','worship':'ইবাদত','ethics':'আখলাক','history':'ইতিহাস'};
-    function canonicalCat(cat) { if (!cat) return cat; return EN_TO_BN[cat.toLowerCase()] || cat; }
+    // (The English→Bengali lookup lives in the shared BLOG_CATEGORY_NAMES map above.)
+    function canonicalCat(cat) { return blogCanonicalCategory(cat); }
 
     function getCat(cat) { return CAT[canonicalCat(cat)] || defaultCat; }
     function fmtDate(dateStr) {
@@ -344,11 +464,17 @@ function renderBlogPage() {
                 <h2 class="text-3xl font-black" style="background:linear-gradient(135deg,#059669,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">📝 ${t('blog')}</h2>
                 <p style="font-size:13px;color:${textSecondary};margin-top:4px">${l==='bn'?'ইসলামিক জ্ঞান ও অন্তর্দৃষ্টি':'Islamic knowledge & insights'}</p>
             </div>
-            ${state.isAdmin&&UPLOAD_LIVE_FEATURE_ENABLED?`
-            <button data-action="openBlogEditor"
-                style="font-size:13px;font-weight:600;padding:8px 18px;border-radius:10px;border:1px solid #1D9E75;color:${d?'#5DCAA5':'#0F6E56'};background:transparent;cursor:pointer;display:flex;align-items:center;gap:6px">
-                + ${t('newPost')}
-            </button>`:''}
+            ${state.isAdmin?`
+            <div style="display:flex;gap:8px;align-items:center">
+                ${UPLOAD_LIVE_FEATURE_ENABLED?`
+                <button data-action="openBlogEditor"
+                    style="font-size:13px;font-weight:600;padding:8px 18px;border-radius:10px;border:1px solid #1D9E75;color:${d?'#5DCAA5':'#0F6E56'};background:transparent;cursor:pointer;display:flex;align-items:center;gap:6px">
+                    + ${t('newPost')}
+                </button>`:`
+                <span style="font-size:11.5px;color:${textSecondary}">${l==='bn'?'লাইভ পাবলিশ বন্ধ':'Live publish off'}</span>`}
+                <button data-action="promptBlogWorkerSettings" title="${l==='bn'?'পাবলিশ সেটিংস':'Publish settings'}"
+                    style="background:none;border:1px solid ${cardBorder};border-radius:10px;padding:7px 10px;font-size:13px;cursor:pointer;opacity:.75">⚙️</button>
+            </div>`:''}
         </div>
 
         ${filterBar}
@@ -380,7 +506,7 @@ function renderBlogEditorModal() {
     const attrSafe = v => sanitize(v).replace(/"/g,'&quot;');
 
     return `
-    <div class="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4 overflow-y-auto" role="dialog" aria-modal="true">
         <div class="${d?'bg-gray-800':'bg-white'} rounded-2xl p-8 w-full max-w-2xl shadow-2xl fade-in my-4">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xl font-bold">${isNew?t('newPost'):t('editPost')}</h3>

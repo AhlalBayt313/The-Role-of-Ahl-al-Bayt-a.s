@@ -2403,6 +2403,10 @@ function renderSearchPage() {
             <h1 class="font-black" style="font-size:clamp(1.6rem,5vw,2.4rem);background:linear-gradient(135deg,#059669,#0369a1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
                 🔍 ${l==='bn'?'সার্চ':'Search'}
             </h1>
+            <p id="global-search-scope" style="margin-top:8px;font-size:.85rem;line-height:1.6;color:${d?'#9ca3af':'#4b5563'}">
+                ${l==='bn'?'পুরো সাইটে খোঁজে — জ্ঞান কেন্দ্র, ব্লগ, দোয়া, ইমাম ও আরও। শুধু হাদিস, মাসাইল, প্রশ্নোত্তর ও ফতোয়া খুঁজতে চান?':'Searches the whole site — Knowledge Center, Blog, Duas, Imams and more. Only want Hadith, Masail, Q&amp;A or Fatwa?'}
+                <button type="button" data-action="changePage" data-param="knowledgeCenter" style="background:none;border:0;padding:0;cursor:pointer;font:inherit;font-weight:700;text-decoration:underline;text-underline-offset:3px;color:${d?'#34d399':'#047857'}">${l==='bn'?'জ্ঞান কেন্দ্রের সার্চ ব্যবহার করুন →':'Use the Knowledge Center search →'}</button>
+            </p>
         </div>
 
         <!-- Search box -->
@@ -2414,8 +2418,8 @@ function renderSearchPage() {
                 id="search-input"
                 type="search"
                 value="${sanitize(q)}"
-                aria-label="${l==='bn'?'সার্চ':'Search'}"
-                placeholder="${l==='bn'?'দোয়া, ইমাম, ব্লগ পোস্ট খুঁজুন...':'Search duas, imams, blog posts...'}"
+                aria-label="${l==='bn'?'সার্চ':'Search'}" aria-describedby="global-search-scope"
+                placeholder="${l==='bn'?'পুরো সাইটে খুঁজুন — জ্ঞান কেন্দ্র, দোয়া, ইমাম, ব্লগ...':'Search the whole site — Knowledge Center, duas, imams, blog...'}"
                 oninput="state.searchQuery=this.value;const sr=document.getElementById('search-results');if(sr)sr.innerHTML=searchResultsHTML(this.value)"
                 onkeydown="if(event.key==='Enter'){state.searchQuery=this.value;render()}"
                 style="width:100%;padding:14px 16px 14px 48px;border-radius:18px;font-size:.95rem;

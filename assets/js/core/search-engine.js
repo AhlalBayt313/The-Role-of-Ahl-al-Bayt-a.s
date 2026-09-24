@@ -214,7 +214,7 @@
     function imamFields(im) { return { titleBn: im.nameBn, titleEn: im.nameEn, parts: [im.epithetBn, im.epithetEn, im.arabicName] }; }
     function imamResult(im) {
         var l = state.language;
-        return { title: l === 'bn' ? im.nameBn : im.nameEn, subtitle: l === 'bn' ? im.epithetBn : im.epithetEn, icon: '👑', color: '#059669', type: l === 'bn' ? 'ইমাম' : 'Imam', action: 'viewImam', param: im.id };
+        return { title: l === 'bn' ? im.nameBn : im.nameEn, subtitle: l === 'bn' ? im.epithetBn : im.epithetEn, icon: '👑', color: '#059669', type: t('typeImam'), action: 'viewImam', param: im.id };
     }
 
     function duaFields(dua) { return { titleBn: dua.titleBn, titleEn: dua.titleEn, parts: [dua.meaningBn, dua.meaningEn, dua.arabic] }; }
@@ -223,20 +223,20 @@
         return function (dua, i) {
             var l = state.language;
             var isCustom = dua.id != null && customDuas.some(function (x) { return x.id === dua.id; });
-            return { title: l === 'bn' ? dua.titleBn : dua.titleEn, subtitle: dua.source || '', icon: '🤲', color: '#7c3aed', type: l === 'bn' ? 'দোয়া' : 'Dua', action: 'readDua', param: isCustom ? 'c' + dua.id : i - customDuas.length };
+            return { title: l === 'bn' ? dua.titleBn : dua.titleEn, subtitle: dua.source || '', icon: '🤲', color: '#7c3aed', type: t('typeDua'), action: 'readDua', param: isCustom ? 'c' + dua.id : i - customDuas.length };
         };
     }
 
     function blogFields(post) { return { titleBn: post.titleBn, titleEn: post.titleEn, parts: [post.excerpt] }; }
     function blogResult(post) {
         var l = state.language;
-        return { title: l === 'bn' ? post.titleBn : post.titleEn, subtitle: post.category || '', icon: '📝', color: '#0369a1', type: l === 'bn' ? 'ব্লগ' : 'Blog', action: 'readPost', param: post.id };
+        return { title: l === 'bn' ? post.titleBn : post.titleEn, subtitle: post.category || '', icon: '📝', color: '#0369a1', type: t('typeBlog'), action: 'readPost', param: post.id };
     }
 
     function ziyaratFields(z) { return { titleBn: z.titleBn, titleEn: z.titleEn, parts: [z.arabic] }; }
     function ziyaratResult(z, i) {
         var l = state.language;
-        return { title: l === 'bn' ? z.titleBn : z.titleEn, subtitle: z.occasion || '', icon: '☪️', color: '#b45309', type: l === 'bn' ? 'যিয়ারত' : 'Ziyarat', action: 'readZiyarat', param: z.id || i };
+        return { title: l === 'bn' ? z.titleBn : z.titleEn, subtitle: z.occasion || '', icon: '☪️', color: '#b45309', type: t('typeZiyarat'), action: 'readZiyarat', param: z.id || i };
     }
 
     // NEW: Amal — mirrors ziyaratFields/ziyaratResult. Uses #4f46e5 (indigo)
@@ -247,7 +247,7 @@
     function amalFields(a) { return { titleBn: a.titleBn, titleEn: a.titleEn, parts: [a.occasion, a.meaningBn, a.meaningEn, a.arabic] }; }
     function amalResult(a, i) {
         var l = state.language;
-        return { title: l === 'bn' ? a.titleBn : a.titleEn, subtitle: a.occasion || '', icon: '📿', color: '#4f46e5', type: l === 'bn' ? 'আমল' : 'Amal', action: 'readAmal', param: a.id || i };
+        return { title: l === 'bn' ? a.titleBn : a.titleEn, subtitle: a.occasion || '', icon: '📿', color: '#4f46e5', type: t('typeAmal'), action: 'readAmal', param: a.id || i };
     }
 
     function hadithFields(h) { return { titleBn: h.textBn, titleEn: h.textEn, parts: [h.sourceBn, h.sourceEn] }; }
@@ -261,7 +261,7 @@
     function familyFields(pair) { var p = pair[1]; return { titleBn: p.bengaliName, titleEn: p.englishName || p.englishAbbr, parts: [p.description, p.significance, p.arabicName] }; }
     function familyResult(pair) {
         var key = pair[0], p = pair[1], l = state.language;
-        return { title: l === 'bn' ? p.bengaliName : (p.englishName || p.englishAbbr), subtitle: p.significance || '', icon: '🌳', color: '#78350f', type: l === 'bn' ? 'বংশধারা' : 'Family Tree', action: 'viewFamilyPerson', param: key };
+        return { title: l === 'bn' ? p.bengaliName : (p.englishName || p.englishAbbr), subtitle: p.significance || '', icon: '🌳', color: '#78350f', type: t('familyTree'), action: 'viewFamilyPerson', param: key };
     }
 
     function kcFields(item) { return { titleBn: item.textBn || item.questionBn, titleEn: item.textEn || item.questionEn, parts: [item.answerBn, item.answerEn, item.sourceBn, item.sourceEn, item.narratorBn, item.narratorEn] }; }
@@ -331,7 +331,13 @@
                         case 'amal': scored = scored.concat(searchCategory('amal', amalPool(), amalFields, amalResult, qNorm, qTokens, lang)); break;
                         case 'hadith': (function () { var pool = hadithPool(); scored = scored.concat(searchCategory('hadith', pool, hadithFields, hadithResultFactory(pool), qNorm, qTokens, lang)); })(); break;
                         case 'family': scored = scored.concat(searchCategory('family', familyPool(), familyFields, familyResult, qNorm, qTokens, lang)); break;
-                        case 'kc': ['hadith', 'masail', 'qa', 'fatwa'].forEach(function (tab) {
+                        case 'kc':
+                            // KC answers/details live in per-section files that load lazily;
+                            // make sure the full data is on its way (memoized, fire-and-forget).
+                            // When it lands, knowledge-center-data.js invalidates the affected
+                            // index records and fires 'kc:full-data-ready' (listener below).
+                            if (typeof loadAllKcSections === 'function' && window.kcFullDataReady !== true) loadAllKcSections();
+                            ['hadith', 'masail', 'qa', 'fatwa'].forEach(function (tab) {
                             var cfg = (typeof kcTabConfig === 'function') ? kcTabConfig(tab) : null;
                             if (cfg && cfg.items) scored = scored.concat(searchCategory('kc-' + tab, cfg.items, kcFields, kcResultFactory(tab), qNorm, qTokens, lang));
                         }); break;
@@ -362,6 +368,20 @@
         },
     };
 
+    // Called by knowledge-center-data.js right after a KC section's full
+    // fields are merged into its (already-indexed) lightweight items: drops
+    // those items' memoized index records and that section's token index so
+    // the next search rebuilds them from the full data. Touches only the KC
+    // pools; every other category's cache is untouched.
+    SearchEngine.invalidateKcSection = function (tab, items) {
+        try {
+            (items || []).forEach(function (it) { _entryCache.delete(it); });
+            _tokenIndexCache.delete('kc-' + tab);
+        } catch (e) {
+            console.error('[SearchEngine] KC index invalidation failed', e);
+        }
+    };
+
     window.SearchEngine = SearchEngine;
 })();
 
@@ -382,3 +402,15 @@ function searchKnowledgeCenter(q) {
     if (!q) return [];
     return window.SearchEngine.searchAll(q, ['kc']);
 }
+
+// If Global Search is on screen when the full Knowledge Center data finishes
+// loading (first KC search of the session), re-render just its result list so
+// answer-text matches appear — no full page re-render, input focus untouched.
+window.addEventListener('kc:full-data-ready', function () {
+    try {
+        if (state.currentPage === 'searchPage' && (state.searchQuery || '').trim()) {
+            var sr = document.getElementById('search-results');
+            if (sr && typeof searchResultsHTML === 'function') sr.innerHTML = searchResultsHTML(state.searchQuery);
+        }
+    } catch (e) { console.error('[SearchEngine] refresh after KC data load failed', e); }
+});

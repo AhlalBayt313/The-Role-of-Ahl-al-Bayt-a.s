@@ -243,5 +243,60 @@
     "meaningBn": "হে আমাদের রব! আমাদের উপর ধৈর্য বর্ষণ কর এবং আমাদের মুসলিম হিসেবে মৃত্যু দাও।",
     "meaningEn": "Our Lord, pour upon us patience and let us die as Muslims [in submission to You].",
     "source": "কুরআন, সূরা আল-আরাফ ৭:১২৬"
+  },
+  {
+    "id": "dua-quran-nuh-maghlub-fantasir",
+    "slug": "dua-quran-nuh-maghlub-fantasir",
+    "titleBn": "নূহ (আ.)-এর সাহায্য প্রার্থনার সংক্ষিপ্ত দোয়া",
+    "titleEn": "Prophet Nuh's Concise Prayer for Help",
+    "category": "quranic",
+    "arabic": "أَنِّي مَغْلُوبٌ فَانتَصِرْ",
+    "meaningBn": "আমি অসহায়, তুমি সাহায্য কর — নূহ (আ.) যখন তাঁর সম্প্রদায়ের প্রত্যাখ্যানে অভিভূত হয়ে পড়েছিলেন, তখন এই সংক্ষিপ্ত কিন্তু গভীর দোয়া করেছিলেন।",
+    "meaningEn": "Indeed, I am overpowered, so help [me] — Nuh's brief but profound prayer when he was overwhelmed by his people's rejection.",
+    "source": "কুরআন, সূরা আল-কামার ৫৪:১০"
+  },
+  {
+    "id": "dua-quran-audhu-hamazat-shayatin",
+    "slug": "dua-quran-audhu-hamazat-shayatin",
+    "titleBn": "শয়তানের কুমন্ত্রণা থেকে আশ্রয় প্রার্থনার দোয়া",
+    "titleEn": "Prayer for Refuge from the Whispers of Satans",
+    "category": "quranic",
+    "arabic": "وَقُل رَّبِّ أَعُوذُ بِكَ مِنْ هَمَزَاتِ الشَّيَاطِينِ وَأَعُوذُ بِكَ رَبِّ أَن يَحْضُرُونِ",
+    "meaningBn": "বল, হে আমার প্রভু! আমি শয়তানদের কুমন্ত্রণা থেকে তোমার কাছে আশ্রয় চাই, আর হে আমার প্রভু! তাদের আমার কাছে উপস্থিত হওয়া থেকেও তোমার আশ্রয় চাই।",
+    "meaningEn": "And say, \"My Lord, I seek refuge in You from the incitements of the devils, and I seek refuge in You, my Lord, lest they be present with me.\"",
+    "source": "কুরআন, সূরা আল-মুমিনূন ২৩:৯৭-৯৮"
+  },
+  {
+    "id": "dua-quran-ibrahim-hukman-alhiqni-salihin",
+    "slug": "dua-quran-ibrahim-hukman-alhiqni-salihin",
+    "titleBn": "ইবরাহীম (আ.)-এর প্রজ্ঞা ও সৎকর্মশীলদের সঙ্গলাভের দোয়া",
+    "titleEn": "Prophet Ibrahim's Prayer for Wisdom and Righteous Company",
+    "category": "quranic",
+    "arabic": "رَبِّ هَبْ لِي حُكْمًا وَأَلْحِقْنِي بِالصَّالِحِينَ",
+    "meaningBn": "হে আমার প্রভু! আমাকে প্রজ্ঞা দান কর এবং আমাকে সৎকর্মশীলদের অন্তর্ভুক্ত কর।",
+    "meaningEn": "My Lord, grant me authority [i.e. wisdom and judgment] and join me with the righteous.",
+    "source": "কুরআন, সূরা আশ-শু'আরা ২৬:৮৩"
+  },
+  {
+    "id": "dua-quran-musa-zalamtu-nafsi",
+    "slug": "dua-quran-musa-zalamtu-nafsi",
+    "titleBn": "মুসা (আ.)-এর ভুলের জন্য ক্ষমা প্রার্থনার দোয়া",
+    "titleEn": "Prophet Musa's Prayer for Forgiveness After a Mistake",
+    "category": "quranic",
+    "arabic": "رَبِّ إِنِّي ظَلَمْتُ نَفْسِي فَاغْفِرْ لِي",
+    "meaningBn": "হে আমার প্রভু! আমি নিজের প্রতি জুলুম করেছি, তুমি আমাকে ক্ষমা কর — অনিচ্ছাকৃতভাবে একজনকে আঘাত করে মৃত্যুর কারণ হওয়ার পর মুসা (আ.)-এর অনুশোচনার দোয়া।",
+    "meaningEn": "My Lord, indeed I have wronged myself, so forgive me — Musa's prayer of remorse after unintentionally causing a man's death.",
+    "source": "কুরআন, সূরা আল-কাসাস ২৮:১৬"
+  },
+  {
+    "id": "dua-quran-malaika-arsh-wasita-rahmatan",
+    "slug": "dua-quran-malaika-arsh-wasita-rahmatan",
+    "titleBn": "আরশ বহনকারী ফেরেশতাদের মুমিনদের জন্য ক্ষমা প্রার্থনা",
+    "titleEn": "The Throne-Bearing Angels' Prayer of Forgiveness for Believers",
+    "category": "quranic",
+    "arabic": "رَبَّنَا وَسِعْتَ كُلَّ شَيْءٍ رَّحْمَةً وَعِلْمًا فَاغْفِرْ لِلَّذِينَ تَابُوا وَاتَّبَعُوا سَبِيلَكَ وَقِهِمْ عَذَابَ الْجَحِيمِ",
+    "meaningBn": "হে আমাদের প্রভু! তুমি তোমার রহমত ও জ্ঞান দ্বারা সবকিছুকে পরিবেষ্টন করে রেখেছ, অতএব যারা তাওবা করেছে এবং তোমার পথ অনুসরণ করেছে তাদেরকে ক্ষমা কর এবং তাদেরকে জাহান্নামের শাস্তি থেকে রক্ষা কর — আরশ বহনকারী ও তার চারপাশের ফেরেশতারা মুমিনদের জন্য এই দোয়া করে থাকেন।",
+    "meaningEn": "Our Lord, You have encompassed all things in mercy and knowledge, so forgive those who repent and follow Your way and protect them from the punishment of Hellfire — the prayer the angels who bear the Throne make on behalf of the believers.",
+    "source": "কুরআন, সূরা গাফির ৪০:৭"
   }
 ]

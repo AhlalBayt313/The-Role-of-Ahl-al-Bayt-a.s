@@ -244,6 +244,18 @@
             entry.hasFullData = true;
           }
         }
+        // SEARCH-INDEX SYNC (fix): the items above were just mutated IN PLACE
+        // (answer/detail/source fields appeared on objects that SearchEngine
+        // may already have indexed from their lightweight form). SearchEngine
+        // memoizes one index record per item object for the page's lifetime,
+        // so without this it would keep matching against the stale, answer-less
+        // record forever — e.g. a Global Search run BEFORE a section was
+        // hydrated made answer-only terms unfindable afterwards. Dropping this
+        // section's records makes them rebuild once, from the full data, on the
+        // next search. Runs once per section (loadKcSection is memoized).
+        if (window.SearchEngine && typeof window.SearchEngine.invalidateKcSection === 'function') {
+          window.SearchEngine.invalidateKcSection(section, cfg.array);
+        }
         return list;
       });
 
@@ -264,6 +276,30 @@
     return entry;
   }
 
+  // Loads (and caches) ALL four sections' full data, once. KC search — Global
+  // Search's KC results, the Knowledge Center hero search — needs the answer
+  // text of every section, not just the tab that happens to be open, so it
+  // calls this before relying on the index. Memoized: repeated calls (every
+  // keystroke, every search entry point) share one promise, so each section
+  // file is fetched exactly once and the index is rebuilt once per section,
+  // never per keystroke. Sets window.kcFullDataReady and fires a
+  // 'kc:full-data-ready' event when done, so a search already on screen can
+  // refresh itself. "Ready" means settled: if a section file failed to load
+  // (offline), the lightweight data stays and searches simply use that.
+  let __allSectionsPromise = null;
+  function loadAllKcSections() {
+    if (!__allSectionsPromise) {
+      __allSectionsPromise = Promise.all(Object.keys(__sectionConfig).map((name) => loadKcSection(name)))
+        .catch(() => null)
+        .then(() => {
+          window.kcFullDataReady = true;
+          try { window.dispatchEvent(new CustomEvent('kc:full-data-ready')); } catch (e) { /* non-critical */ }
+          return true;
+        });
+    }
+    return __allSectionsPromise;
+  }
+
   // ---- expose on window / global scope, same as the old top-level consts ---
   window.kcHadithCategories = kcHadithCategories;
   window.kcHadiths = kcHadiths;
@@ -275,5 +311,7 @@
   window.kcFatwa = kcFatwa;
   window.kcIndexLoadState = kcIndexLoadState;
   window.loadKcSection = loadKcSection;
+  window.loadAllKcSections = loadAllKcSections;
+  window.kcFullDataReady = false;
   window.ensureKcItemContent = ensureKcItemContent;
 })();

@@ -1,5 +1,5 @@
 
-const CACHE = 'ahlbayt-v85'; // v85: Knowledge Center Phase 3C accessibility batch (#16 persistent search-status live region, #17 Coming Soon card semantics, #18 40px touch targets for breadcrumb/pagination, #19 A−/A+ accessible names, #20 filter chips no longer inside a <nav> landmark) — JS/CSS changed, bumped so installed PWAs refresh.
+const CACHE = 'ahlbayt-v86'; // v86: Dark/Light theme-aware header logo (new assets/images/logo-mark-light.png + logo-mark-dark.png, getThemeLogoSrc() in script-2-ui.js; footer/splash unchanged) — JS + new precached images, bumped so installed PWAs refresh. // v85: Knowledge Center Phase 3C accessibility batch (#16 persistent search-status live region, #17 Coming Soon card semantics, #18 40px touch targets for breadcrumb/pagination, #19 A−/A+ accessible names, #20 filter chips no longer inside a <nav> landmark) — JS/CSS changed, bumped so installed PWAs refresh.
 // v84: Phase 3B corrections (KC search now also finds Blog posts a KC topic actually surfaces — History/Akhlaq/etc. — via the same SearchEngine, no new index; static <html lang> no longer briefly contradicts a saved English preference) — JS/HTML changed, bumped so installed PWAs refresh.
 // v83: Knowledge Center Phase 3B (Hadith title/attribution hierarchy, scope-labelled searches incl. Global Search page text, English-mode Blog excerpts + lang attributes + <html lang>, Blog terminology) — JS/CSS changed, bumped so installed PWAs refresh.
 // v82: Knowledge Center Phase 3A (Related→Back stack extended to cover the new Saved view, topic/search breadcrumb, cross-tab Bookmarked/Favorites entry point, "All Topics" no longer clears an active search) — JS/CSS changed, bumped so installed PWAs refresh.
@@ -337,6 +337,8 @@ const STATIC = [
     './data/quiz/questions.json',
     './offline.html',
     './manifest.json',
+    './assets/images/logo-mark-light.png',
+    './assets/images/logo-mark-dark.png',
     './favicon.ico',
     './apple-touch-icon.png',
     './icon-192.png',
