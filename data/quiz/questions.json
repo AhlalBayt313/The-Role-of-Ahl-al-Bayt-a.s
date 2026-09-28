@@ -1,0 +1,3392 @@
+[
+  {
+    "id": "q001",
+    "category": "ahlulbayt",
+    "difficulty": "easy",
+    "qBn": "আহলে বাইতের (আ.) ইমামের সংখ্যা কতজন?",
+    "qEn": "How many Imams are there in Ahl al-Bayt?",
+    "options": [
+      {
+        "bn": "১০ জন",
+        "en": "10"
+      },
+      {
+        "bn": "১২ জন",
+        "en": "12"
+      },
+      {
+        "bn": "১৪ জন",
+        "en": "14"
+      },
+      {
+        "bn": "৭ জন",
+        "en": "7"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "শিয়া বিশ্বাস অনুযায়ী ইমাম আলী (আ.) থেকে ইমাম মাহদি (আ.) পর্যন্ত মোট ১২ জন ইমাম রয়েছেন।",
+    "explanationEn": "According to Shia belief, there are twelve Imams, from Imam Ali (AS) to Imam al-Mahdi (AS).",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q002",
+    "category": "ahlulbayt",
+    "difficulty": "easy",
+    "qBn": "প্রথম ইমাম কে ছিলেন?",
+    "qEn": "Who was the first Imam?",
+    "options": [
+      {
+        "bn": "ইমাম হাসান (আ.)",
+        "en": "Imam Hasan (AS)"
+      },
+      {
+        "bn": "ইমাম আলী (আ.)",
+        "en": "Imam Ali (AS)"
+      },
+      {
+        "bn": "ইমাম হোসাইন (আ.)",
+        "en": "Imam Hussain (AS)"
+      },
+      {
+        "bn": "ইমাম সাজ্জাদ (আ.)",
+        "en": "Imam Sajjad (AS)"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "ইমাম আলী ইবনে আবি তালিব (আ.) প্রথম ইমাম এবং নবীজির (সা.) চাচাতো ভাই ও জামাতা ছিলেন।",
+    "explanationEn": "Imam Ali ibn Abi Talib (AS) was the first Imam, the Prophet's (SA) cousin and son-in-law.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q003",
+    "category": "ahlulbayt",
+    "difficulty": "easy",
+    "qBn": "দ্বাদশ ও সর্বশেষ ইমাম কে?",
+    "qEn": "Who is the twelfth and final Imam?",
+    "options": [
+      {
+        "bn": "ইমাম আসকারি (আ.)",
+        "en": "Imam al-Askari (AS)"
+      },
+      {
+        "bn": "ইমাম রেজা (আ.)",
+        "en": "Imam Ridha (AS)"
+      },
+      {
+        "bn": "ইমাম মাহদি (আ.)",
+        "en": "Imam al-Mahdi (AS)"
+      },
+      {
+        "bn": "ইমাম জওয়াদ (আ.)",
+        "en": "Imam al-Jawad (AS)"
+      }
+    ],
+    "correct": 2,
+    "explanationBn": "ইমাম মুহাম্মাদ আল-মাহদি (আ.) দ্বাদশ ইমাম, যিনি বর্তমানে গায়েবাতে (আড়ালে) আছেন বলে বিশ্বাস করা হয়।",
+    "explanationEn": "Imam Muhammad al-Mahdi (AS) is the twelfth Imam, believed to be currently in occultation (ghaybah).",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q004",
+    "category": "ahlulbayt",
+    "difficulty": "medium",
+    "qBn": "\"পাঞ্জতন পাক\" (পবিত্র পাঁচজন) বলতে কাদের বোঝানো হয়?",
+    "qEn": "Who are referred to as the \"Panjtan Pak\" (the Five Pure Ones)?",
+    "options": [
+      {
+        "bn": "পাঁচজন সাহাবি",
+        "en": "Five companions"
+      },
+      {
+        "bn": "নবী মুহাম্মদ, আলী, ফাতিমা, হাসান, হোসাইন",
+        "en": "Prophet Muhammad, Ali, Fatima, Hasan, Hussain"
+      },
+      {
+        "bn": "পাঁচজন নবী",
+        "en": "Five prophets"
+      },
+      {
+        "bn": "প্রথম পাঁচজন ইমাম",
+        "en": "The first five Imams"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "পাঞ্জতন পাক বলতে নবী মুহাম্মদ (সা.), ইমাম আলী (আ.), হযরত ফাতিমা (আ.), ইমাম হাসান (আ.) ও ইমাম হোসাইন (আ.)-কে বোঝানো হয়, যারা মুবাহিলার ঘটনায় একত্র হয়েছিলেন।",
+    "explanationEn": "The Panjtan Pak refers to Prophet Muhammad (SA), Imam Ali (AS), Lady Fatima (AS), Imam Hasan (AS) and Imam Hussain (AS), who came together at the event of Mubahila.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q005",
+    "category": "ahlulbayt",
+    "difficulty": "medium",
+    "qBn": "কোন ইমাম সবচেয়ে কম বয়সে ইমামতের দায়িত্ব লাভ করেন?",
+    "qEn": "Which Imam attained Imamate at the youngest age?",
+    "options": [
+      {
+        "bn": "ইমাম জওয়াদ (আ.)",
+        "en": "Imam al-Jawad (AS)"
+      },
+      {
+        "bn": "ইমাম হাদি (আ.)",
+        "en": "Imam al-Hadi (AS)"
+      },
+      {
+        "bn": "ইমাম বাকির (আ.)",
+        "en": "Imam al-Baqir (AS)"
+      },
+      {
+        "bn": "ইমাম রেজা (আ.)",
+        "en": "Imam Ridha (AS)"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "ইমাম মুহাম্মাদ আল-জওয়াদ (আ.) মাত্র সাত বছর বয়সে ইমামতের দায়িত্ব লাভ করেন।",
+    "explanationEn": "Imam Muhammad al-Jawad (AS) assumed Imamate at just seven years of age.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q006",
+    "category": "ahlulbayt",
+    "difficulty": "medium",
+    "qBn": "নাহজুল বালাগা মূলত কার বক্তৃতা, চিঠি ও হিকমতপূর্ণ বাণীর সংকলন?",
+    "qEn": "Nahjul Balagha is primarily a compilation of whose sermons, letters and sayings?",
+    "options": [
+      {
+        "bn": "ইমাম হোসাইন (আ.)",
+        "en": "Imam Hussain (AS)"
+      },
+      {
+        "bn": "ইমাম আলী (আ.)",
+        "en": "Imam Ali (AS)"
+      },
+      {
+        "bn": "ইমাম সাদিক (আ.)",
+        "en": "Imam al-Sadiq (AS)"
+      },
+      {
+        "bn": "ইমাম সাজ্জাদ (আ.)",
+        "en": "Imam Sajjad (AS)"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "নাহজুল বালাগা ইমাম আলীর (আ.) ভাষণ, চিঠি ও প্রজ্ঞাপূর্ণ উক্তির একটি বিখ্যাত সংকলন, যা শরিফ রাদি সংকলন করেন।",
+    "explanationEn": "Nahjul Balagha is a famous compilation of Imam Ali's (AS) sermons, letters and wise sayings, compiled by Sharif al-Radi.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q007",
+    "category": "ahlulbayt",
+    "difficulty": "easy",
+    "qBn": "নবীজি (সা.) ইমাম হাসান (আ.) ও ইমাম হোসাইনকে (আ.) কী উপাধিতে ভূষিত করেছিলেন?",
+    "qEn": "What title did the Prophet (SA) give to Imam Hasan (AS) and Imam Hussain (AS)?",
+    "options": [
+      {
+        "bn": "জান্নাতি যুবকদের নেতা",
+        "en": "Leaders of the Youth of Paradise"
+      },
+      {
+        "bn": "উম্মতের রক্ষক",
+        "en": "Protectors of the Ummah"
+      },
+      {
+        "bn": "খলিফাতুল মুসলিমিন",
+        "en": "Caliph of the Muslims"
+      },
+      {
+        "bn": "আমিরুল মুমিনিন",
+        "en": "Amir al-Mu'minin"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "হাদিসে এসেছে, ইমাম হাসান (আ.) ও ইমাম হোসাইন (আ.) জান্নাতি যুবকদের নেতা।",
+    "explanationEn": "According to hadith, Imam Hasan (AS) and Imam Hussain (AS) are the leaders of the youth of Paradise.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q008",
+    "category": "ahlulbayt",
+    "difficulty": "medium",
+    "qBn": "ফিকহের \"জাফরি মাযহাব\" নামকরণ করা হয়েছে কোন ইমামের নামানুসারে?",
+    "qEn": "The Ja'fari school of jurisprudence is named after which Imam?",
+    "options": [
+      {
+        "bn": "ইমাম বাকির (আ.)",
+        "en": "Imam al-Baqir (AS)"
+      },
+      {
+        "bn": "ইমাম কাযিম (আ.)",
+        "en": "Imam al-Kazim (AS)"
+      },
+      {
+        "bn": "ইমাম জাফর সাদিক (আ.)",
+        "en": "Imam Ja'far al-Sadiq (AS)"
+      },
+      {
+        "bn": "ইমাম হাদি (আ.)",
+        "en": "Imam al-Hadi (AS)"
+      }
+    ],
+    "correct": 2,
+    "explanationBn": "ইমাম জাফর সাদিকের (আ.) দীর্ঘ শিক্ষকতাকালে ফিকহের বিস্তারিত ব্যাখ্যা দেওয়া হয়, তাই এই মাযহাব তার নামে পরিচিত।",
+    "explanationEn": "During Imam Ja'far al-Sadiq's (AS) long period of teaching, Islamic jurisprudence was elaborated in detail, so this school bears his name.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q009",
+    "category": "ahlulbayt",
+    "difficulty": "hard",
+    "qBn": "প্রচলিত বর্ণনা অনুযায়ী ইমাম মাহদি (আ.) কোন হিজরি সালে জন্মগ্রহণ করেন?",
+    "qEn": "According to common narrations, in which Hijri year was Imam al-Mahdi (AS) born?",
+    "options": [
+      {
+        "bn": "২০৫ হিজরি",
+        "en": "205 AH"
+      },
+      {
+        "bn": "২৩২ হিজরি",
+        "en": "232 AH"
+      },
+      {
+        "bn": "২৫৫ হিজরি",
+        "en": "255 AH"
+      },
+      {
+        "bn": "২৬০ হিজরি",
+        "en": "260 AH"
+      }
+    ],
+    "correct": 2,
+    "explanationBn": "প্রচলিত মত অনুযায়ী ইমাম মাহদি (আ.) ১৫ শাবান, ২৫৫ হিজরিতে জন্মগ্রহণ করেন।",
+    "explanationEn": "According to common narrations, Imam al-Mahdi (AS) was born on 15th Sha'ban, 255 AH.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q010",
+    "category": "ahlulbayt",
+    "difficulty": "easy",
+    "qBn": "চতুর্থ ইমাম, ইমাম জয়নুল আবিদীন (আ.), আরেকটি পরিচিত নামে পরিচিত। সেটি কী?",
+    "qEn": "The fourth Imam, Imam Zainul Abidin (AS), is also known by another name. What is it?",
+    "options": [
+      {
+        "bn": "ইমাম সাজ্জাদ (আ.)",
+        "en": "Imam al-Sajjad (AS)"
+      },
+      {
+        "bn": "ইমাম বাকির (আ.)",
+        "en": "Imam al-Baqir (AS)"
+      },
+      {
+        "bn": "ইমাম রেজা (আ.)",
+        "en": "Imam al-Ridha (AS)"
+      },
+      {
+        "bn": "ইমাম আসকারি (আ.)",
+        "en": "Imam al-Askari (AS)"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "অধিক সিজদা ও ইবাদতের কারণে তিনি \"সাজ্জাদ\" (অধিক সিজদাকারী) উপাধিতে পরিচিত।",
+    "explanationEn": "Because of his abundant prostration and worship, he is known by the title \"al-Sajjad\" (the one who prostrates often).",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q011",
+    "category": "quran",
+    "difficulty": "easy",
+    "qBn": "পবিত্র কুরআনে মোট সূরার সংখ্যা কত?",
+    "qEn": "How many surahs (chapters) are there in the Holy Quran?",
+    "options": [
+      {
+        "bn": "১০০টি",
+        "en": "100"
+      },
+      {
+        "bn": "১১০টি",
+        "en": "110"
+      },
+      {
+        "bn": "১১৪টি",
+        "en": "114"
+      },
+      {
+        "bn": "১২০টি",
+        "en": "120"
+      }
+    ],
+    "correct": 2,
+    "explanationBn": "পবিত্র কুরআনে মোট ১১৪টি সূরা রয়েছে।",
+    "explanationEn": "The Holy Quran contains a total of 114 surahs.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q012",
+    "category": "quran",
+    "difficulty": "easy",
+    "qBn": "কুরআনের সবচেয়ে বড় সূরা কোনটি?",
+    "qEn": "Which is the longest surah in the Quran?",
+    "options": [
+      {
+        "bn": "সূরা বাকারা",
+        "en": "Surah al-Baqarah"
+      },
+      {
+        "bn": "সূরা নিসা",
+        "en": "Surah al-Nisa"
+      },
+      {
+        "bn": "সূরা আলে ইমরান",
+        "en": "Surah Aali Imran"
+      },
+      {
+        "bn": "সূরা আরাফ",
+        "en": "Surah al-A'raf"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "সূরা বাকারা ২৮৬ আয়াত নিয়ে কুরআনের দীর্ঘতম সূরা।",
+    "explanationEn": "Surah al-Baqarah, with 286 verses, is the longest surah in the Quran.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q013",
+    "category": "quran",
+    "difficulty": "easy",
+    "qBn": "কুরআনের সবচেয়ে ছোট সূরা কোনটি?",
+    "qEn": "Which is the shortest surah in the Quran?",
+    "options": [
+      {
+        "bn": "সূরা কাউসার",
+        "en": "Surah al-Kawthar"
+      },
+      {
+        "bn": "সূরা ইখলাস",
+        "en": "Surah al-Ikhlas"
+      },
+      {
+        "bn": "সূরা নাসর",
+        "en": "Surah al-Nasr"
+      },
+      {
+        "bn": "সূরা আসর",
+        "en": "Surah al-Asr"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "সূরা কাউসার মাত্র ৩টি আয়াত নিয়ে গঠিত, যা কুরআনের সবচেয়ে ছোট সূরা।",
+    "explanationEn": "Surah al-Kawthar, consisting of only 3 verses, is the shortest surah in the Quran.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q014",
+    "category": "quran",
+    "difficulty": "easy",
+    "qBn": "কুরআনের প্রথম সূরা কোনটি?",
+    "qEn": "Which is the first surah of the Quran?",
+    "options": [
+      {
+        "bn": "সূরা বাকারা",
+        "en": "Surah al-Baqarah"
+      },
+      {
+        "bn": "সূরা ইখলাস",
+        "en": "Surah al-Ikhlas"
+      },
+      {
+        "bn": "সূরা ফাতিহা",
+        "en": "Surah al-Fatiha"
+      },
+      {
+        "bn": "সূরা নাস",
+        "en": "Surah al-Nas"
+      }
+    ],
+    "correct": 2,
+    "explanationBn": "সূরা ফাতিহা কুরআনের প্রথম সূরা, যা \"উম্মুল কুরআন\" (কুরআনের মা) নামেও পরিচিত।",
+    "explanationEn": "Surah al-Fatiha is the first surah of the Quran, also known as \"Umm al-Quran\" (the Mother of the Quran).",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q015",
+    "category": "quran",
+    "difficulty": "medium",
+    "qBn": "আয়াতুল কুরসি পবিত্র কুরআনের কোন সূরায় রয়েছে?",
+    "qEn": "In which surah of the Quran is Ayat al-Kursi found?",
+    "options": [
+      {
+        "bn": "সূরা ইমরান",
+        "en": "Surah Aali Imran"
+      },
+      {
+        "bn": "সূরা বাকারা",
+        "en": "Surah al-Baqarah"
+      },
+      {
+        "bn": "সূরা ইউনুস",
+        "en": "Surah Yunus"
+      },
+      {
+        "bn": "সূরা রা'দ",
+        "en": "Surah al-Ra'd"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "আয়াতুল কুরসি সূরা বাকারার ২৫৫ নম্বর আয়াত।",
+    "explanationEn": "Ayat al-Kursi is verse 255 of Surah al-Baqarah.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q016",
+    "category": "quran",
+    "difficulty": "medium",
+    "qBn": "পবিত্র কুরআন অবতীর্ণ হতে আনুমানিক কত বছর সময় লেগেছিল?",
+    "qEn": "Approximately how many years did the revelation of the Quran take?",
+    "options": [
+      {
+        "bn": "১০ বছর",
+        "en": "10 years"
+      },
+      {
+        "bn": "১৫ বছর",
+        "en": "15 years"
+      },
+      {
+        "bn": "২৩ বছর",
+        "en": "23 years"
+      },
+      {
+        "bn": "৩০ বছর",
+        "en": "30 years"
+      }
+    ],
+    "correct": 2,
+    "explanationBn": "নবুওয়াত লাভের পর থেকে ওফাত পর্যন্ত প্রায় ২৩ বছর ধরে কুরআন ধাপে ধাপে অবতীর্ণ হয়।",
+    "explanationEn": "The Quran was revealed gradually over approximately 23 years, from the start of Prophethood until the Prophet's passing.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q017",
+    "category": "quran",
+    "difficulty": "medium",
+    "qBn": "কোন সূরাকে \"কুরআনের হৃদয়\" বলা হয়ে থাকে?",
+    "qEn": "Which surah is often referred to as \"the heart of the Quran\"?",
+    "options": [
+      {
+        "bn": "সূরা ইয়াসিন",
+        "en": "Surah Ya-Sin"
+      },
+      {
+        "bn": "সূরা মুলক",
+        "en": "Surah al-Mulk"
+      },
+      {
+        "bn": "সূরা রহমান",
+        "en": "Surah al-Rahman"
+      },
+      {
+        "bn": "সূরা কাহফ",
+        "en": "Surah al-Kahf"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "একটি সুপরিচিত বর্ণনায় সূরা ইয়াসিনকে \"কুরআনের হৃদয়\" বলা হয়েছে।",
+    "explanationEn": "In a well-known narration, Surah Ya-Sin is described as \"the heart of the Quran\".",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q018",
+    "category": "quran",
+    "difficulty": "medium",
+    "qBn": "সূরা ইখলাসে আল্লাহর কোন গুণটি মূলত বর্ণিত হয়েছে?",
+    "qEn": "Which attribute of Allah is primarily described in Surah al-Ikhlas?",
+    "options": [
+      {
+        "bn": "তাওহীদ (একত্ববাদ)",
+        "en": "Tawhid (Oneness)"
+      },
+      {
+        "bn": "রহমত",
+        "en": "Mercy"
+      },
+      {
+        "bn": "ক্ষমা",
+        "en": "Forgiveness"
+      },
+      {
+        "bn": "ন্যায়বিচার",
+        "en": "Justice"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "সূরা ইখলাস সংক্ষিপ্তভাবে আল্লাহর একত্ববাদ (তাওহীদ) বর্ণনা করে, যে কারণে এটিকে কুরআনের এক-তৃতীয়াংশের সমতুল্য বলা হয়।",
+    "explanationEn": "Surah al-Ikhlas concisely describes the Oneness (Tawhid) of Allah, which is why it is said to be equivalent to one-third of the Quran.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q019",
+    "category": "quran",
+    "difficulty": "hard",
+    "qBn": "কুরআনের কোন সূরায় শুরুতে \"বিসমিল্লাহ\" দুইবার উল্লেখ আছে?",
+    "qEn": "In which surah does \"Bismillah\" appear twice?",
+    "options": [
+      {
+        "bn": "সূরা নামল",
+        "en": "Surah al-Naml"
+      },
+      {
+        "bn": "সূরা তাওবা",
+        "en": "Surah al-Tawbah"
+      },
+      {
+        "bn": "সূরা হুদ",
+        "en": "Surah Hud"
+      },
+      {
+        "bn": "সূরা সাবা",
+        "en": "Surah Saba"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "সূরা নামলে (আয়াত ৩০) হযরত সুলাইমানের (আ.) চিঠির অংশ হিসেবে দ্বিতীয়বার \"বিসমিল্লাহ\" উল্লেখ আছে।",
+    "explanationEn": "In Surah al-Naml (verse 30), \"Bismillah\" appears a second time as part of Prophet Sulaiman's (AS) letter.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q020",
+    "category": "quran",
+    "difficulty": "easy",
+    "qBn": "পবিত্র কুরআনকে কতটি পারা (জুয)-এ ভাগ করা হয়েছে?",
+    "qEn": "Into how many parts (Juz/Para) is the Quran divided?",
+    "options": [
+      {
+        "bn": "২০টি",
+        "en": "20"
+      },
+      {
+        "bn": "২৫টি",
+        "en": "25"
+      },
+      {
+        "bn": "৩০টি",
+        "en": "30"
+      },
+      {
+        "bn": "৪০টি",
+        "en": "40"
+      }
+    ],
+    "correct": 2,
+    "explanationBn": "তিলাওয়াত ও মুখস্থ করার সুবিধার্থে পবিত্র কুরআনকে ৩০টি পারায় ভাগ করা হয়েছে।",
+    "explanationEn": "For ease of recitation and memorization, the Quran is divided into 30 parts (Juz/Para).",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q021",
+    "category": "karbala",
+    "difficulty": "easy",
+    "qBn": "ইমাম হোসাইন (আ.) কোথায় শহীদ হন?",
+    "qEn": "Where was Imam Hussain (AS) martyred?",
+    "options": [
+      {
+        "bn": "মদিনায়",
+        "en": "In Medina"
+      },
+      {
+        "bn": "কারবালায়",
+        "en": "In Karbala"
+      },
+      {
+        "bn": "কুফায়",
+        "en": "In Kufa"
+      },
+      {
+        "bn": "দামেস্কে",
+        "en": "In Damascus"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "ইমাম হোসাইন (আ.) ইরাকের কারবালা প্রান্তরে ইয়াজিদের বাহিনীর হাতে শহীদ হন।",
+    "explanationEn": "Imam Hussain (AS) was martyred at Karbala, in present-day Iraq, at the hands of Yazid's forces.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q022",
+    "category": "karbala",
+    "difficulty": "easy",
+    "qBn": "আশুরা কোন তারিখে পালিত হয়?",
+    "qEn": "On which date is Ashura observed?",
+    "options": [
+      {
+        "bn": "১০ই মুহাররম",
+        "en": "10th of Muharram"
+      },
+      {
+        "bn": "১৫ই রমজান",
+        "en": "15th of Ramadan"
+      },
+      {
+        "bn": "১লা মহররম",
+        "en": "1st of Muharram"
+      },
+      {
+        "bn": "২০শে সফর",
+        "en": "20th of Safar"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "আশুরা মুহাররম মাসের ১০ তারিখ, যেদিন কারবালার মর্মান্তিক ঘটনা সংঘটিত হয়।",
+    "explanationEn": "Ashura falls on the 10th of Muharram, the day the tragic events of Karbala took place.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q023",
+    "category": "karbala",
+    "difficulty": "medium",
+    "qBn": "কারবালার যুদ্ধ কোন হিজরি সালে সংঘটিত হয়?",
+    "qEn": "In which Hijri year did the Battle of Karbala take place?",
+    "options": [
+      {
+        "bn": "৫০ হিজরি",
+        "en": "50 AH"
+      },
+      {
+        "bn": "৬১ হিজরি",
+        "en": "61 AH"
+      },
+      {
+        "bn": "৭২ হিজরি",
+        "en": "72 AH"
+      },
+      {
+        "bn": "৪০ হিজরি",
+        "en": "40 AH"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "কারবালার যুদ্ধ ৬১ হিজরিতে (৬৮০ খ্রিস্টাব্দ) সংঘটিত হয়।",
+    "explanationEn": "The Battle of Karbala took place in 61 AH (680 CE).",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q024",
+    "category": "karbala",
+    "difficulty": "medium",
+    "qBn": "ঐতিহ্যবাহী বর্ণনা অনুযায়ী কারবালায় ইমাম হোসাইনের (আ.) কতজন সঙ্গী শহীদ হন বলে সাধারণত উল্লেখ করা হয়?",
+    "qEn": "According to traditional accounts, how many companions of Imam Hussain (AS) are commonly said to have been martyred at Karbala?",
+    "options": [
+      {
+        "bn": "৪০ জন",
+        "en": "40"
+      },
+      {
+        "bn": "৫০ জন",
+        "en": "50"
+      },
+      {
+        "bn": "৭২ জন",
+        "en": "72"
+      },
+      {
+        "bn": "১০০ জন",
+        "en": "100"
+      }
+    ],
+    "correct": 2,
+    "explanationBn": "ঐতিহ্যবাহী বর্ণনায় সাধারণত বলা হয় যে ইমাম হোসাইনের (আ.) প্রায় ৭২ জন সঙ্গী কারবালায় শহীদ হয়েছিলেন।",
+    "explanationEn": "Traditional accounts commonly state that around 72 companions of Imam Hussain (AS) were martyred at Karbala.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q025",
+    "category": "karbala",
+    "difficulty": "medium",
+    "qBn": "কারবালায় ইমাম হোসাইনের (আ.) শিশুপুত্র, যিনি তীরবিদ্ধ হয়ে শহীদ হন, তার নাম কী?",
+    "qEn": "What was the name of Imam Hussain's (AS) infant son who was martyred by an arrow at Karbala?",
+    "options": [
+      {
+        "bn": "আলী আকবর (আ.)",
+        "en": "Ali Akbar (AS)"
+      },
+      {
+        "bn": "আলী আসগর (আ.)",
+        "en": "Ali Asghar (AS)"
+      },
+      {
+        "bn": "কাসিম (আ.)",
+        "en": "Qasim (AS)"
+      },
+      {
+        "bn": "আব্বাস (আ.)",
+        "en": "Abbas (AS)"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "শিশু আলী আসগরকে (আ.) কারবালার প্রান্তরে তীরবিদ্ধ করে শহীদ করা হয়।",
+    "explanationEn": "The infant Ali Asghar (AS) was martyred by an arrow on the plains of Karbala.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q026",
+    "category": "karbala",
+    "difficulty": "medium",
+    "qBn": "কারবালার ঘটনার পর বন্দী অবস্থায় কুফা ও দামেস্কে নীত হয়ে ইমামতের ধারা অব্যাহত রাখেন কে?",
+    "qEn": "Who, taken captive to Kufa and Damascus after Karbala, continued the line of Imamate?",
+    "options": [
+      {
+        "bn": "ইমাম বাকির (আ.)",
+        "en": "Imam al-Baqir (AS)"
+      },
+      {
+        "bn": "ইমাম সাজ্জাদ (আ.)",
+        "en": "Imam al-Sajjad (AS)"
+      },
+      {
+        "bn": "ইমাম কাযিম (আ.)",
+        "en": "Imam al-Kazim (AS)"
+      },
+      {
+        "bn": "ইমাম হাদি (আ.)",
+        "en": "Imam al-Hadi (AS)"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "ইমাম হোসাইনের (আ.) পুত্র ইমাম সাজ্জাদ/জয়নুল আবিদীন (আ.) কারবালার পর বন্দী হয়েও ইমামতের দায়িত্ব পালন করেন।",
+    "explanationEn": "Imam Hussain's (AS) son, Imam al-Sajjad/Zainul Abidin (AS), continued the responsibility of Imamate even while held captive after Karbala.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q027",
+    "category": "karbala",
+    "difficulty": "medium",
+    "qBn": "\"আরবাঈন\" আশুরার কত দিন পর পালিত হয়?",
+    "qEn": "How many days after Ashura is Arba'een observed?",
+    "options": [
+      {
+        "bn": "২০ দিন",
+        "en": "20 days"
+      },
+      {
+        "bn": "৩০ দিন",
+        "en": "30 days"
+      },
+      {
+        "bn": "৪০ দিন",
+        "en": "40 days"
+      },
+      {
+        "bn": "৫০ দিন",
+        "en": "50 days"
+      }
+    ],
+    "correct": 2,
+    "explanationBn": "আরবাঈন (চল্লিশা) আশুরার ৪০ দিন পর, সফর মাসের ২০ তারিখে পালিত হয়।",
+    "explanationEn": "Arba'een is observed 40 days after Ashura, on the 20th of Safar.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q028",
+    "category": "karbala",
+    "difficulty": "hard",
+    "qBn": "কারবালার ঘটনায় কুফার গভর্নর হিসেবে ইয়াজিদের পক্ষে প্রধান ভূমিকা পালনকারী ব্যক্তি কে ছিলেন?",
+    "qEn": "Who played the main role as Yazid's governor of Kufa in the events of Karbala?",
+    "options": [
+      {
+        "bn": "ইবনে জিয়াদ",
+        "en": "Ibn Ziyad"
+      },
+      {
+        "bn": "আমর ইবনে আস",
+        "en": "Amr ibn al-As"
+      },
+      {
+        "bn": "ওয়ালিদ ইবনে উকবা",
+        "en": "Walid ibn Uqba"
+      },
+      {
+        "bn": "মারওয়ান ইবনে হাকাম",
+        "en": "Marwan ibn al-Hakam"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "উবাইদুল্লাহ ইবনে জিয়াদ ছিলেন কুফার গভর্নর, যিনি কারবালার ঘটনায় প্রধান ভূমিকা পালন করেন।",
+    "explanationEn": "Ubaydullah ibn Ziyad was the governor of Kufa who played the principal role in the events of Karbala.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q029",
+    "category": "karbala",
+    "difficulty": "hard",
+    "qBn": "ইমাম হোসাইন (আ.) কুফাবাসীদের অবস্থা যাচাই করতে কারবালার আগে কাকে প্রতিনিধি হিসেবে কুফায় পাঠিয়েছিলেন?",
+    "qEn": "Whom did Imam Hussain (AS) send to Kufa as his representative to assess the situation, before Karbala?",
+    "options": [
+      {
+        "bn": "মুসলিম ইবনে আকিল",
+        "en": "Muslim ibn Aqil"
+      },
+      {
+        "bn": "হাবিব ইবনে মাজাহির",
+        "en": "Habib ibn Mazahir"
+      },
+      {
+        "bn": "জুহাইর ইবনে কাইন",
+        "en": "Zuhayr ibn al-Qayn"
+      },
+      {
+        "bn": "আবু ফজল আব্বাস (আ.)",
+        "en": "Abu al-Fadl al-Abbas (AS)"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "ইমাম হোসাইন (আ.) তার চাচাতো ভাই মুসলিম ইবনে আকিলকে কুফাবাসীদের আনুগত্যের প্রতিশ্রুতি যাচাই করতে প্রতিনিধি হিসেবে পাঠান।",
+    "explanationEn": "Imam Hussain (AS) sent his cousin Muslim ibn Aqil as his envoy to verify the Kufans' pledges of support.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q030",
+    "category": "karbala",
+    "difficulty": "easy",
+    "qBn": "আশুরার দিনে মুসলিম বিশ্বে সাধারণত কী স্মরণ/পালন করা হয়?",
+    "qEn": "What is generally commemorated in the Muslim world on the day of Ashura?",
+    "options": [
+      {
+        "bn": "ইমাম হোসাইন (আ.) ও তার সঙ্গীদের শাহাদাত",
+        "en": "The martyrdom of Imam Hussain (AS) and his companions"
+      },
+      {
+        "bn": "নবীজির জন্ম",
+        "en": "The birth of the Prophet"
+      },
+      {
+        "bn": "হিজরতের ঘটনা",
+        "en": "The event of the Hijrah"
+      },
+      {
+        "bn": "বদরের যুদ্ধ",
+        "en": "The Battle of Badr"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "আশুরার দিনে ইমাম হোসাইন (আ.) ও কারবালায় তার সঙ্গীদের আত্মত্যাগ ও শাহাদাত স্মরণ করে শোক পালন করা হয়।",
+    "explanationEn": "On Ashura, the sacrifice and martyrdom of Imam Hussain (AS) and his companions at Karbala are mourned and commemorated.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q031",
+    "category": "fiqh",
+    "difficulty": "easy",
+    "qBn": "ইসলামের পাঁচটি স্তম্ভের একটি কোনটি?",
+    "qEn": "Which of the following is one of the five pillars of Islam?",
+    "options": [
+      {
+        "bn": "রোজা",
+        "en": "Fasting"
+      },
+      {
+        "bn": "কুরবানি",
+        "en": "Sacrifice"
+      },
+      {
+        "bn": "ওমরাহ",
+        "en": "Umrah"
+      },
+      {
+        "bn": "ইতিকাফ",
+        "en": "Itikaf"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "রোজা (সাওম) ইসলামের পাঁচটি মূল স্তম্ভের একটি, যা রমজান মাসে পালন করা ফরজ।",
+    "explanationEn": "Fasting (Sawm) is one of the five pillars of Islam, obligatory during the month of Ramadan.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q032",
+    "category": "fiqh",
+    "difficulty": "easy",
+    "qBn": "প্রতিদিন কত ওয়াক্ত নামাজ ফরজ?",
+    "qEn": "How many daily prayers are obligatory?",
+    "options": [
+      {
+        "bn": "৩ ওয়াক্ত",
+        "en": "3"
+      },
+      {
+        "bn": "৪ ওয়াক্ত",
+        "en": "4"
+      },
+      {
+        "bn": "৫ ওয়াক্ত",
+        "en": "5"
+      },
+      {
+        "bn": "৬ ওয়াক্ত",
+        "en": "6"
+      }
+    ],
+    "correct": 2,
+    "explanationBn": "প্রতিদিন পাঁচ ওয়াক্ত নামাজ (ফজর, যোহর, আসর, মাগরিব, ইশা) ফরজ।",
+    "explanationEn": "Five daily prayers (Fajr, Dhuhr, Asr, Maghrib, Isha) are obligatory each day.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q033",
+    "category": "fiqh",
+    "difficulty": "easy",
+    "qBn": "রমজান মাসে মুসলমানদের জন্য কোন ইবাদত ফরজ?",
+    "qEn": "Which act of worship is obligatory for Muslims during Ramadan?",
+    "options": [
+      {
+        "bn": "হজ্ব",
+        "en": "Hajj"
+      },
+      {
+        "bn": "রোজা",
+        "en": "Fasting"
+      },
+      {
+        "bn": "যাকাত",
+        "en": "Zakat"
+      },
+      {
+        "bn": "ইতিকাফ",
+        "en": "Itikaf"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "রমজান মাস জুড়ে সুবহে সাদিক থেকে সূর্যাস্ত পর্যন্ত রোজা রাখা ফরজ।",
+    "explanationEn": "Fasting from dawn until sunset throughout Ramadan is obligatory.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q034",
+    "category": "fiqh",
+    "difficulty": "easy",
+    "qBn": "সামর্থ্যবান মুসলমানের জন্য জীবনে কতবার হজ্ব ফরজ?",
+    "qEn": "How many times in a lifetime is Hajj obligatory for a capable Muslim?",
+    "options": [
+      {
+        "bn": "একবার",
+        "en": "Once"
+      },
+      {
+        "bn": "দুইবার",
+        "en": "Twice"
+      },
+      {
+        "bn": "প্রতি বছর",
+        "en": "Every year"
+      },
+      {
+        "bn": "তিনবার",
+        "en": "Three times"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "শারীরিক ও আর্থিক সামর্থ্য থাকলে জীবনে একবার হজ্ব পালন করা ফরজ।",
+    "explanationEn": "Hajj is obligatory once in a lifetime for those who are physically and financially able.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q035",
+    "category": "fiqh",
+    "difficulty": "easy",
+    "qBn": "নামাজে মুসলমানরা কোন দিকে মুখ করে দাঁড়ান?",
+    "qEn": "In which direction do Muslims face during prayer?",
+    "options": [
+      {
+        "bn": "পূর্ব দিকে",
+        "en": "East"
+      },
+      {
+        "bn": "কিবলা/কাবার দিকে",
+        "en": "Towards the Qibla/Kaaba"
+      },
+      {
+        "bn": "উত্তর দিকে",
+        "en": "North"
+      },
+      {
+        "bn": "সূর্যোদয়ের দিকে",
+        "en": "Towards the sunrise"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "প্রতিটি ফরজ নামাজে মক্কার কাবা শরীফের দিকে (কিবলা) মুখ করে দাঁড়াতে হয়।",
+    "explanationEn": "In every obligatory prayer, Muslims face the direction of the Kaaba in Mecca (the Qibla).",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q036",
+    "category": "fiqh",
+    "difficulty": "medium",
+    "qBn": "যাকাত ফরজ হওয়ার মূল শর্ত কী?",
+    "qEn": "What is the basic condition for Zakat becoming obligatory?",
+    "options": [
+      {
+        "bn": "নির্দিষ্ট পরিমাণ (নিসাব) সম্পদের মালিক হওয়া",
+        "en": "Owning wealth reaching a specified threshold (Nisab)"
+      },
+      {
+        "bn": "বয়স ৪০ বছর হওয়া",
+        "en": "Being 40 years of age"
+      },
+      {
+        "bn": "বিবাহিত হওয়া",
+        "en": "Being married"
+      },
+      {
+        "bn": "হজ্ব পালন করা",
+        "en": "Having performed Hajj"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "নির্ধারিত পরিমাণ (নিসাব) সম্পদ এক বছর ধরে মালিকানায় থাকলে তার ওপর যাকাত ফরজ হয়।",
+    "explanationEn": "Zakat becomes obligatory when one owns wealth reaching the specified threshold (Nisab) for a full year.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q037",
+    "category": "fiqh",
+    "difficulty": "medium",
+    "qBn": "শিয়া দৃষ্টিকোণ থেকে \"উসূলে দ্বীন\" (দ্বীনের মূল ভিত্তি) সাধারণত কয়টি বলে গণ্য করা হয়?",
+    "qEn": "From a Shia perspective, how many are the \"Usul al-Din\" (fundamentals of religion) generally considered to be?",
+    "options": [
+      {
+        "bn": "৩টি",
+        "en": "3"
+      },
+      {
+        "bn": "৫টি",
+        "en": "5"
+      },
+      {
+        "bn": "৭টি",
+        "en": "7"
+      },
+      {
+        "bn": "১০টি",
+        "en": "10"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "তাওহীদ, নবুওয়ত, ইমামত, আদল (ন্যায়বিচার) ও কিয়ামত — এই পাঁচটিকে সাধারণত উসূলে দ্বীন বলা হয়।",
+    "explanationEn": "Tawhid, Nubuwwah (Prophethood), Imamate, Adl (Divine Justice) and Qiyamah (Resurrection) are generally counted as the five Usul al-Din.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q038",
+    "category": "fiqh",
+    "difficulty": "medium",
+    "qBn": "নিচের কোনটি \"ফুরুয়ে দ্বীন\" (দ্বীনের শাখাগত বিধান)-এর অন্তর্ভুক্ত?",
+    "qEn": "Which of the following belongs to \"Furu al-Din\" (the branches/practical laws of religion)?",
+    "options": [
+      {
+        "bn": "তাওহীদ",
+        "en": "Tawhid"
+      },
+      {
+        "bn": "ইমামত",
+        "en": "Imamate"
+      },
+      {
+        "bn": "নামাজ",
+        "en": "Salat (Prayer)"
+      },
+      {
+        "bn": "নবুওয়ত",
+        "en": "Nubuwwah"
+      }
+    ],
+    "correct": 2,
+    "explanationBn": "নামাজ, রোজা, হজ্ব, যাকাতের মতো ব্যবহারিক বিধানগুলো ফুরুয়ে দ্বীনের অন্তর্ভুক্ত, যেখানে তাওহীদ-নবুওয়ত-ইমামত মূল বিশ্বাসগত ভিত্তি (উসূল)।",
+    "explanationEn": "Practical rulings like prayer, fasting, Hajj and Zakat belong to Furu al-Din, while Tawhid, Nubuwwah and Imamate are core matters of belief (Usul).",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q039",
+    "category": "fiqh",
+    "difficulty": "easy",
+    "qBn": "সাধারণভাবে অজু ভঙ্গ হওয়ার একটি কারণ কোনটি?",
+    "qEn": "Which of the following is a common cause that invalidates Wudu?",
+    "options": [
+      {
+        "bn": "কথা বলা",
+        "en": "Speaking"
+      },
+      {
+        "bn": "পানি পান করা",
+        "en": "Drinking water"
+      },
+      {
+        "bn": "ঘুমিয়ে পড়া",
+        "en": "Falling asleep"
+      },
+      {
+        "bn": "হাসা",
+        "en": "Smiling"
+      }
+    ],
+    "correct": 2,
+    "explanationBn": "গভীর ঘুম এবং পেশাব-পায়খানার মতো বিষয় অজু ভঙ্গের সাধারণ কারণ।",
+    "explanationEn": "Falling into a deep sleep, along with things like urination and defecation, are common causes that invalidate Wudu.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q040",
+    "category": "fiqh",
+    "difficulty": "medium",
+    "qBn": "এতেকাফ সাধারণত রমজান মাসের কোন সময়ে করা হয়?",
+    "qEn": "During which period of Ramadan is Itikaf commonly observed?",
+    "options": [
+      {
+        "bn": "প্রথম দশ দিনে",
+        "en": "The first ten days"
+      },
+      {
+        "bn": "মাঝের দশ দিনে",
+        "en": "The middle ten days"
+      },
+      {
+        "bn": "শেষ দশ দিনে",
+        "en": "The last ten days"
+      },
+      {
+        "bn": "পুরো মাস জুড়ে",
+        "en": "Throughout the whole month"
+      }
+    ],
+    "correct": 2,
+    "explanationBn": "এতেকাফ সাধারণত রমজানের শেষ দশ দিনে মসজিদে অবস্থান করে ইবাদতে মগ্ন থাকার একটি আমল।",
+    "explanationEn": "Itikaf is the practice of secluding oneself in the mosque for worship, commonly observed during the last ten days of Ramadan.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q041",
+    "category": "dua",
+    "difficulty": "medium",
+    "qBn": "বিখ্যাত \"দোয়ায়ে কুমাইল\" কাকে শিক্ষা দিয়েছিলেন ইমাম আলী (আ.)?",
+    "qEn": "To whom did Imam Ali (AS) teach the famous \"Dua Kumayl\"?",
+    "options": [
+      {
+        "bn": "কুমাইল ইবনে জিয়াদ",
+        "en": "Kumayl ibn Ziyad"
+      },
+      {
+        "bn": "মালিক আশতার",
+        "en": "Malik al-Ashtar"
+      },
+      {
+        "bn": "আম্মার ইবনে ইয়াসির",
+        "en": "Ammar ibn Yasir"
+      },
+      {
+        "bn": "সালমান ফারসি",
+        "en": "Salman al-Farsi"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "ইমাম আলী (আ.) তার সহচর কুমাইল ইবনে জিয়াদকে এই দোয়া শিক্ষা দেন, যা আজও ব্যাপকভাবে পঠিত হয়।",
+    "explanationEn": "Imam Ali (AS) taught this dua to his companion Kumayl ibn Ziyad, and it remains widely recited today.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q042",
+    "category": "dua",
+    "difficulty": "medium",
+    "qBn": "\"সাহিফায়ে সাজ্জাদিয়্যা\" কে রচনা করেন?",
+    "qEn": "Who authored the \"Sahifa al-Sajjadiyya\"?",
+    "options": [
+      {
+        "bn": "ইমাম আলী (আ.)",
+        "en": "Imam Ali (AS)"
+      },
+      {
+        "bn": "ইমাম হোসাইন (আ.)",
+        "en": "Imam Hussain (AS)"
+      },
+      {
+        "bn": "ইমাম সাজ্জাদ (আ.)",
+        "en": "Imam al-Sajjad (AS)"
+      },
+      {
+        "bn": "ইমাম বাকির (আ.)",
+        "en": "Imam al-Baqir (AS)"
+      }
+    ],
+    "correct": 2,
+    "explanationBn": "সাহিফায়ে সাজ্জাদিয়্যা ইমাম জয়নুল আবিদীন/সাজ্জাদ (আ.)-এর দোয়াসমূহের একটি বিখ্যাত সংকলন, যাকে \"যাবুরে আলে মুহাম্মদ\"ও বলা হয়।",
+    "explanationEn": "Sahifa al-Sajjadiyya is a famous compilation of supplications by Imam Zainul Abidin/al-Sajjad (AS), also called the \"Psalms of the Household of Muhammad\".",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q043",
+    "category": "dua",
+    "difficulty": "easy",
+    "qBn": "\"তাসবিহে ফাতিমা\" (তাসবিহাতুজ জাহরা) মোট কতবার পাঠ করা হয়?",
+    "qEn": "How many times in total is \"Tasbih of Fatima\" (Tasbihat al-Zahra) recited?",
+    "options": [
+      {
+        "bn": "৩৩ বার",
+        "en": "33"
+      },
+      {
+        "bn": "৫০ বার",
+        "en": "50"
+      },
+      {
+        "bn": "১০০ বার",
+        "en": "100"
+      },
+      {
+        "bn": "২০০ বার",
+        "en": "200"
+      }
+    ],
+    "correct": 2,
+    "explanationBn": "\"সুবহানাল্লাহ\" ৩৩ বার, \"আলহামদুলিল্লাহ\" ৩৩ বার ও \"আল্লাহু আকবার\" ৩৪ বার — মোট ১০০ বার পাঠ করা হয়।",
+    "explanationEn": "\"SubhanAllah\" is recited 33 times, \"Alhamdulillah\" 33 times, and \"Allahu Akbar\" 34 times — 100 times in total.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q044",
+    "category": "dua",
+    "difficulty": "easy",
+    "qBn": "জিয়ারতে আশুরা মূলত কার উদ্দেশ্যে পাঠ করা হয়?",
+    "qEn": "To whom is Ziyarat Ashura primarily dedicated?",
+    "options": [
+      {
+        "bn": "ইমাম আলী (আ.)",
+        "en": "Imam Ali (AS)"
+      },
+      {
+        "bn": "ইমাম হোসাইন (আ.)",
+        "en": "Imam Hussain (AS)"
+      },
+      {
+        "bn": "ইমাম রেজা (আ.)",
+        "en": "Imam Ridha (AS)"
+      },
+      {
+        "bn": "হযরত ফাতিমা (আ.)",
+        "en": "Lady Fatima (AS)"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "জিয়ারতে আশুরা ইমাম হোসাইন (আ.)-কে উদ্দেশ্য করে পাঠ করা একটি বহুল প্রচলিত জিয়ারত।",
+    "explanationEn": "Ziyarat Ashura is a widely recited ziyarat dedicated to Imam Hussain (AS).",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q045",
+    "category": "dua",
+    "difficulty": "medium",
+    "qBn": "রমজান মাসে প্রতি রাতে পাঠের জন্য প্রসিদ্ধ একটি দোয়া কোনটি?",
+    "qEn": "Which dua is well known for nightly recitation throughout Ramadan?",
+    "options": [
+      {
+        "bn": "দোয়ায়ে ইফতিতাহ",
+        "en": "Dua Iftitah"
+      },
+      {
+        "bn": "দোয়ায়ে নুদবা",
+        "en": "Dua Nudba"
+      },
+      {
+        "bn": "দোয়ায়ে তাওয়াসসুল",
+        "en": "Dua Tawassul"
+      },
+      {
+        "bn": "দোয়ায়ে সামাত",
+        "en": "Dua Sabah"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "দোয়ায়ে ইফতিতাহ রমজান মাসের প্রতিটি রাতে পাঠ করার জন্য প্রসিদ্ধ, ইমাম মাহদি (আ.) থেকে বর্ণিত একটি দোয়া।",
+    "explanationEn": "Dua Iftitah is a supplication narrated from Imam al-Mahdi (AS), well known for nightly recitation throughout the month of Ramadan.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q046",
+    "category": "dua",
+    "difficulty": "medium",
+    "qBn": "\"দোয়ায়ে নুদবা\" সাধারণত সপ্তাহের কোন দিন পাঠ করা হয়?",
+    "qEn": "On which day of the week is \"Dua Nudba\" commonly recited?",
+    "options": [
+      {
+        "bn": "শনিবার",
+        "en": "Saturday"
+      },
+      {
+        "bn": "সোমবার",
+        "en": "Monday"
+      },
+      {
+        "bn": "জুমাবার (শুক্রবার)",
+        "en": "Friday"
+      },
+      {
+        "bn": "বুধবার",
+        "en": "Wednesday"
+      }
+    ],
+    "correct": 2,
+    "explanationBn": "দোয়ায়ে নুদবা সাধারণত শুক্রবার ও দুই ঈদের দিন পাঠ করার রীতি প্রচলিত, যাতে ইমাম মাহদির (আ.) আগমনের জন্য প্রার্থনা করা হয়।",
+    "explanationEn": "Dua Nudba is customarily recited on Fridays and on the two Eids, praying for the reappearance of Imam al-Mahdi (AS).",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q047",
+    "category": "dua",
+    "difficulty": "easy",
+    "qBn": "\"সালাওয়াত\" পাঠ করার অর্থ কী?",
+    "qEn": "What does reciting \"Salawat\" mean?",
+    "options": [
+      {
+        "bn": "নবী (সা.) ও তার আহলে বাইতের প্রতি দরুদ পাঠ করা",
+        "en": "Sending blessings upon the Prophet (SA) and his Household"
+      },
+      {
+        "bn": "কুরআন তিলাওয়াত করা",
+        "en": "Reciting the Quran"
+      },
+      {
+        "bn": "রোজা রাখা",
+        "en": "Fasting"
+      },
+      {
+        "bn": "যাকাত প্রদান করা",
+        "en": "Giving Zakat"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "সালাওয়াত অর্থ নবী মুহাম্মদ (সা.) ও তার পবিত্র আহলে বাইতের প্রতি দরুদ ও শান্তি প্রার্থনা করা।",
+    "explanationEn": "Salawat means invoking blessings and peace upon Prophet Muhammad (SA) and his pure Household.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q048",
+    "category": "dua",
+    "difficulty": "easy",
+    "qBn": "তসবিহ/জিকিরের জন্য ব্যবহৃত মালাকে সাধারণত কী বলা হয়?",
+    "qEn": "What is the string of prayer beads used for dhikr commonly called?",
+    "options": [
+      {
+        "bn": "তসবিহ",
+        "en": "Tasbih (prayer beads)"
+      },
+      {
+        "bn": "সিজদাগাহ",
+        "en": "Sijdagah (turbah)"
+      },
+      {
+        "bn": "জায়নামাজ",
+        "en": "Prayer mat (Jaynamaz)"
+      },
+      {
+        "bn": "রেহেল",
+        "en": "Rehal (Quran stand)"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "জিকির গণনার জন্য ব্যবহৃত মালাকে তসবিহ (মিসবাহ) বলা হয়।",
+    "explanationEn": "The string of beads used for counting dhikr is called Tasbih (Misbaha).",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q049",
+    "category": "dua",
+    "difficulty": "medium",
+    "qBn": "তাসবিহে ফাতিমায় \"সুবহানাল্লাহ\" কতবার পাঠ করা হয়?",
+    "qEn": "How many times is \"SubhanAllah\" recited in Tasbih al-Zahra?",
+    "options": [
+      {
+        "bn": "৩৩ বার",
+        "en": "33"
+      },
+      {
+        "bn": "৩৪ বার",
+        "en": "34"
+      },
+      {
+        "bn": "৪০ বার",
+        "en": "40"
+      },
+      {
+        "bn": "১০০ বার",
+        "en": "100"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "তাসবিহে ফাতিমায় প্রথমে \"সুবহানাল্লাহ\" ৩৩ বার, এরপর \"আলহামদুলিল্লাহ\" ৩৩ বার, সবশেষে \"আল্লাহু আকবার\" ৩৪ বার পাঠ করা হয়।",
+    "explanationEn": "In Tasbih al-Zahra, \"SubhanAllah\" is recited 33 times first, then \"Alhamdulillah\" 33 times, and finally \"Allahu Akbar\" 34 times.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q050",
+    "category": "dua",
+    "difficulty": "medium",
+    "qBn": "\"ইস্তেখারা\" করার মূল উদ্দেশ্য কী?",
+    "qEn": "What is the main purpose of performing \"Istikhara\"?",
+    "options": [
+      {
+        "bn": "কোনো কাজে আল্লাহর কাছে কল্যাণ ও দিকনির্দেশনা প্রার্থনা করা",
+        "en": "Seeking Allah's guidance and what is best in a matter"
+      },
+      {
+        "bn": "রোগ থেকে আরোগ্য লাভ",
+        "en": "Recovery from illness"
+      },
+      {
+        "bn": "ঋণ পরিশোধ",
+        "en": "Repayment of debt"
+      },
+      {
+        "bn": "হজ্বের প্রস্তুতি",
+        "en": "Preparing for Hajj"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "ইস্তেখারা হলো কোনো সিদ্ধান্ত নেওয়ার আগে আল্লাহর কাছে কল্যাণ ও সঠিক পথের দিকনির্দেশনা প্রার্থনা করার একটি আমল।",
+    "explanationEn": "Istikhara is the practice of asking Allah for guidance toward what is best before making a decision.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q051",
+    "category": "general",
+    "difficulty": "easy",
+    "qBn": "\"ইসলাম\" শব্দের অর্থ কী?",
+    "qEn": "What does the word \"Islam\" mean?",
+    "options": [
+      {
+        "bn": "যুদ্ধ",
+        "en": "War"
+      },
+      {
+        "bn": "আত্মসমর্পণ ও শান্তি",
+        "en": "Submission and peace"
+      },
+      {
+        "bn": "ঐক্য",
+        "en": "Unity"
+      },
+      {
+        "bn": "জ্ঞান",
+        "en": "Knowledge"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "\"ইসলাম\" শব্দের আভিধানিক অর্থ আল্লাহর কাছে আত্মসমর্পণ, যা থেকে শান্তি লাভ হয়।",
+    "explanationEn": "The word \"Islam\" literally means submission to Allah, from which peace is attained.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q052",
+    "category": "general",
+    "difficulty": "medium",
+    "qBn": "মুসলমানদের প্রথম কিবলা কোনটি ছিল?",
+    "qEn": "What was the first Qibla (direction of prayer) for Muslims?",
+    "options": [
+      {
+        "bn": "কাবা শরীফ",
+        "en": "The Kaaba"
+      },
+      {
+        "bn": "বায়তুল মুকাদ্দাস",
+        "en": "Bayt al-Maqdis (Jerusalem)"
+      },
+      {
+        "bn": "মদিনার মসজিদে নববী",
+        "en": "Masjid al-Nabawi in Medina"
+      },
+      {
+        "bn": "সিনাই পর্বত",
+        "en": "Mount Sinai"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "প্রথম দিকে মুসলমানরা বায়তুল মুকাদ্দাসের (জেরুজালেম) দিকে মুখ করে নামাজ পড়তেন, পরে কিবলা পরিবর্তন হয়ে কাবামুখী হয়।",
+    "explanationEn": "In the early period, Muslims prayed facing Bayt al-Maqdis (Jerusalem); the Qibla was later changed to the Kaaba.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q053",
+    "category": "general",
+    "difficulty": "easy",
+    "qBn": "ইসলামি হিজরি সন গণনা কোন ঘটনা থেকে শুরু হয়?",
+    "qEn": "From which event does the Islamic Hijri calendar begin?",
+    "options": [
+      {
+        "bn": "নবীজির (সা.) জন্ম",
+        "en": "The birth of the Prophet (SA)"
+      },
+      {
+        "bn": "নবীজির (সা.) মক্কা থেকে মদিনায় হিজরত",
+        "en": "The Prophet's (SA) migration from Mecca to Medina"
+      },
+      {
+        "bn": "বদরের যুদ্ধ",
+        "en": "The Battle of Badr"
+      },
+      {
+        "bn": "মক্কা বিজয়",
+        "en": "The Conquest of Mecca"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "হিজরি সন গণনা শুরু হয় নবী মুহাম্মদের (সা.) মক্কা থেকে মদিনায় হিজরতের ঘটনা থেকে।",
+    "explanationEn": "The Hijri calendar begins from the event of Prophet Muhammad's (SA) migration (Hijrah) from Mecca to Medina.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q054",
+    "category": "general",
+    "difficulty": "easy",
+    "qBn": "ইসলামি বর্ষপঞ্জির প্রথম মাসের নাম কী?",
+    "qEn": "What is the name of the first month of the Islamic calendar?",
+    "options": [
+      {
+        "bn": "রমজান",
+        "en": "Ramadan"
+      },
+      {
+        "bn": "মুহাররম",
+        "en": "Muharram"
+      },
+      {
+        "bn": "সফর",
+        "en": "Safar"
+      },
+      {
+        "bn": "শাওয়াল",
+        "en": "Shawwal"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "ইসলামি (হিজরি) বর্ষপঞ্জির প্রথম মাস মুহাররম।",
+    "explanationEn": "Muharram is the first month of the Islamic (Hijri) calendar.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q055",
+    "category": "general",
+    "difficulty": "easy",
+    "qBn": "রমজান মাসের শেষে উদযাপিত ঈদের নাম কী?",
+    "qEn": "What is the name of the Eid celebrated at the end of Ramadan?",
+    "options": [
+      {
+        "bn": "ঈদুল আযহা",
+        "en": "Eid al-Adha"
+      },
+      {
+        "bn": "ঈদে গাদির",
+        "en": "Eid al-Ghadeer"
+      },
+      {
+        "bn": "ঈদুল ফিতর",
+        "en": "Eid al-Fitr"
+      },
+      {
+        "bn": "ঈদে মুবাহিলা",
+        "en": "Eid al-Mubahila"
+      }
+    ],
+    "correct": 2,
+    "explanationBn": "রমজান মাস শেষে শাওয়াল মাসের প্রথম দিনে ঈদুল ফিতর উদযাপিত হয়।",
+    "explanationEn": "Eid al-Fitr is celebrated on the first day of Shawwal, marking the end of Ramadan.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q056",
+    "category": "general",
+    "difficulty": "easy",
+    "qBn": "কুরবানির ঈদকে কী বলা হয়?",
+    "qEn": "What is the \"Festival of Sacrifice\" called?",
+    "options": [
+      {
+        "bn": "ঈদুল ফিতর",
+        "en": "Eid al-Fitr"
+      },
+      {
+        "bn": "ঈদুল আযহা",
+        "en": "Eid al-Adha"
+      },
+      {
+        "bn": "ঈদে গাদির",
+        "en": "Eid al-Ghadeer"
+      },
+      {
+        "bn": "নওরোজ",
+        "en": "Nowruz"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "জিলহজ মাসের ১০ তারিখে উদযাপিত কুরবানির ঈদকে ঈদুল আযহা বলা হয়।",
+    "explanationEn": "The Festival of Sacrifice, celebrated on the 10th of Dhul Hijjah, is called Eid al-Adha.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q057",
+    "category": "general",
+    "difficulty": "easy",
+    "qBn": "মক্কার পবিত্র ঘরকে কী বলা হয়?",
+    "qEn": "What is the sacred house in Mecca called?",
+    "options": [
+      {
+        "bn": "মসজিদে নববী",
+        "en": "Masjid al-Nabawi"
+      },
+      {
+        "bn": "কাবা শরীফ",
+        "en": "The Kaaba"
+      },
+      {
+        "bn": "বায়তুল মুকাদ্দাস",
+        "en": "Bayt al-Maqdis"
+      },
+      {
+        "bn": "মিনার",
+        "en": "Mina"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "কাবা শরীফ মক্কায় অবস্থিত ইসলামের সবচেয়ে পবিত্র স্থান, যার দিকে মুখ করে মুসলমানরা নামাজ পড়েন।",
+    "explanationEn": "The Kaaba in Mecca is the holiest site in Islam, the direction Muslims face during prayer.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q058",
+    "category": "general",
+    "difficulty": "easy",
+    "qBn": "নবী মুহাম্মদ (সা.)-এর জন্মস্থান কোথায়?",
+    "qEn": "Where was Prophet Muhammad (SA) born?",
+    "options": [
+      {
+        "bn": "মদিনা",
+        "en": "Medina"
+      },
+      {
+        "bn": "মক্কা",
+        "en": "Mecca"
+      },
+      {
+        "bn": "তায়েফ",
+        "en": "Ta'if"
+      },
+      {
+        "bn": "দামেস্ক",
+        "en": "Damascus"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "নবী মুহাম্মদ (সা.) আরব উপদ্বীপের মক্কা নগরীতে জন্মগ্রহণ করেন।",
+    "explanationEn": "Prophet Muhammad (SA) was born in the city of Mecca, on the Arabian Peninsula.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q059",
+    "category": "general",
+    "difficulty": "medium",
+    "qBn": "নবী মুহাম্মদ (সা.)-এর ওফাত কোথায় হয়?",
+    "qEn": "Where did Prophet Muhammad (SA) pass away?",
+    "options": [
+      {
+        "bn": "মক্কা",
+        "en": "Mecca"
+      },
+      {
+        "bn": "মদিনা",
+        "en": "Medina"
+      },
+      {
+        "bn": "তায়েফ",
+        "en": "Ta'if"
+      },
+      {
+        "bn": "কারবালা",
+        "en": "Karbala"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "নবী মুহাম্মদ (সা.) হিজরতের পর মদিনায় বসবাস করেন এবং সেখানেই ওফাত লাভ করেন।",
+    "explanationEn": "After the Hijrah, Prophet Muhammad (SA) lived in Medina, where he passed away.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q060",
+    "category": "general",
+    "difficulty": "easy",
+    "qBn": "পবিত্র কুরআন কোন ভাষায় অবতীর্ণ হয়েছে?",
+    "qEn": "In which language was the Holy Quran revealed?",
+    "options": [
+      {
+        "bn": "ফার্সি",
+        "en": "Persian"
+      },
+      {
+        "bn": "আরবি",
+        "en": "Arabic"
+      },
+      {
+        "bn": "উর্দু",
+        "en": "Urdu"
+      },
+      {
+        "bn": "হিব্রু",
+        "en": "Hebrew"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "পবিত্র কুরআন আরবি ভাষায় অবতীর্ণ হয়েছে।",
+    "explanationEn": "The Holy Quran was revealed in the Arabic language.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q061",
+    "category": "ahlulbayt",
+    "difficulty": "hard",
+    "qBn": "ইমাম আলীর (আ.) মাতার নাম কী ছিল?",
+    "qEn": "What was the name of Imam Ali's (AS) mother?",
+    "options": [
+      {
+        "bn": "আমিনা",
+        "en": "Amina"
+      },
+      {
+        "bn": "ফাতিমা বিনতে আসাদ",
+        "en": "Fatima bint Asad"
+      },
+      {
+        "bn": "খাদিজা",
+        "en": "Khadija"
+      },
+      {
+        "bn": "হালিমা",
+        "en": "Halima"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "ইমাম আলীর (আ.) মাতা ছিলেন ফাতিমা বিনতে আসাদ, যিনি নবীজিরও (সা.) লালন-পালনে গুরুত্বপূর্ণ ভূমিকা রাখেন।",
+    "explanationEn": "Imam Ali's (AS) mother was Fatima bint Asad, who also played an important role in raising the Prophet (SA).",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q062",
+    "category": "ahlulbayt",
+    "difficulty": "medium",
+    "qBn": "ইমাম হাসান (আ.) কীভাবে শাহাদাতবরণ করেন বলে বর্ণিত আছে?",
+    "qEn": "How is Imam Hasan (AS) narrated to have attained martyrdom?",
+    "options": [
+      {
+        "bn": "যুদ্ধক্ষেত্রে",
+        "en": "In battle"
+      },
+      {
+        "bn": "বিষপ্রয়োগে",
+        "en": "By poisoning"
+      },
+      {
+        "bn": "দুর্ঘটনায়",
+        "en": "In an accident"
+      },
+      {
+        "bn": "অসুস্থতায় স্বাভাবিকভাবে",
+        "en": "From natural illness"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "শিয়া বর্ণনা অনুযায়ী ইমাম হাসানকে (আ.) বিষপ্রয়োগের মাধ্যমে শহীদ করা হয়।",
+    "explanationEn": "According to Shia narrations, Imam Hasan (AS) was martyred through poisoning.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q063",
+    "category": "ahlulbayt",
+    "difficulty": "medium",
+    "qBn": "শাহাদাতের আগে ইমামদের মধ্যে সবচেয়ে দীর্ঘ সময় (আনুমানিক ৩৪ বছর) কে ইমামত পালন করেন?",
+    "qEn": "Which Imam held the longest Imamate (approx. 34 years) before the occultation began?",
+    "options": [
+      {
+        "bn": "ইমাম বাকির (আ.)",
+        "en": "Imam al-Baqir (AS)"
+      },
+      {
+        "bn": "ইমাম জাফর সাদিক (আ.)",
+        "en": "Imam Ja'far al-Sadiq (AS)"
+      },
+      {
+        "bn": "ইমাম কাযিম (আ.)",
+        "en": "Imam al-Kazim (AS)"
+      },
+      {
+        "bn": "ইমাম হাদি (আ.)",
+        "en": "Imam al-Hadi (AS)"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "ইমাম জাফর সাদিক (আ.) প্রায় ৩৪ বছর (১১৪-১৪৮ হিজরি) ইমামত পালন করেন, যা গায়েবাতের আগের ইমামদের মধ্যে দীর্ঘতম।",
+    "explanationEn": "Imam Ja'far al-Sadiq (AS) held the Imamate for about 34 years (114-148 AH), the longest among the Imams before the occultation.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q064",
+    "category": "ahlulbayt",
+    "difficulty": "hard",
+    "qBn": "নবম ইমাম মুহাম্মাদ আল-জাওয়াদ (আ.)-এর আরেকটি প্রসিদ্ধ উপাধি কী?",
+    "qEn": "What is another well-known title of the ninth Imam, Muhammad al-Jawad (AS)?",
+    "options": [
+      {
+        "bn": "আত-তাকী",
+        "en": "al-Taqi"
+      },
+      {
+        "bn": "আন-নাকী",
+        "en": "al-Naqi"
+      },
+      {
+        "bn": "আল-আমিন",
+        "en": "al-Amin"
+      },
+      {
+        "bn": "আস-সাদিক",
+        "en": "al-Sadiq"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "ইমাম মুহাম্মাদ আল-জাওয়াদ (আ.) \"আত-তাকী\" (আল্লাহভীরু) উপাধিতেও পরিচিত।",
+    "explanationEn": "Imam Muhammad al-Jawad (AS) is also known by the title \"al-Taqi\" (the God-fearing).",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q065",
+    "category": "ahlulbayt",
+    "difficulty": "easy",
+    "qBn": "দশম ইমাম আলী আল-হাদি (আ.)-এর প্রসিদ্ধ আরেকটি উপাধি কী?",
+    "qEn": "What is another well-known title of the tenth Imam, Ali al-Hadi (AS)?",
+    "options": [
+      {
+        "bn": "আন-নাকী",
+        "en": "al-Naqi"
+      },
+      {
+        "bn": "আল-বাকির",
+        "en": "al-Baqir"
+      },
+      {
+        "bn": "আল-কাযিম",
+        "en": "al-Kazim"
+      },
+      {
+        "bn": "আস-সাজ্জাদ",
+        "en": "al-Sajjad"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "ইমাম আলী আল-হাদি (আ.) \"আন-নাকী\" (বিশুদ্ধ, স্বতন্ত্র) উপাধিতেও পরিচিত।",
+    "explanationEn": "Imam Ali al-Hadi (AS) is also known by the title \"al-Naqi\" (the distinguished, the pure).",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q066",
+    "category": "quran",
+    "difficulty": "medium",
+    "qBn": "কুরআনে কোন নবীর নাম সবচেয়ে বেশিবার উল্লেখ করা হয়েছে?",
+    "qEn": "Which prophet's name is mentioned most frequently in the Quran?",
+    "options": [
+      {
+        "bn": "ইবরাহিম (আ.)",
+        "en": "Ibrahim (AS)"
+      },
+      {
+        "bn": "মূসা (আ.)",
+        "en": "Musa (AS)"
+      },
+      {
+        "bn": "ঈসা (আ.)",
+        "en": "Isa (AS)"
+      },
+      {
+        "bn": "নূহ (আ.)",
+        "en": "Nuh (AS)"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "হযরত মূসার (আ.) নাম কুরআনে সবচেয়ে বেশি (১৩৬ বারের বেশি) উল্লেখিত হয়েছে।",
+    "explanationEn": "The name of Prophet Musa (Moses, AS) is mentioned in the Quran more often than any other prophet (over 136 times).",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q067",
+    "category": "quran",
+    "difficulty": "easy",
+    "qBn": "একজন নারীর নামে নামকরণ করা কুরআনের একমাত্র সূরা কোনটি?",
+    "qEn": "Which is the only surah in the Quran named after a woman?",
+    "options": [
+      {
+        "bn": "সূরা নূর",
+        "en": "Surah al-Nur"
+      },
+      {
+        "bn": "সূরা মারইয়াম",
+        "en": "Surah Maryam"
+      },
+      {
+        "bn": "সূরা নিসা",
+        "en": "Surah al-Nisa"
+      },
+      {
+        "bn": "সূরা মুমতাহিনা",
+        "en": "Surah al-Mumtahina"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "সূরা মারইয়াম হযরত ঈসার (আ.) মাতা মারইয়ামের (আ.) নামে নামকরণকৃত কুরআনের একমাত্র সূরা।",
+    "explanationEn": "Surah Maryam, named after Lady Maryam (AS), the mother of Prophet Isa (AS), is the only surah in the Quran named after a woman.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q068",
+    "category": "quran",
+    "difficulty": "medium",
+    "qBn": "নবীজির (সা.) মিরাজ/রাতের সফরের সূচনার উল্লেখ কোন সূরায় আছে?",
+    "qEn": "Which surah's opening verse references the start of the Prophet's (SA) night journey (Isra/Mi'raj)?",
+    "options": [
+      {
+        "bn": "সূরা নাজম",
+        "en": "Surah al-Najm"
+      },
+      {
+        "bn": "সূরা বনী ইসরাইল (ইসরা)",
+        "en": "Surah Bani Isra'il (al-Isra)"
+      },
+      {
+        "bn": "সূরা কদর",
+        "en": "Surah al-Qadr"
+      },
+      {
+        "bn": "সূরা দুহা",
+        "en": "Surah al-Duha"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "সূরা বনী ইসরাইল/ইসরার শুরুতেই নবীজির (সা.) মসজিদুল হারাম থেকে মসজিদুল আকসা পর্যন্ত রাতের সফরের কথা উল্লেখ আছে।",
+    "explanationEn": "The opening verse of Surah Bani Isra'il (al-Isra) references the Prophet's (SA) night journey from Masjid al-Haram to Masjid al-Aqsa.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q069",
+    "category": "quran",
+    "difficulty": "hard",
+    "qBn": "কুরআনের কোন সূরাটি একটি বিখ্যাত যুদ্ধের নামে নামকরণ করা হয়েছে?",
+    "qEn": "Which surah of the Quran is named after a famous battle?",
+    "options": [
+      {
+        "bn": "সূরা আহযাব",
+        "en": "Surah al-Ahzab"
+      },
+      {
+        "bn": "সূরা হজ্জ",
+        "en": "Surah al-Hajj"
+      },
+      {
+        "bn": "সূরা রূম",
+        "en": "Surah al-Rum"
+      },
+      {
+        "bn": "সূরা ফাতহ",
+        "en": "Surah al-Fath"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "সূরা আহযাব \"খন্দকের যুদ্ধ\"-এর (বাহিনীসমূহ/আহযাবের যুদ্ধ) সাথে সম্পর্কিত ঘটনার নামে নামকরণ করা হয়েছে।",
+    "explanationEn": "Surah al-Ahzab (\"the Confederates\") is named after the events surrounding the Battle of the Trench.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q070",
+    "category": "quran",
+    "difficulty": "medium",
+    "qBn": "কোন সূরাটি সপ্তাহে শুক্রবার পাঠের জন্য বিশেষভাবে প্রসিদ্ধ?",
+    "qEn": "Which surah is especially well known for being recited on Fridays?",
+    "options": [
+      {
+        "bn": "সূরা কাহফ",
+        "en": "Surah al-Kahf"
+      },
+      {
+        "bn": "সূরা মুলক",
+        "en": "Surah al-Mulk"
+      },
+      {
+        "bn": "সূরা ওয়াকিয়া",
+        "en": "Surah al-Waqi'ah"
+      },
+      {
+        "bn": "সূরা রহমান",
+        "en": "Surah al-Rahman"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "সূরা কাহফ প্রতি জুমাবার (শুক্রবার) পাঠের জন্য বহুল প্রচলিত ও সুপারিশকৃত।",
+    "explanationEn": "Surah al-Kahf is widely recommended and commonly recited every Friday.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q071",
+    "category": "karbala",
+    "difficulty": "easy",
+    "qBn": "কারবালার শহীদদের স্মরণে অনুষ্ঠিত শোকসভাকে সাধারণত কী বলা হয়?",
+    "qEn": "What is a mourning gathering held in remembrance of the Karbala martyrs commonly called?",
+    "options": [
+      {
+        "bn": "ঈদ মিলাদ",
+        "en": "Eid Milad"
+      },
+      {
+        "bn": "মজলিস/আজাদারি",
+        "en": "Majlis/Azadari"
+      },
+      {
+        "bn": "ইতিকাফ",
+        "en": "Itikaf"
+      },
+      {
+        "bn": "ওয়ালিমা",
+        "en": "Walima"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "কারবালার শহীদদের স্মরণে অনুষ্ঠিত শোকসভা ও শোক পালনকে মজলিস বা আজাদারি বলা হয়।",
+    "explanationEn": "Mourning gatherings held in remembrance of the Karbala martyrs are known as Majlis or Azadari.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q072",
+    "category": "karbala",
+    "difficulty": "medium",
+    "qBn": "কারবালার প্রান্তরে ইমাম হোসাইনের (আ.) পতাকাবাহী ছিলেন তার কোন সৎভাই?",
+    "qEn": "Which half-brother of Imam Hussain (AS) carried his standard at Karbala?",
+    "options": [
+      {
+        "bn": "হযরত আব্বাস (আ.)",
+        "en": "Hazrat Abbas (AS)"
+      },
+      {
+        "bn": "হযরত আকিল",
+        "en": "Hazrat Aqil"
+      },
+      {
+        "bn": "হযরত জাফর",
+        "en": "Hazrat Ja'far"
+      },
+      {
+        "bn": "হযরত উকাইল",
+        "en": "Hazrat Uqayl"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "হযরত আব্বাস ইবনে আলী (আ.), যিনি আবুল ফজল নামেও পরিচিত, কারবালায় ইমাম হোসাইনের (আ.) পতাকাবাহী ছিলেন।",
+    "explanationEn": "Hazrat Abbas ibn Ali (AS), also known as Abu al-Fadl, carried Imam Hussain's (AS) standard at Karbala.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q073",
+    "category": "karbala",
+    "difficulty": "hard",
+    "qBn": "কারবালার যুদ্ধক্ষেত্রে ইয়াজিদের বাহিনীর সরাসরি সেনাপতি কে ছিলেন?",
+    "qEn": "Who directly commanded Yazid's forces on the battlefield at Karbala?",
+    "options": [
+      {
+        "bn": "উবাইদুল্লাহ ইবনে জিয়াদ",
+        "en": "Ubaydullah ibn Ziyad"
+      },
+      {
+        "bn": "উমর ইবনে সাদ",
+        "en": "Umar ibn Sa'd"
+      },
+      {
+        "bn": "শিমার ইবনে জিলজাওশান",
+        "en": "Shimr ibn Dhi al-Jawshan"
+      },
+      {
+        "bn": "মারওয়ান ইবনে হাকাম",
+        "en": "Marwan ibn al-Hakam"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "উমর ইবনে সাদ ময়দানে বাহিনীর সরাসরি নেতৃত্ব দেন, যেখানে ইবনে জিয়াদ কুফার গভর্নর হিসেবে নির্দেশনা দিচ্ছিলেন।",
+    "explanationEn": "Umar ibn Sa'd led the forces directly on the battlefield, while Ibn Ziyad, as governor of Kufa, issued the orders from there.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q074",
+    "category": "karbala",
+    "difficulty": "easy",
+    "qBn": "কারবালার সময় ইমাম সাজ্জাদ (আ.) সরাসরি যুদ্ধে অংশ নিতে পারেননি কেন?",
+    "qEn": "Why was Imam al-Sajjad (AS) unable to take part directly in the fighting at Karbala?",
+    "options": [
+      {
+        "bn": "তিনি অসুস্থ ছিলেন",
+        "en": "He was ill"
+      },
+      {
+        "bn": "তিনি অনুপস্থিত ছিলেন",
+        "en": "He was absent"
+      },
+      {
+        "bn": "তার বয়স খুব কম ছিল",
+        "en": "He was too young"
+      },
+      {
+        "bn": "তাকে বন্দী করা হয়েছিল",
+        "en": "He had been imprisoned"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "ইমাম সাজ্জাদ (আ.) কারবালার সময় গুরুতর অসুস্থ ছিলেন, যে কারণে সরাসরি যুদ্ধে অংশ নিতে পারেননি; পরে তিনিই বন্দী হয়ে ইমামতের ধারা অব্যাহত রাখেন।",
+    "explanationEn": "Imam al-Sajjad (AS) was gravely ill at the time of Karbala, which is why he could not fight directly; he was later taken captive and continued the line of Imamate.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q075",
+    "category": "karbala",
+    "difficulty": "medium",
+    "qBn": "কারবালার সঙ্গীদের মধ্যে প্রবীণতম ও শ্রদ্ধেয় সাহাবীদের একজন হিসেবে কাকে গণ্য করা হয়?",
+    "qEn": "Who is regarded as one of the eldest and most respected companions among those at Karbala?",
+    "options": [
+      {
+        "bn": "হাবিব ইবনে মাজাহির",
+        "en": "Habib ibn Mazahir"
+      },
+      {
+        "bn": "জুন্নুন মিসরি",
+        "en": "Dhul-Nun al-Misri"
+      },
+      {
+        "bn": "উয়াইস কারনী",
+        "en": "Uways al-Qarani"
+      },
+      {
+        "bn": "সালমান ফারসি",
+        "en": "Salman al-Farsi"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "হাবিব ইবনে মাজাহির কারবালায় ইমাম হোসাইনের (আ.) প্রবীণ ও শ্রদ্ধেয় সঙ্গীদের অন্যতম হিসেবে পরিচিত।",
+    "explanationEn": "Habib ibn Mazahir is known as one of the elder, highly respected companions of Imam Hussain (AS) at Karbala.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q076",
+    "category": "fiqh",
+    "difficulty": "hard",
+    "qBn": "শিয়া (জাফরি) ফিকহ অনুযায়ী নামাজে জানাযায় (মৃতের নামাজ) মোট কয়টি তাকবীর দেওয়া হয়?",
+    "qEn": "According to Shia (Ja'fari) fiqh, how many takbirs are said in the funeral prayer (Salat al-Janazah)?",
+    "options": [
+      {
+        "bn": "৪টি",
+        "en": "4"
+      },
+      {
+        "bn": "৫টি",
+        "en": "5"
+      },
+      {
+        "bn": "৬টি",
+        "en": "6"
+      },
+      {
+        "bn": "৭টি",
+        "en": "7"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "জাফরি ফিকহ অনুযায়ী নামাজে জানাযায় ৫টি তাকবীর দেওয়া হয়, যা কিছু অন্যান্য মাযহাবের ৪ তাকবীরের নিয়ম থেকে ভিন্ন।",
+    "explanationEn": "According to Ja'fari fiqh, the funeral prayer consists of five takbirs, differing from the four-takbir practice followed in some other schools.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q077",
+    "category": "fiqh",
+    "difficulty": "medium",
+    "qBn": "\"খুমস\" (এক-পঞ্চমাংশ) সাধারণত কোন ধরনের সম্পদের ওপর ফরজ হয়?",
+    "qEn": "What kind of wealth does \"Khums\" (one-fifth) generally become obligatory on?",
+    "options": [
+      {
+        "bn": "বাৎসরিক উদ্বৃত্ত আয়ের ওপর",
+        "en": "Annual surplus income"
+      },
+      {
+        "bn": "শুধু কৃষি ফলনের ওপর",
+        "en": "Only agricultural produce"
+      },
+      {
+        "bn": "শুধু উত্তরাধিকার সম্পদের ওপর",
+        "en": "Only inherited wealth"
+      },
+      {
+        "bn": "শুধু ব্যবসায়িক ঋণের ওপর",
+        "en": "Only business debt"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "শিয়া ফিকহে খুমস মূলত বছরের শেষে অবশিষ্ট থাকা উদ্বৃত্ত আয়ের ওপর ফরজ হয়, যা যাকাতের পাশাপাশি একটি স্বতন্ত্র বিধান।",
+    "explanationEn": "In Shia fiqh, Khums is primarily obligatory on annual surplus income remaining at year's end, a distinct obligation alongside Zakat.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q078",
+    "category": "fiqh",
+    "difficulty": "hard",
+    "qBn": "শিয়া ফিকহে সিজদা করার সময় কোন বস্তুর ওপর সিজদা দেওয়াকে প্রাধান্য দেওয়া হয়?",
+    "qEn": "In Shia fiqh, prostrating (sujud) on what kind of object is given preference?",
+    "options": [
+      {
+        "bn": "কার্পেটের ওপর",
+        "en": "On a carpet"
+      },
+      {
+        "bn": "মাটি/পাথরের তৈরি তুরবাহর ওপর",
+        "en": "On a turbah made of earth/stone"
+      },
+      {
+        "bn": "কাপড়ের ওপর",
+        "en": "On cloth"
+      },
+      {
+        "bn": "চামড়ার ওপর",
+        "en": "On leather"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "শিয়া ফিকহে মাটি বা পাথরের তৈরি তুরবাহ (সিজদাগাহ), বিশেষত কারবালার মাটির তৈরি, ওপর সিজদা দেওয়াকে প্রাধান্য দেওয়া হয়।",
+    "explanationEn": "In Shia fiqh, preference is given to prostrating on a turbah made of earth or stone, especially one made from the soil of Karbala.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q079",
+    "category": "fiqh",
+    "difficulty": "medium",
+    "qBn": "সালাতুল লাইল (রাতের নফল নামাজ) সাধারণত মোট কত রাকাত বলে পরিচিত?",
+    "qEn": "How many total rak'ahs is Salat al-Layl (the night prayer) generally known to consist of?",
+    "options": [
+      {
+        "bn": "৮ রাকাত",
+        "en": "8"
+      },
+      {
+        "bn": "১১ রাকাত",
+        "en": "11"
+      },
+      {
+        "bn": "১৩ রাকাত",
+        "en": "13"
+      },
+      {
+        "bn": "২০ রাকাত",
+        "en": "20"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "সালাতুল লাইল সাধারণত ১১ রাকাত (৮ রাকাত মূল নফল + বিতরের ৩ রাকাত অংশ) নিয়ে গঠিত বলে পরিচিত।",
+    "explanationEn": "Salat al-Layl is generally known to comprise 11 rak'ahs (8 rak'ahs of the main night prayer plus the 3 rak'ahs of Witr).",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q080",
+    "category": "fiqh",
+    "difficulty": "easy",
+    "qBn": "নামাজে কুনুত সাধারণত কোন রাকাতে, কোন অংশে পড়া হয়?",
+    "qEn": "In prayer, Qunut is generally recited in which rak'ah and at which point?",
+    "options": [
+      {
+        "bn": "প্রথম রাকাতে, সিজদার পর",
+        "en": "1st rak'ah, after sujud"
+      },
+      {
+        "bn": "দ্বিতীয় রাকাতে, রুকুর আগে",
+        "en": "2nd rak'ah, before ruku"
+      },
+      {
+        "bn": "শেষ রাকাতে, সালামের পর",
+        "en": "Last rak'ah, after salam"
+      },
+      {
+        "bn": "প্রতি রাকাতে",
+        "en": "In every rak'ah"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "কুনুত সাধারণত দ্বিতীয় রাকাতে, রুকুতে যাওয়ার আগে হাত তুলে পড়া হয়।",
+    "explanationEn": "Qunut is generally recited in the second rak'ah, with hands raised, just before going into ruku.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q081",
+    "category": "dua",
+    "difficulty": "hard",
+    "qBn": "\"দোয়ায়ে তাওয়াসসুল\" কাদের অসিলা/মাধ্যম ধরে পাঠ করা হয়?",
+    "qEn": "Whose intercession/mediation is invoked while reciting \"Dua Tawassul\"?",
+    "options": [
+      {
+        "bn": "সাহাবীদের",
+        "en": "The companions"
+      },
+      {
+        "bn": "চৌদ্দজন মাসুমের (নবী, ফাতিমা ও ১২ ইমাম)",
+        "en": "The Fourteen Infallibles (the Prophet, Fatima, and the 12 Imams)"
+      },
+      {
+        "bn": "ফেরেশতাদের",
+        "en": "The angels"
+      },
+      {
+        "bn": "নবীদের",
+        "en": "The prophets"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "দোয়ায়ে তাওয়াসসুলে নবী মুহাম্মদ (সা.), হযরত ফাতিমা (আ.) ও বারো ইমামের (আ.) অসিলায় আল্লাহর কাছে প্রার্থনা করা হয়।",
+    "explanationEn": "In Dua Tawassul, supplication is made to Allah through the intercession of Prophet Muhammad (SA), Lady Fatima (AS), and the twelve Imams (AS).",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q082",
+    "category": "dua",
+    "difficulty": "hard",
+    "qBn": "\"জিয়ারতে জামিয়া কবিরা\" কোন ইমামের কাছ থেকে বর্ণিত হয়েছে?",
+    "qEn": "\"Ziyarat Jamia Kabira\" has been narrated from which Imam?",
+    "options": [
+      {
+        "bn": "ইমাম সাদিক (আ.)",
+        "en": "Imam al-Sadiq (AS)"
+      },
+      {
+        "bn": "ইমাম রেজা (আ.)",
+        "en": "Imam Ridha (AS)"
+      },
+      {
+        "bn": "ইমাম হাদি (আ.)",
+        "en": "Imam al-Hadi (AS)"
+      },
+      {
+        "bn": "ইমাম আসকারি (আ.)",
+        "en": "Imam al-Askari (AS)"
+      }
+    ],
+    "correct": 2,
+    "explanationBn": "জিয়ারতে জামিয়া কবিরা দশম ইমাম, ইমাম আলী আল-হাদি (আ.) থেকে বর্ণিত একটি বিস্তৃত ও ব্যাপকভাবে ব্যবহৃত জিয়ারত।",
+    "explanationEn": "Ziyarat Jamia Kabira is a comprehensive, widely-used ziyarat narrated from the tenth Imam, Imam Ali al-Hadi (AS).",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q083",
+    "category": "dua",
+    "difficulty": "medium",
+    "qBn": "\"মুনাজাতে শাবানিয়া\" কোন মাসে পাঠের জন্য বিশেষভাবে প্রসিদ্ধ?",
+    "qEn": "\"Munajat Sha'baniyya\" is especially well known for recitation in which month?",
+    "options": [
+      {
+        "bn": "রমজান",
+        "en": "Ramadan"
+      },
+      {
+        "bn": "শাবান",
+        "en": "Sha'ban"
+      },
+      {
+        "bn": "রজব",
+        "en": "Rajab"
+      },
+      {
+        "bn": "মুহাররম",
+        "en": "Muharram"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "মুনাজাতে শাবানিয়া শাবান মাসে পাঠের জন্য প্রসিদ্ধ একটি মুনাজাত, যা ইমামগণ থেকে বর্ণিত।",
+    "explanationEn": "Munajat Sha'baniyya is a supplication well known for recitation during the month of Sha'ban, narrated from the Imams.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q084",
+    "category": "dua",
+    "difficulty": "hard",
+    "qBn": "\"দোয়ায়ে সাবাহ\" (সকালের দোয়া) কার রচনা বলে অধিক প্রসিদ্ধ?",
+    "qEn": "\"Dua Sabah\" (the morning supplication) is most commonly attributed to whom?",
+    "options": [
+      {
+        "bn": "ইমাম আলী (আ.)",
+        "en": "Imam Ali (AS)"
+      },
+      {
+        "bn": "ইমাম হোসাইন (আ.)",
+        "en": "Imam Hussain (AS)"
+      },
+      {
+        "bn": "ইমাম সাজ্জাদ (আ.)",
+        "en": "Imam al-Sajjad (AS)"
+      },
+      {
+        "bn": "ইমাম বাকির (আ.)",
+        "en": "Imam al-Baqir (AS)"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "দোয়ায়ে সাবাহ প্রচলিতভাবে ইমাম আলীর (আ.) রচনা বলে পরিচিত, যা প্রতিদিন সকালে পাঠ করা হয়।",
+    "explanationEn": "Dua Sabah is traditionally attributed to Imam Ali (AS) and is recited every morning.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q085",
+    "category": "dua",
+    "difficulty": "easy",
+    "qBn": "হজ্বের সময় \"লাব্বাইক আল্লাহুম্মা লাব্বাইক\" পাঠের আমলকে কী বলা হয়?",
+    "qEn": "What is the practice of reciting \"Labbayk Allahumma Labbayk\" during Hajj called?",
+    "options": [
+      {
+        "bn": "তালবিয়া",
+        "en": "Talbiyah"
+      },
+      {
+        "bn": "তাশাহহুদ",
+        "en": "Tashahhud"
+      },
+      {
+        "bn": "ইস্তেলাম",
+        "en": "Istilam"
+      },
+      {
+        "bn": "রামি",
+        "en": "Rami"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "হজ্ব বা ওমরাহর ইহরাম অবস্থায় \"লাব্বাইক\" বলে আল্লাহর ডাকে সাড়া দেওয়ার আমলকে তালবিয়া বলা হয়।",
+    "explanationEn": "Reciting \"Labbayk\" in response to Allah's call while in the state of Ihram for Hajj or Umrah is called Talbiyah.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q086",
+    "category": "general",
+    "difficulty": "easy",
+    "qBn": "সাধারণভাবে গণনা করা ইসলামের পাঁচটি স্তম্ভের দ্বিতীয়টি কোনটি?",
+    "qEn": "Which is commonly counted as the second of the five pillars of Islam?",
+    "options": [
+      {
+        "bn": "যাকাত",
+        "en": "Zakat"
+      },
+      {
+        "bn": "নামাজ/সালাত",
+        "en": "Salat (Prayer)"
+      },
+      {
+        "bn": "হজ্ব",
+        "en": "Hajj"
+      },
+      {
+        "bn": "রোজা",
+        "en": "Fasting"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "সাধারণ গণনায় শাহাদাতের পর নামাজ/সালাতকে দ্বিতীয় স্তম্ভ হিসেবে গণ্য করা হয়।",
+    "explanationEn": "In the common enumeration, Salat (Prayer) is counted as the second pillar, after the declaration of faith (Shahada).",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q087",
+    "category": "general",
+    "difficulty": "medium",
+    "qBn": "মুসলমানদের কালেমার (শাহাদাতের) প্রথম অংশে কী ঘোষণা করা হয়?",
+    "qEn": "What is declared in the first part of the Muslim declaration of faith (Shahada)?",
+    "options": [
+      {
+        "bn": "আল্লাহর একত্ববাদ",
+        "en": "The Oneness of Allah"
+      },
+      {
+        "bn": "নামাজের গুরুত্ব",
+        "en": "The importance of prayer"
+      },
+      {
+        "bn": "কিয়ামতের কথা",
+        "en": "The Day of Judgment"
+      },
+      {
+        "bn": "ইমামতের কথা",
+        "en": "Imamate"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "কালেমার প্রথম অংশ \"লা ইলাহা ইল্লাল্লাহ\"-এ আল্লাহর একত্ববাদের ঘোষণা দেওয়া হয়।",
+    "explanationEn": "The first part of the Shahada, \"La ilaha illallah\", declares the Oneness of Allah.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q088",
+    "category": "general",
+    "difficulty": "easy",
+    "qBn": "ইসলামি বর্ষপঞ্জির শেষ মাসের নাম কী?",
+    "qEn": "What is the name of the last month of the Islamic calendar?",
+    "options": [
+      {
+        "bn": "রমজান",
+        "en": "Ramadan"
+      },
+      {
+        "bn": "শাওয়াল",
+        "en": "Shawwal"
+      },
+      {
+        "bn": "জিলহজ্জ",
+        "en": "Dhul Hijjah"
+      },
+      {
+        "bn": "সফর",
+        "en": "Safar"
+      }
+    ],
+    "correct": 2,
+    "explanationBn": "ইসলামি (হিজরি) বর্ষপঞ্জির শেষ মাস জিলহজ্জ, যে মাসে হজ্ব পালিত হয়।",
+    "explanationEn": "Dhul Hijjah is the last month of the Islamic (Hijri) calendar, the month in which Hajj is performed.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q089",
+    "category": "general",
+    "difficulty": "medium",
+    "qBn": "মক্কা বিজয় (ফাতহে মক্কা) কোন হিজরি সালে সংঘটিত হয়?",
+    "qEn": "In which Hijri year did the Conquest of Mecca take place?",
+    "options": [
+      {
+        "bn": "৫ হিজরি",
+        "en": "5 AH"
+      },
+      {
+        "bn": "৮ হিজরি",
+        "en": "8 AH"
+      },
+      {
+        "bn": "১০ হিজরি",
+        "en": "10 AH"
+      },
+      {
+        "bn": "২ হিজরি",
+        "en": "2 AH"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "মক্কা বিজয় ৮ম হিজরিতে সংঘটিত হয়, যখন নবীজি (সা.) বিনা রক্তপাতে মক্কা জয় করেন।",
+    "explanationEn": "The Conquest of Mecca took place in 8 AH, when the Prophet (SA) took the city largely without bloodshed.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q090",
+    "category": "general",
+    "difficulty": "easy",
+    "qBn": "মুসলমানদের পবিত্র ধর্মগ্রন্থের নাম কী?",
+    "qEn": "What is the name of the Muslims' holy scripture?",
+    "options": [
+      {
+        "bn": "তাওরাত",
+        "en": "Torah"
+      },
+      {
+        "bn": "ইনজিল",
+        "en": "Gospel"
+      },
+      {
+        "bn": "আল-কুরআন",
+        "en": "The Quran"
+      },
+      {
+        "bn": "যাবুর",
+        "en": "Psalms"
+      }
+    ],
+    "correct": 2,
+    "explanationBn": "মুসলমানদের পবিত্র ধর্মগ্রন্থের নাম আল-কুরআন, যা নবী মুহাম্মদের (সা.) ওপর অবতীর্ণ হয়েছে।",
+    "explanationEn": "The holy scripture of Muslims is the Quran, revealed to Prophet Muhammad (SA).",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q091",
+    "category": "general",
+    "difficulty": "hard",
+    "qBn": "ইসলামের ইতিহাসে প্রথম শহীদ হিসেবে কাকে গণ্য করা হয়?",
+    "qEn": "Who is regarded as the first martyr in the history of Islam?",
+    "options": [
+      {
+        "bn": "হযরত হামজা (রা.)",
+        "en": "Hazrat Hamza"
+      },
+      {
+        "bn": "সুমাইয়া বিনতে খাব্বাত",
+        "en": "Sumayyah bint Khabbat"
+      },
+      {
+        "bn": "উসমান ইবনে মাযঊন",
+        "en": "Uthman ibn Maz'un"
+      },
+      {
+        "bn": "খাদিজা (আ.)",
+        "en": "Khadija (AS)"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "সুমাইয়া বিনতে খাব্বাত (আম্মার ইবনে ইয়াসিরের মা) ইসলামের ইতিহাসে প্রথম শহীদ হিসেবে গণ্য, যিনি আবু জাহেলের হাতে নির্যাতিত হয়ে শাহাদাতবরণ করেন।",
+    "explanationEn": "Sumayyah bint Khabbat (mother of Ammar ibn Yasir) is regarded as the first martyr in Islam, killed at the hands of Abu Jahl due to persecution for her faith.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q092",
+    "category": "ahlulbayt",
+    "difficulty": "hard",
+    "qBn": "ইমাম রেজা (আ.)-কে বিষপ্রয়োগে শহীদ করা হয় বলে বিশ্বাস করা হয় কোন অঞ্চলে?",
+    "qEn": "In which region is Imam Ridha (AS) believed to have been martyred by poisoning?",
+    "options": [
+      {
+        "bn": "বাগদাদে",
+        "en": "Baghdad"
+      },
+      {
+        "bn": "খোরাসানের তুসে (মাশহাদ)",
+        "en": "Tus, Khorasan (Mashhad)"
+      },
+      {
+        "bn": "দামেস্কে",
+        "en": "Damascus"
+      },
+      {
+        "bn": "কুফায়",
+        "en": "Kufa"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "ইমাম রেজা (আ.)-কে খোরাসানের তুসে (বর্তমান মাশহাদ, ইরান) শহীদ করা হয় বলে বিশ্বাস করা হয়, যেখানে তার মাজার অবস্থিত।",
+    "explanationEn": "Imam Ridha (AS) is believed to have been martyred in Tus, Khorasan (present-day Mashhad, Iran), where his shrine now stands.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q093",
+    "category": "ahlulbayt",
+    "difficulty": "hard",
+    "qBn": "দশম ও একাদশ ইমাম (ইমাম হাদি ও ইমাম আসকারি, আ.) উভয়ের মাজার কোন শহরে অবস্থিত?",
+    "qEn": "In which city are the shrines of both the tenth and eleventh Imams (Imam al-Hadi and Imam al-Askari, AS) located?",
+    "options": [
+      {
+        "bn": "নাজাফ",
+        "en": "Najaf"
+      },
+      {
+        "bn": "কারবালা",
+        "en": "Karbala"
+      },
+      {
+        "bn": "সামাররা",
+        "en": "Samarra"
+      },
+      {
+        "bn": "কাযিমাইন",
+        "en": "Kazimayn"
+      }
+    ],
+    "correct": 2,
+    "explanationBn": "ইমাম আলী আল-হাদি (আ.) ও ইমাম হাসান আল-আসকারি (আ.) উভয়ের মাজার ইরাকের সামাররা শহরে অবস্থিত।",
+    "explanationEn": "The shrines of both Imam Ali al-Hadi (AS) and Imam Hasan al-Askari (AS) are located in the city of Samarra, Iraq.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q094",
+    "category": "ahlulbayt",
+    "difficulty": "hard",
+    "qBn": "ইমাম মাহদির (আ.) পিতা কোন ইমাম?",
+    "qEn": "Who is the father of Imam al-Mahdi (AS)?",
+    "options": [
+      {
+        "bn": "ইমাম আলী আল-হাদি (আ.)",
+        "en": "Imam Ali al-Hadi (AS)"
+      },
+      {
+        "bn": "ইমাম হাসান আল-আসকারি (আ.)",
+        "en": "Imam Hasan al-Askari (AS)"
+      },
+      {
+        "bn": "ইমাম মুহাম্মাদ আল-জাওয়াদ (আ.)",
+        "en": "Imam Muhammad al-Jawad (AS)"
+      },
+      {
+        "bn": "ইমাম আলী আল-রেজা (আ.)",
+        "en": "Imam Ali al-Ridha (AS)"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "একাদশ ইমাম, ইমাম হাসান আল-আসকারি (আ.), দ্বাদশ ইমাম মুহাম্মাদ আল-মাহদির (আ.) পিতা।",
+    "explanationEn": "The eleventh Imam, Imam Hasan al-Askari (AS), is the father of the twelfth Imam, Muhammad al-Mahdi (AS).",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q095",
+    "category": "quran",
+    "difficulty": "hard",
+    "qBn": "কুরআনের কোন সূরার শুরুতে \"বিসমিল্লাহ\" নেই, যা একমাত্র ব্যতিক্রম?",
+    "qEn": "Which surah of the Quran uniquely does NOT begin with \"Bismillah\"?",
+    "options": [
+      {
+        "bn": "সূরা তাওবা",
+        "en": "Surah al-Tawbah"
+      },
+      {
+        "bn": "সূরা নামল",
+        "en": "Surah al-Naml"
+      },
+      {
+        "bn": "সূরা ইউনুস",
+        "en": "Surah Yunus"
+      },
+      {
+        "bn": "সূরা হুদ",
+        "en": "Surah Hud"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "সূরা তাওবা কুরআনের একমাত্র সূরা যার শুরুতে \"বিসমিল্লাহ\" নেই।",
+    "explanationEn": "Surah al-Tawbah is the only surah in the Quran that does not begin with \"Bismillah\".",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q096",
+    "category": "quran",
+    "difficulty": "hard",
+    "qBn": "পবিত্র কুরআনে সরাসরি নাম উল্লেখ করা একমাত্র নারীর নাম কী?",
+    "qEn": "What is the name of the only woman directly named in the Quran?",
+    "options": [
+      {
+        "bn": "খাদিজা (আ.)",
+        "en": "Khadija (AS)"
+      },
+      {
+        "bn": "মারইয়াম (আ.)",
+        "en": "Maryam (AS)"
+      },
+      {
+        "bn": "ফাতিমা (আ.)",
+        "en": "Fatima (AS)"
+      },
+      {
+        "bn": "আয়েশা",
+        "en": "Aisha"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "হযরত মারইয়াম (আ.), ঈসা (আ.)-এর মাতা, পবিত্র কুরআনে সরাসরি নাম উল্লেখিত একমাত্র নারী।",
+    "explanationEn": "Lady Maryam (AS), mother of Isa (Jesus, AS), is the only woman mentioned by name directly in the Quran.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q097",
+    "category": "quran",
+    "difficulty": "hard",
+    "qBn": "শিয়া তাফসীরে আহলে বাইতের পবিত্রতা সম্পর্কিত \"আয়াতে তাতহীর\" (পবিত্রতার আয়াত) কুরআনের কোথায় অবস্থিত?",
+    "qEn": "In Shia exegesis, where in the Quran is \"Ayat al-Tathir\" (the verse of purification), related to the purity of Ahl al-Bayt, found?",
+    "options": [
+      {
+        "bn": "সূরা আহযাব, আয়াত ৩৩",
+        "en": "Surah al-Ahzab, verse 33"
+      },
+      {
+        "bn": "সূরা বাকারা, আয়াত ১২৪",
+        "en": "Surah al-Baqarah, verse 124"
+      },
+      {
+        "bn": "সূরা আলে ইমরান, আয়াত ৬১",
+        "en": "Surah Aali Imran, verse 61"
+      },
+      {
+        "bn": "সূরা মায়িদা, আয়াত ৫৫",
+        "en": "Surah al-Ma'idah, verse 55"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "আয়াতে তাতহীর (সূরা আহযাব ৩৩) আহলে বাইতকে সকল অপবিত্রতা থেকে পবিত্র রাখার আল্লাহর ইচ্ছার কথা বলে, যা শিয়া তাফসীরে বিশেষ গুরুত্বপূর্ণ।",
+    "explanationEn": "Ayat al-Tathir (Surah al-Ahzab 33:33) speaks of Allah's will to keep Ahl al-Bayt purified from all impurity, and holds special significance in Shia exegesis.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q098",
+    "category": "quran",
+    "difficulty": "hard",
+    "qBn": "কুরআনের কোন সূরাকে জনপ্রিয়ভাবে \"আরুসুল কুরআন\" (কুরআনের কনে) বলা হয়?",
+    "qEn": "Which surah of the Quran is popularly known as \"Arus al-Quran\" (the Bride of the Quran)?",
+    "options": [
+      {
+        "bn": "সূরা রহমান",
+        "en": "Surah al-Rahman"
+      },
+      {
+        "bn": "সূরা নূর",
+        "en": "Surah al-Nur"
+      },
+      {
+        "bn": "সূরা ফুরকান",
+        "en": "Surah al-Furqan"
+      },
+      {
+        "bn": "সূরা হুজুরাত",
+        "en": "Surah al-Hujurat"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "সূরা রহমানকে তার সৌন্দর্য ও \"তোমরা তোমাদের প্রতিপালকের কোন কোন অনুগ্রহকে অস্বীকার করবে\" আয়াতের বারবার পুনরাবৃত্তির কারণে \"আরুসুল কুরআন\" বলা হয়।",
+    "explanationEn": "Surah al-Rahman is called \"Arus al-Quran\" (the Bride of the Quran) for its beauty and the repeated refrain, \"Which of your Lord's favors will you both deny?\"",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q099",
+    "category": "karbala",
+    "difficulty": "hard",
+    "qBn": "কারবালার পর ইমাম হোসাইনের (আ.) বন্দী পরিবারকে দামেস্কে পাঠানোর আগে প্রথমে কোথায় নেওয়া হয়?",
+    "qEn": "Where were Imam Hussain's (AS) captive family members first taken after Karbala, before being sent on to Damascus?",
+    "options": [
+      {
+        "bn": "বসরা",
+        "en": "Basra"
+      },
+      {
+        "bn": "কুফা",
+        "en": "Kufa"
+      },
+      {
+        "bn": "বাগদাদ",
+        "en": "Baghdad"
+      },
+      {
+        "bn": "মদিনা",
+        "en": "Medina"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "কারবালার পর বন্দীদের প্রথমে কুফায় ইবনে জিয়াদের দরবারে নিয়ে যাওয়া হয়, তারপর দামেস্কে ইয়াজিদের দরবারে পাঠানো হয়।",
+    "explanationEn": "After Karbala, the captives were first brought before Ibn Ziyad's court in Kufa, then sent on to Yazid's court in Damascus.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q100",
+    "category": "karbala",
+    "difficulty": "hard",
+    "qBn": "কারবালায় শহীদ হওয়া ইমাম হোসাইনের (আ.) প্রাপ্তবয়স্ক পুত্র, যিনি চেহারায় নবীজির (সা.) সবচেয়ে কাছাকাছি বলে বর্ণিত, তার নাম কী?",
+    "qEn": "What was the name of Imam Hussain's (AS) adult son, martyred at Karbala, who is described as most closely resembling the Prophet (SA) in appearance?",
+    "options": [
+      {
+        "bn": "আলী আসগর (আ.)",
+        "en": "Ali Asghar (AS)"
+      },
+      {
+        "bn": "আলী আকবর (আ.)",
+        "en": "Ali Akbar (AS)"
+      },
+      {
+        "bn": "কাসিম (আ.)",
+        "en": "Qasim (AS)"
+      },
+      {
+        "bn": "আউন",
+        "en": "Awn"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "আলী আকবর (আ.), ইমাম হোসাইনের (আ.) প্রাপ্তবয়স্ক পুত্র, নবীজির (সা.) আকৃতির সবচেয়ে কাছাকাছি বলে বর্ণিত হন এবং কারবালায় শহীদ হন।",
+    "explanationEn": "Ali Akbar (AS), Imam Hussain's (AS) adult son, is described as most closely resembling the Prophet (SA) in appearance, and was martyred at Karbala.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q101",
+    "category": "karbala",
+    "difficulty": "hard",
+    "qBn": "কারবালার বন্দীদের মিছিলে ইমাম হোসাইনের (আ.) কোন বোন দামেস্কে ইয়াজিদের দরবারে তার বিখ্যাত বক্তৃতা দেন?",
+    "qEn": "Which sister of Imam Hussain (AS), among the captives, delivered her famous sermon in Yazid's court in Damascus?",
+    "options": [
+      {
+        "bn": "উম্মে কুলসুম",
+        "en": "Umm Kulthum"
+      },
+      {
+        "bn": "হযরত জয়নব (আ.)",
+        "en": "Hazrat Zaynab (AS)"
+      },
+      {
+        "bn": "রুকাইয়া",
+        "en": "Ruqayya"
+      },
+      {
+        "bn": "সাকিনা",
+        "en": "Sakina"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "হযরত জয়নব (আ.), ইমাম আলী (আ.) ও হযরত ফাতিমার (আ.) কন্যা, দামেস্কে ইয়াজিদের দরবারে তার বিখ্যাত ও সাহসী বক্তৃতার জন্য পরিচিত।",
+    "explanationEn": "Hazrat Zaynab (AS), daughter of Imam Ali (AS) and Lady Fatima (AS), is known for her famous, courageous sermon delivered in Yazid's court in Damascus.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q102",
+    "category": "fiqh",
+    "difficulty": "hard",
+    "qBn": "তায়াম্মুম (মাটি/পাথর দিয়ে শুদ্ধিকরণ) সাধারণত কখন করা হয়?",
+    "qEn": "When is Tayammum (dry ablution with earth/stone) generally performed?",
+    "options": [
+      {
+        "bn": "সবসময় অজুর পরিবর্তে",
+        "en": "Always instead of Wudu"
+      },
+      {
+        "bn": "পানি না পাওয়া গেলে বা ব্যবহারে ক্ষতির আশঙ্কা থাকলে",
+        "en": "When water is unavailable or its use would cause harm"
+      },
+      {
+        "bn": "শুধু সফরে থাকলে",
+        "en": "Only while traveling"
+      },
+      {
+        "bn": "শুধু অসুস্থতায়",
+        "en": "Only during illness"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "পানি না পাওয়া গেলে বা পানি ব্যবহারে স্বাস্থ্যহানির আশঙ্কা থাকলে অজু/গোসলের পরিবর্তে তায়াম্মুম করার অনুমতি রয়েছে।",
+    "explanationEn": "Tayammum is permitted in place of Wudu/Ghusl when water is unavailable, or when using it would pose a risk of harm to health.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q103",
+    "category": "fiqh",
+    "difficulty": "hard",
+    "qBn": "নামাজে \"তাশাহহুদ\" কোন অবস্থায় পড়া হয়?",
+    "qEn": "In prayer, in what position is the \"Tashahhud\" recited?",
+    "options": [
+      {
+        "bn": "দাঁড়ানো অবস্থায়",
+        "en": "While standing"
+      },
+      {
+        "bn": "বসা অবস্থায়, প্রতি দুই রাকাত পর",
+        "en": "Seated, after every two rak'ahs"
+      },
+      {
+        "bn": "সিজদারত অবস্থায়",
+        "en": "While in prostration"
+      },
+      {
+        "bn": "রুকু অবস্থায়",
+        "en": "While bowing"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "তাশাহহুদ বসা অবস্থায়, দুই রাকাত শেষে পড়া হয়, যাতে সাক্ষ্য বাক্য (শাহাদাত) ও দরুদ থাকে।",
+    "explanationEn": "Tashahhud is recited while seated, at the end of every two rak'ahs, containing the testimony of faith and salutations upon the Prophet.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q104",
+    "category": "fiqh",
+    "difficulty": "hard",
+    "qBn": "এতেকাফের সর্বনিম্ন সময়কাল সাধারণত কত দিন বলে গণ্য করা হয়?",
+    "qEn": "What is the minimum duration of Itikaf generally considered to be?",
+    "options": [
+      {
+        "bn": "১ দিন",
+        "en": "1 day"
+      },
+      {
+        "bn": "২ দিন",
+        "en": "2 days"
+      },
+      {
+        "bn": "৩ দিন",
+        "en": "3 days"
+      },
+      {
+        "bn": "৭ দিন",
+        "en": "7 days"
+      }
+    ],
+    "correct": 2,
+    "explanationBn": "এতেকাফ শুরু করলে তা সাধারণত কমপক্ষে ৩ দিন ধরে পালন করতে হয় বলে ফিকহে উল্লেখ আছে।",
+    "explanationEn": "Once undertaken, Itikaf is generally required to be observed for a minimum of 3 days according to fiqh.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q105",
+    "category": "fiqh",
+    "difficulty": "hard",
+    "qBn": "নামাজের সময় সামনে \"সুতরা\" (একটি আড়াল) রাখার উদ্দেশ্য কী?",
+    "qEn": "What is the purpose of placing a \"Sutrah\" (a barrier) in front of oneself during prayer?",
+    "options": [
+      {
+        "bn": "কিবলা নির্ণয়ে সাহায্য করা",
+        "en": "To help determine the Qibla"
+      },
+      {
+        "bn": "সামনে দিয়ে চলাচলে নামাজে বিঘ্ন এড়ানো",
+        "en": "To prevent disturbance from people passing in front"
+      },
+      {
+        "bn": "সিজদার স্থান চিহ্নিত করা",
+        "en": "To mark the place of prostration"
+      },
+      {
+        "bn": "রোদ থেকে বাঁচা",
+        "en": "To shield from sunlight"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "সুতরা রাখা হয় যাতে সামনে দিয়ে কারও চলাচল নামাজিকে বিঘ্নিত না করে এবং একটি নির্দিষ্ট সীমানা বজায় থাকে।",
+    "explanationEn": "A Sutrah is placed so that someone passing in front does not disturb the person praying, maintaining a defined boundary.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q106",
+    "category": "dua",
+    "difficulty": "hard",
+    "qBn": "\"সাহিফায়ে সাজ্জাদিয়্যা\"-কে আর কোন সুপরিচিত নামে অভিহিত করা হয়?",
+    "qEn": "By what other well-known name is the \"Sahifa al-Sajjadiyya\" referred to?",
+    "options": [
+      {
+        "bn": "যাবুরে আলে মুহাম্মদ",
+        "en": "Zabur Aal-e Muhammad (Psalms of the Household of Muhammad)"
+      },
+      {
+        "bn": "সিরাতুন নবী",
+        "en": "Sirat al-Nabi"
+      },
+      {
+        "bn": "নাহজুল বালাগা",
+        "en": "Nahjul Balagha"
+      },
+      {
+        "bn": "উসূলে কাফি",
+        "en": "Usul al-Kafi"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "সাহিফায়ে সাজ্জাদিয়্যাকে দোয়া সমৃদ্ধির কারণে \"যাবুরে আলে মুহাম্মদ\" (নবী পরিবারের যবুর/স্তোত্র) নামেও অভিহিত করা হয়।",
+    "explanationEn": "The Sahifa al-Sajjadiyya, rich in supplications, is also known as \"Zabur Aal-e Muhammad\" (the Psalms of the Household of Muhammad).",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q107",
+    "category": "dua",
+    "difficulty": "hard",
+    "qBn": "\"দোয়ায়ে জাওশান কাবির\" সাধারণত কতটি ভাগ (ফসল) নিয়ে গঠিত?",
+    "qEn": "\"Dua Jawshan Kabir\" is generally composed of how many sections (fasl)?",
+    "options": [
+      {
+        "bn": "৪০টি",
+        "en": "40"
+      },
+      {
+        "bn": "৭০টি",
+        "en": "70"
+      },
+      {
+        "bn": "১০০টি",
+        "en": "100"
+      },
+      {
+        "bn": "১২০টি",
+        "en": "120"
+      }
+    ],
+    "correct": 2,
+    "explanationBn": "দোয়ায়ে জাওশান কাবির ১০০টি ভাগে (ফসল) বিভক্ত, প্রতিটি ভাগে আল্লাহর ১০টি করে গুণবাচক নাম উল্লেখ আছে।",
+    "explanationEn": "Dua Jawshan Kabir is divided into 100 sections, each containing ten of Allah's beautiful names.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q108",
+    "category": "dua",
+    "difficulty": "hard",
+    "qBn": "দোয়ায়ে কুমাইল সাধারণত সপ্তাহের কোন রাতে পাঠের জন্য বিশেষভাবে প্রসিদ্ধ?",
+    "qEn": "Dua Kumayl is especially well known for recitation on which night of the week?",
+    "options": [
+      {
+        "bn": "সোমবার রাতে",
+        "en": "Monday night"
+      },
+      {
+        "bn": "বৃহস্পতিবার রাতে (জুমার রাতের প্রাক্কালে)",
+        "en": "Thursday night (the eve of Friday)"
+      },
+      {
+        "bn": "শনিবার রাতে",
+        "en": "Saturday night"
+      },
+      {
+        "bn": "মঙ্গলবার রাতে",
+        "en": "Tuesday night"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "দোয়ায়ে কুমাইল ঐতিহ্যগতভাবে বৃহস্পতিবার রাতে (জুমার রাতের প্রাক্কালে) পাঠের জন্য বিশেষভাবে প্রসিদ্ধ ও সুপারিশকৃত।",
+    "explanationEn": "Dua Kumayl is traditionally and especially recommended for recitation on Thursday nights (the eve of Friday).",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q109",
+    "category": "general",
+    "difficulty": "hard",
+    "qBn": "ইসলাম গ্রহণকারী প্রথম শিশু/কিশোর হিসেবে সাধারণত কাকে গণ্য করা হয়?",
+    "qEn": "Who is generally regarded as the first child/youth to have accepted Islam?",
+    "options": [
+      {
+        "bn": "ইমাম আলী (আ.)",
+        "en": "Imam Ali (AS)"
+      },
+      {
+        "bn": "উসামা ইবনে জায়েদ",
+        "en": "Usama ibn Zayd"
+      },
+      {
+        "bn": "জাফর ইবনে আবি তালিব",
+        "en": "Ja'far ibn Abi Talib"
+      },
+      {
+        "bn": "যুবাইর ইবনুল আওয়াম",
+        "en": "Zubayr ibn al-Awwam"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "ইমাম আলী (আ.), যিনি তখন নবীজির (সা.) গৃহে প্রতিপালিত হচ্ছিলেন, ইসলাম গ্রহণকারী প্রথম শিশু/কিশোর হিসেবে বহুল স্বীকৃত।",
+    "explanationEn": "Imam Ali (AS), who was being raised in the Prophet's (SA) household at the time, is widely recognized as the first child/youth to accept Islam.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q110",
+    "category": "general",
+    "difficulty": "hard",
+    "qBn": "\"মদিনা সনদ\" (মদিনার সংবিধান) কোন হিজরিতে প্রণীত হয়?",
+    "qEn": "In which Hijri year was the \"Constitution of Medina\" drafted?",
+    "options": [
+      {
+        "bn": "১ম হিজরিতে",
+        "en": "1 AH"
+      },
+      {
+        "bn": "৩য় হিজরিতে",
+        "en": "3 AH"
+      },
+      {
+        "bn": "৫ম হিজরিতে",
+        "en": "5 AH"
+      },
+      {
+        "bn": "৮ম হিজরিতে",
+        "en": "8 AH"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "হিজরতের পরপরই, ১ম হিজরিতে, নবীজি (সা.) মদিনার বিভিন্ন গোত্র ও সম্প্রদায়ের মধ্যে সহাবস্থানের জন্য মদিনা সনদ প্রণয়ন করেন।",
+    "explanationEn": "Shortly after the Hijrah, in 1 AH, the Prophet (SA) drafted the Constitution of Medina to establish coexistence among the city's various tribes and communities.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q111",
+    "category": "general",
+    "difficulty": "hard",
+    "qBn": "ইসলামের ইতিহাসে নির্মিত প্রথম মসজিদ হিসেবে কোনটি গণ্য করা হয়?",
+    "qEn": "Which is regarded as the first mosque built in the history of Islam?",
+    "options": [
+      {
+        "bn": "মসজিদে নববী",
+        "en": "Masjid al-Nabawi"
+      },
+      {
+        "bn": "মসজিদে কুবা",
+        "en": "Masjid al-Quba"
+      },
+      {
+        "bn": "মসজিদুল আকসা",
+        "en": "Masjid al-Aqsa"
+      },
+      {
+        "bn": "মসজিদে কুফা",
+        "en": "Masjid al-Kufa"
+      }
+    ],
+    "correct": 1,
+    "explanationBn": "হিজরতের পথে নবীজি (সা.) মদিনার কাছে কুবায় থামেন এবং সেখানে মসজিদে কুবা নির্মাণ করেন, যা ইসলামের প্রথম মসজিদ বলে গণ্য।",
+    "explanationEn": "During the Hijrah, the Prophet (SA) stopped at Quba near Medina and built Masjid al-Quba there, regarded as the first mosque in Islam.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q112",
+    "category": "general",
+    "difficulty": "hard",
+    "qBn": "নবী মুহাম্মদের (সা.) দুধমাতা হিসেবে কে পরিচিত?",
+    "qEn": "Who is known as the wet-nurse (foster mother) of Prophet Muhammad (SA)?",
+    "options": [
+      {
+        "bn": "হালিমা সাদিয়া",
+        "en": "Halima al-Sa'diyya"
+      },
+      {
+        "bn": "উম্মে আইমান",
+        "en": "Umm Ayman"
+      },
+      {
+        "bn": "বারাকা",
+        "en": "Baraka"
+      },
+      {
+        "bn": "সাফিয়া",
+        "en": "Safiyya"
+      }
+    ],
+    "correct": 0,
+    "explanationBn": "হালিমা সাদিয়া নবী মুহাম্মদের (সা.) শৈশবে তাকে স্তন্যপান করান ও লালন-পালন করেন বলে পরিচিত।",
+    "explanationEn": "Halima al-Sa'diyya is known for having nursed and raised Prophet Muhammad (SA) during his infancy.",
+    "sourceBn": "",
+    "sourceEn": ""
+  },
+  {
+    "id": "q113",
+    "category": "general",
+    "difficulty": "hard",
+    "qBn": "মক্কা বিজয়ের সময় কাবা ঘর থেকে কতটি মূর্তি অপসারণ করা হয় বলে ব্যাপকভাবে বর্ণিত আছে?",
+    "qEn": "How many idols are widely narrated to have been removed from the Kaaba at the Conquest of Mecca?",
+    "options": [
+      {
+        "bn": "১২টি",
+        "en": "12"
+      },
+      {
+        "bn": "৬০টি",
+        "en": "60"
+      },
+      {
+        "bn": "৩৬০টি",
+        "en": "360"
+      },
+      {
+        "bn": "৫০০টি",
+        "en": "500"
+      }
+    ],
+    "correct": 2,
+    "explanationBn": "মক্কা বিজয়ের সময় নবীজি (সা.) কাবা ঘর থেকে ৩৬০টি মূর্তি অপসারণ করেন বলে বহুল প্রচলিত বর্ণনায় উল্লেখ আছে।",
+    "explanationEn": "According to widely narrated accounts, the Prophet (SA) removed 360 idols from the Kaaba at the Conquest of Mecca.",
+    "sourceBn": "",
+    "sourceEn": ""
+  }
+]

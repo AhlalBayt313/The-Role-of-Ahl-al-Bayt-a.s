@@ -1,0 +1,730 @@
+[
+  {
+    "id": "q001",
+    "category": "aqidah",
+    "questionBn": "তাওহিদ বলতে কী বোঝায়?",
+    "questionEn": "What does Tawhid mean?",
+    "answerBn": "তাওহিদ হলো আল্লাহর একত্বে বিশ্বাস — তিনি এক, অদ্বিতীয় এবং তাঁর কোনো শরিক নেই, সৃষ্টিতেও নয়, ইবাদতেও নয়।",
+    "answerEn": "Tawhid is belief in the oneness of Allah — that He is one, without partner, in both creation and worship."
+  },
+  {
+    "id": "q002",
+    "category": "aqidah",
+    "questionBn": "ইমামত (আ.) শিয়া আকিদায় কেন গুরুত্বপূর্ণ?",
+    "questionEn": "Why is Imamah central to Shia belief?",
+    "answerBn": "শিয়া আকিদায় ইমামতকে নবুওয়তের ধারাবাহিকতা হিসেবে দেখা হয় — উম্মতের দ্বীনি ও সামাজিক নেতৃত্বের জন্য আল্লাহ কর্তৃক মনোনীত, নিষ্পাপ (মাসুম) নেতা হিসেবে ইমামের ভূমিকা কেন্দ্রীয়।",
+    "answerEn": "In Shia belief, Imamah is seen as a continuation of Prophethood — the divinely-appointed, infallible (masum) leader guiding the community religiously and socially."
+  },
+  {
+    "id": "q010",
+    "category": "fiqh",
+    "questionBn": "তাকলিদ কী?",
+    "questionEn": "What is Taqlid?",
+    "answerBn": "তাকলিদ হলো ফিকহের বিশেষজ্ঞ (মুজতাহিদ/মারজা) এর ফতোয়া অনুসরণ করা, যিনি প্রয়োজনীয় শর্ত পূরণ করেন।",
+    "answerEn": "Taqlid means following the rulings of a qualified jurist (Mujtahid/Marja) who meets the necessary conditions."
+  },
+  {
+    "id": "q020",
+    "category": "quran",
+    "questionBn": "কুরআনে মোট কতটি সূরা আছে?",
+    "questionEn": "How many Surahs are in the Quran?",
+    "answerBn": "কুরআনে মোট ১১৪টি সূরা রয়েছে।",
+    "answerEn": "The Quran contains 114 Surahs."
+  },
+  {
+    "id": "q030",
+    "category": "hadith",
+    "questionBn": "হাদিসে সাকালাইন কী?",
+    "questionEn": "What is Hadith al-Thaqalayn?",
+    "answerBn": "এটি রাসূলুল্লাহ (সা.) এর একটি প্রসিদ্ধ হাদিস, যেখানে তিনি উম্মতের জন্য দুটি ভারী বস্তু — কুরআন ও আহলে বাইত — রেখে যাওয়ার কথা বলেছেন।",
+    "answerEn": "This is a well-known narration in which the Prophet (PBUH) states he is leaving behind two weighty things for the Ummah — the Quran and the Ahlul Bayt."
+  },
+  {
+    "id": "q040",
+    "category": "general",
+    "questionBn": "শিয়া ও সুন্নি মুসলিমদের মধ্যে মূল পার্থক্য কী?",
+    "questionEn": "What are the main differences between Shia and Sunni Muslims?",
+    "answerBn": "উভয় দলই ইসলামের মৌলিক স্তম্ভে বিশ্বাসী; মূল পার্থক্য মূলত রাসূলুল্লাহ (সা.) এর পরবর্তী নেতৃত্ব/ইমামত প্রশ্নে ঐতিহাসিক ও ফিকহি দৃষ্টিভঙ্গিতে।",
+    "answerEn": "Both groups share the core pillars of Islam; the primary differences are historical and jurisprudential, centering on the question of leadership/Imamah after the Prophet (PBUH)."
+  },
+  {
+    "id": "q003",
+    "category": "aqidah",
+    "questionBn": "আদল (আল্লাহর ন্যায়বিচার) শিয়া আকিদার একটি মূলনীতি কেন?",
+    "questionEn": "Why is Adl (Divine Justice) a core principle in Shia belief?",
+    "answerBn": "শিয়া আকিদায় আল্লাহকে সম্পূর্ণ ন্যায়পরায়ণ হিসেবে বিশ্বাস করা হয় — তিনি কখনো অন্যায় করেন না এবং মানুষকে স্বাধীন ইচ্ছাশক্তি দিয়েছেন, যার ফলে মানুষ তার কর্মের জন্য দায়ী।",
+    "answerEn": "Shia theology holds Allah to be perfectly just — He never acts unjustly, and has granted humans free will, making them accountable for their actions."
+  },
+  {
+    "id": "q004",
+    "category": "aqidah",
+    "questionBn": "নবুওয়ত (Prophethood) কী?",
+    "questionEn": "What is Nubuwwah (Prophethood)?",
+    "answerBn": "নবুওয়ত হলো আল্লাহ কর্তৃক মনোনীত নবী-রাসূলদের মাধ্যমে মানবজাতির কাছে ওহী পৌঁছে দেওয়ার প্রক্রিয়া, যা মুহাম্মদ (সা.)-এর মাধ্যমে পরিসমাপ্ত হয়েছে।",
+    "answerEn": "Nubuwwah is the process by which Allah conveys divine revelation to humanity through chosen prophets, which culminated and concluded with Prophet Muhammad (PBUH)."
+  },
+  {
+    "id": "q005",
+    "category": "aqidah",
+    "questionBn": "মাআদ (পুনরুত্থান/আখিরাত) বলতে কী বোঝায়?",
+    "questionEn": "What does Ma’ad (Resurrection/Afterlife) mean?",
+    "answerBn": "মাআদ হলো কিয়ামতের দিন মৃত্যুর পর পুনরুত্থান ও পরকালে বিচারের প্রতি বিশ্বাস — যা ইসলামের মৌলিক আকিদাগুলোর একটি।",
+    "answerEn": "Ma’ad is the belief in resurrection after death and judgment in the afterlife on the Day of Resurrection — one of the fundamental tenets of Islamic belief."
+  },
+  {
+    "id": "q011",
+    "category": "fiqh",
+    "questionBn": "মুজতাহিদ কে?",
+    "questionEn": "Who is a Mujtahid?",
+    "answerBn": "মুজতাহিদ হলেন একজন ইসলামি ফিকহ বিশেষজ্ঞ, যিনি কুরআন, হাদিস, ইজমা ও আকল (বুদ্ধিবৃত্তিক প্রমাণ) থেকে স্বাধীনভাবে শরয়ি বিধান নির্ণয় করার যোগ্যতা রাখেন।",
+    "answerEn": "A Mujtahid is an Islamic jurisprudence scholar qualified to independently derive religious rulings from the Quran, Hadith, consensus (Ijma), and reason (Aql)."
+  },
+  {
+    "id": "q012",
+    "category": "fiqh",
+    "questionBn": "ওয়াজিব, মুস্তাহাব, মাকরুহ ও হারাম — এই পরিভাষাগুলোর অর্থ কী?",
+    "questionEn": "What do the terms Wajib, Mustahabb, Makruh, and Haram mean?",
+    "answerBn": "ওয়াজিব (বাধ্যতামূলক), মুস্তাহাব (প্রস্তাবিত/উত্তম), মাকরুহ (অপছন্দনীয় কিন্তু হারাম নয়), হারাম (নিষিদ্ধ) — এগুলো ফিকহি বিধানের শ্রেণিবিভাগ।",
+    "answerEn": "Wajib (obligatory), Mustahabb (recommended), Makruh (disliked but not forbidden), and Haram (forbidden) are the categories used to classify Islamic legal rulings."
+  },
+  {
+    "id": "q021",
+    "category": "quran",
+    "questionBn": "কুরআন কতদিনে অবতীর্ণ হয়েছিল?",
+    "questionEn": "Over how long was the Quran revealed?",
+    "answerBn": "কুরআন প্রায় ২৩ বছর ধরে রাসূলুল্লাহ (সা.)-এর কাছে ধাপে ধাপে অবতীর্ণ হয়েছিল — মক্কী ও মাদানী দুই পর্বে।",
+    "answerEn": "The Quran was revealed to the Prophet (PBUH) gradually over approximately 23 years, in two phases — Meccan and Medinan."
+  },
+  {
+    "id": "q022",
+    "category": "quran",
+    "questionBn": "সবচেয়ে বড় ও ছোট সূরা কোনটি?",
+    "questionEn": "What are the longest and shortest Surahs?",
+    "answerBn": "সবচেয়ে বড় সূরা হলো আল-বাকারা (২৮৬ আয়াত), আর সবচেয়ে ছোট সূরা আল-কাউসার (৩ আয়াত)।",
+    "answerEn": "The longest Surah is Al-Baqarah (286 verses), and the shortest is Al-Kawthar (3 verses)."
+  },
+  {
+    "id": "q031",
+    "category": "hadith",
+    "questionBn": "সহিফায়ে সাজ্জাদিয়্যা কী?",
+    "questionEn": "What is the Sahifa al-Sajjadiyya?",
+    "answerBn": "এটি ইমাম যাইনুল আবিদীন (আ.)-এর দোয়ার একটি সংকলন, যা ইসলামি আধ্যাত্মিক সাহিত্যে \"যাবুরে আলে মুহাম্মদ\" নামে পরিচিত।",
+    "answerEn": "It is a collection of supplications by Imam Zayn al-Abidin (AS), known in Islamic spiritual literature as the \"Psalms of the Family of Muhammad\"."
+  },
+  {
+    "id": "q032",
+    "category": "hadith",
+    "questionBn": "হাদিসে গাদির (গাদিরে খুম) কী?",
+    "questionEn": "What is the Hadith of Ghadir (Ghadir Khumm)?",
+    "answerBn": "এটি রাসূলুল্লাহ (সা.)-এর একটি প্রসিদ্ধ ভাষণ, যেখানে বিদায় হজ্ব থেকে ফেরার পথে গাদিরে খুম নামক স্থানে তিনি আলী (আ.)-কে উম্মতের নেতৃত্বের বিষয়ে উল্লেখ করেন।",
+    "answerEn": "This refers to a famous sermon delivered by the Prophet (PBUH) at Ghadir Khumm while returning from his Farewell Pilgrimage, in which he spoke of Ali (AS) in relation to the community’s leadership."
+  },
+  {
+    "id": "q041",
+    "category": "general",
+    "questionBn": "আশুরা কী এবং কেন গুরুত্বপূর্ণ?",
+    "questionEn": "What is Ashura and why is it significant?",
+    "answerBn": "আশুরা হলো মুহাররম মাসের দশম দিন, যেদিন ৬১ হিজরিতে কারবালার প্রান্তরে ইমাম হোসাইন (আ.) ও তাঁর সঙ্গীরা শাহাদাত বরণ করেন — শিয়া মুসলিমদের কাছে এটি ত্যাগ ও ন্যায়ের প্রতীক হিসেবে পালিত হয়।",
+    "answerEn": "Ashura is the tenth day of Muharram, marking the martyrdom of Imam Husayn (AS) and his companions at Karbala in 61 AH — observed by Shia Muslims as a symbol of sacrifice and standing for justice."
+  },
+  {
+    "id": "q042",
+    "category": "general",
+    "questionBn": "জান্নাতুল বাকি কী?",
+    "questionEn": "What is Jannat al-Baqi?",
+    "answerBn": "জান্নাতুল বাকি মদিনায় অবস্থিত একটি ঐতিহাসিক কবরস্থান, যেখানে রাসূলুল্লাহ (সা.)-এর অনেক পরিবারের সদস্য ও সাহাবি সমাহিত আছেন — চার ইমামও (হাসান, সাজ্জাদ, বাকির, সাদিক আ.) এখানে সমাহিত।",
+    "answerEn": "Jannat al-Baqi is a historic cemetery in Medina where many family members and companions of the Prophet (PBUH) are buried — including four Imams (Hasan, Sajjad, al-Baqir, and al-Sadiq, AS)."
+  },
+  {
+    "id": "q043",
+    "category": "aqidah",
+    "questionBn": "শিয়া ইসলামে ইমামত (নেতৃত্ব) বলতে কী বোঝায়?",
+    "questionEn": "What does Imamah (leadership) mean in Shia Islam?",
+    "answerBn": "শিয়া বিশ্বাস অনুযায়ী ইমামত হলো নবুওয়তের পরবর্তী ধারাবাহিক দায়িত্ব, যা আল্লাহর মনোনয়নে বারো জন নিষ্পাপ ইমামের ওপর অর্পিত হয়েছে ধর্মীয় ও আধ্যাত্মিক নেতৃত্বের জন্য।",
+    "answerEn": "According to Shia belief, Imamah is the divinely appointed continuation of prophetic guidance, entrusted to the twelve infallible Imams for religious and spiritual leadership after the Prophet."
+  },
+  {
+    "id": "q044",
+    "category": "aqidah",
+    "questionBn": "ইসমাত (নিষ্পাপতা) কী?",
+    "questionEn": "What is Ismah (infallibility)?",
+    "answerBn": "ইসমাত হলো নবী, ইমাম ও ফাতিমা আয-যাহরা (আ.)-এর গুনাহ ও ভুল থেকে সুরক্ষিত থাকার আল্লাহ-প্রদত্ত গুণ, যা তাদেরকে দ্বীনের বিশুদ্ধ শিক্ষক হিসেবে বিশ্বস্ত করে তোলে।",
+    "answerEn": "Ismah is the God-given quality of being protected from sin and error, attributed to the Prophets, Imams, and Fatimah al-Zahra (AS), which makes them trustworthy, pure teachers of religion."
+  },
+  {
+    "id": "q045",
+    "category": "aqidah",
+    "questionBn": "আদল (ন্যায়বিচার) আল্লাহর একটি গুণ হিসেবে শিয়া আকিদায় কেন গুরুত্বপূর্ণ?",
+    "questionEn": "Why is Adl (Divine Justice) important as a principle in Shia theology?",
+    "answerBn": "আদল শিয়া (এবং মুতাজিলা প্রভাবিত) আকিদার একটি মূলনীতি, যা প্রতিষ্ঠা করে যে আল্লাহ অন্যায় করেন না এবং তাঁর প্রতিটি কাজ প্রজ্ঞা ও ন্যায়ের ওপর প্রতিষ্ঠিত — এটি মানুষের স্বাধীন ইচ্ছা ও দায়বদ্ধতার ভিত্তি স্থাপন করে।",
+    "answerEn": "Adl is one of the foundational principles of Shia theology, establishing that Allah never commits injustice and that all His acts are based on wisdom and justice — this underpins human free will and accountability."
+  },
+  {
+    "id": "q046",
+    "category": "aqidah",
+    "questionBn": "মাআদ (পুনরুত্থান) সম্পর্কে ইসলামি বিশ্বাস কী?",
+    "questionEn": "What is the Islamic belief regarding Ma'ad (the Resurrection)?",
+    "answerBn": "মাআদ হলো বিশ্বাস যে মৃত্যুর পর সকল মানুষ শারীরিক ও আত্মিকভাবে পুনরুত্থিত হবে এবং কিয়ামতের দিন তাদের কর্মের হিসাব দিতে হবে, যা ইসলামের পাঁচ মূলনীতির একটি।",
+    "answerEn": "Ma'ad is the belief that after death, all human beings will be resurrected both bodily and spiritually and will be held accountable for their deeds on the Day of Judgment — it is one of the five principles of Islamic faith."
+  },
+  {
+    "id": "q047",
+    "category": "fiqh",
+    "questionBn": "মুজতাহিদ কাকে বলা হয়?",
+    "questionEn": "Who is called a Mujtahid?",
+    "answerBn": "মুজতাহিদ হলেন এমন একজন ইসলামি পণ্ডিত, যিনি কুরআন, হাদিস, ইজমা ও আকল (যুক্তি) ব্যবহার করে স্বাধীনভাবে শরিয়তের বিধান নির্ণয় (ইজতিহাদ) করার যোগ্যতা অর্জন করেছেন।",
+    "answerEn": "A Mujtahid is an Islamic scholar who has attained the qualification to independently derive rulings of Shariah (ijtihad) using the Quran, Hadith, consensus (ijma'), and reason (aql)."
+  },
+  {
+    "id": "q048",
+    "category": "fiqh",
+    "questionBn": "উসুলে ফিকহ কী?",
+    "questionEn": "What is Usul al-Fiqh (principles of jurisprudence)?",
+    "answerBn": "উসুলে ফিকহ হলো সেই পদ্ধতিগত জ্ঞান, যা মুজতাহিদদের কুরআন ও সুন্নাহ থেকে শরিয়তের বিস্তারিত বিধান নিষ্কাশনের নিয়ম-কানুন শেখায়।",
+    "answerEn": "Usul al-Fiqh is the methodological discipline that teaches jurists the rules for deriving detailed Shariah rulings from the Quran and Sunnah."
+  },
+  {
+    "id": "q049",
+    "category": "fiqh",
+    "questionBn": "নিয়্যাত (ইবাদতের নিয়ত) কেন গুরুত্বপূর্ণ?",
+    "questionEn": "Why is niyyah (intention in worship) important?",
+    "answerBn": "নিয়্যাত ইবাদতের মূল ভিত্তি, কারণ কোনো কাজ কেবল বাহ্যিক আচরণে নয়, বরং আন্তরিক নিয়ত ও আল্লাহর সন্তুষ্টির উদ্দেশ্যে করা হলে তা ইবাদত হিসেবে গণ্য হয়।",
+    "answerEn": "Niyyah is the essential foundation of worship, because an act is counted as worship only when performed with sincere intention and for the sake of pleasing Allah, not merely through outward action."
+  },
+  {
+    "id": "q050",
+    "category": "quran",
+    "questionBn": "কুরআনে সূরার সংখ্যা কত?",
+    "questionEn": "How many chapters (Surahs) are in the Quran?",
+    "answerBn": "কুরআনে মোট ১১৪টি সূরা রয়েছে, যা মক্কি ও মাদানি — এই দুই শ্রেণিতে বিভক্ত, যা নাজিলের স্থান ও সময়ের ওপর ভিত্তি করে নির্ধারিত হয়।",
+    "answerEn": "The Quran contains a total of 114 chapters (Surahs), classified into Makki and Madani categories based on the place and time of their revelation."
+  },
+  {
+    "id": "q051",
+    "category": "quran",
+    "questionBn": "শিয়া ও সুন্নি মুসলিমরা কি একই কুরআন ব্যবহার করে?",
+    "questionEn": "Do Shia and Sunni Muslims use the same Quran?",
+    "answerBn": "হ্যাঁ, শিয়া ও সুন্নি উভয় সম্প্রদায় একই আরবি পাঠ, একই ১১৪টি সূরা ও একই আয়াতসম্বলিত কুরআন ব্যবহার করে; পার্থক্য কেবল কিছু আয়াতের তাফসির ও ব্যাখ্যায় দেখা যায়, মূল পাঠে নয়।",
+    "answerEn": "Yes, both Shia and Sunni communities use the identical Arabic text, with the same 114 chapters and verses; differences appear only in the interpretation (tafsir) of certain verses, not in the underlying text itself."
+  },
+  {
+    "id": "q052",
+    "category": "quran",
+    "questionBn": "সূরা আল-ইনসান (দাহর) কেন আহলে বাইতের জন্য বিশেষ গুরুত্বপূর্ণ?",
+    "questionEn": "Why is Surah al-Insan (al-Dahr) especially significant for the Ahl al-Bayt?",
+    "answerBn": "শিয়া তাফসির ঐতিহ্য অনুযায়ী, সূরা আল-ইনসানের কিছু আয়াত আলী, ফাতিমা, হাসান ও হোসাইন (আ.)-এর তিন দিনের রোজা ও একজন মিসকিন, ইয়াতিম ও বন্দিকে ইফতার দানের ঘটনার সাথে সম্পর্কিত বলে বর্ণিত হয়েছে।",
+    "answerEn": "According to Shia tafsir tradition, certain verses of Surah al-Insan are narrated in connection with the three-day fast of Ali, Fatimah, Hasan, and Husayn (AS), and their act of giving their iftar meal to a poor man, an orphan, and a captive."
+  },
+  {
+    "id": "q053",
+    "category": "hadith",
+    "questionBn": "আল-কাফি গ্রন্থের গুরুত্ব কী?",
+    "questionEn": "What is the significance of the book Al-Kafi?",
+    "answerBn": "আল-কাফি শায়খ কুলাইনি রচিত শিয়া হাদিসের চারটি প্রধান গ্রন্থের (কুতুবে আরবাআ) মধ্যে সবচেয়ে প্রাচীন ও সুবিন্যস্ত, যা আকিদা, ফিকহ ও নৈতিকতা সংক্রান্ত হাদিস সংকলিত করে।",
+    "answerEn": "Al-Kafi, compiled by Shaykh al-Kulayni, is the earliest and most systematically organized of the four primary Shia hadith collections (al-Kutub al-Arba'ah), compiling narrations on theology, jurisprudence, and ethics."
+  },
+  {
+    "id": "q054",
+    "category": "hadith",
+    "questionBn": "কুতুবে আরবাআ (চার প্রধান শিয়া হাদিস গ্রন্থ) কী কী?",
+    "questionEn": "What are the al-Kutub al-Arba'ah (the four primary Shia hadith collections)?",
+    "answerBn": "কুতুবে আরবাআ হলো আল-কাফি (কুলাইনি), মান লা ইয়াহদুরুহুল ফাকিহ (শেখ সাদুক), তাহযিবুল আহকাম ও আল-ইসতিবসার (শেখ তুসি) — এই চারটি গ্রন্থ শিয়া ফিকহি ঐতিহ্যের মূল ভিত্তি।",
+    "answerEn": "The al-Kutub al-Arba'ah are Al-Kafi (al-Kulayni), Man La Yahduruhu al-Faqih (Shaykh al-Saduq), Tahdhib al-Ahkam, and al-Istibsar (Shaykh al-Tusi) — these four works form the core foundation of the Shia legal-hadith tradition."
+  },
+  {
+    "id": "q055",
+    "category": "hadith",
+    "questionBn": "হাদিসে সাকালাইনের তাৎপর্য কী?",
+    "questionEn": "What is the significance of the Hadith al-Thaqalayn?",
+    "answerBn": "হাদিসে সাকালাইনে রাসূলুল্লাহ (সা.) কুরআন ও আহলে বাইতকে একসাথে রেখে যাওয়ার কথা বলেছেন এবং জানিয়েছেন যে এ দুটি কখনো পরস্পর থেকে পৃথক হবে না — শিয়া মুসলিমরা এটিকে আহলে বাইতের নেতৃত্বের অন্যতম প্রধান দলিল হিসেবে গণ্য করে।",
+    "answerEn": "In the Hadith al-Thaqalayn, the Prophet (PBUH) declared that he was leaving behind the Quran and the Ahl al-Bayt together, stating that the two would never separate — Shia Muslims regard this as one of the primary evidences for the leadership of the Ahl al-Bayt."
+  },
+  {
+    "id": "q056",
+    "category": "general",
+    "questionBn": "শিয়া ও সুন্নি মুসলিমদের মধ্যে মূল পার্থক্য কী?",
+    "questionEn": "What is the core difference between Shia and Sunni Muslims?",
+    "answerBn": "মূল পার্থক্য নবী মুহাম্মদ (সা.)-এর পরবর্তী নেতৃত্ব (খিলাফত/ইমামত) নিয়ে — শিয়ারা বিশ্বাস করে ইমাম আলী (আ.) ও তার বংশধর ঐশ্বরিকভাবে মনোনীত নেতা ছিলেন, আর সুন্নিরা মনে করে খলিফা নির্বাচন সম্প্রদায়ের পরামর্শে হওয়া উচিত ছিল।",
+    "answerEn": "The core difference concerns leadership after Prophet Muhammad (PBUH) — Shias believe that Imam Ali (AS) and his descendants were divinely appointed leaders, while Sunnis hold that the caliph should be chosen through communal consultation."
+  },
+  {
+    "id": "q057",
+    "category": "general",
+    "questionBn": "'শিয়া' শব্দের অর্থ কী?",
+    "questionEn": "What does the word 'Shia' mean?",
+    "answerBn": "'শিয়া' আরবি শব্দ, যার অর্থ 'অনুসারী' বা 'দলভুক্ত'; ঐতিহাসিকভাবে এটি 'শিয়াতু আলী' (আলীর অনুসারী) থেকে সংক্ষিপ্ত হয়ে বর্তমান নাম গ্রহণ করেছে।",
+    "answerEn": "'Shia' is an Arabic word meaning 'follower' or 'partisan'; historically it is derived from the phrase 'Shi'at Ali' (the followers of Ali), which was shortened to its current form."
+  },
+  {
+    "id": "q058",
+    "category": "general",
+    "questionBn": "কারবালার ঘটনা কেন এত গুরুত্বপূর্ণ?",
+    "questionEn": "Why is the event of Karbala so significant?",
+    "answerBn": "৬১ হিজরিতে (৬৮০ খ্রিস্টাব্দ) ইমাম হোসাইন (আ.) ও তার পরিবার-সাথীদের ইয়াজিদের বাহিনীর হাতে শাহাদাত সত্য ও ন্যায়ের জন্য আত্মত্যাগের প্রতীক হিসেবে বিবেচিত হয়, যা মুসলিম বিশ্বে নৈতিক প্রতিরোধের চেতনার একটি চিরস্থায়ী উদাহরণ হয়ে আছে।",
+    "answerEn": "The martyrdom of Imam Husayn (AS) and his family and companions at the hands of Yazid's forces in 61 AH (680 CE) is regarded as a symbol of sacrifice for truth and justice, standing as an enduring example of moral resistance throughout the Muslim world."
+  },
+  {
+    "id": "q059",
+    "category": "general",
+    "questionBn": "গাদির-এ-খুম-এর ঘটনা কী?",
+    "questionEn": "What was the event of Ghadir Khumm?",
+    "answerBn": "১৮ জিলহজ্জ হিজরি ১০ সালে বিদায় হজ্ব থেকে ফেরার পথে গাদির-এ-খুম নামক স্থানে রাসূলুল্লাহ (সা.) সমবেত মুসলিমদের সামনে ইমাম আলী (আ.)-কে তার উত্তরসূরি হিসেবে ঘোষণা করেন বলে শিয়া বিশ্বাস; সুন্নি সূত্রেও এ ঘটনা বর্ণিত আছে, তবে ব্যাখ্যায় ভিন্নতা রয়েছে।",
+    "answerEn": "According to Shia belief, on 18 Dhu al-Hijjah in the 10th year of Hijrah, while returning from the Farewell Pilgrimage at a place called Ghadir Khumm, the Prophet (PBUH) declared Imam Ali (AS) as his successor before the assembled Muslims; this event is also narrated in Sunni sources, though interpretations of its meaning differ."
+  },
+  {
+    "id": "q060",
+    "category": "aqidah",
+    "questionBn": "গায়বত (অদৃশ্যতা) বলতে ইমাম মাহদী সম্পর্কে কী বোঝানো হয়?",
+    "questionEn": "What does Ghaybah (occultation) mean regarding Imam al-Mahdi?",
+    "answerBn": "শিয়া বিশ্বাস অনুযায়ী দ্বাদশ ইমাম, ইমাম মাহদী (আ.), আল্লাহর নির্দেশে গোপন অবস্থায় (গায়বত) রয়েছেন এবং আল্লাহর নির্ধারিত সময়ে পুনরায় আবির্ভূত হয়ে পৃথিবীতে ন্যায়বিচার প্রতিষ্ঠা করবেন।",
+    "answerEn": "According to Shia belief, the twelfth Imam, Imam al-Mahdi (AS), is in a state of divinely ordained occultation (Ghaybah) and will reappear at a time determined by Allah to establish justice on earth."
+  },
+  {
+    "id": "q061",
+    "category": "aqidah",
+    "questionBn": "শাফাআত (সুপারিশ) কী?",
+    "questionEn": "What is Shafa'ah (intercession)?",
+    "answerBn": "শাফাআত হলো কিয়ামতের দিনে নবী, ইমাম বা সৎকর্মশীল বান্দাদের পক্ষে আল্লাহর অনুমতিক্রমে অন্য মুমিনদের জন্য সুপারিশ করার সুযোগ, যা কুরআনে বর্ণিত এবং শর্তসাপেক্ষ — আল্লাহর অনুমতি ছাড়া কেউ শাফাআত করতে পারবে না।",
+    "answerEn": "Shafa'ah is the permitted intercession granted by Allah to Prophets, Imams, or righteous believers on behalf of other believers on the Day of Judgment; it is mentioned in the Quran and is conditional — no one can intercede without Allah's permission."
+  },
+  {
+    "id": "q062",
+    "category": "general",
+    "questionBn": "ইয়াওমুল গাদির উৎসব কীভাবে পালিত হয়?",
+    "questionEn": "How is Eid al-Ghadir celebrated?",
+    "answerBn": "শিয়া মুসলিমরা ১৮ জিলহজ্জ ইয়াওমুল গাদির পালন করেন কুরআন তেলাওয়াত, দোয়া, রোজা এবং গাদির-এ-খুমে ইমাম আলী (আ.)-এর মনোনয়নের ঘটনা স্মরণ করে আনন্দ-উৎসবের মাধ্যমে।",
+    "answerEn": "Shia Muslims observe Eid al-Ghadir on 18 Dhu al-Hijjah with Quran recitation, supplications, fasting, and joyful celebration commemorating the event of Imam Ali's (AS) designation at Ghadir Khumm."
+  },
+  {
+    "id": "q063",
+    "category": "general",
+    "questionBn": "আশুরা দিবস কী এবং এটি কেন পালন করা হয়?",
+    "questionEn": "What is the Day of Ashura and why is it observed?",
+    "answerBn": "আশুরা হলো মুহররম মাসের দশম দিন, যেদিন ৬৮০ খ্রিস্টাব্দে ইমাম হোসাইন (আ.) কারবালায় শহীদ হন; শিয়া মুসলিমরা এই দিনে শোক পালন, মাজলিস, নাওহা ও কারবালার শিক্ষা স্মরণের মাধ্যমে দিবসটি পালন করেন।",
+    "answerEn": "Ashura is the tenth day of the month of Muharram, the day on which Imam Husayn (AS) was martyred at Karbala in 680 CE; Shia Muslims observe it through mourning, majalis gatherings, elegies (nawha), and reflection on the lessons of Karbala."
+  },
+  {
+    "id": "q064",
+    "category": "fiqh",
+    "questionBn": "'ওয়াজিব' ও 'মুস্তাহাব'-এর মধ্যে পার্থক্য কী?",
+    "questionEn": "What is the difference between 'Wajib' (obligatory) and 'Mustahabb' (recommended)?",
+    "answerBn": "ওয়াজিব হলো সেই কাজ, যা পালন না করলে গুনাহ হয় (যেমন নামাজ, রোজা); মুস্তাহাব হলো সেই কাজ, যা পালন করলে সওয়াব পাওয়া যায়, কিন্তু না করলে কোনো গুনাহ হয় না (যেমন নফল নামাজ)।",
+    "answerEn": "Wajib refers to acts whose omission incurs sin (such as prayer and fasting); Mustahabb refers to acts that earn reward when performed, but incur no sin if left undone (such as voluntary/nafl prayers)."
+  },
+  {
+    "id": "q065",
+    "category": "fiqh",
+    "questionBn": "'হারাম' ও 'মাকরুহ'-এর মধ্যে পার্থক্য কী?",
+    "questionEn": "What is the difference between 'Haram' (forbidden) and 'Makruh' (disliked)?",
+    "answerBn": "হারাম হলো সম্পূর্ণ নিষিদ্ধ কাজ, যা করলে গুনাহ হয় (যেমন সুদ খাওয়া); মাকরুহ হলো অপছন্দনীয় কাজ, যা এড়িয়ে চলা উত্তম, তবে করলে গুনাহ হয় না (যেমন রসুন খেয়ে মসজিদে যাওয়া)।",
+    "answerEn": "Haram refers to acts that are absolutely forbidden and sinful if performed (such as consuming interest); Makruh refers to disliked acts that are better avoided, but do not incur sin if performed (such as going to the mosque after eating raw garlic)."
+  },
+  {
+    "id": "q066",
+    "category": "quran",
+    "questionBn": "তাফসিরে ইলমুল আয়াত ও ইলমুল বাতেন বলতে কী বোঝায়?",
+    "questionEn": "What is meant by the outward (zahir) and inward (batin) meanings of the Quran?",
+    "answerBn": "ইসলামি তাফসির ঐতিহ্যে বিশ্বাস করা হয় যে কুরআনের প্রতিটি আয়াতের একটি প্রকাশ্য (জাহির) অর্থ রয়েছে, যা সাধারণ পাঠকের জন্য বোধগম্য, এবং একটি গভীর অভ্যন্তরীণ (বাতিন) অর্থ, যা কেবল গভীর জ্ঞান ও তাকওয়ার মাধ্যমে উপলব্ধি করা সম্ভব।",
+    "answerEn": "Islamic tafsir tradition holds that every verse of the Quran has an outward (zahir) meaning comprehensible to the general reader, and a deeper inward (batin) meaning that can only be grasped through profound knowledge and piety."
+  },
+  {
+    "id": "q067",
+    "category": "hadith",
+    "questionBn": "মুতাওয়াতির হাদিস কী?",
+    "questionEn": "What is a Mutawatir hadith?",
+    "answerBn": "মুতাওয়াতির হাদিস হলো এমন একটি বর্ণনা, যা এত বিপুলসংখ্যক নির্ভরযোগ্য বর্ণনাকারী কর্তৃক প্রতিটি প্রজন্মে বর্ণিত হয়েছে যে মিথ্যা রটনার কোনো সম্ভাবনা থাকে না; এটি হাদিসের সর্বোচ্চ নির্ভরযোগ্যতার স্তর।",
+    "answerEn": "A Mutawatir hadith is a narration transmitted by such a large number of reliable narrators in every generation that collusion in fabrication becomes practically impossible; it represents the highest level of hadith reliability."
+  },
+  {
+    "id": "q068",
+    "category": "hadith",
+    "questionBn": "সহীহ হাদিস কীভাবে যাচাই করা হয়?",
+    "questionEn": "How is a Sahih (authentic) hadith verified?",
+    "answerBn": "হাদিসের সনদ (বর্ণনা-শৃঙ্খল)-এর প্রতিটি বর্ণনাকারীর ন্যায়পরায়ণতা (আদালাত), নির্ভরযোগ্যতা (দাবত) এবং শৃঙ্খলের ধারাবাহিকতা যাচাই করে বিদ্বানরা হাদিসের মান নির্ধারণ করেন — এই বিদ্যাকে ইলমুর রিজাল বলা হয়।",
+    "answerEn": "Scholars determine the grade of a hadith by examining each narrator's integrity ('adalah), reliability (dabt), and the continuity of the chain of transmission (isnad) — this discipline is known as 'Ilm al-Rijal."
+  },
+  {
+    "id": "q069",
+    "category": "general",
+    "questionBn": "নাজাফ ও কারবালা কেন শিয়া মুসলিমদের কাছে পবিত্র শহর হিসেবে গণ্য?",
+    "questionEn": "Why are Najaf and Karbala considered holy cities for Shia Muslims?",
+    "answerBn": "নাজাফে ইমাম আলী (আ.)-এর এবং কারবালায় ইমাম হোসাইন (আ.)-এর মাজার অবস্থিত হওয়ায় এই দুই শহর শিয়া মুসলিমদের কাছে জিয়ারত ও ধর্মীয় শিক্ষার প্রধান কেন্দ্র হিসেবে বিবেচিত হয়।",
+    "answerEn": "Najaf houses the shrine of Imam Ali (AS) and Karbala houses the shrine of Imam Husayn (AS), making these two cities central centers of pilgrimage (ziyarat) and religious learning for Shia Muslims."
+  },
+  {
+    "id": "q070",
+    "category": "general",
+    "questionBn": "হাওজা ইলমিয়া কী?",
+    "questionEn": "What is a Hawza Ilmiyyah?",
+    "answerBn": "হাওজা ইলমিয়া হলো শিয়া ইসলামি সেমিনারি বা ধর্মীয় শিক্ষা প্রতিষ্ঠান, যেখানে ফিকহ, উসুল, তাফসির, হাদিস ও দর্শনের ওপর গভীর অধ্যয়নের মাধ্যমে আলেম ও মুজতাহিদ তৈরি করা হয় — নাজাফ ও কোম এর প্রধান কেন্দ্র।",
+    "answerEn": "A Hawza Ilmiyyah is a Shia Islamic seminary or religious institution where scholars and jurists are trained through in-depth study of jurisprudence, legal theory, exegesis, hadith, and philosophy — Najaf and Qom are its primary centers."
+  },
+  {
+    "id": "q071",
+    "category": "aqidah",
+    "questionBn": "তাওয়াসসুল (নবী-ইমামদের মাধ্যমে দোয়া) সম্পর্কে শিয়া অবস্থান কী?",
+    "questionEn": "What is the Shia position on Tawassul (seeking intercession through the Prophet/Imams in supplication)?",
+    "answerBn": "শিয়া আকিদা অনুসারে তাওয়াসসুল অর্থ নবী বা ইমামদের মর্যাদার উসিলায় আল্লাহর কাছে দোয়া করা, যা শিরক নয় বরং আল্লাহরই অনুমোদিত একটি মাধ্যম, যতক্ষণ বিশ্বাস করা হয় যে প্রকৃত ক্ষমতা কেবল আল্লাহরই।",
+    "answerEn": "According to Shia theology, Tawassul means supplicating to Allah through the intermediary status of the Prophet or Imams — this is not considered shirk (associating partners with God), but rather a means sanctioned by Allah Himself, so long as one believes true power belongs to Allah alone."
+  },
+  {
+    "id": "q072",
+    "category": "fiqh",
+    "questionBn": "মারজায়ে তাকলিদ কীভাবে নির্বাচিত হন?",
+    "questionEn": "How is a Marja al-Taqlid (source of emulation) selected?",
+    "answerBn": "একজন মারজা হাওজা ইলমিয়ায় বছরের পর বছর অধ্যয়ন ও শিক্ষকতার মাধ্যমে ইজতিহাদের যোগ্যতা অর্জন করেন এবং বিদগ্ধ আলেমদের স্বীকৃতির মাধ্যমে সমাজে মারজা হিসেবে প্রতিষ্ঠিত হন।",
+    "answerEn": "A Marja attains the qualification of ijtihad through years of study and teaching within the Hawza Ilmiyyah and becomes recognized as a Marja in society through the acknowledgment of accomplished scholars."
+  },
+  {
+    "id": "q073",
+    "category": "quran",
+    "questionBn": "কুরআনে আহলে বাইতের পবিত্রতা সম্পর্কে কোন আয়াত বর্ণিত?",
+    "questionEn": "Which Quranic verse is cited regarding the purity of the Ahl al-Bayt?",
+    "answerBn": "আয়াতে তাতহির (সূরা আল-আহযাব, ৩৩:৩৩) শিয়া তাফসির অনুযায়ী নবী পরিবারের পাঁচজন (নবী, আলী, ফাতিমা, হাসান ও হোসাইন) থেকে সমস্ত অপবিত্রতা দূর করার এবং তাদের পূর্ণরূপে পবিত্র রাখার আল্লাহর ইচ্ছা ঘোষণা করে।",
+    "answerEn": "The Verse of Purification (Ayat al-Tathir, Surah al-Ahzab 33:33) is understood in Shia tafsir to declare Allah's will to remove all impurity from the five members of the Prophet's household (the Prophet, Ali, Fatimah, Hasan, and Husayn) and to purify them completely."
+  },
+  {
+    "id": "q074",
+    "category": "general",
+    "questionBn": "শিয়া মুসলিমরা কেন ইমামদের জন্ম ও শাহাদাত দিবস পালন করেন?",
+    "questionEn": "Why do Shia Muslims commemorate the birth and martyrdom anniversaries of the Imams?",
+    "answerBn": "এই দিবসগুলো ইমামদের জীবন, শিক্ষা ও ত্যাগের কথা স্মরণ করিয়ে দেয় এবং তাদের অনুসারীদের নৈতিক ও আধ্যাত্মিক পথনির্দেশনা প্রদান করে, পাশাপাশি সম্প্রদায়গত সংহতি ও ধর্মীয় শিক্ষার সুযোগ সৃষ্টি করে।",
+    "answerEn": "These occasions serve to recall the lives, teachings, and sacrifices of the Imams, offering moral and spiritual guidance to their followers, while also fostering communal solidarity and opportunities for religious education."
+  },
+  {
+    "id": "q075",
+    "category": "aqidah",
+    "questionBn": "আদল (আল্লাহর ন্যায়বিচার) বলতে কী বোঝায়?",
+    "questionEn": "What does 'Adl (Divine Justice) mean?",
+    "answerBn": "আদল হলো বিশ্বাস যে আল্লাহ সকল কাজে ন্যায়পরায়ণ, তিনি কখনো জুলুম করেন না এবং তাঁর প্রতিটি সিদ্ধান্তের পেছনে যৌক্তিক কারণ রয়েছে।",
+    "answerEn": "'Adl is the belief that Allah is just in all His actions, never oppresses, and every one of His decisions has a wise purpose behind it."
+  },
+  {
+    "id": "q076",
+    "category": "aqidah",
+    "questionBn": "ইমামত (নেতৃত্ব) শিয়া আকিদায় কেন মূলনীতি হিসেবে গণ্য?",
+    "questionEn": "Why is Imamate considered a foundational principle in Shia belief?",
+    "answerBn": "শিয়া বিশ্বাস অনুযায়ী, নবীর মৃত্যুর পর উম্মাহর ধর্মীয় ও আধ্যাত্মিক নেতৃত্বের জন্য আল্লাহ কর্তৃক মনোনীত ইমামের প্রয়োজন, যিনি দ্বীনের সঠিক ব্যাখ্যা ও সংরক্ষণ নিশ্চিত করেন।",
+    "answerEn": "Shia belief holds that after the Prophet's death, the Ummah needed a divinely appointed Imam to provide religious and spiritual leadership, ensuring the correct interpretation and preservation of the faith."
+  },
+  {
+    "id": "q077",
+    "category": "aqidah",
+    "questionBn": "বদা (Bada') মতবাদ কী?",
+    "questionEn": "What is the concept of Bada'?",
+    "answerBn": "বদা হলো এই বিশ্বাস যে আল্লাহ তাঁর পূর্ণ জ্ঞান অনুযায়ী কোনো বিষয়ের প্রকাশিত সিদ্ধান্ত পরিবর্তন করতে পারেন, যদিও তা আল্লাহর অজ্ঞতা নয় বরং তাঁর অসীম ক্ষমতার বহিঃপ্রকাশ।",
+    "answerEn": "Bada' is the belief that Allah, with His complete knowledge, may alter a previously disclosed decree — not from any lack of knowledge, but as an expression of His limitless power."
+  },
+  {
+    "id": "q078",
+    "category": "aqidah",
+    "questionBn": "নবুওয়াত (নবী প্রেরণ) কেন প্রয়োজনীয়?",
+    "questionEn": "Why is Prophethood necessary?",
+    "answerBn": "মানুষের হেদায়েতের জন্য আল্লাহর সদয়তার (লুতফ) দাবি অনুযায়ী নবী প্রেরণ প্রয়োজন, যাতে মানুষ সঠিক পথের দিশা পায়।",
+    "answerEn": "Allah's grace (Lutf) toward humanity necessitates sending prophets so people can be guided to the right path."
+  },
+  {
+    "id": "q079",
+    "category": "aqidah",
+    "questionBn": "মাআদ (পুনরুত্থান) বিশ্বাসের গুরুত্ব কী?",
+    "questionEn": "What is the significance of belief in Ma'ad (Resurrection)?",
+    "answerBn": "মাআদ বিশ্বাস করায় যে প্রত্যেক কাজের প্রতিদান বা শাস্তি পরকালে দেওয়া হবে, যা মানুষকে ন্যায়ের পথে চলতে উদ্বুদ্ধ করে।",
+    "answerEn": "Belief in Ma'ad affirms that every action will be rewarded or punished in the Hereafter, motivating people to walk the path of righteousness."
+  },
+  {
+    "id": "q080",
+    "category": "aqidah",
+    "questionBn": "তাকিয়া (Taqiyyah) কী এবং কখন প্রযোজ্য?",
+    "questionEn": "What is Taqiyyah and when does it apply?",
+    "answerBn": "তাকিয়া হলো জীবন বা সম্মানের প্রকৃত বিপদের মুখে বিশ্বাস গোপন রাখা; এটি নিপীড়ন থেকে আত্মরক্ষার একটি অনুমোদিত পন্থা, নীতিগত বিষয়ে প্রতারণার জন্য নয়।",
+    "answerEn": "Taqiyyah is concealing one's belief in the face of genuine danger to life or honor; it is a permitted means of self-protection from persecution, not a license for deceit in matters of principle."
+  },
+  {
+    "id": "q081",
+    "category": "aqidah",
+    "questionBn": "গায়বাত (ইমাম মাহদির অন্তর্ধান) কী?",
+    "questionEn": "What is Ghaybah (the Occultation of Imam Mahdi)?",
+    "answerBn": "গায়বাত হলো দ্বাদশ ইমাম মাহদি (আ.)-এর আল্লাহর ইচ্ছায় প্রকাশ্য দৃষ্টির অন্তরালে থাকার অবস্থা, যিনি নির্ধারিত সময়ে ন্যায়বিচার প্রতিষ্ঠার জন্য পুনরায় আবির্ভূত হবেন।",
+    "answerEn": "Ghaybah is the state of the Twelfth Imam, Mahdi (AS), remaining hidden from open view by Allah's will, to reappear at the appointed time to establish justice."
+  },
+  {
+    "id": "q082",
+    "category": "fiqh",
+    "questionBn": "ফিকহে 'মারজা তাকলিদ' অনুসরণ করা কেন জরুরি?",
+    "questionEn": "Why is it necessary to follow a Marja' al-Taqlid in fiqh?",
+    "answerBn": "জটিল শরয়ি বিধান সঠিকভাবে বুঝতে ও পালন করতে একজন যোগ্য মুজতাহিদের নির্দেশনা অনুসরণ করা প্রয়োজন, যেমন অন্যান্য বিশেষজ্ঞ বিষয়ে বিশেষজ্ঞের পরামর্শ নেওয়া হয়।",
+    "answerEn": "To correctly understand and practice complex Shar'i rulings, one needs to follow the guidance of a qualified Mujtahid — much as one seeks a specialist's advice in any other expert field."
+  },
+  {
+    "id": "q083",
+    "category": "fiqh",
+    "questionBn": "এহতিয়াত (সতর্কতামূলক পন্থা) কী?",
+    "questionEn": "What is Ihtiyat (precautionary practice)?",
+    "answerBn": "যখন কোনো বিষয়ে সুস্পষ্ট ফতোয়া না থাকে বা সন্দেহ থাকে, তখন অধিক নিরাপদ পন্থা অবলম্বন করাকে এহতিয়াত বলা হয়।",
+    "answerEn": "Ihtiyat refers to taking the safer course of action when there is no clear ruling on a matter or when doubt exists."
+  },
+  {
+    "id": "q084",
+    "category": "fiqh",
+    "questionBn": "কাযা ও কাফফারার মধ্যে পার্থক্য কী?",
+    "questionEn": "What is the difference between Qada and Kaffarah?",
+    "answerBn": "কাযা হলো ছুটে যাওয়া ইবাদত পরে পুনরায় আদায় করা, আর কাফফারা হলো ইচ্ছাকৃতভাবে ইবাদত ভঙ্গ করার জন্য নির্ধারিত ক্ষতিপূরণ।",
+    "answerEn": "Qada is making up a missed act of worship afterward, while Kaffarah is the prescribed expiation for deliberately breaking one."
+  },
+  {
+    "id": "q085",
+    "category": "fiqh",
+    "questionBn": "ইজতিহাদ কী এবং কারা তা করতে পারেন?",
+    "questionEn": "What is Ijtihad and who can perform it?",
+    "answerBn": "ইজতিহাদ হলো কুরআন, হাদিস, ইজমা ও আকল থেকে শরয়ি বিধান নির্ণয় করার প্রক্রিয়া, যা কেবল প্রয়োজনীয় যোগ্যতাসম্পন্ন মুজতাহিদগণ করতে পারেন।",
+    "answerEn": "Ijtihad is the process of deriving Shar'i rulings from the Quran, Hadith, consensus (Ijma), and reason (Aql); only qualified Mujtahids are able to perform it."
+  },
+  {
+    "id": "q086",
+    "category": "fiqh",
+    "questionBn": "নাজিস ও মুতানাজ্জিসের মধ্যে পার্থক্য কী?",
+    "questionEn": "What is the difference between Najis and Mutanajjis?",
+    "answerBn": "নাজিস হলো মূলগতভাবে অপবিত্র বস্তু, আর মুতানাজ্জিস হলো মূলত পবিত্র বস্তু যা নাজিসের সংস্পর্শে অপবিত্র হয়েছে।",
+    "answerEn": "Najis refers to something inherently impure, while Mutanajjis refers to something inherently pure that has become impure through contact with Najis."
+  },
+  {
+    "id": "q087",
+    "category": "fiqh",
+    "questionBn": "ওয়াজিব কিফায়া ও ওয়াজিব আইনি মধ্যে পার্থক্য কী?",
+    "questionEn": "What is the difference between Wajib Kifa'i and Wajib 'Ayni?",
+    "answerBn": "ওয়াজিব আইনি প্রত্যেক ব্যক্তির উপর পৃথকভাবে ফরজ, আর ওয়াজিব কিফায়া সমাজের কিছু লোক আদায় করলে বাকিদের দায়িত্ব রহিত হয়।",
+    "answerEn": "Wajib 'Ayni is obligatory on every individual separately, while Wajib Kifa'i is lifted from the rest of society once some members fulfill it."
+  },
+  {
+    "id": "q088",
+    "category": "fiqh",
+    "questionBn": "হালাল রুজি অর্জনের গুরুত্ব ফিকহে কতটা?",
+    "questionEn": "How important is earning halal livelihood in fiqh?",
+    "answerBn": "ইসলামি ফিকহে হালাল উপার্জনকে ইবাদতের সমতুল্য গণ্য করা হয়েছে এবং হারাম উপার্জন দোয়া কবুল না হওয়ার কারণ বলে বর্ণিত হয়েছে।",
+    "answerEn": "Islamic fiqh regards earning a halal livelihood as comparable to worship, while haram earnings are described as a cause for prayers going unanswered."
+  },
+  {
+    "id": "q089",
+    "category": "quran",
+    "questionBn": "কুরআনের 'মুহকাম' ও 'মুতাশাবিহ' আয়াতের অর্থ কী?",
+    "questionEn": "What do 'Muhkam' and 'Mutashabih' verses of the Quran mean?",
+    "answerBn": "মুহকাম হলো স্পষ্ট অর্থবোধক আয়াত, আর মুতাশাবিহ হলো রূপক বা একাধিক অর্থ বহনকারী আয়াত, যার প্রকৃত অর্থ আল্লাহ ও গভীর জ্ঞানীগণ জানেন।",
+    "answerEn": "Muhkam verses have a clear, definite meaning, while Mutashabih verses are figurative or carry multiple meanings, whose true meaning is known to Allah and those firmly grounded in knowledge."
+  },
+  {
+    "id": "q090",
+    "category": "quran",
+    "questionBn": "সূরা আল-কাউসার কেন গুরুত্বপূর্ণ?",
+    "questionEn": "Why is Surah al-Kawthar significant?",
+    "answerBn": "এটি কুরআনের ক্ষুদ্রতম সূরা, যেখানে আল্লাহ রাসূলুল্লাহ (সা.)-কে কাওসার (প্রাচুর্য) দানের সুসংবাদ দেন এবং শিয়া তাফসিরে ফাতিমা (আ.)-এর মাধ্যমে নবীর বংশধারা অব্যাহত থাকার ইঙ্গিতও এতে দেখা হয়।",
+    "answerEn": "It is the shortest chapter of the Quran, in which Allah gives the Prophet glad tidings of Kawthar (abundance); Shia exegesis also sees in it a reference to the continuation of the Prophet's lineage through Fatima (AS)."
+  },
+  {
+    "id": "q091",
+    "category": "quran",
+    "questionBn": "'আয়াতে তাতহির' (সূরা আহযাব ৩৩) কী নির্দেশ করে?",
+    "questionEn": "What does the 'Verse of Purification' (Quran 33:33) indicate?",
+    "answerBn": "শিয়া তাফসির অনুযায়ী এই আয়াত আহলে বাইতের সম্পূর্ণ পবিত্রতা ও নিষ্পাপত্বের প্রমাণ বহন করে।",
+    "answerEn": "According to Shia exegesis, this verse serves as evidence for the complete purity and infallibility of the Ahl al-Bayt."
+  },
+  {
+    "id": "q092",
+    "category": "quran",
+    "questionBn": "কুরআনে 'উলিল আমর' কারা?",
+    "questionEn": "Who are the 'Ulil Amr' mentioned in the Quran?",
+    "answerBn": "সূরা নিসার ৫৯ নং আয়াতে উল্লিখিত উলিল আমর বলতে শিয়া তাফসির অনুযায়ী নিষ্পাপ ইমামগণকে বোঝানো হয়েছে, যাদের আনুগত্য আল্লাহ ও রাসূলের আনুগত্যের সাথে যুক্ত করা হয়েছে।",
+    "answerEn": "The 'Ulil Amr' mentioned in Quran 4:59 refers, per Shia exegesis, to the infallible Imams, whose obedience is linked with obedience to Allah and the Prophet."
+  },
+  {
+    "id": "q093",
+    "category": "quran",
+    "questionBn": "কুরআন সংরক্ষণে আহলে বাইতের ভূমিকা কী ছিল?",
+    "questionEn": "What role did the Ahl al-Bayt play in preserving the Quran?",
+    "answerBn": "ইমাম আলী (আ.) নবীর মৃত্যুর পর কুরআন সংকলন করেছিলেন এবং পরবর্তী ইমামগণ কুরআনের ব্যাখ্যা ও সঠিক তাৎপর্য সংরক্ষণে গুরুত্বপূর্ণ ভূমিকা রেখেছেন।",
+    "answerEn": "Imam Ali (AS) compiled the Quran after the Prophet's death, and the subsequent Imams played a vital role in preserving its correct interpretation and meaning."
+  },
+  {
+    "id": "q094",
+    "category": "quran",
+    "questionBn": "'নাসিখ' ও 'মানসুখ' আয়াত বলতে কী বোঝায়?",
+    "questionEn": "What is meant by 'Nasikh' and 'Mansukh' verses?",
+    "answerBn": "নাসিখ হলো পরবর্তীতে অবতীর্ণ আয়াত যা পূর্ববর্তী কোনো বিধান রহিত করে, আর মানসুখ হলো সেই রহিত হওয়া পূর্ববর্তী বিধান।",
+    "answerEn": "Nasikh refers to a later-revealed verse that abrogates an earlier ruling, while Mansukh is that earlier, abrogated ruling."
+  },
+  {
+    "id": "q095",
+    "category": "hadith",
+    "questionBn": "হাদিসে সহীহ, হাসান ও যঈফ কী বোঝায়?",
+    "questionEn": "What do Sahih, Hasan, and Da'if mean in hadith terminology?",
+    "answerBn": "সহীহ হলো নির্ভরযোগ্য সনদসহ প্রমাণিত হাদিস, হাসান তুলনামূলক কম শক্তিশালী কিন্তু গ্রহণযোগ্য, আর যঈফ হলো দুর্বল সনদের হাদিস যা পূর্ণ প্রমাণ হিসেবে গণ্য হয় না।",
+    "answerEn": "Sahih is a hadith proven with a reliable chain of narration, Hasan is comparatively weaker but still acceptable, and Da'if is a hadith with a weak chain that is not considered fully conclusive."
+  },
+  {
+    "id": "q096",
+    "category": "hadith",
+    "questionBn": "হাদিসে সিলসিলাতুয যাহাব (স্বর্ণ শৃঙ্খল) কী?",
+    "questionEn": "What is the 'Golden Chain' (Silsilat al-Dhahab) in hadith?",
+    "answerBn": "এটি ইমাম রিদা (আ.) থেকে বর্ণিত এক অনন্য সনদ, যা সরাসরি নবী পর্যন্ত সব ইমামের মাধ্যমে সংযুক্ত এবং এর নির্ভরযোগ্যতার কারণে বিশেষভাবে সম্মানিত।",
+    "answerEn": "This is a unique chain of narration from Imam Ridha (AS), linked directly back to the Prophet through all the Imams, and it is especially honored for its reliability."
+  },
+  {
+    "id": "q097",
+    "category": "hadith",
+    "questionBn": "'কুতুবে আরবাআ' (চার প্রধান হাদিস গ্রন্থ) কী কী?",
+    "questionEn": "What are the 'Four Books' (Kutub al-Arba'ah) of Shia hadith?",
+    "answerBn": "আল-কাফি, মান লা ইয়াহদুরুহুল ফাকিহ, তাহযিবুল আহকাম এবং আল-ইসতিবসার — এই চারটি গ্রন্থ শিয়া হাদিসশাস্ত্রে প্রধান উৎস হিসেবে বিবেচিত।",
+    "answerEn": "Al-Kafi, Man La Yahduruhu al-Faqih, Tahdhib al-Ahkam, and al-Istibsar — these four books are regarded as the primary sources of Shia hadith literature."
+  },
+  {
+    "id": "q098",
+    "category": "hadith",
+    "questionBn": "হাদিসে গাদিরের গুরুত্ব কী?",
+    "questionEn": "What is the significance of the Hadith of Ghadir?",
+    "answerBn": "এটি নবীর বিদায় হজ্জ থেকে ফেরার পথে গাদির খুম নামক স্থানে ইমাম আলী (আ.)-কে উম্মাহর নেতা ঘোষণা করার ঘটনা বর্ণনা করে, যা শিয়া ইমামত মতবাদের মূল ভিত্তি।",
+    "answerEn": "It narrates the event at Ghadir Khumm, on the Prophet's return from his Farewell Pilgrimage, where he declared Imam Ali (AS) as the leader of the Ummah — a core foundation of the Shia doctrine of Imamate."
+  },
+  {
+    "id": "q099",
+    "category": "hadith",
+    "questionBn": "হাদিসে সাকালাইন কী শিক্ষা দেয়?",
+    "questionEn": "What does the Hadith of Thaqalayn teach?",
+    "answerBn": "এই হাদিসে নবী উম্মাহকে দুটি ভারী আমানত রেখে যাওয়ার কথা বলেন — কুরআন ও তাঁর আহলে বাইত — এবং উভয়কে সমানভাবে ধরে রাখার নির্দেশ দেন যাতে তারা পথভ্রষ্ট না হয়।",
+    "answerEn": "In this hadith, the Prophet speaks of leaving behind two weighty trusts — the Quran and his Ahl al-Bayt — instructing the Ummah to hold fast to both so they never go astray."
+  },
+  {
+    "id": "q100",
+    "category": "hadith",
+    "questionBn": "'ইলমুর রিজাল' কী?",
+    "questionEn": "What is 'Ilm al-Rijal'?",
+    "answerBn": "এটি হাদিস বর্ণনাকারীদের জীবনী, নির্ভরযোগ্যতা ও চরিত্র যাচাইয়ের শাস্ত্র, যা হাদিসের সনদের মান নির্ণয়ে ব্যবহৃত হয়।",
+    "answerEn": "It is the science of examining the biography, reliability, and character of hadith narrators, used to determine the strength of a hadith's chain."
+  },
+  {
+    "id": "q101",
+    "category": "general",
+    "questionBn": "ইসলামে পরিবেশ সংরক্ষণের গুরুত্ব কী?",
+    "questionEn": "What is the importance of environmental conservation in Islam?",
+    "answerBn": "ইসলাম মানুষকে পৃথিবীর 'খলিফা' (প্রতিনিধি) হিসেবে গণ্য করে, যার দায়িত্ব প্রকৃতির সুষ্ঠু ব্যবস্থাপনা ও অপচয় এড়ানো।",
+    "answerEn": "Islam regards humanity as the 'Khalifah' (steward) of the earth, whose responsibility is the sound management of nature and avoiding waste."
+  },
+  {
+    "id": "q102",
+    "category": "general",
+    "questionBn": "শিয়া ইসলামে মাতম ও সিনাজানি কেন পালিত হয়?",
+    "questionEn": "Why are Matam and Sinazani observed in Shia Islam?",
+    "answerBn": "কারবালার শাহাদাতের স্মরণে শোক প্রকাশের এই রীতিগুলো ইমাম হুসাইন (আ.)-এর ত্যাগের প্রতি সংহতি ও ভালোবাসা প্রকাশের মাধ্যম হিসেবে পালিত হয়, তবে এর ধরন নিয়ে বিভিন্ন মারজার মধ্যে ভিন্নমত রয়েছে।",
+    "answerEn": "These mourning rituals, observed in remembrance of the martyrdom of Karbala, express solidarity and love for Imam Husayn's (AS) sacrifice, though views on their specific forms differ among Marja'."
+  },
+  {
+    "id": "q103",
+    "category": "general",
+    "questionBn": "ইসলামে প্রতিবেশীর অধিকার কী কী?",
+    "questionEn": "What are the rights of a neighbor in Islam?",
+    "answerBn": "প্রতিবেশীর ক্ষুধা-অভাবের খোঁজ রাখা, তাদের কষ্ট না দেওয়া, বিপদে সাহায্য করা এবং সৎ ব্যবহার করা ইসলামে প্রতিবেশীর অধিকার হিসেবে গুরুত্ব পেয়েছে।",
+    "answerEn": "Checking on a neighbor's needs, not causing them harm, helping in times of trouble, and treating them well are all emphasized as neighborly rights in Islam."
+  },
+  {
+    "id": "q104",
+    "category": "general",
+    "questionBn": "ইসলামে জ্ঞান অর্জনে নারী-পুরুষের মধ্যে কোনো পার্থক্য আছে কি?",
+    "questionEn": "Is there any distinction between men and women in seeking knowledge in Islam?",
+    "answerBn": "না, ইসলামে জ্ঞান অর্জন নারী-পুরুষ উভয়ের জন্য সমানভাবে গুরুত্বপূর্ণ ও উৎসাহিত করা হয়েছে।",
+    "answerEn": "No, seeking knowledge is equally important and encouraged for both men and women in Islam."
+  },
+  {
+    "id": "q105",
+    "category": "general",
+    "questionBn": "আশুরার দিনে রোজা রাখার বিধান কী?",
+    "questionEn": "What is the ruling on fasting on the Day of Ashura?",
+    "answerBn": "শিয়া দৃষ্টিকোণ থেকে আশুরার দিনে রোজা রাখা মুস্তাহাব নয় বরং শোক পালনের কারণে তা এড়ানোর পরামর্শ দেওয়া হয়, যদিও তা হারাম নয়।",
+    "answerEn": "From a Shia perspective, fasting on Ashura is not recommended and is generally advised against due to the day of mourning, though it is not forbidden."
+  },
+  {
+    "id": "q106",
+    "category": "general",
+    "questionBn": "ইসলামে ধৈর্য (সবর)-এর গুরুত্ব কী?",
+    "questionEn": "What is the importance of patience (Sabr) in Islam?",
+    "answerBn": "সবরকে ঈমানের অর্ধেক বলা হয়েছে; বিপদ-আপদ, ইবাদত পালন এবং পাপ থেকে বিরত থাকার ক্ষেত্রে ধৈর্য ধারণ আল্লাহর নৈকট্য লাভের অন্যতম মাধ্যম।",
+    "answerEn": "Patience has been described as half of faith; enduring hardship, persisting in worship, and refraining from sin through patience is one of the means of drawing near to Allah."
+  },
+  {
+    "id": "q107",
+    "category": "general",
+    "questionBn": "ইসলামে হালাল রিজিকের গুরুত্ব কতটা?",
+    "questionEn": "How important is halal (lawful) livelihood in Islam?",
+    "answerBn": "হালাল রিজিক অন্বেষণ ইসলামে একটি মৌলিক দায়িত্ব হিসেবে গণ্য, কারণ মানুষের ইবাদত, দোয়া কবুল হওয়া এবং তার সন্তান-সন্ততির চরিত্র গঠন — সবকিছুর উপরেই তার উপার্জনের হালাল-হারামের প্রভাব পড়ে বলে হাদিসে বর্ণিত হয়েছে।",
+    "answerEn": "Seeking a lawful livelihood is regarded as a fundamental duty in Islam, since traditions describe how the lawfulness or unlawfulness of one's earnings affects everything from the acceptance of worship and supplications to the moral formation of one's children."
+  },
+  {
+    "id": "q108",
+    "category": "fiqh",
+    "questionBn": "সুদ (রিবা) কেন ইসলামে এত কঠোরভাবে নিষিদ্ধ করা হয়েছে?",
+    "questionEn": "Why is interest (riba) so strictly prohibited in Islam?",
+    "answerBn": "সুদকে নিষিদ্ধ করা হয়েছে কারণ তা পরিশ্রম বা প্রকৃত ঝুঁকি ছাড়াই এক পক্ষের সম্পদ বৃদ্ধি করে অন্য পক্ষের ক্ষতির বিনিময়ে, যা সামাজিক ন্যায়বিচার ও পারস্পরিক সহযোগিতার ইসলামি অর্থনৈতিক দর্শনের সরাসরি বিপরীত।",
+    "answerEn": "Interest is forbidden because it grows one party's wealth without effort or genuine risk-sharing, at the expense of the other party — directly contradicting the Islamic economic vision of social justice and mutual cooperation."
+  },
+  {
+    "id": "q109",
+    "category": "general",
+    "questionBn": "ঘুষ গ্রহণ সমাজের জন্য কেন এত ক্ষতিকর বলে বিবেচিত হয়?",
+    "questionEn": "Why is accepting bribes considered so harmful to society?",
+    "answerBn": "ঘুষ ন্যায়বিচার ও সেবা প্রাপ্তির স্বাভাবিক অধিকারকে অর্থের বিনিময়ে পণ্যে পরিণত করে, যার ফলে যোগ্যতা ও ন্যায্যতার বদলে ক্ষমতা ও অর্থবিত্তই সিদ্ধান্ত নির্ধারণ করে — এতে সমাজে অবিশ্বাস ও বৈষম্য বৃদ্ধি পায়, তাই হাদিসে একে কুফরির সমতুল্য বলা হয়েছে।",
+    "answerEn": "Bribery turns the ordinary right to justice or service into something bought with money, so that power and wealth — rather than merit and fairness — determine outcomes; this breeds distrust and inequality in society, which is why traditions equate it with outright disbelief."
+  },
+  {
+    "id": "q110",
+    "category": "fiqh",
+    "questionBn": "দান (হাদিয়া) ও সদকার মধ্যে মূল পার্থক্য কী?",
+    "questionEn": "What is the main difference between a gift (hadiyyah) and sadaqah (charity)?",
+    "answerBn": "হাদিয়া সাধারণত সম্মান বা ভালোবাসা প্রকাশের জন্য যে কাউকে দেওয়া হয়, ধনী-গরিব নির্বিশেষে; আর সদকা মূলত অভাবগ্রস্ত বা প্রয়োজনগ্রস্ত মানুষকে আল্লাহর সন্তুষ্টির উদ্দেশ্যে দেওয়া হয়। উভয়ই সওয়াবের কাজ হলেও নিয়্যাত ও উদ্দেশ্যে তাদের মধ্যে পার্থক্য রয়েছে।",
+    "answerEn": "A gift (hadiyyah) is typically given to anyone — rich or poor — as an expression of respect or affection, while sadaqah is primarily given to those in need, purely for the pleasure of Allah. Both are rewarded acts, but they differ in intention and purpose."
+  },
+  {
+    "id": "q111",
+    "category": "fiqh",
+    "questionBn": "যাকাত ও খুমসের আধ্যাত্মিক তাৎপর্য কী?",
+    "questionEn": "What is the spiritual significance of zakat and khums?",
+    "answerBn": "যাকাত ও খুমস শুধু আর্থিক লেনদেন নয়, বরং এগুলো সম্পদের প্রতি মোহমুক্ত হওয়া এবং সমাজে সাম্য প্রতিষ্ঠার একটি আধ্যাত্মিক প্রশিক্ষণ — নিজের উপার্জিত সম্পদের একটি অংশ নিয়মিতভাবে অন্যের হক হিসেবে ছেড়ে দেওয়ার মাধ্যমে একজন মুমিন কৃপণতা ও লোভ থেকে নিজেকে শুদ্ধ করে।",
+    "answerEn": "Zakat and khums are more than financial transactions — they are a spiritual discipline in detaching from wealth and establishing equity in society. By regularly setting aside a portion of one's earnings as another's due right, a believer purifies themselves from miserliness and greed."
+  },
+  {
+    "id": "q112",
+    "category": "general",
+    "questionBn": "ঋণ নেওয়া ও দেওয়ার ক্ষেত্রে ইসলামের সাধারণ নীতিমালা কী?",
+    "questionEn": "What are the general Islamic principles around giving and taking loans?",
+    "answerBn": "প্রকৃত প্রয়োজনে ঋণ নেওয়া অনুমোদিত, তবে পরিশোধের সংকল্প ছাড়া ঋণ নেওয়া থেকে সতর্ক থাকতে বলা হয়েছে; অন্যদিকে প্রয়োজনগ্রস্তকে বিনা সুদে ঋণ দেওয়া (কর্জে হাসানা) অত্যন্ত ফজিলতপূর্ণ আমল হিসেবে বিবেচিত।",
+    "answerEn": "Taking a loan out of genuine need is permitted, though one is cautioned against borrowing without a genuine intention to repay; conversely, giving an interest-free loan (qard al-hasanah) to someone in need is considered a highly virtuous act."
+  },
+  {
+    "id": "q113",
+    "category": "aqidah",
+    "questionBn": "সম্পদের প্রকৃত মালিক আল্লাহ - এই বিশ্বাস কীভাবে একজন মুমিনের অর্থনৈতিক আচরণে প্রভাব ফেলে?",
+    "questionEn": "How does the belief that Allah is the true owner of all wealth shape a believer's economic behaviour?",
+    "answerBn": "একজন মুমিন যখন উপলব্ধি করে যে তার সম্পদ প্রকৃতপক্ষে আল্লাহর আমানত, তখন সে তা উপার্জন ও ব্যয়ে হালাল-হারামের সীমা মেনে চলতে বাধ্যবোধ করে এবং যাকাত-খুমস-সদকার মাধ্যমে অন্যের হক আদায়কে বোঝা নয়, বরং কৃতজ্ঞতার প্রকাশ হিসেবে দেখে।",
+    "answerEn": "When a believer recognizes their wealth as ultimately a trust from Allah, they feel bound to observe the boundaries of lawful and unlawful in both earning and spending, and come to see fulfilling others' rights through zakat, khums, and sadaqah not as a burden, but as an expression of gratitude."
+  },
+  {
+    "id": "q114",
+    "category": "general",
+    "questionBn": "ব্যবসায় সততার গুরুত্ব ইসলামে কতটা?",
+    "questionEn": "How important is honesty in business according to Islam?",
+    "answerBn": "ইসলামে সততাপূর্ণ ব্যবসাকে অত্যন্ত মর্যাদাপূর্ণ কাজ হিসেবে দেখা হয়, আর মিথ্যা কসম, প্রতারণা, ওজনে কম দেওয়ার মতো কাজকে কঠোরভাবে নিরুৎসাহিত করা হয়েছে, কারণ এসব কাজ ব্যবসার বরকত নষ্ট করে দেয় বলে হাদিসে সতর্ক করা হয়েছে।",
+    "answerEn": "Honest trade is regarded in Islam as a highly dignified undertaking, while practices like false oaths, deception, and shortchanging in measure are strongly discouraged, since traditions warn that such acts strip a business of its blessing (barakah)."
+  },
+  {
+    "id": "q115",
+    "category": "general",
+    "questionBn": "দারিদ্র্য বিমোচনে যাকাত ও খুমসের ভূমিকা কী?",
+    "questionEn": "What role do zakat and khums play in alleviating poverty?",
+    "answerBn": "যাকাত ও খুমস ইসলামি সমাজে সম্পদের পুনর্বণ্টনের একটি প্রাতিষ্ঠানিক ব্যবস্থা হিসেবে কাজ করে, যেখানে ধনীদের সম্পদের একটি নির্দিষ্ট অংশ নিয়মিতভাবে দরিদ্র, এতিম ও অভাবগ্রস্তদের দিকে প্রবাহিত হয়, যা সামাজিক বৈষম্য কমাতে সহায়ক।",
+    "answerEn": "Zakat and khums function as an institutionalized system of wealth redistribution in Islamic society, ensuring that a fixed portion of the wealthy's assets regularly flows toward the poor, orphans, and needy, helping to reduce social inequality."
+  },
+  {
+    "id": "q116",
+    "category": "quran",
+    "questionBn": "কুরআনে সুদ নিষিদ্ধের পেছনে কী যুক্তি তুলে ধরা হয়েছে?",
+    "questionEn": "What reasoning does the Qur'an present for prohibiting interest (riba)?",
+    "answerBn": "কুরআনে সুদকে আল্লাহ ও রাসূলের বিরুদ্ধে যুদ্ধ ঘোষণার শামিল বলে অভিহিত করা হয়েছে এবং একে দান-সদকার বিপরীতে স্থাপন করা হয়েছে— দান সম্পদে বরকত আনে, আর সুদ তা ধ্বংস করে, এভাবে কুরআন সুদকে অর্থনৈতিক ও আধ্যাত্মিক উভয় দিক থেকেই ক্ষতিকর হিসেবে চিত্রিত করেছে।",
+    "answerEn": "The Qur'an describes taking interest as tantamount to waging war against Allah and His Messenger, and contrasts it directly with charity — charity brings blessing to wealth, while interest destroys it — framing riba as harmful both economically and spiritually."
+  }
+]
