@@ -345,6 +345,46 @@ function checkPrecacheCoverage() {
     : { status: STATUS.ERROR, detail: `not precached:\n           ` + missing.join('\n           ') };
 }
 
+
+// =============================================================================
+// B.11 — Splash event table (index.html `EV`) vs hijriEvents (script-1-core.js)
+//   1. every EV key must exist in hijriEvents (the splash mirrors the app's calendar)
+//   2. every hijriEvents entry that names a Hijri month + day in its Bengali text must sit under that key
+//   3. EV type letters must be compatible with the hijriEvents `type`
+//   4. (v111) every hijriEvents key must exist in EV (reverse direction)
+// =============================================================================
+function checkSplashEventsMirror() {
+  const html = fs.readFileSync(path.join(PROJECT_ROOT, 'index.html'), 'utf8');
+  const core = fs.readFileSync(path.join(PROJECT_ROOT, 'assets', 'js', 'core', 'script-1-core.js'), 'utf8');
+  const evSrc = html.match(/var EV=\{([\s\S]*?)\n\};/);
+  const heSrc = core.match(/const hijriEvents = (\{[\s\S]*?\n\});/);
+  if (!evSrc || !heSrc) return { status: STATUS.ERROR, detail: 'could not locate EV in index.html or hijriEvents in script-1-core.js' };
+  const problems = [];
+  // EV: keys + type letter (M()=m, B()=b, X('t',...)=t)
+  const ev = {};
+  for (const m of evSrc[1].matchAll(/^'(\d+-\d+)':(M|B|X)\((?:'([a-z])')?/gm)) ev[m[1]] = m[2] === 'M' ? 'm' : m[2] === 'B' ? 'b' : m[3];
+  // eslint-disable-next-line no-eval
+  const he = eval('(' + heSrc[1] + ')');
+  const OK = { m: ['martyrdom'], a: ['ashura', 'martyrdom'], b: ['birth'], e: ['eid', 'birth'], s: ['special'], x: null };
+  for (const [k, ty] of Object.entries(ev)) {
+    if (!he[k]) { problems.push(`EV '${k}' has no hijriEvents entry`); continue; }
+    const allowed = OK[ty];
+    if (allowed && !allowed.includes(he[k].type)) problems.push(`EV '${k}' type '${ty}' vs hijriEvents type '${he[k].type}'`);
+  }
+  // v111: reverse direction — every hijriEvents key must also exist in the splash EV table
+  for (const k of Object.keys(he)) if (!(k in ev)) problems.push(`hijriEvents '${k}' has no splash EV entry`);
+  const MONTHS = { 'মুহাররম': 1, 'সফর': 2, 'রবিউল আউয়াল': 3, 'রবিউস সানি': 4, 'জমাদিউল আউয়াল': 5, 'জমাদিউল আখিরা': 6, 'রজব': 7, 'শাবান': 8, 'রমজান': 9, 'রমযান': 9, 'রমাযান': 9, 'শাওয়াল': 10, 'যিলকদ': 11, 'জিলকদ': 11, 'যিলহজ্ব': 12, 'জিলহজ্ব': 12 };
+  const bn2en = (s) => s.replace(/[০-৯]/g, (d) => '০১২৩৪৫৬৭৮৯'.indexOf(d));
+  const re = new RegExp('(\\d+) (' + Object.keys(MONTHS).join('|') + ')');
+  for (const [k, v] of Object.entries(he)) {
+    const r = bn2en(v.bn).match(re);
+    if (r && MONTHS[r[2]] + '-' + r[1] !== k) problems.push(`hijriEvents '${k}' text says ${r[1]} ${r[2]} (= '${MONTHS[r[2]]}-${r[1]}')`);
+  }
+  return problems.length === 0
+    ? { status: STATUS.PASS, detail: `${Object.keys(ev).length} splash events mirror hijriEvents; ${Object.keys(he).length} hijriEvents keys agree with their text` }
+    : { status: STATUS.ERROR, detail: problems.join('\n           ') };
+}
+
 // =============================================================================
 // Main
 // =============================================================================
@@ -382,6 +422,7 @@ function main() {
     ['Duplicate ids (data/**/*.json)', checkDuplicateIds],
     ['Script load order (index.html vs doc)', checkScriptLoadOrder],
     ['Service-worker precache coverage (sw.js)', checkPrecacheCoverage],
+    ['Splash events mirror hijriEvents (index.html vs script-1-core.js)', checkSplashEventsMirror],
   ];
 
   for (const [label, fn] of healthChecks) {

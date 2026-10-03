@@ -49,6 +49,18 @@
 
     <link rel="icon" href="favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <!-- iOS PWA launch images (plain splash-green field, so the hand-off into the web splash has no flash) -->
+    <link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="assets/images/startup/apple-splash-1320x2868.jpg">
+    <link rel="apple-touch-startup-image" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="assets/images/startup/apple-splash-1206x2622.jpg">
+    <link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="assets/images/startup/apple-splash-1290x2796.jpg">
+    <link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="assets/images/startup/apple-splash-1179x2556.jpg">
+    <link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="assets/images/startup/apple-splash-1284x2778.jpg">
+    <link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="assets/images/startup/apple-splash-1170x2532.jpg">
+    <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="assets/images/startup/apple-splash-1125x2436.jpg">
+    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="assets/images/startup/apple-splash-1242x2688.jpg">
+    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="assets/images/startup/apple-splash-828x1792.jpg">
+    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="assets/images/startup/apple-splash-1242x2208.jpg">
+    <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="assets/images/startup/apple-splash-750x1334.jpg">
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -70,6 +82,14 @@
          faster when it does happen. Same CDN URLs, same version (1.9.4) — see
          ensureLeafletLoaded() for the exact links. -->
     <title>আহলে বাইত (আ.) | Ahl al-Bayt (a.s) — Islamic Knowledge</title>
+    <link rel="preload" as="image" href="assets/images/splash-frame.svg">
+    <link rel="preload" as="image" href="assets/images/splash-allah.svg">
+    <link rel="preload" as="font" type="font/woff2" href="assets/fonts/splash-serif.woff2" crossorigin>
+    <link rel="preload" as="font" type="font/woff2" href="assets/fonts/splash-bn.woff2" crossorigin>
+    <link rel="preload" as="font" type="font/woff2" href="assets/fonts/splash-ar.woff2" crossorigin>
+    <!-- Splash critical CSS: the canvas is already splash-green if anything paints before style.css is applied.
+         Removed by the splash controller when the splash leaves. -->
+    <style id="sp-critical">html{background:#00251D}#splash-screen{position:fixed;inset:0;z-index:9999;background:#00251D}</style>
     <link rel="stylesheet" href="assets/css/style.css">
     <!-- Step 11: standalone CSS-only animation system (entrance animations +
          micro-interactions). Pure CSS, no JS — safe to load after style.css. -->
@@ -109,57 +129,265 @@
 </noscript>
 
 <!-- ══════════════════════════════════════════════════════════
-     SPLASH SCREEN — Premium Moon · Stars · Particles
+     SPLASH SCREEN — Reference-based premium Islamic arch (SVG frame + HTML text).
+     No loading text / bar. Removed by hideSplash() (script-4-boot.js) and by the
+     fail-safe timer below, so it can never get stuck.
      ══════════════════════════════════════════════════════════ -->
-<div id="splash-screen" role="status" aria-live="polite" aria-label="আহলে বাইত অ্যাপ লোড হচ্ছে — Loading">
-    <!-- Geometric grid overlay -->
-    <div class="splash-geo" aria-hidden="true"></div>
-
-    <!-- Concentric rings -->
-    <div class="splash-ring" style="width:340px;height:340px;top:50%;left:50%;margin:-170px 0 0 -170px" aria-hidden="true"></div>
-    <div class="splash-ring" style="width:230px;height:230px;top:50%;left:50%;margin:-115px 0 0 -115px" aria-hidden="true"></div>
-    <div class="splash-ring" style="width:130px;height:130px;top:50%;left:50%;margin:-65px 0 0 -65px" aria-hidden="true"></div>
-
-    <!-- Floating particle dots -->
-    <div id="splash-particles" aria-hidden="true"></div>
-
-    <!-- Star field (CSS) -->
-    <div style="position:absolute;inset:0;pointer-events:none;overflow:hidden" aria-hidden="true">
-        <div style="position:absolute;width:2px;height:2px;border-radius:50%;background:rgba(255,255,255,.8);top:12%;left:18%;animation:starTwinkle 2.1s ease-in-out infinite"></div>
-        <div style="position:absolute;width:1.5px;height:1.5px;border-radius:50%;background:rgba(201,162,39,.9);top:28%;left:72%;animation:starTwinkle 2.8s ease-in-out .4s infinite"></div>
-        <div style="position:absolute;width:2.5px;height:2.5px;border-radius:50%;background:rgba(255,255,255,.7);top:68%;left:85%;animation:starTwinkle 1.9s ease-in-out .8s infinite"></div>
-        <div style="position:absolute;width:1px;height:1px;border-radius:50%;background:rgba(201,162,39,.7);top:78%;left:22%;animation:starTwinkle 3.2s ease-in-out .2s infinite"></div>
-        <div style="position:absolute;width:2px;height:2px;border-radius:50%;background:rgba(255,255,255,.6);top:42%;left:90%;animation:starTwinkle 2.5s ease-in-out 1s infinite"></div>
-        <div style="position:absolute;width:1.5px;height:1.5px;border-radius:50%;background:rgba(255,255,255,.55);top:88%;left:55%;animation:starTwinkle 2.2s ease-in-out .6s infinite"></div>
-        <div style="position:absolute;width:2px;height:2px;border-radius:50%;background:rgba(201,162,39,.8);top:15%;left:45%;animation:starTwinkle 1.7s ease-in-out 1.2s infinite"></div>
-        <div style="position:absolute;width:1px;height:1px;border-radius:50%;background:rgba(255,255,255,.5);top:55%;left:10%;animation:starTwinkle 3s ease-in-out .9s infinite"></div>
+<div id="splash-screen" role="status" aria-live="polite"><span class="sp-sr">The Role of Ahl al-Bayt (a.s) — Islamic Knowledge Library</span>
+    <div class="splash-fabric-holder" style="display:contents" aria-hidden="true">
+    <svg class="splash-fabric" viewBox="0 0 941 1671" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+        <defs><filter id="spBlur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="14"/></filter><filter id="spBlur2"><feGaussianBlur stdDeviation="4"/></filter></defs>
+        <g fill="none" stroke-linecap="round">
+            <g filter="url(#spBlur)" stroke="#1FA874" opacity=".26" stroke-width="34"><path d="M-40,60 C120,120 200,10 330,70"/><path d="M960,40 C820,110 760,20 640,60"/><path d="M-30,1560 C120,1500 220,1620 360,1560"/><path d="M970,1600 C820,1520 740,1640 620,1570"/></g>
+            <g filter="url(#spBlur)" stroke="#0E7A55" opacity=".4" stroke-width="60"><path d="M-40,330 C40,420 20,520 -30,600"/><path d="M980,300 C880,400 930,520 990,610"/><path d="M-30,1130 C40,1230 10,1330 -40,1420"/><path d="M980,1180 C890,1270 940,1380 990,1440"/></g>
+            <g filter="url(#spBlur2)" stroke="#5FE0A8" opacity=".24" stroke-width="2.4"><path d="M-10,110 C110,170 200,60 320,120"/><path d="M950,90 C830,160 770,70 650,105"/><path d="M-10,1520 C110,1470 220,1580 340,1520"/><path d="M955,1560 C830,1490 750,1600 630,1530"/><path d="M0,380 C50,450 40,520 0,570"/><path d="M941,360 C890,440 915,520 941,580"/></g>
+            <g filter="url(#spBlur2)" stroke="#8CF0C4" opacity=".14" stroke-width="1.4"><path d="M-10,150 C110,215 205,100 330,165"/><path d="M950,130 C830,205 770,110 655,150"/><path d="M-10,1480 C110,1430 225,1540 345,1480"/></g>
+        </g>
+    </svg>
     </div>
-
-    <!-- Main content -->
-    <div style="position:relative;z-index:2;text-align:center;padding:0 24px">
-
-        <!-- Logo mark -->
-        <div style="position:relative;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:center" aria-hidden="true">
-            <img src="assets/images/logo-splash.png" alt="" style="width:128px;height:128px;border-radius:50%;display:block;box-shadow:0 0 32px rgba(201,162,39,.45),0 4px 20px rgba(0,0,0,.35)" />
+    <div class="splash-stars" aria-hidden="true"></div>
+    <div class="splash-stage" aria-hidden="true">
+        <img class="splash-frame" src="assets/images/splash-frame.svg" alt="" aria-hidden="true" decoding="async" fetchpriority="high" />
+        <svg class="splash-draw" viewBox="0 0 941 1671" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path class="o" pathLength="1" d="M470.5,246.0 C274,344.0 124,415.0 124,590 L124,1530.0"/><path class="o" pathLength="1" d="M470.5,246.0 C667,344.0 817,415.0 817,590 L817,1530.0"/><path class="n" pathLength="1" d="M470.5,148.5 C196,246.5 46,391.6 46,590 L46,1549.5"/><path class="n" pathLength="1" d="M470.5,148.5 C745,246.5 895,391.6 895,590 L895,1549.5"/></svg>
+        <div class="splash-geo" aria-hidden="true"><i></i></div>
+        <div class="splash-rays" aria-hidden="true"></div>
+        <div class="splash-halo" aria-hidden="true"></div>
+        <div class="splash-apex" aria-hidden="true"></div>
+        <div class="splash-dust" aria-hidden="true"></div>
+        <svg class="splash-crescent" viewBox="0 0 100 60" aria-hidden="true" focusable="false"><defs><mask id="spCrM"><rect width="100" height="60" fill="#fff"/><circle cx="41" cy="26" r="20" fill="#000"/></mask><linearGradient id="spCrG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF3B8"/><stop offset="1" stop-color="#D4AF37"/></linearGradient></defs><circle cx="32" cy="30" r="22" fill="url(#spCrG)" mask="url(#spCrM)"/><path class="spst" d="M70,12 l2.2,5.6 l5.6,2.2 l-5.6,2.2 l-2.2,5.6 l-2.2,-5.6 l-5.6,-2.2 l5.6,-2.2z" fill="#F3D77A"/><path class="spst s2" d="M86,32 l1.5,3.8 l3.8,1.5 l-3.8,1.5 l-1.5,3.8 l-1.5,-3.8 l-3.8,-1.5 l3.8,-1.5z" fill="#F3D77A"/></svg>
+        <div class="splash-allah-wrap" aria-hidden="true"><div class="splash-el splash-allah" role="img" aria-label="الله"></div></div>
+        <div class="splash-el splash-bismillah" lang="ar" dir="rtl">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
+        <div class="splash-el splash-occasion" lang="bn"></div>
+        <div class="splash-el splash-title">The Role of Ahl al-Bayt (a.s)</div>
+        <div class="splash-el splash-subtitle">Islamic Knowledge Library</div>
+        <div class="splash-el splash-bn" lang="bn">কুরআন, হাদিস ও আহলে বাইতের শিক্ষা থেকে<br>প্রামাণিক ইসলামিক জ্ঞান অর্জন করুন</div>
+        <div class="splash-el splash-divider" aria-hidden="true">
+            <svg viewBox="0 0 350 30" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="spDivL" gradientUnits="userSpaceOnUse" x1="0" x2="152" y1="0" y2="0"><stop offset="0" stop-color="#D4AF37" stop-opacity="0"/><stop offset=".6" stop-color="#D4AF37" stop-opacity=".9"/><stop offset="1" stop-color="#F3D77A"/></linearGradient>
+                    <linearGradient id="spDivR" gradientUnits="userSpaceOnUse" x1="350" x2="198" y1="0" y2="0"><stop offset="0" stop-color="#D4AF37" stop-opacity="0"/><stop offset=".6" stop-color="#D4AF37" stop-opacity=".9"/><stop offset="1" stop-color="#F3D77A"/></linearGradient>
+                </defs>
+                <rect x="0" y="14.2" width="152" height="1.6" fill="url(#spDivL)"/>
+                <rect x="198" y="14.2" width="152" height="1.6" fill="url(#spDivR)"/>
+                <path d="M150,15 l10,-2.5 l-10,-2.5z M200,15 l-10,-2.5 l10,-2.5z" fill="#E7C766" transform="translate(0,2.5)"/>
+                <g transform="translate(175 15)" fill="none" stroke="#E7C766" stroke-width="1.3" stroke-linejoin="round">
+                    <path d="M0,-12 L3.2,-8 L9,-8.5 L8.5,-3 L12,0 L8.5,3 L9,8.5 L3.2,8 L0,12 L-3.2,8 L-9,8.5 L-8.5,3 L-12,0 L-8.5,-3 L-9,-8.5 L-3.2,-8Z"/>
+                    <circle r="4.4"/><circle r="1.4" fill="#F3D77A" stroke="none"/>
+                </g>
+            </svg>
         </div>
-
-        <!-- Bismillah -->
-        <div class="splash-calligraphy calli-glow">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
-        <div class="splash-gold-line" aria-hidden="true"></div>
-
-        <!-- Arabic title -->
-        <div class="splash-title" style="font-family:'Amiri',serif;letter-spacing:2px">آلُ بَيْتِ النَّبِيِّ</div>
-        <div class="splash-title" style="font-size:1.25rem;font-weight:700;margin-top:.25rem;opacity:.9">আহলে বাইত (আ.)</div>
-        <div class="splash-subtitle" style="margin-top:.5rem">Ahl al-Bayt · a.s</div>
-
-        <!-- Loading dots -->
-        <div class="splash-dots" style="justify-content:center" aria-hidden="true">
-            <div class="splash-dot"></div>
-            <div class="splash-dot"></div>
-            <div class="splash-dot"></div>
-        </div>
+        <div class="splash-el splash-progress" aria-hidden="true"><i></i></div>
+        <span class="sp-off" aria-hidden="true"></span>
+        <div class="splash-el splash-ayah" lang="ar" dir="rtl">إِنَّمَا يُرِيدُ اللَّهُ لِيُذْهِبَ عَنكُمُ الرِّجْسَ<br>أَهْلَ الْبَيْتِ وَيُطَهِّرَكُمْ تَطْهِيرًا</div>
+        <div class="splash-el splash-quote" lang="bn"></div>
+        <div class="splash-el splash-qby" lang="bn"></div>
+        <div class="splash-el splash-ref" lang="ar" dir="rtl">﴿ سورة الأحزاب ٣٣:٣٣ ﴾</div>
     </div>
 </div>
+<script>
+/* Splash controller
+   · occasion / greeting line (Hijri events mirrored from hijriEvents in script-1-core.js) · daily quote · language
+   · night sky · lite mode · once-a-day short intro · tap-to-skip · tilt parallax · Allah -> header-logo hand-off
+   Preview flags (comma separated):  index.html?splash=ashura,en,lite
+   muharram ashura arbaeen ramadan fitr adha ghadir friday · hijri:M-D · at:HOUR · night · quick · lite · en · bn · ayah · quote */
+(function(){
+var S=document.getElementById('splash-screen'); if(!S) return;
+var F=((location.search.match(/[?&]splash=([^&]+)/)||[])[1]||'').split(','), preview=F[0]!=='';
+function has(x){ return F.indexOf(x)>-1; }
+function Q(s){ return S.querySelector(s); }
+function flag(p){ for(var i=0;i<F.length;i++) if(F[i].indexOf(p)===0) return F[i].slice(p.length); return null; }
+var now=new Date(), r=Math.random, nav=navigator, conn=nav.connection||{};
+var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+var lite=has('lite')||(nav.deviceMemory&&nav.deviceMemory<=2)||(nav.hardwareConcurrency&&nav.hardwareConcurrency<=2)||conn.saveData===true;
+if(lite) S.classList.add('sp-lite');
+/* language (same key as the app) */
+var lang='bn'; try{ var lv=localStorage.getItem('ahlbayt_lang'); if(lv){ try{ lv=JSON.parse(lv); }catch(e){} if(lv==='en') lang='en'; } }catch(e){}
+if(has('en')) lang='en'; if(has('bn')) lang='bn';
+var EN=lang==='en'; if(EN){ S.classList.add('sp-en'); var tg=Q('.splash-bn'); if(tg){ tg.lang='en'; tg.innerHTML="Gain authentic Islamic knowledge<br>from the Qur&#8217;an, Hadith and Ahl al-Bayt"; } }
+/* once per day: full intro first, short one afterwards */
+var day=now.getFullYear()+'-'+(now.getMonth()+1)+'-'+now.getDate(), quick=false;
+function mark(){ try{ localStorage.setItem('ab_splash_day',day); }catch(e){} }
+try{ quick=localStorage.getItem('ab_splash_day')===day; }catch(e){}
+if(preview) quick=has('quick');
+else if(!quick) setTimeout(mark,2400);
+/* minimum on-screen time: the splash leaves once the app is ready AND this much time has passed since it started */
+window.__spT0 = Date.now();
+window.__splashMs = reduce ? 1200 : (quick ? 1500 : (lite ? 2800 : 3000));
+if(reduce) S.classList.add('sp-reduce'); /* prefers-reduced-motion: static, short splash (CSS shows the finished frame at once) */
+if(quick) S.classList.add('sp-quick');
+/* browser chrome colour follows the splash */
+var metas=document.querySelectorAll('meta[name="theme-color"]'), saved=[], mi;
+for(mi=0;mi<metas.length;mi++){ saved.push(metas[mi].getAttribute('content')); metas[mi].setAttribute('content','#00251D'); }
+/* Hijri date — same algorithm as approxHijriNow() in script-1-core.js */
+function hijri(){var R=new Date(2025,5,27),t=new Date(),off=0;try{off=parseInt(localStorage.getItem('ahlbayt_hijri_offset'),10)||0;}catch(e){} if(off<-1||off>1)off=0; t.setDate(t.getDate()+off); t.setHours(0,0,0,0);var diff=Math.round((t-R)/864e5),y=1447,m=1,d=1;
+ function L(mo,yr){if(mo%2===1)return 30;if(mo===12)return([2,5,7,10,13,15,18,21,24,26,29].indexOf(yr%30)>-1)?30:29;return 29;}
+ if(diff>=0){d+=diff;while(d>L(m,y)){d-=L(m,y);m++;if(m>12){m=1;y++;}}}
+ else{diff=-diff;while(diff>0){if(diff<d){d-=diff;diff=0;}else{diff-=d;m--;if(m<1){m=12;y--;}d=L(m,y);}}}
+ return {day:d,month:m,year:y};}
+var h={day:0,month:0}; try{ h=hijri(); }catch(e){}
+var ALIAS={muharram:'1-3',ashura:'1-10',arbaeen:'2-20',ramadan:'9-5',fitr:'10-1',adha:'12-10',ghadir:'12-18'}, i, hv=flag('hijri:');
+for(i=0;i<F.length;i++) if(ALIAS[F[i]]) hv=ALIAS[F[i]];
+if(hv){ var hp=hv.split('-'); h={month:+hp[0],day:+hp[1]}; }
+var dow=has('friday')?5:now.getDay(), hrFlag=flag('at:'), hour=hrFlag!==null?+hrFlag:now.getHours()+now.getMinutes()/60;
+/* events: [type, kindBn, personBn, kindEn, personEn, quoteId]  m=martyrdom a=mourning b=birth e=eid s=special x=mixed */
+function M(pb,pe,q){ return ['m','শাহাদাত দিবস',pb,'Martyrdom Day',pe,q]; }
+function B(pb,pe,q){ return ['b','জন্মদিন',pb,'Birthday',pe,q]; }
+function X(t,kb,pb,ke,pe,q){ return [t,kb,pb,ke,pe,q]; }
+var EV={
+'1-1':X('s','হিজরি নববর্ষ','মুহাররম শুরু','Islamic New Year','Muharram begins','3'),
+'1-7':X('a','কারবালা','৭ মুহাররম — পানি বন্ধ','Karbala','7 Muharram — water cut off','3'),
+'1-10':X('a','আশুরা','ইমাম হোসাইন (আ.)-এর শাহাদাত','Ashura','Martyrdom of Imam Hussain (a.s)','3'),
+'1-25':M('ইমাম সাজ্জাদ (আ.)','Imam Sajjad (a.s)','4'),
+'2-1':X('a','কারবালা থেকে প্রস্থান','ইমাম সাজ্জাদ (আ.) ও বন্দিরা কারবালা ছাড়েন','Leaving Karbala','Imam Sajjad (a.s) & the captives leave Karbala','4'),
+'2-17':M('ইমাম রেজা (আ.)','Imam Ridha (a.s)','8'),
+'2-20':X('a','আরবাঈন','ইমাম হোসাইন (আ.)-এর চেহলুম','Arbaeen','40th day of Imam Hussain (a.s)','3'),
+'2-28':M('রাসূল (সা.) ও ইমাম হাসান (আ.)','The Prophet (s) & Imam Hasan (a.s)','2'),
+'3-8':M('ইমাম হাসান আসকারি (আ.)','Imam Hasan al-Askari (a.s)','11'),
+'3-10':B('ইমাম হাসান আসকারি (আ.)','Imam Hasan al-Askari (a.s)','11'),
+'3-12':X('e','ঈদে মিলাদুন্নবী','রাসূলুল্লাহ (সা.)-এর জন্মদিন','Mawlid al-Nabi','Birthday of the Holy Prophet (s)','p'),
+'3-17':B('ইমাম সাদিক (আ.)','Imam Sadiq (a.s)','6'),
+'6-3':M('ফাতেমা যাহরা (আ.)','Fatima al-Zahra (a.s)','f'),
+'6-20':B('ফাতেমা যাহরা (আ.)','Fatima al-Zahra (a.s)','f'),
+'7-3':M('ইমাম হাদি (আ.)','Imam Hadi (a.s)','10'),
+'7-7':X('x','৭ রজব','ইমাম কাযিম (আ.)-এর জন্ম · ইমাম বাকির (আ.)-এর শাহাদাত','7 Rajab','Birth of Imam Kazim · Martyrdom of Imam Baqir','7'),
+'7-10':B('ইমাম জওয়াদ (আ.)','Imam Jawad (a.s)','9'),
+'7-13':B('ইমাম আলী (আ.)','Imam Ali (a.s)','1'),
+'7-25':M('ইমাম কাযিম (আ.)','Imam Kazim (a.s)','7'),
+'7-27':X('s','শবে মেরাজ','মুবারক','Laylat al-Miraj','Blessed night','p'),
+'8-3':B('ইমাম হোসাইন (আ.)','Imam Hussain (a.s)','3'),
+'8-15':X('b','নিমে শাবান','ইমাম মাহদি (আ.)-এর জন্মদিন','Mid-Sha\'ban','Birthday of Imam Mahdi (a.s)','12'),
+'9-1':X('s','রমজান শুরু','রমজান মুবারক','Ramadan begins','Ramadan Mubarak','1'),
+'9-15':B('ইমাম হাসান (আ.)','Imam Hasan (a.s)','2'),
+'9-19':X('a','শবে ক্বদর','ইমাম আলী (আ.) আঘাতপ্রাপ্ত','Laylat al-Qadr','Imam Ali (a.s) struck','1'),
+'9-21':M('ইমাম আলী (আ.)','Imam Ali (a.s)','1'),
+'9-23':X('s','শবে ক্বদর','২৩ রমজান','Laylat al-Qadr','23 Ramadan',''),
+'9-27':X('s','শবে ক্বদর','২৭ রমজান','Laylat al-Qadr','27 Ramadan',''),
+'10-1':X('e','ঈদুল ফিতর','ঈদ মুবারক','Eid al-Fitr','Eid Mubarak',''),
+'10-25':M('ইমাম সাদিক (আ.)','Imam Sadiq (a.s)','6'),
+'11-11':B('ইমাম রেজা (আ.)','Imam Ridha (a.s)','8'),
+'11-23':M('ইমাম জওয়াদ (আ.)','Imam Jawad (a.s)','9'),
+'12-10':X('e','ঈদুল আযহা','ঈদ মুবারক','Eid al-Adha','Eid Mubarak',''),
+'12-15':B('ইমাম হাদি (আ.)','Imam Hadi (a.s)','10'),
+'12-18':X('e','ঈদে গাদির খুম','ইমাম আলী (আ.)-এর মনোনয়ন দিবস','Eid al-Ghadir','Designation of Imam Ali (a.s)','1'),
+'12-24':X('e','ঈদে মুবাহিলা','মুবারক','Eid al-Mubahila','Blessed day','')
+};
+var QS=[["p","হযরত মুহাম্মদ মুস্তাফা (সা.)","Prophet Muhammad Mustafa (PBUH)","আমি জ্ঞানের শহর এবং আলী তার দরজা।","I am the city of knowledge and Ali is its gate."],["f","হযরত ফাতেমা যাহরা (আ.)","Hazrat Fatima al-Zahra (AS)","আমাদের শিয়ারা — যারা অন্তর দিয়ে আমাদের ভালোবাসে — পৃথিবীর আলো।","Our Shia — those who love us with their hearts — are the light of the earth."],[1,"ইমাম আলী (আ.)","Imam Ali (AS)","মানুষ দুই ধরনের: হয় তোমার ধর্মীয় ভাই, নয়তো সৃষ্টিতে তোমার মতোই।","People are either your brothers in religion or your equals in humanity."],[2,"ইমাম হাসান (আ.)","Imam Hasan (AS)","সহনশীলতা হলো সেই গাছ যার শিকড় তিক্ত কিন্তু ফল মিষ্টি।","Patience is a tree whose roots are bitter but whose fruit is sweet."],[3,"ইমাম হোসাইন (আ.)","Imam Hussain (AS)","মৃত্যু ছাড়া আর কোনো পথ নেই। মৃত্যু যখন অনিবার্য, তখন সম্মানের সাথে মরাই শ্রেয়।","Death with dignity is better than a life of humiliation."],[4,"ইমাম সাজ্জাদ (আ.)","Imam Zainul Abidin (AS)","যে নিজের ভুল স্বীকার করে, সে সত্যিকারের সাহসী।","He who admits his mistakes has shown true courage."],[5,"ইমাম বাকির (আ.)","Imam Muhammad al-Baqir (AS)","জ্ঞানের সন্ধান প্রতিটি মুসলমানের জন্য ফরজ।","Seeking knowledge is obligatory upon every Muslim."],[6,"ইমাম সাদিক (আ.)","Imam Jafar al-Sadiq (AS)","বন্ধু সে, যে তোমার অনুপস্থিতিতেও তোমার পক্ষে থাকে।","A true friend is one who stands by you even in your absence."],[7,"ইমাম কাযিম (আ.)","Imam Musa al-Kazim (AS)","রাগ সংবরণ করা সর্বোচ্চ শক্তির পরিচায়ক।","Restraining anger is a sign of the highest strength."],[8,"ইমাম রেজা (আ.)","Imam Ali al-Ridha (AS)","বিশ্বাসী সেই যে সুখে কৃতজ্ঞ এবং বিপদে ধৈর্যশীল।","A believer is grateful in happiness and patient in hardship."],[9,"ইমাম জওয়াদ (আ.)","Imam Muhammad al-Jawad (AS)","দান করা বিশ্বাসকে শক্তিশালী করে।","Giving charity strengthens faith."],[10,"ইমাম হাদি (আ.)","Imam Ali al-Hadi (AS)","সত্য পথে চলা কঠিন, কিন্তু মুক্তির পথ একটাই।","Walking the path of truth is difficult, but it is the only path to salvation."],[11,"ইমাম আসকারি (আ.)","Imam Hasan al-Askari (AS)","সত্য কথা বলা হলো সবচেয়ে বড় সাহসিকতা।","Speaking the truth is the greatest act of bravery."],[12,"ইমাম মাহদি (আ.)","Imam Muhammad al-Mahdi (AS)","আমি তোমাদের দোয়া ও আমল থেকে গাফেল নই।","I am not neglectful of you and your supplications."]];
+function greet(){ var t=hour;
+ if(t>=4&&t<6) return EN?'The blessed hour of Fajr':'ফজরের বরকতময় সময়';
+ if(t>=6&&t<12) return EN?'Good morning':'শুভ সকাল';
+ if(t>=12&&t<16) return EN?'Good afternoon':'শুভ দুপুর';
+ if(t>=16&&t<18.5) return EN?'Good afternoon':'শুভ বিকাল';
+ if(t>=18.5&&t<21) return EN?'Good evening':'শুভ সন্ধ্যা';
+ return EN?'Good night':'শুভ রাত্রি'; }
+/* prayer-time awareness: uses the times the app cached today (ahlbayt_prayer_times); nothing shown if the cache is missing or from another day */
+var PN={fajr:['ফজরের','Fajr'],dhuhr:['যোহরের','Dhuhr'],asr:['আসরের','Asr'],maghrib:['মাগরিবের','Maghrib'],isha:['এশার','Isha']};
+function prayerLine(){
+ try{
+  var pf=flag('prayer='), k, best=null;
+  if(pf&&PN[pf]) return EN?(PN[pf][1]+' prayer time is near'):(PN[pf][0]+' ওয়াক্ত হয়ে এল');
+  if(preview&&hrFlag===null) return '';
+  if(localStorage.getItem('ahlbayt_prayer_date')!==JSON.stringify(now.toDateString())&&localStorage.getItem('ahlbayt_prayer_date')!==now.toDateString()) return '';
+  var pt=JSON.parse(localStorage.getItem('ahlbayt_prayer_times')||'null'); if(!pt) return '';
+  var cur=hour*60;
+  for(k in PN){ var m=/^\s*(\d{1,2}):(\d{2})\s*(AM|PM)?/i.exec(pt[k]||''); if(!m) continue;
+   var hh=+m[1]%12; if(/pm/i.test(m[3]||'')) hh+=12; if(!m[3]) hh=+m[1];
+   var diff=hh*60+ +m[2]-cur; /* minutes until the prayer (negative = already begun) */
+   if(diff>0&&diff<=15){ best=[k,'soon']; break; }
+   if(diff<=0&&diff>-10){ best=[k,'now']; break; } }
+  if(!best) return '';
+  return EN?(PN[best[0]][1]+(best[1]==='soon'?' prayer time is near':' prayer time has begun')):(PN[best[0]][0]+' ওয়াক্ত '+(best[1]==='soon'?'হয়ে এল':'শুরু হয়েছে'));
+ }catch(e){ return ''; } }
+var PL=prayerLine();
+/* v111: Hijri month names (same as the app) + digits; a look-ahead of up to 7 days; the date joins the greeting on ordinary days */
+var HMB=['মুহাররম','সফর','রবিউল আউয়াল','রবিউস সানি','জামাদিউল আউয়াল','জামাদিউস সানি','রজব','শাবান','রমজান','শাওয়াল','জিলক্বদ','জিলহজ'],
+    HME=['Muharram','Safar','Rabi al-Awwal','Rabi al-Thani','Jumada al-Awwal','Jumada al-Thani','Rajab','Shaban','Ramadan','Shawwal','Dhu al-Qidah','Dhu al-Hijjah'];
+function nd(n){ return EN?String(n):String(n).replace(/\d/g,function(c){return '০১২৩৪৫৬৭৮৯'.charAt(c);}); }
+function ML(mo,yr){ if(mo%2===1) return 30; if(mo===12) return ([2,5,7,10,13,15,18,21,24,26,29].indexOf(yr%30)>-1)?30:29; return 29; }
+function hijriLabel(){ return h.month>=1&&h.month<=12 ? nd(h.day)+' '+(EN?HME:HMB)[h.month-1] : ''; }
+function soonLine(){
+ try{ var dd=h.day, mm=h.month, yy=h.year||1447, n, ev;
+  for(n=1;n<=7;n++){ dd++; if(dd>ML(mm,yy)){ dd=1; mm++; if(mm>12){ mm=1; yy++; } }
+   ev=EV[mm+'-'+dd]; if(!ev) continue;
+   var nm=(ev[0]==='m'||ev[0]==='b')?(EN?(ev[4]+' '+ev[3]):(ev[2]+' '+ev[1])):(EN?ev[3]:ev[1]);
+   return n===1?(EN?('Tomorrow: '+nm):('আগামীকাল '+nm)):(EN?('In '+n+' days: '+nm):('আর '+nd(n)+' দিন · '+nm)); }
+ }catch(e){} return ''; }
+function dayLine(){ var g=greet(), s=soonLine(); if(s) return s; var d=hijriLabel(); return d?(g+' · '+d):g; }
+var E=EV[h.month+'-'+h.day], mourn=(h.month===1&&h.day<=10)||(E&&(E[0]==='m'||E[0]==='a')), l1, l2;
+if(mourn) S.classList.add('sp-muharram'); else if(E&&(E[0]==='b'||E[0]==='e')) S.classList.add('sp-eid');
+if(h.month===9) S.classList.add('sp-ramadan');
+if(E){ l1=EN?E[3]:E[1]; l2=EN?E[4]:E[2]; }
+else if(h.month===1&&h.day<=10){ l1=EN?'Muharram':'মুহাররম'; l2=soonLine()||(EN?'Ya Hussain (a.s)':'ইয়া হুসাইন (আ.)'); }
+else if(h.month===9){ l1=EN?'Ramadan Mubarak':'রমজান মুবারক'; l2=PL||dayLine(); }
+else if(dow===5){ l1=EN?'Jumu\'ah Mubarak':'জুমুআ মুবারক'; l2=PL||dayLine(); }
+else { l1=EN?'Assalamu Alaikum':'আসসালামু আলাইকুম'; l2=PL||dayLine(); }
+var oc=Q('.splash-occasion');
+if(oc){ var a=document.createElement('span'), b=document.createElement('span'); a.className='k'; b.className='p'; a.textContent=l1; b.textContent=l2; oc.appendChild(a); oc.appendChild(b);
+ var len=Math.max(l1.length,l2.length); oc.style.setProperty('--of', len>34?2.3:len>28?2.6:len>22?2.9:3.4); oc.lang=EN?'en':'bn'; }
+/* Friday -> Ayat al-Tathir (33:33); every other day -> a saying of the Ahl al-Bayt (the one matching today's event when there is one) */
+var useAyah=has('ayah')||(dow===5&&!E&&!has('quote'));
+if(has('quote')) useAyah=false;
+if(!useAyah){ var qi=-1, k;
+ if(E&&E[5]) for(k=0;k<QS.length;k++) if(String(QS[k][0])===E[5]) qi=k;
+ if(qi<0) qi=Math.floor(Date.UTC(now.getFullYear(),now.getMonth(),now.getDate())/864e5)%QS.length;
+ var qq=QS[qi], qe=Q('.splash-quote'), qb=Q('.splash-qby');
+ if(qe&&qb){ qe.textContent=EN?qq[4]:qq[3]; qe.lang=EN?'en':'bn'; qb.textContent='— '+(EN?qq[2]:qq[1]); qb.lang=EN?'en':'bn'; S.classList.add('sp-quote'); } }
+/* v111: screen readers get the same content the eyes get (stage stays aria-hidden; one polite status text) */
+(function(){ var sr=Q('.sp-sr'); if(!sr) return;
+ var qx=Q('.splash-quote'), qy=Q('.splash-qby'), ay=Q('.splash-ayah'), parts=[EN?'The Role of Ahl al-Bayt (a.s) — Islamic Knowledge Library':'The Role of Ahl al-Bayt (a.s) — Islamic Knowledge Library', l1, l2];
+ if(S.classList.contains('sp-quote')&&qx&&qy) parts.push(qx.textContent+' '+qy.textContent); else if(useAyah&&ay) parts.push(ay.innerHTML.replace(/<br\s*\/?>/gi,' '));
+ sr.lang=EN?'en':'bn'; sr.textContent=parts.filter(Boolean).join('. '); })();
+/* night sky */
+var night=has('night')||(hrFlag!==null?(hour>=19||hour<5):(now.getHours()>=19||now.getHours()<5));
+if(night&&!lite){ S.classList.add('sp-night'); var st=Q('.splash-stars'), s;
+ if(st) for(i=0;i<30;i++){ s=document.createElement('span'); s.style.cssText='left:'+(r()<.5?r()*24:76+r()*24).toFixed(1)+'%;top:'+(r()*96).toFixed(1)+'%;--z:'+(1+r()*2.2).toFixed(1)+'px;animation-delay:'+(r()*3).toFixed(2)+'s;animation-duration:'+(2.2+r()*2.4).toFixed(2)+'s'; st.appendChild(s); } }
+/* gold dust (more sparkle on Eid; none on mourning days, in quick or lite mode) */
+var d=Q('.splash-dust');
+if(d&&!reduce&&!quick&&!lite&&!mourn&&E&&E[0]==='e'){ var n=34, p;
+ for(k=0;k<n;k++){ p=document.createElement('span'); p.style.cssText='left:'+(14+r()*72).toFixed(1)+'%;top:'+(52+r()*34).toFixed(1)+'%;--s:'+(.5+r()*.9).toFixed(2)+';--dy:'+(10+r()*16).toFixed(1)+';--dx:'+((r()-.5)*6).toFixed(1)+';animation-delay:'+(.9+r()*2.4).toFixed(2)+'s;animation-duration:'+(3.2+r()*2.6).toFixed(2)+'s'; d.appendChild(p); } }
+/* leaving: Allah calligraphy flies to the header logo, everything else dissolves */
+var done=false, t0=Date.now();
+function flyLogo(){
+ var a=Q('.splash-allah'), lg=document.querySelector('#main-header button[data-action="changePage"][data-param="home"] img')||document.querySelector('header img[src*="logo-mark"]');
+ if(!a||!lg||!a.animate) return false;
+ var ar=a.getBoundingClientRect(), lr=lg.getBoundingClientRect();
+ if(!ar.width||!lr.width||lr.bottom<0||lr.top>innerHeight) return false;
+ var cs=(getComputedStyle(a).translate||'').split(' '), x0=parseFloat(cs[0])||0, y0=parseFloat(cs[1])||0;
+ var dx=(lr.left+lr.width/2)-(ar.left+ar.width/2), dy=(lr.top+lr.height/2)-(ar.top+ar.height/2), sc=(lr.width*.6)/ar.width;
+ S.classList.add('sp-fly');
+ a.animate([{translate:x0+'px '+y0+'px',scale:1,opacity:1},
+  {translate:(x0+dx)+'px '+(y0+dy)+'px',scale:sc,opacity:1,offset:.8},
+  {translate:(x0+dx)+'px '+(y0+dy)+'px',scale:sc*.88,opacity:0}],{duration:900,easing:'cubic-bezier(.55,0,.2,1)',fill:'forwards'});
+ return true; }
+window.__spOut=function(fly){
+ if(done||!S.parentNode) return; done=true;
+ for(var j=0;j<metas.length;j++) if(saved[j]!=null) metas[j].setAttribute('content',saved[j]);
+ var cr=document.getElementById('sp-critical'); if(cr&&cr.parentNode) cr.parentNode.removeChild(cr);
+ var wait=700;
+ if(fly&&!quick&&!lite&&!reduce){ try{ if(flyLogo()) wait=1000; }catch(e){} }
+ S.classList.add('fade-out');
+ try{ if(nav.vibrate&&nav.userActivation&&nav.userActivation.hasBeenActive) nav.vibrate(12); }catch(e){}
+ setTimeout(function(){ if(S.parentNode) S.parentNode.removeChild(S); },wait); };
+/* offline hint: a small gold dot under the progress line when there is no network (aria-hidden; the app itself keeps working from cache) */
+function offDot(){ var o=Q('.sp-off'); if(o) o.className='sp-off'+(nav.onLine===false||has('offline')?' on':''); }
+offDot();
+/* tap / Esc / Enter to skip (ignored during the first 0.9 s so the app can finish booting) */
+function skip(){ if(Date.now()-t0<900) return; if(!quick&&!preview) mark(); window.__spOut(false); }
+S.addEventListener('click',skip);
+document.addEventListener('keydown',function(e){ if(e.key==='Escape'||e.key==='Enter') skip(); });
+/* tilt / pointer parallax with a gentle idle drift (off in lite mode and for reduced motion) */
+if(!reduce&&!lite){ var tx=0,ty=0,cx=0,cy=0,last=0;
+ function put(x,y){ tx=Math.max(-1,Math.min(1,x)); ty=Math.max(-1,Math.min(1,y)); last=Date.now(); }
+ S.addEventListener('pointermove',function(e){ put((e.clientX/innerWidth-.5)*2,(e.clientY/innerHeight-.5)*2); });
+ window.addEventListener('deviceorientation',function(e){ if(e.gamma!=null&&e.beta!=null) put(e.gamma/25,(e.beta-45)/25); });
+ (function loop(){ if(!S.parentNode) return; var t=Date.now();
+  if(t-last>1500){ tx=Math.sin(t/1700)*.45; ty=Math.cos(t/2300)*.3; }
+  cx+=(tx-cx)*.07; cy+=(ty-cy)*.07; S.style.setProperty('--tx',cx.toFixed(3)); S.style.setProperty('--ty',cy.toFixed(3)); requestAnimationFrame(loop); })(); }
+})();
+</script>
+<script>
+/* Splash fail-safe: even if boot code throws or a data request hangs, the splash leaves. */
+setTimeout(function(){var s=document.getElementById('splash-screen');if(s){if(window.__spOut){window.__spOut(false);}else{s.classList.add('fade-out');setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},700);}}},(window.__splashMs||3000)+4000);
+</script>
 <!-- ── END SPLASH ── -->
 
 <!-- Reading progress bar -->
