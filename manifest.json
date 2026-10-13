@@ -26,6 +26,12 @@
             "short_name": "দোয়া",
             "url": "./?page=dua",
             "icons": [{"src": "data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><text y=\"20\" font-size=\"20\">🤲</text></svg>", "sizes": "24x24"}]
+        },
+        {
+            "name": "খুমুস ও যাকাত",
+            "short_name": "খুমুস/যাকাত",
+            "url": "./?page=khumsZakat",
+            "icons": [{"src": "data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><text y=\"20\" font-size=\"20\">🧮</text></svg>", "sizes": "24x24"}]
         }
     ]
 }

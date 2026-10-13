@@ -102,4 +102,10 @@
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+  <url>
+    <loc>https://ahlalbayt313.github.io/The-Role-of-Ahl-al-Bayt-a.s/?page=khumsZakat</loc>
+    <lastmod>2026-10-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>

@@ -221,7 +221,7 @@ if(preview) quick=has('quick');
 else if(!quick) setTimeout(mark,2400);
 /* minimum on-screen time: the splash leaves once the app is ready AND this much time has passed since it started */
 window.__spT0 = Date.now();
-window.__splashMs = reduce ? 1200 : (quick ? 1500 : (lite ? 2800 : 3000));
+window.__splashMs = reduce ? 2800 : (quick ? 2800 : (lite ? 5000 : 5500)); /* v160: long enough to read the text (was 1200 / 1500 / 2800 / 3000); tap still skips */
 if(reduce) S.classList.add('sp-reduce'); /* prefers-reduced-motion: static, short splash (CSS shows the finished frame at once) */
 if(quick) S.classList.add('sp-quick');
 /* browser chrome colour follows the splash */
@@ -439,6 +439,16 @@ setTimeout(function(){var s=document.getElementById('splash-screen');if(s){if(wi
 <script src="assets/js/core/script-1-core.js"></script>
 <script src="assets/js/core/script-2-ui.js"></script>
 <script src="assets/js/core/script-3-pages.js"></script>
+<!-- v121: quiz progress layer (XP/levels/badges, daily streak, mistake bank, flashcards, stats page).
+     Called by hooks in script-1-core.js / script-3-pages.js at runtime only, so it just has to be loaded
+     before the first render — kept right after script-3-pages.js next to the quiz screens it extends. -->
+<script src="assets/js/core/quiz-plus.js"></script>
+<!-- v122: prayer reminders (settings, SW notifications, scheduling, .ics export) + the `prayer` page.
+     Runtime-only dependencies (fetchPrayerTimes, renderPrayerWidget, ...) — loaded next to the other page modules. -->
+<script src="assets/js/core/prayer-reminders.js"></script>
+<script src="assets/js/core/daily-amal.js"></script>
+<!-- v123: backup & restore page (export/import of personal data). Runtime-only dependencies. -->
+<script src="assets/js/core/data-backup.js"></script>
 <!-- Phase 7: indexed search engine — loads after script-3-pages.js so it can
      take over performSearch()/searchKnowledgeCenter() (same names, same
      signatures, same result shape) with a cached/indexed implementation. -->
@@ -455,6 +465,10 @@ setTimeout(function(){var s=document.getElementById('splash-screen');if(s){if(wi
      customArrayForType()) and before script-4-boot.js (whose render() calls
      these 7 functions by name). -->
 <script src="assets/js/core/editor-modal.js"></script>
+<!-- v120: Khums & Zakat calculator page. Needs state/lsGet/lsSet/escapeHtml/toBengaliDigits
+     (script-1-core.js) and must load before script-4-boot.js, whose renderMainContent()
+     page map references renderKhumsZakatPage(). -->
+<script src="assets/js/core/khums-zakat.js"></script>
 <script src="assets/js/core/script-4-boot.js"></script>
 <!-- Phase 4: lazy-image fade-in helper. Self-contained (no dependency on
      `state` or any other global), so load order relative to the files
