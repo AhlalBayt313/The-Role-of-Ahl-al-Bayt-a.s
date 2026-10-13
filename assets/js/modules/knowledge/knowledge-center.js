@@ -991,7 +991,21 @@ function renderKnowledgeCenterPage() {
 // deliberately NOT listed: the dataset files those elsewhere and this redesign
 // does not reclassify anything. Add 'prophet' to this list if you ever want
 // those hadith to also appear under the Ahl al-Bayt topic.
-const KCX_AHLULBAYT_HADITH_CATEGORIES = ['fatima', 'ali', 'hasan', 'husayn', 'sajjad', 'baqir', 'sadiq', 'others'];
+const KCX_AHLULBAYT_HADITH_CATEGORIES = ['fatima', 'ali', 'hasan', 'husayn', 'sajjad', 'baqir', 'sadiq', 'kazim', 'ridha', 'jawad', 'hadi', 'askari', 'mahdi'];
+
+// Curated feeds for the three topics that used to be "Coming Soon". Like KCX_FEATURED below, these
+// are hand-picked lists of EXISTING items (ids from data/blog-posts.json and data/knowledge/*.json);
+// nothing in the data files is flagged, copied or modified. To add an item to a topic, add its id
+// to the matching list. An id that no longer exists is simply skipped - it never throws.
+const KCX_SEERAH_BLOG_IDS = [      // events of the Prophet's (s.a.w.) life, in rough chronological order
+    154, 155, 33, 52, 55, 109, 104, 105, 163, 164, 103, 156, 106, 88, 166, 89, 94, 108, 97, 85, 110, 95, 107, 98, 165, 12, 84, 86, 111 ];
+const KCX_KARBALA_BLOG_IDS = [     // Karbala: causes, events, people, aftermath, remembrance
+    100, 32, 157, 159, 158, 16, 2, 70, 69, 76, 78, 31, 37, 77, 112, 101, 102, 75, 42, 14, 7, 38 ];
+const KCX_KARBALA_QA_IDS = ['q058', 'q041', 'q063', 'q069', 'q102'];
+const KCX_COMPARATIVE_BLOG_IDS = [ // posts that explain Shia positions alongside other views / sources
+    160, 161, 162, 27, 74, 82, 56, 57, 60, 62, 81, 48, 86, 90, 44, 22, 23 ];
+const KCX_COMPARATIVE_QA_IDS = ['q056', 'q040', 'q051', 'q071', 'q105'];
+const KCX_COMPARATIVE_HADITH_IDS = ['h175']; // Hadith al-Thaqalayn - cited in Shia AND Sunni sources
 
 // Topics shown as category cards + filter chips (order = display order).
 // `sources` says which EXISTING data feeds each topic:
@@ -999,7 +1013,7 @@ const KCX_AHLULBAYT_HADITH_CATEGORIES = ['fatima', 'ali', 'hasan', 'husayn', 'sa
 //   {kind:'blog', match?(post)}       → existing Blog posts (opened via readPost)
 // Blog categories are matched through the shared map in blog.js
 // (blogCanonicalCategory), so Bengali or English category values both work.
-// A topic with `comingSoon:true` (or no sources) has no data yet: it renders as
+// A topic with `comingSoon:true` (or no sources) has no data yet (none are left today): it renders as
 // a non-interactive "Coming Soon" card and is left out of the filter chips.
 const KCX_TOPICS = [
     { key: 'quran', icon: '📖', bn: 'কুরআন', en: "Qur'an",
@@ -1020,15 +1034,22 @@ const KCX_TOPICS = [
     { key: 'akhlaq', icon: '🌿', bn: 'আখলাক', en: 'Akhlaq',
       descBn: 'নৈতিকতা ও চরিত্র গঠন বিষয়ক ব্লগ পোস্ট', descEn: 'Blog posts on ethics and character',
       sources: [ { kind: 'blog', match: p => blogCanonicalCategory(p.category) === 'আখলাক' } ] },
-    { key: 'seerah', icon: '🧭', bn: 'সীরাত', en: 'Seerah', comingSoon: true,
-      descBn: 'রাসূলুল্লাহ (সা.)-এর জীবনী', descEn: 'The life of the Prophet (s.a.w.)', sources: [] },
+    { key: 'seerah', icon: '🧭', bn: 'সীরাত', en: 'Seerah',
+      descBn: 'রাসূলুল্লাহ (সা.)-এর জীবনী', descEn: 'The life of the Prophet (s.a.w.)',
+      sources: [ { kind: 'blog', match: p => KCX_SEERAH_BLOG_IDS.indexOf(p.id) > -1 } ] },
     { key: 'history', icon: '🏛️', bn: 'ইসলামী ইতিহাস', en: 'Islamic History', chipBn: 'ইতিহাস', chipEn: 'History',
       descBn: 'ইসলামের ইতিহাস বিষয়ক ব্লগ পোস্ট', descEn: 'Blog posts on Islamic history',
       sources: [ { kind: 'blog', match: p => blogCanonicalCategory(p.category) === 'ইতিহাস' } ] },
-    { key: 'karbala', icon: '🌹', bn: 'কারবালা', en: 'Karbala', comingSoon: true,
-      descBn: 'কারবালার ঘটনা ও শিক্ষা', descEn: 'The events and lessons of Karbala', sources: [] },
-    { key: 'comparative', icon: '🔎', bn: 'তুলনামূলক অধ্যয়ন', en: 'Comparative Studies', comingSoon: true,
-      descBn: 'মতাদর্শ ও চিন্তাধারার তুলনামূলক পাঠ', descEn: 'Comparative study of schools of thought', sources: [] },
+    { key: 'karbala', icon: '🌹', bn: 'কারবালা', en: 'Karbala',
+      descBn: 'কারবালার ঘটনা ও শিক্ষা', descEn: 'The events and lessons of Karbala',
+      sources: [ { kind: 'blog', match: p => KCX_KARBALA_BLOG_IDS.indexOf(p.id) > -1 },
+                 { kind: 'kc', tab: 'qa', match: i => KCX_KARBALA_QA_IDS.indexOf(i.id) > -1 },
+                 { kind: 'kc', tab: 'hadith', match: i => i.category === 'husayn' } ] },
+    { key: 'comparative', icon: '🔎', bn: 'তুলনামূলক অধ্যয়ন', en: 'Comparative Studies',
+      descBn: 'মতাদর্শ ও চিন্তাধারার তুলনামূলক পাঠ', descEn: 'Comparative study of schools of thought',
+      sources: [ { kind: 'blog', match: p => KCX_COMPARATIVE_BLOG_IDS.indexOf(p.id) > -1 },
+                 { kind: 'kc', tab: 'qa', match: i => KCX_COMPARATIVE_QA_IDS.indexOf(i.id) > -1 },
+                 { kind: 'kc', tab: 'hadith', match: i => KCX_COMPARATIVE_HADITH_IDS.indexOf(i.id) > -1 } ] },
 ];
 
 // "Featured Knowledge" — a small hand-picked list of EXISTING items, in display

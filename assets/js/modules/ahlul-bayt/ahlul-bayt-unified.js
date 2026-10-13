@@ -261,10 +261,13 @@ if (typeof state !== 'undefined') {
 function getAhlulBaytQuickStats(l) {
     const safeLen = (arr) => (Array.isArray(arr) ? arr.length : 0);
 
-    const totalPersonalities = safeLen(typeof masumeen !== 'undefined' ? masumeen : null)
+    // v117 (#2): "Total Masumeen" is still the 14 (Prophet + Fatima + 12 Imams);
+    // "Total Personalities" now also counts ADDITIONAL_PERSONALITIES, so it
+    // agrees with the Male + Female tabs (17 + 5). Before, both cards read 14.
+    const totalMasumeen = safeLen(typeof masumeen !== 'undefined' ? masumeen : null)
         + safeLen(typeof imams !== 'undefined' ? imams : null);
-
-    const totalMasumeen = totalPersonalities; // 14 Masumeen = Prophet + Fatima + 12 Imams
+    const totalPersonalities = totalMasumeen
+        + safeLen(typeof ADDITIONAL_PERSONALITIES !== 'undefined' ? ADDITIONAL_PERSONALITIES : null);
 
     let totalGenerations = 0;
     if (typeof getGeneration === 'function' && typeof familyTreeLineage !== 'undefined') {
@@ -283,11 +286,20 @@ function getAhlulBaytQuickStats(l) {
     let familyRelationships = 0;
     if (typeof getFamilyLinks === 'function' && typeof familyTreeLineage !== 'undefined') {
         const ids = Object.keys(familyTreeLineage).map(id => (isNaN(Number(id)) ? id : Number(id)));
-        const rawTotal = ids.reduce((sum, id) => {
+        // v117 (#3): count DISTINCT edges instead of "sum / 2". The old halving
+        // assumed every relation is written on both persons; a one-sided entry
+        // (e.g. a parent link with no matching children link) was undercounted.
+        const edgeKeys = new Set();
+        ids.forEach(id => {
             const links = getFamilyLinks(id);
-            return sum + links.parents.length + links.children.length + links.spouse.length + links.siblings.length;
-        }, 0);
-        familyRelationships = Math.round(rawTotal / 2); // each edge counted from both sides
+            const me = String(id);
+            const pair = (a, b) => [String(a), String(b)].sort().join('~');
+            links.parents.forEach(p => edgeKeys.add('pc:' + String(p.refId) + '>' + me));
+            links.children.forEach(c => edgeKeys.add('pc:' + me + '>' + String(c.refId)));
+            links.spouse.forEach(s => edgeKeys.add('sp:' + pair(me, s.refId)));
+            links.siblings.forEach(s => edgeKeys.add('sb:' + pair(me, s.refId)));
+        });
+        familyRelationships = edgeKeys.size;
     }
 
     return {
@@ -371,22 +383,36 @@ function renderAhlulBaytCategoryChips() {
         { key: 'places',    icon: '🕌', bn: 'গুরুত্বপূর্ণ স্থান',     en: 'Important Places' },
     ];
 
-    const chips = CATEGORIES.map(cat => `
+    // v117 (#4): the chip whose tab is open is highlighted + aria-pressed.
+    const activeKey = (typeof state !== 'undefined' && state.ahlulBaytActiveTab) || null;
+
+    const chips = CATEGORIES.map(cat => {
+        const isActive = cat.key === activeKey;
+        const bgIdle = isActive ? (d?'rgba(201,162,39,.34)':'rgba(180,83,9,.20)') : (d?'rgba(201,162,39,.08)':'rgba(180,83,9,.05)');
+        const bgHover = isActive ? (d?'rgba(201,162,39,.42)':'rgba(180,83,9,.26)') : (d?'rgba(201,162,39,.18)':'rgba(180,83,9,.12)');
+        const borderCol = isActive ? (d?'#fbbf24':'#b45309') : (d?'rgba(201,162,39,.32)':'rgba(180,83,9,.22)');
+        return `
         <button type="button"
-            class="ab-category-chip"
+            class="ab-category-chip${isActive ? ' is-active' : ''}"
             data-ab-category="${cat.key}"
+            aria-pressed="${isActive ? 'true' : 'false'}"
             onclick="ahlulBaytHandleCategoryClick('${cat.key}')"
             style="display:flex;align-items:center;gap:7px;flex-shrink:0;
-                padding:10px 18px;border-radius:50px;font-size:.82rem;font-weight:700;
+                padding:10px 18px;border-radius:50px;font-size:.82rem;font-weight:${isActive?800:700};
                 white-space:nowrap;cursor:pointer;transition:all .2s;
-                border:1.5px solid ${d?'rgba(201,162,39,.32)':'rgba(180,83,9,.22)'};
-                background:${d?'rgba(201,162,39,.08)':'rgba(180,83,9,.05)'};
+                border:${isActive?'2px':'1.5px'} solid ${borderCol};
+                background:${bgIdle};${isActive?'box-shadow:0 2px 10px rgba(180,83,9,.25);':''}
                 color:${d?'#fde68a':'#92400e'}"
-            onmouseover="this.style.background='${d?'rgba(201,162,39,.18)':'rgba(180,83,9,.12)'}';this.style.transform='translateY(-2px)'"
-            onmouseout="this.style.background='${d?'rgba(201,162,39,.08)':'rgba(180,83,9,.05)'}';this.style.transform=''">
+            onmouseover="this.style.background='${bgHover}';this.style.transform='translateY(-2px)'"
+            onmouseout="this.style.background='${bgIdle}';this.style.transform=''">
             <span aria-hidden="true">${cat.icon}</span>
             <span>${l==='bn'?cat.bn:cat.en}</span>
-        </button>`).join('');
+        </button>`;
+    }).join('');
+
+    // The chip row is a horizontal scroller and render() rebuilds it at
+    // scrollLeft 0, so bring the active chip back into view after paint.
+    setTimeout(ahlulBaytCenterActiveChip, 0);
 
     return `
     <div class="ab-category-section reveal" style="margin-top:1.25rem">
@@ -394,6 +420,16 @@ function renderAhlulBaytCategoryChips() {
             <div style="display:flex;gap:10px;width:max-content;margin:0 auto">${chips}</div>
         </div>
     </div>`;
+}
+
+// v117 (#4): scrolls the chip row (not the page) so the active chip is centred.
+function ahlulBaytCenterActiveChip() {
+    const chip = document.querySelector('.ab-category-chip.is-active');
+    if (!chip) return;
+    const row = chip.closest('.ab-category-section') && chip.closest('.ab-category-section').firstElementChild;
+    if (!row || row.scrollWidth <= row.clientWidth) return;
+    const cr = chip.getBoundingClientRect(), rr = row.getBoundingClientRect();
+    row.scrollLeft += (cr.left - rr.left) - (rr.width - cr.width) / 2;
 }
 
 // Defensive click dispatcher — intentionally minimal for Section 1.
@@ -438,7 +474,13 @@ function ahlulBaytHandleCategoryClick(categoryKey) {
 // already relies on (see script-4-boot.js) — nothing new is introduced.
 function ahlulBaytSwitchTab(tabKey) {
     if (typeof state === 'undefined') return;
-    if (state.ahlulBaytActiveTab === tabKey) return;
+    if (state.ahlulBaytActiveTab === tabKey) {
+        // v117 (#4): tapping the already-open chip used to do nothing at all;
+        // now it just brings that tab's panel back into view (no re-render).
+        const anchor = document.getElementById('ab-tab-panel-anchor');
+        if (anchor && typeof anchor.scrollIntoView === 'function') anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+    }
     state.ahlulBaytActiveTab = tabKey;
     state.ahlulBaytActiveCategory = tabKey;
     if (typeof render === 'function') render();
@@ -522,10 +564,16 @@ function renderPersonalityCard(p, pi) {
         : p.id === 'f' ? "showPersonDetail('fatima')"
         : typeof p.id === 'number' ? `showPersonDetail('${p.id}')`
         : `ahlulBaytSelectSearchResult('extra:${p.id}')`;
+    // v118 (#2): 'source:id' key (same shape the side panel uses) so the card
+    // shown in the panel can be highlighted.
+    const pSource = (p.id === 'p' || p.id === 'f') ? 'masumeen' : (typeof p.id === 'number' ? 'imam' : 'extra');
+    const pKey = pSource + ':' + p.id;
+    const sel = state.ahlulBaytSelectedPerson;
+    const isSel = !!sel && (sel.source + ':' + sel.id) === pKey;
     return `
     <div onclick="${clickAction}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${clickAction};}"
-        role="button" tabindex="0" aria-label="${escapeHtml(name)}"
-        class="${revealCls.trim()}"
+        role="button" tabindex="0" aria-label="${escapeHtml(name)}" data-ab-pid="${pKey}"
+        class="${(revealCls.trim() + (isSel ? ' ab-card-selected' : '')).trim()}"
         style="border-radius:var(--r-lg);padding:1.25rem;text-align:left;cursor:pointer;
         background:${d?'rgba(255,255,255,.04)':'#ffffff'};
         border:1px solid ${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'};
@@ -756,11 +804,23 @@ function getAhlulBaytSearchIndex() {
     return idx;
 }
 
+// v117 (#7): lower-cases and, for Arabic text, drops harakat (tashkeel) and
+// tatweel and unifies alef/yaa/taa-marbuta variants, so "حسين" matches
+// "الحُسَيْن" and "ابو" matches "أبو". Latin/Bengali text is only lower-cased.
+function __ahlulBaytNormalizeSearch(s) {
+    return String(s || '').toLowerCase()
+        .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g, '')
+        .replace(/[\u0622\u0623\u0625\u0671]/g, '\u0627')
+        .replace(/\u0649/g, '\u064A')
+        .replace(/\u0629/g, '\u0647');
+}
+
 function ahlulBaytSearchPersons(query) {
-    const q = (query || '').trim().toLowerCase();
+    const q = __ahlulBaytNormalizeSearch((query || '').trim());
     if (!q) return [];
     return getAhlulBaytSearchIndex().filter(p => {
-        return [p.nameBn, p.nameEn, p.epithetBn, p.epithetEn].some(f => (f || '').toLowerCase().includes(q));
+        return [p.nameBn, p.nameEn, p.epithetBn, p.epithetEn, p.arabicName]
+            .some(f => __ahlulBaytNormalizeSearch(f).includes(q));
     }).slice(0, 8);
 }
 
@@ -794,13 +854,22 @@ function ahlulBaytSelectSearchResult(key) {
     } else if (typeof render === 'function') {
         render(); // fallback if the panel isn't mounted yet for some reason
     }
+    // v118 (#2): move the highlight to the newly selected card (no re-render).
+    document.querySelectorAll('[data-ab-pid]').forEach(el => {
+        el.classList.toggle('ab-card-selected', el.getAttribute('data-ab-pid') === source + ':' + id);
+    });
     const resultsBox = document.getElementById('ab-search-results');
     if (resultsBox) { resultsBox.style.display = 'none'; resultsBox.innerHTML = ''; }
     const input = document.getElementById('ab-search-input');
     if (input) input.value = '';
     setTimeout(() => {
         const el = document.getElementById('ab-side-panel');
-        if (el && typeof el.scrollIntoView === 'function') el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        // v117 (#5): on a phone/tablet the panel sits ABOVE the tab content
+        // (see .ab-side-panel-wrap order below) and is scrolled to the top of
+        // the viewport; on desktop it is the sticky right column, so
+        // 'nearest' is still the right behaviour there.
+        const narrow = (typeof window !== 'undefined') && window.innerWidth < 1024;
+        if (el && typeof el.scrollIntoView === 'function') el.scrollIntoView({ behavior: 'smooth', block: narrow ? 'start' : 'nearest' });
     }, 0);
 }
 
@@ -858,6 +927,18 @@ function renderAhlulBaytSearchBox() {
     </div>`;
 }
 
+// v118 (#2): closes the side panel in place (no render(), so the open tab —
+// e.g. the family tree — is not rebuilt) and drops the card highlight.
+function ahlulBaytClearSelection() {
+    if (typeof state === 'undefined') return;
+    state.ahlulBaytSelectedPerson = null;
+    const wrap = document.querySelector('.ab-side-panel-wrap');
+    if (wrap && wrap.parentNode) wrap.parentNode.removeChild(wrap);
+    const grid = document.querySelector('.ab-main-grid');
+    if (grid) grid.classList.remove('ab-main-grid--split');
+    document.querySelectorAll('.ab-card-selected').forEach(el => el.classList.remove('ab-card-selected'));
+}
+
 function renderAhlulBaytSidePanel() {
     const d = state.darkMode, l = state.language;
     const person = getAhlulBaytPersonBySelection(state.ahlulBaytSelectedPerson);
@@ -883,9 +964,18 @@ function renderAhlulBaytSidePanel() {
             ${l==='bn'?'সম্পূর্ণ প্রোফাইল দেখুন':'View Full Profile'}
         </button>` : '';
 
-    return `<div id="ab-side-panel" style="border-radius:var(--r-lg);padding:1.25rem;
+    return `<div id="ab-side-panel" style="scroll-margin-top:96px;border-radius:var(--r-lg);padding:1rem 1.25rem 1.25rem;
         background:${d?'rgba(255,255,255,.04)':'#ffffff'};
-        border:1px solid ${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'};box-shadow:var(--shadow-card)">
+        border:1px solid ${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'};
+        border-top:3px solid ${d?'#fbbf24':'#b45309'};box-shadow:var(--shadow-card)">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.4rem">
+            <span style="font-size:.7rem;font-weight:800;letter-spacing:.02em;color:${d?'#fde68a':'#b45309'}">${l==='bn'?'নির্বাচিত ব্যক্তিত্ব':'Selected personality'}</span>
+            <button type="button" onclick="ahlulBaytClearSelection()"
+                aria-label="${l==='bn'?'প্যানেল বন্ধ করুন':'Close panel'}"
+                style="width:40px;height:40px;margin:-8px -10px -8px 0;display:inline-flex;align-items:center;justify-content:center;
+                    border:none;background:transparent;border-radius:999px;cursor:pointer;font-size:1.05rem;
+                    color:${d?'#9ca3af':'#6b7280'}">✕</button>
+        </div>
         <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
             <span style="font-size:1.8rem" aria-hidden="true">${person.icon || '✦'}</span>
             <div>
@@ -1112,7 +1202,7 @@ function getCitationText(personId, person, lang) {
   const name = lang === 'bn' ? person.bengaliName : (person.englishName || person.englishAbbr || person.bengaliName);
   const dateStr = new Date().toISOString().slice(0, 10);
   const birthDeath = [person.birth, person.death].filter(Boolean).join(' – ');
-  const siteUrl = 'https://ahlalbayt313.github.io/#familyTree';
+  const siteUrl = 'https://ahlalbayt313.github.io/The-Role-of-Ahl-al-Bayt-a.s/?page=familyTree';
   return lang === 'bn'
     ? `${name} (${person.arabicName || ''})${birthDeath ? ' — ' + birthDeath : ''}। আহলুল বাইত পরিবার বৃক্ষ। সংগৃহীত: ${dateStr}, ${siteUrl}`
     : `${name}${birthDeath ? ' — ' + birthDeath : ''}. Ahl al-Bayt Family Tree. Retrieved ${dateStr}, ${siteUrl}`;
@@ -1762,6 +1852,14 @@ function renderAhlulBaytUnifiedPage() {
 // personality card, with a button that calls that same existing modal for
 // masumeen/imam entries.
 function renderAhlulBaytUnifiedPageSection1Preview() {
+    // v118 (#1): the page used to open on a dashed "choose a section from the
+    // tabs above" box with nothing in it. It now opens on the 14 Masumeen tab
+    // (same content the old /imams route showed), and the matching chip is
+    // highlighted by the v117 active-chip logic.
+    if (typeof state !== 'undefined' && !state.ahlulBaytActiveTab) {
+        state.ahlulBaytActiveTab = 'masumeen';
+        state.ahlulBaytActiveCategory = 'masumeen';
+    }
     const hasSelection = !!getAhlulBaytPersonBySelection(state.ahlulBaytSelectedPerson);
     return `
     <div class="space-y-2 page-enter">
@@ -1777,10 +1875,17 @@ function renderAhlulBaytUnifiedPageSection1Preview() {
             ${hasSelection ? `<div class="ab-side-panel-wrap">${renderAhlulBaytSidePanel()}</div>` : ''}
         </div>
         <style>
+            /* v117 (#5): single-column (phone/tablet) → selected-person panel first */
+            .ab-side-panel-wrap{ order:-1; }
             @media (min-width:1024px){
                 .ab-main-grid.ab-main-grid--split{ grid-template-columns:minmax(0,2fr) minmax(260px,1fr) !important; align-items:start; }
-                .ab-side-panel-wrap{ position:sticky; top:90px; }
+                .ab-side-panel-wrap{ position:sticky; top:90px; order:0; }
+                /* v118 (#2): with the side panel open the tab column is only ~2/3 wide,
+                   so 3 card columns were cramped and the panel looked like a stray 4th card. */
+                .ab-main-grid--split .ab-person-grid{ grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
             }
+            /* v118 (#2): the card that is currently shown in the side panel */
+            .ab-card-selected{ border-color:#b45309 !important; box-shadow:0 0 0 2px rgba(180,83,9,.28), var(--shadow-card) !important; }
         </style>
     </div>`;
 }

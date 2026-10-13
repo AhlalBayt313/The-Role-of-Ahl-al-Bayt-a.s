@@ -905,8 +905,7 @@ function renderAmalResultsInner() {
 
 // ============================================================================
 // v108 — CALENDAR: big Hijri number, optional Gregorian/Bangla secondary dates,
-// tap-a-day detail panel. (showCalendarEventPopover below is kept but no longer
-// called from the grid.)
+// tap-a-day detail panel. (The old popover, showCalendarEventPopover, was removed in v119.)
 // ============================================================================
 const _calGregAbbrEn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const _calGregAbbrBn = ['জানু','ফেব্রু','মার্চ','এপ্রি','মে','জুন','জুলাই','আগ','সেপ্টে','অক্টো','নভে','ডিসে'];
@@ -934,6 +933,69 @@ function calSelectedDay(month, year, todayH) {
     if (calState.selDay && calState.selMonth === month && calState.selYear === year) return calState.selDay;
     if (todayH && todayH.month === month && todayH.year === year) return todayH.day;
     return 0;
+}
+// v162: calendar → related Ziyarat / Amal links. Additive: maps "month-day" (same keys as hijriEvents)
+// to existing Ziyarat ('z') / Amal ('a') ids. Titles come from the loaded data (ziyarats / amals); an id
+// that is not found is skipped silently. Items open through the existing readZiyarat / readAmal actions.
+const CAL_EVENT_LINKS = {
+    '1-10': [['z','ziyarat-ashura'], ['a','amal-ashura-day'], ['z','ziyarat-al-shuhada']],
+    '1-25': [['z','ziyarat-imam-sajjad-1']],
+    '2-17': [['z','ziyarat-imam-reza-standalone'], ['z','ziyarat-imam-reza-2'], ['z','ziyarat-imam-reza-4'], ['z','ziyarat-imam-reza-kamil-ziyarah']],
+    '2-20': [['z','ziyarat-arbaeen']],
+    '2-28': [['z','ziyarat-rasulullah'], ['z','ziyarat-imam-hasan']],
+    '3-8':  [['z','ziyarat-hasan-askari-standalone']],
+    '3-10': [['z','ziyarat-hasan-askari-standalone']],
+    '3-12': [['z','ziyarat-rasulullah']],
+    '3-17': [['z','ziyarat-imam-sadiq-standalone']],
+    '6-3':  [['z','ziyarat-fatimah-zahra']],
+    '6-20': [['z','ziyarat-fatimah-zahra']],
+    '7-3':  [['z','ziyarat-imam-hadi-1']],
+    '7-7':  [['z','ziyarat-imam-kazim-1'], ['z','ziyarat-imam-baqir-1']],
+    '7-10': [['z','ziyarat-imam-jawad-standalone'], ['z','ziyarat-imam-jawad-3'], ['z','ziyarat-imam-jawad-4'], ['z','ziyarat-imam-jawad-5']],
+    '7-13': [['z','ziyarat-imam-ali']],
+    '7-25': [['z','ziyarat-imam-kazim-1']],
+    '8-3':  [['z','ziyarat-warith']],
+    '8-15': [['a','amal-nisf-shaban'], ['z','ziyarat-imam-mahdi-concise'], ['z','ziyarat-aal-yasin'], ['z','ziyarat-ahad']],
+    '9-27': [['d','dua-quran-laylatul-qadr-verse']],
+    '10-1': [['d','dua-eid-takbir'], ['d','dua-al-nudbah']],
+    '12-10':[['d','dua-eid-takbir'], ['d','dua-al-nudbah']],
+    '12-24':[['d','dua-quran-mubahala']],
+    '9-1':  [['a','amal-ramadan-daily']],
+    '9-15': [['z','ziyarat-imam-hasan']],
+    '9-19': [['a','amal-laylatul-qadr']],
+    '9-21': [['a','amal-laylatul-qadr'], ['z','ziyarat-imam-ali']],
+    '9-23': [['a','amal-laylatul-qadr']],
+    '10-25':[['z','ziyarat-imam-sadiq-standalone']],
+    '11-11':[['z','ziyarat-imam-reza-standalone'], ['z','ziyarat-imam-reza-2'], ['z','ziyarat-imam-reza-4'], ['z','ziyarat-imam-reza-kamil-ziyarah']],
+    '11-23':[['z','ziyarat-imam-jawad-standalone'], ['z','ziyarat-imam-jawad-3'], ['z','ziyarat-imam-jawad-4'], ['z','ziyarat-imam-jawad-5']],
+    '12-15':[['z','ziyarat-imam-hadi-1']],
+    '12-18':[['z','ziyarat-imam-ali']]
+};
+function calEventLinksHtml(key, l, d) {
+    const links = CAL_EVENT_LINKS[key];
+    if (!links) return '';
+    const bn = l === 'bn';
+    const zs = (typeof ziyarats !== 'undefined' && ziyarats) ? ziyarats : [];
+    const as = (typeof amals !== 'undefined' && amals) ? amals : [];
+    const ds = (typeof duas !== 'undefined' && Array.isArray(duas)) ? duas : [];  // v168: 'd' links resolve a dua id to its index in duas
+    const btns = [];
+    links.forEach(function (lk) {
+        let item = null, prm = lk[1];
+        if (lk[0] === 'd') { const di = ds.findIndex(function (x) { return x && x.id === lk[1]; }); if (di >= 0) { item = ds[di]; prm = String(di); } }
+        else item = (lk[0] === 'z' ? zs : as).find(function (x) { return x && x.id === lk[1]; });
+        if (!item) return;
+        const title = bn ? (item.titleBn || item.titleEn) : (item.titleEn || item.titleBn);
+        if (!title) return;
+        btns.push('<button type="button" data-action="' + (lk[0] === 'z' ? 'readZiyarat' : (lk[0] === 'd' ? 'readDua' : 'readAmal')) + '" data-param="' + sanitize(prm) + '"'
+            + ' style="display:flex;align-items:center;gap:8px;width:100%;min-height:44px;margin-top:6px;padding:8px 12px;border-radius:12px;text-align:left;cursor:pointer;'
+            + 'font-size:.85rem;font-weight:600;line-height:1.35;border:1px solid ' + (d ? '#374151' : '#e2e8f0') + ';'
+            + 'background:' + (d ? 'rgba(255,255,255,.05)' : '#ffffff') + ';color:' + (d ? '#f3f4f6' : '#111827') + '">'
+            + '<span aria-hidden="true">' + (lk[0] === 'z' ? '🕋' : (lk[0] === 'd' ? '📖' : '🤲')) + '</span><span style="flex:1;min-width:0">' + sanitize(title) + '</span>'
+            + '<span aria-hidden="true" style="opacity:.6">›</span></button>');
+    });
+    if (!btns.length) return '';
+    return '<div style="margin-top:10px"><div style="font-size:.75rem;font-weight:700;color:' + (d ? '#cbd5e1' : '#475569') + '">'
+        + (bn ? '🕋 সংশ্লিষ্ট যিয়ারত, আমল ও দোয়া' : '🕋 Related Ziyarat, Amal & Dua') + '</div>' + btns.join('') + '</div>';
 }
 function calDetailHtml(day, month, year, l, d) {
     const bn = l === 'bn';
@@ -966,6 +1028,7 @@ function calDetailHtml(day, month, year, l, d) {
         + (ev ? '<div style="margin-top:8px;padding:8px 12px;border-radius:12px;border-left:4px solid ' + dotColor + ';background:' + (d ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.04)') + '">'
             + '<div style="font-size:.75rem;font-weight:700;color:' + muted + '">' + ((titles[l] || titles.en)[ev.type] || '📅') + '</div>'
             + '<div style="font-size:.9rem;font-weight:700;color:' + strong + ';margin-top:2px">' + sanitize(bn ? ev.bn : ev.en) + '</div></div>' : '')
+        + (ev ? calEventLinksHtml(month + '-' + day, l, d) : '')
         + '</div>';
 }
 function calSelectDay(day) {
@@ -1050,12 +1113,6 @@ function renderCalendarPage() {
     const gregRange = gf.getMonth()===gl.getMonth()
         ? `${gf.getDate()}–${gl.getDate()} ${gregMonthsEnFull[gf.getMonth()]} ${gl.getFullYear()}`
         : `${gf.getDate()} ${gregMonthsEn[gf.getMonth()]} – ${gl.getDate()} ${gregMonthsEn[gl.getMonth()]} ${gl.getFullYear()}`;
-    const gregRangeBn = (()=>{
-        const bf=getBanglaDateFull(gf), bl=getBanglaDateFull(gl);
-        if(bf.month===bl.month)
-            return toBengaliDigits(bf.day)+'–'+toBengaliDigits(bl.day)+' '+banglaMonthNames[bf.month]+' '+toBengaliDigits(bl.year);
-        return toBengaliDigits(bf.day)+' '+banglaMonthNames[bf.month]+' – '+toBengaliDigits(bl.day)+' '+banglaMonthNames[bl.month]+' '+toBengaliDigits(bl.year);
-    })();
 
     const todayGreg=new Date();
     const todayH=approxHijriNow();
@@ -1115,8 +1172,9 @@ function renderCalendarPage() {
 
             <!-- v107: ±1 day adjustment moved to the menu drawer (mobile) / footer (desktop) -->
             <!-- v108: secondary-date toggles (Hijri is always the big number) -->
-            <div class="cal-tog-row" style="background:${d?'#111827':'#f1f5f9'};border-bottom:1px solid ${d?'#374151':'#e2e8f0'}" role="group" aria-label="${l==='bn'?'ঘরে অতিরিক্ত তারিখ':'Extra dates in each cell'}">
-                <span class="cal-tog-label" style="color:${d?'#d1d5db':'#475569'}">${l==='bn'?'ঘরে দেখান:':'Show in cells:'}</span>
+            <div class="cal-tog-row cal-toolbar" style="background:${d?'#111827':'#f1f5f9'};border-bottom:1px solid ${d?'#374151':'#e2e8f0'}" role="group" aria-label="${l==='bn'?'ক্যালেন্ডার টুলবার':'Calendar toolbar'}">
+                <button type="button" class="cal-tog cal-tog-today" data-action="calToday" aria-label="${l==='bn'?'আজকের মাসে ফিরুন':'Jump to today'}" style="--cal-tog-c:${d?'#6ee7b7':'#047857'}">📍 ${l==='bn'?'আজ':'Today'}</button>
+                <span class="cal-tog-label" style="color:${d?'#d1d5db':'#475569'}">${l==='bn'?'ঘরে:':'In cells:'}</span>
                 <button type="button" class="cal-tog" data-action="setCalSecondary" data-param="g" aria-pressed="${sec.g?'true':'false'}" style="--cal-tog-c:${d?'#e2e8f0':'#334155'}">${l==='bn'?'গ্রেগরিয়ান':'Gregorian'}</button>
                 <button type="button" class="cal-tog" data-action="setCalSecondary" data-param="b" aria-pressed="${sec.b?'true':'false'}" style="--cal-tog-c:${d?'#bfdbfe':'#1d4ed8'}">${l==='bn'?'বাংলা':'Bangla'}</button>
             </div>
@@ -1208,7 +1266,7 @@ function renderCalendarPage() {
             <!-- ── LEGEND ── -->
             <div class="px-4 py-3 border-t ${d?'border-gray-700':'border-gray-200'} flex flex-wrap gap-x-5 gap-y-1.5 text-xs ${d?'text-gray-300':'text-gray-600'}">
                 <span aria-hidden="true" style="color:${d?'#f3f4f6':'#111827'};font-weight:700">■</span> ${l==='bn'?'হিজরি তারিখ (বড় সংখ্যা)':'Hijri date (large)'} &nbsp;
-                <span aria-hidden="true" style="color:${d?'#cbd5e1':'#475569'};font-weight:700">■</span> ${l==='bn'?'ইংরেজি তারিখ (ছোট)':'Gregorian (small)'} &nbsp;
+                <span aria-hidden="true" style="color:${d?'#cbd5e1':'#475569'};font-weight:700">■</span> ${l==='bn'?'গ্রেগরিয়ান তারিখ (ছোট)':'Gregorian (small)'} &nbsp;
                 <span aria-hidden="true" style="color:${d?'#bfdbfe':'#1d4ed8'};font-weight:700">■</span> ${l==='bn'?'বাংলা তারিখ (ছোট)':'Bangla (small)'} &nbsp;
                 <span aria-hidden="true" style="color:${d?'#fca5a5':'#b91c1c'};font-weight:700">■</span> ${l==='bn'?'শুক্রবার':'Friday'} &nbsp;
                 <span aria-hidden="true" style="color:${d?'#93c5fd':'#1d4ed8'};font-weight:700">■</span> ${l==='bn'?'শনিবার':'Saturday'} &nbsp;
@@ -1260,59 +1318,6 @@ function renderCalendarPage() {
 // ============================================================================
 // CALENDAR EVENT POPOVER
 // ============================================================================
-function showCalendarEventPopover(opts) {
-    const {month,day,year,event,language} = opts;
-    const l = language || state.language;
-    const d = state.darkMode;
-    
-    // Event details mapping
-    const getEventDetails = (ev) => {
-        const titles = {bn:{birth:'🌸 জন্মদিন',martyrdom:'⚔️ শাহাদাত দিবস',ashura:'🔴 আশুরা',eid:'🎊 ঈদ',special:'✨ বিশেষ দিন',mixed:'📅 মিশ্র দিবস'},en:{birth:'🌸 Birthday',martyrdom:'⚔️ Martyrdom',ashura:'🔴 Ashura',eid:'🎊 Eid',special:'✨ Special',mixed:'📅 Mixed'}};
-        return {title:titles[l]?.[ev.type]||'📅 Event',desc:l==='bn'?ev.bn:ev.en};
-    };
-    
-    const {title,desc} = getEventDetails(event);
-    const greg = hijriToGregorian(day,month,year);
-    const gregStr = `${greg.getDate()} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][greg.getMonth()]} ${greg.getFullYear()}`;
-    const hijriStr = `${day} ${(l==='bn'?hijriMonthsBn:hijriMonthsEn)[month-1]} ${year} AH`;
-    
-    // Create popover
-    const popover = document.createElement('div');
-    popover.id = 'calendar-event-popover';
-    popover.style.cssText = `position:fixed;z-index:9999;top:50%;left:50%;transform:translate(-50%,-50%);background:${d?'#1f2937':'#ffffff'};border:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.1)'};border-radius:16px;padding:24px;max-width:360px;box-shadow:${d?'0 20px 60px rgba(0,0,0,.4)':'0 20px 60px rgba(0,0,0,.15)'};backdrop-filter:blur(12px);`;
-    
-    popover.innerHTML = `
-        <div style="text-align:center;margin-bottom:16px">
-            <h3 style="margin:0 0 8px 0;font-size:1.25rem;font-weight:700;color:${d?'#f3f4f6':'#111827'}">${title}</h3>
-            <p style="margin:0;font-size:.85rem;color:${d?'#d1d5db':'#6b7280'}">${desc}</p>
-        </div>
-        
-        <div style="background:${d?'rgba(255,255,255,.05)':'rgba(0,0,0,.02)'};border-radius:12px;padding:12px;margin:12px 0;font-size:.85rem;color:${d?'#e5e7eb':'#374151'}">
-            <div style="margin-bottom:6px"><strong>📅 Gregorian:</strong> ${gregStr}</div>
-            <div><strong>☪️ Hijri:</strong> ${hijriStr}</div>
-        </div>
-        
-        <div style="margin-top:16px;padding-top:16px;border-top:1px solid ${d?'rgba(255,255,255,.1)':'rgba(0,0,0,.1)'};text-align:center">
-            <button onclick="document.getElementById('calendar-event-popover').remove()" style="padding:8px 16px;border-radius:8px;border:none;background:${d?'rgba(5,150,105,.2)':'rgba(5,150,105,.1)'};color:#059669;font-weight:600;cursor:pointer;transition:all .2s" onmouseover="this.style.background='${d?'rgba(5,150,105,.3)':'rgba(5,150,105,.15)'}'" onmouseout="this.style.background='${d?'rgba(5,150,105,.2)':'rgba(5,150,105,.1)'}'">${l==='bn'?'বন্ধ করুন':'Close'}</button>
-        </div>
-    `;
-    
-    // Remove existing popover
-    const existing = document.getElementById('calendar-event-popover');
-    if(existing) existing.remove();
-    
-    // Add popover and close on backdrop click
-    document.body.appendChild(popover);
-    setTimeout(() => {
-        document.addEventListener('click', function closePopover(e) {
-            if(e.target === popover || !popover.contains(e.target)) {
-                popover.remove();
-                document.removeEventListener('click', closePopover);
-            }
-        });
-    }, 100);
-}
-
 // ============================================================================
 // PAGE: CONTACT
 // ============================================================================
@@ -2022,21 +2027,21 @@ function renderImamTimeline(d, l) {
                 <div class="imam-timeline-row reveal reveal-delay-${(idx%4)+1}" data-action="viewImam" data-param="${im.id}"
                     role="button" tabindex="0" title="${sanitize(tooltip)}" aria-label="${sanitize(tooltip)}"
                     style="display:flex;align-items:center;gap:.75rem;cursor:pointer;opacity:${inEra?1:.3};transition:opacity .25s">
-                    <div class="text-right flex-shrink-0" style="width:130px">
+                    <div class="text-right flex-shrink-0 imam-tl-label" style="width:130px">
                         <span class="text-xs font-semibold" style="color:${d?'#d1d5db':'#374151'}">${im.icon} ${sanitize(l==='bn'?im.nameBn.replace('ইমাম ',''):im.nameEn.replace('Imam ',''))}</span>
                     </div>
-                    <div class="flex-1 relative" style="height:26px">
+                    <div class="flex-1 relative imam-tl-track" style="height:26px">
                         <div class="w-full h-full absolute rounded-full" style="background:${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)'}"></div>
                         <div class="imam-timeline-bar h-full absolute rounded-full flex items-center px-2 overflow-hidden"
                             style="left:${startPct.toFixed(1)}%;width:${Math.min(widthPct,100-startPct).toFixed(1)}%;min-width:28px;background:${c}">
-                            <span class="text-white text-xs font-bold truncate">${im.birthYear}</span>
+                            <span class="text-white text-xs font-bold truncate imam-tl-bar-year">${im.birthYear}</span>
                         </div>
                     </div>
-                    <div class="flex-shrink-0 text-xs" style="width:46px;color:${d?'#6b7280':'#9ca3af'}">${typeof im.deathYear==='string'?'—':im.deathYear}</div>
+                    <div class="flex-shrink-0 text-xs imam-tl-end" style="width:46px;color:${d?'#6b7280':'#9ca3af'}"><span class="imam-tl-birth-m">${im.birthYear}–</span>${typeof im.deathYear==='string'?`<span class="imam-tl-d-desk">—</span><span class="imam-tl-d-mob">${l==='bn'?'বর্তমান':'Present'}</span>`:im.deathYear}</div>
                 </div>`;
             }).join('')}
         </div>
-        <div class="flex justify-between mt-4 px-0" style="margin-left:142px;margin-right:58px">
+        <div class="flex justify-between mt-4 px-0 imam-tl-axis" style="margin-left:142px;margin-right:58px">
             ${[600,650,700,750,800,850].map(yr=>`<span class="text-xs" style="color:${d?'#4b5563':'#9ca3af'}">${yr}</span>`).join('')}
         </div>
     </div>`;
@@ -2198,6 +2203,11 @@ function quizDiffLabel(key, l) {
 }
 
 function renderQuizPage() {
+    if (typeof renderQuizStatsPage === 'function') {   // quiz-plus.js screens
+        if (state.quizStage === 'stats') return renderQuizStatsPage();
+        if (state.quizStage === 'flash' && state.quizFlash) return renderQuizFlashPage();
+        if (state.quizStage === 'flashDone' && state.quizFlash) return renderQuizFlashDonePage();
+    }
     if (state.quizStage === 'playing' && state.quizPool.length) return renderQuizPlayingPage();
     if (state.quizStage === 'finished' && state.quizPool.length) return renderQuizResultPage();
     return renderQuizSetupPage();
@@ -2241,12 +2251,14 @@ function renderQuizSetupPage() {
             ${state.quizBest > 0 ? `<span class="${d ? 'bg-amber-900 text-amber-300' : 'bg-amber-100 text-amber-700'} text-xs font-bold px-3 py-1.5 rounded-full">🏆 ${l === 'bn' ? 'সেরা স্কোর' : 'Best'}: ${l === 'bn' ? toBengaliDigits(state.quizBest) : state.quizBest}%</span>` : ''}
         </div>
 
+        ${typeof quizPlusProfileCard === 'function' ? quizPlusProfileCard(d, l) : ''}
+
         <button data-action="quizStartDaily" class="w-full text-left rounded-2xl transition-all hover:scale-[1.01] reveal" style="background:linear-gradient(135deg,#7f1d1d,#dc2626);padding:1.4rem 1.6rem;box-shadow:0 8px 28px rgba(220,38,38,.3)">
             <div class="flex items-center gap-4">
                 <div style="font-size:2.2rem" aria-hidden="true">🔥</div>
                 <div class="flex-1">
                     <h3 style="font-weight:800;font-size:1.05rem;color:white;margin-bottom:.2rem">${l === 'bn' ? 'আজকের কুইজ' : 'Quiz of the Day'}</h3>
-                    <p style="font-size:.8rem;color:rgba(255,255,255,.82)">${l === 'bn' ? '৫টি প্রশ্ন — প্রতিদিন নতুন' : '5 questions — new every day'}</p>
+                    ${typeof quizPlusDailySub === 'function' ? quizPlusDailySub(l) : `<p style="font-size:.8rem;color:rgba(255,255,255,.82)">${l === 'bn' ? '৫টি প্রশ্ন — প্রতিদিন নতুন' : '5 questions — new every day'}</p>`}
                 </div>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
             </div>
@@ -2307,13 +2319,15 @@ function renderQuizSetupPage() {
             ${totalAvail === 0 ? quizStartButtonEmptyLabel(l) : ('▶ ' + (l === 'bn' ? 'কুইজ শুরু করুন' : 'Start Quiz') + ' (' + (l === 'bn' ? toBengaliDigits(playCount) : playCount) + ')')}
         </button>
 
+        ${typeof quizPlusSetupExtras === 'function' ? quizPlusSetupExtras(d, l) : ''}
+
         ${recent.length ? `
         <div class="reveal">
             <p class="text-sm font-bold mb-3 ${d ? 'text-gray-300' : 'text-gray-600'}">${l === 'bn' ? 'সাম্প্রতিক ফলাফল' : 'Recent Attempts'}</p>
             <div class="space-y-2">
                 ${recent.map(h => `
                 <div class="flex items-center justify-between ${d ? 'bg-gray-800' : 'bg-gray-50'} rounded-xl px-4 py-3 text-sm">
-                    <span class="${d ? 'text-gray-300' : 'text-gray-600'}">${h.daily ? ('🔥 ' + (l === 'bn' ? 'আজকের কুইজ' : 'Daily')) : quizCatLabel(h.category, l)} · ${h.date}</span>
+                    <span class="${d ? 'text-gray-300' : 'text-gray-600'}">${h.daily ? ('🔥 ' + (l === 'bn' ? 'আজকের কুইজ' : 'Daily')) : (h.mode === 'mistakes' ? ('🔁 ' + (l === 'bn' ? 'ভুল অনুশীলন' : 'Mistakes')) : quizCatLabel(h.category, l))} · ${h.date}</span>
                     <span class="font-bold" style="color:${h.pct >= 80 ? '#059669' : h.pct >= 50 ? '#d97706' : '#dc2626'}">${l === 'bn' ? toBengaliDigits(h.score) : h.score}/${l === 'bn' ? toBengaliDigits(h.total) : h.total} (${l === 'bn' ? toBengaliDigits(h.pct) : h.pct}%)</span>
                 </div>`).join('')}
             </div>
@@ -2343,6 +2357,7 @@ function renderQuizPlayingPage() {
             <h1 class="text-3xl font-bold">🧠 ${t('quiz')}</h1>
             <div class="flex items-center gap-3">
                 ${state.quizIsDaily ? `<span class="text-xs font-bold px-3 py-1 rounded-full" style="background:rgba(220,38,38,.12);color:#dc2626">🔥 ${l === 'bn' ? 'আজকের কুইজ' : 'Daily'}</span>` : ''}
+                ${typeof quizPlusPlayChips === 'function' ? quizPlusPlayChips(l) : ''}
                 <span class="${d ? 'text-gray-400' : 'text-gray-500'} text-sm">${l === 'bn' ? toBengaliDigits(state.quizIndex + 1) : state.quizIndex + 1} / ${l === 'bn' ? toBengaliDigits(total) : total}</span>
             </div>
         </div>
@@ -2404,7 +2419,7 @@ function renderQuizResultPage() {
     const total = state.quizPool.length;
     const score = state.quizScore;
     const pct = total ? Math.round((score / total) * 100) : 0;
-    const isBest = pct > 0 && pct === state.quizBest;
+    const isBest = pct > 0 && pct === state.quizBest && state.quizMode !== 'mistakes';
 
     return `
     <div class="space-y-8">
@@ -2432,6 +2447,8 @@ function renderQuizResultPage() {
                 </button>
             </div>
         </div>
+
+        ${typeof quizPlusResultExtras === 'function' ? quizPlusResultExtras(d, l) : ''}
 
         ${state.quizWrong.length ? `
         <div class="max-w-2xl mx-auto">
@@ -3109,11 +3126,11 @@ function renderAnalyticsPage() {
             </div>
             <p class="text-sm mt-4 ${d?'text-gray-400':'text-gray-500'}">${l==='bn'?'বর্তমান সাইজ:':'Current size:'} <span class="font-bold ${d?'text-green-400':'text-green-600'}">${l==='bn'?fontSizeLabels.bn[state.fontSize]:fontSizeLabels.en[state.fontSize]}</span></p>
         </div>
-        <div class="${d?'bg-gray-800':'bg-white'} border rounded-2xl p-6">
+        ${typeof prayerRemindersLinkCard==='function' ? prayerRemindersLinkCard(d,l) : `        <div class="${d?'bg-gray-800':'bg-white'} border rounded-2xl p-6">
             <h3 class="font-bold text-lg mb-4">${l==='bn'?'নামাজের রিমাইন্ডার':'Prayer Reminder'}</h3>
             <p class="${d?'text-gray-400':'text-gray-600'} text-sm mb-4">${l==='bn'?'নামাজের সময় ব্রাউজার নোটিফিকেশন পেতে নিচের বোতামে চাপুন।':'Press the button below to receive browser notifications at prayer times.'}</p>
             <button data-action="requestNotify" class="${d?'bg-green-900 text-green-300':'bg-green-600 text-white'} px-6 py-2.5 rounded-xl font-semibold hover:opacity-90">🔔 ${t('enableNotify')}</button>
-        </div>
+        </div>`}
     </div>`;
 }
 

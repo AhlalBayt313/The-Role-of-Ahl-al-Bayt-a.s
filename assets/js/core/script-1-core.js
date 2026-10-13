@@ -205,6 +205,16 @@ const quizState = {
     editingQuizQuestion: null,
     customQuizQuestions: [],   // admin-added questions — ADDED to the base bank, never replacing it
     homeQuizPick: null, // selected option index for the home-page "quiz of the day" mini widget (separate from the full quiz page's progress)
+    // ── v121 (quiz-plus.js) ──
+    // quizStage also takes 'stats' | 'flash' | 'flashDone' now. quizProfile/quizMistakes are PERSISTED (raw value is
+    // loaded here and validated lazily by quiz-plus.js); everything else below is session-only.
+    quizMode: 'normal',        // 'normal' | 'daily' | 'mistakes'
+    quizRow: 0,                // current run of correct answers
+    quizSessionXp: 0, quizSessionMastered: 0, quizSessionStartXp: 0,
+    quizSummary: null,         // result-screen summary (see quizPlusFinish)
+    quizFlash: null,           // flashcard session {deck, i, flipped, known, again}
+    quizProfile: null,         // XP / level / badges / daily streak / per-category stats
+    quizMistakes: null,        // {questionId: {s, w, d}} — the mistake bank
 };
 
 // admin blog editor
@@ -300,7 +310,7 @@ function approxHijriNow() {
     today.setHours(0,0,0,0);
     let diff = Math.round((today - REF_GREG) / 86400000);
     let y = REF_HY, m = REF_HM, d = REF_HD;
-    function _hmd(mo,yr){if(mo%2===1)return 30;if(mo===12)return([2,5,7,10,13,15,18,21,24,26,29].includes(yr%30))?30:29;return 29;}
+    function _hmd(mo,yr){if(mo%2===1)return 30;if(mo===12)return([2,5,7,10,13,16,18,21,24,26,29].includes(yr%30))?30:29;return 29;} // v165: 15→16, same leap list as getHijriMonthDays()
     if (diff >= 0) {
         d += diff;
         while (d > _hmd(m, y)) { d -= _hmd(m, y); m++; if (m > 12) { m = 1; y++; } }
@@ -824,6 +834,8 @@ const KEYS = {
     QUIZ_BEST:'ahlbayt_quiz_best',
     CUSTOM_QUIZ:'ahlbayt_custom_quiz',
     QUIZ_TIMER_ENABLED:'ahlbayt_quiz_timer_enabled',
+    QUIZ_PROFILE:'ahlbayt_quiz_profile',
+    QUIZ_MISTAKES:'ahlbayt_quiz_mistakes',
 };
 
 function lsGet(key, fallback=null) {
@@ -892,6 +904,8 @@ function loadState() {
         state.quizBest = lsGetValidated(KEYS.QUIZ_BEST, 0, v => typeof v === 'number' && Number.isFinite(v));
         state.customQuizQuestions = lsGetValidated(KEYS.CUSTOM_QUIZ, [], isArr);
         state.quizTimerEnabled = lsGetValidated(KEYS.QUIZ_TIMER_ENABLED, false, v => typeof v === 'boolean');
+        state.quizProfile = lsGetValidated(KEYS.QUIZ_PROFILE, null, v => v === null || isPlainObj(v));   // validated in depth by quiz-plus.js
+        state.quizMistakes = lsGetValidated(KEYS.QUIZ_MISTAKES, null, v => v === null || isPlainObj(v));
         state.tasbeehCount  = lsGetValidated(KEYS.TASBEEH_COUNT, 0, v => typeof v === 'number' && Number.isFinite(v));
         state.tasbeehLabel  = lsGetValidated(KEYS.TASBEEH_LABEL, 'সুবহানআল্লাহ', v => typeof v === 'string');
         state.tasbeehTarget = lsGetValidated(KEYS.TASBEEH_TARGET, 33, v => typeof v === 'number' && Number.isFinite(v));
@@ -941,6 +955,8 @@ function getStateDefaults() {
         quizIsDaily: false, quizTimerEnabled: false, quizSecondsPerQ: 20, quizTimeLeft: 20,
         quizHistory: [], quizBest: 0, showQuizEditor: false, editingQuizQuestion: null,
         customQuizQuestions: [], homeQuizPick: null,
+        quizMode: 'normal', quizRow: 0, quizSessionXp: 0, quizSessionMastered: 0, quizSessionStartXp: 0,
+        quizSummary: null, quizFlash: null, quizProfile: null, quizMistakes: null,
         showBlogEditor: false, editingPost: null, customPosts: [], blogFilter: '',
         kcTab: 'hadith', kcCategory: '', kcSearch: '', kcPage: 1, kcFatwaMarja: '', kcSourceFilter: '',
         kcDetail: null, kcFavorites: [], kcFilter: 'all', kcLoading: false, kcExpanded: [],
@@ -992,6 +1008,8 @@ function saveState() {
     lsSet(KEYS.QUIZ_BEST, state.quizBest);
     lsSet(KEYS.CUSTOM_QUIZ, state.customQuizQuestions);
     lsSet(KEYS.QUIZ_TIMER_ENABLED, state.quizTimerEnabled);
+    lsSet(KEYS.QUIZ_PROFILE, state.quizProfile);
+    lsSet(KEYS.QUIZ_MISTAKES, state.quizMistakes);
     lsSet(KEYS.TASBEEH_COUNT, state.tasbeehCount);
     lsSet(KEYS.TASBEEH_LABEL, state.tasbeehLabel);
     lsSet(KEYS.TASBEEH_TARGET, state.tasbeehTarget);
@@ -1176,7 +1194,7 @@ const translations = {
         lightMode:'লাইট মোড', loading:'লোড হচ্ছে...', error:'ত্রুটি',
         bookmarks:'বুকমার্ক', admin:'অ্যাডমিন',
         imams:'ইমাম ও মাসুমিন (আ.)', tasbeeh:'তাসবিহ কাউন্টার', quiz:'ইসলামিক কুইজ', asmaul:'আসমাউল হুসনা', qibla:'কিবলা নির্দেশক', familyTree:'বংশধারা',
-        worldMap:'বিশ্ব মানচিত্র',
+        worldMap:'বিশ্ব মানচিত্র', khumsZakat:'খুমুস ও যাকাত', ramadan:'রমজান মোড', prayer:'নামাজের সময়', backup:'ডেটা ব্যাকআপ',
         searchPage:'সার্চ', analytics:'পরিসংখ্যান', hadithOfDay:'আজকের হাদিস',
         newPost:'নতুন পোস্ট', editPost:'পোস্ট সম্পাদনা', deletePost:'মুছুন',
         savePost:'সংরক্ষণ করুন', cancel:'বাতিল', title:'শিরোনাম', content:'বিষয়বস্তু',
@@ -1195,7 +1213,7 @@ const translations = {
         lightMode:'Light Mode', loading:'Loading...', error:'Error',
         bookmarks:'Bookmarks', admin:'Admin',
         imams:'Imams & Masumeen (AS)', tasbeeh:'Tasbeeh Counter', quiz:'Islamic Quiz', asmaul:'Asmaul Husna', qibla:'Qibla Finder', familyTree:'Family Tree',
-        worldMap:'World Map',
+        worldMap:'World Map', khumsZakat:'Khums & Zakat', ramadan:'Ramadan Mode', prayer:'Prayer Times', backup:'Backup & Restore',
         searchPage:'Search', analytics:'Analytics', hadithOfDay:"Today's Hadith",
         newPost:'New Post', editPost:'Edit Post', deletePost:'Delete',
         savePost:'Save Post', cancel:'Cancel', title:'Title', content:'Content',
@@ -1225,10 +1243,12 @@ function prayerFallbackNote(l) {
 async function fetchPrayerTimes(lat, lon, city=null) {
     state.prayerTimesLoading=true; state.prayerTimesError=null;
     try {
-        // method=1: University of Islamic Sciences, Karachi — suitable for Bangladesh
+        // Default method=1: University of Islamic Sciences, Karachi — suitable for Bangladesh.
+        // v123: the user can pick another method (e.g. Jafari) on the Prayer Times page — prMethod() in prayer-reminders.js.
+        const _m = (typeof prMethod === 'function') ? prMethod() : 1;
         let url = lat!=null && lon!=null
-            ? `https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=1`
-            : city ? `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=Bangladesh&method=1`
+            ? `https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=${_m}`
+            : city ? `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=Bangladesh&method=${_m}`
             : (() => { throw new Error('No location'); })();
         const res = await fetch(url);
         if (!res.ok) throw new Error('API error');
@@ -1248,6 +1268,7 @@ async function fetchPrayerTimes(lat, lon, city=null) {
         state.prayerTimesError = state.language==='bn'?'নামাজের সময় লোড করতে ব্যর্থ':'Failed to load prayer times';
     } finally {
         state.prayerTimesLoading = false;
+        if (typeof prScheduleAll === 'function') prScheduleAll();   // v122: re-sync reminders with the (new) times
         // শুধু prayer widget আপডেট করো — পুরো পেজ রি-রেন্ডার এড়াও
         const widget = document.getElementById('prayer-widget-root');
         if (widget) {
@@ -1749,6 +1770,7 @@ function startQuiz(category, difficulty, length) {
     state.quizFinished = false;
     state.quizIsDaily = false;
     state.quizStage = 'playing';
+    if (typeof quizPlusSessionStart === 'function') quizPlusSessionStart('normal');
     if (state.quizTimerEnabled) quizTimerStart();
     render();
 }
@@ -1777,6 +1799,7 @@ function startDailyQuiz() {
     state.quizFinished = false;
     state.quizIsDaily = true;
     state.quizStage = 'playing';
+    if (typeof quizPlusSessionStart === 'function') quizPlusSessionStart('daily');
     if (state.quizTimerEnabled) quizTimerStart();
     render();
 }
@@ -1795,6 +1818,7 @@ function quizAnswer(optIdx) {
     state.quizAnswered = idx;
     if (idx === q.correct) state.quizScore++;
     else state.quizWrong.push({ q: q, userIdx: idx });
+    if (typeof quizPlusRecordAnswer === 'function') quizPlusRecordAnswer(q, idx === q.correct);
     render();
 }
 
@@ -1816,10 +1840,12 @@ function finishQuiz() {
     const pct = total ? Math.round((state.quizScore / total) * 100) : 0;
     state.quizHistory.unshift({
         date: localDate(), category: state.quizCategory, difficulty: state.quizDifficulty,
-        score: state.quizScore, total: total, pct: pct, daily: state.quizIsDaily,
+        score: state.quizScore, total: total, pct: pct, daily: state.quizIsDaily, mode: state.quizMode || 'normal',
     });
     if (state.quizHistory.length > 20) state.quizHistory.length = 20;
-    if (pct > state.quizBest) state.quizBest = pct;
+    // Mistake-practice runs draw only from the user's weak questions, so they never set the "best score".
+    if (pct > state.quizBest && state.quizMode !== 'mistakes') state.quizBest = pct;
+    if (typeof quizPlusFinish === 'function') state.quizSummary = quizPlusFinish(total, pct);
     state.quizFinished = true;
     state.quizStage = 'finished';
     saveState();
@@ -1829,6 +1855,7 @@ function finishQuiz() {
 // "আবার খেলুন / Play Again" on the finished screen — same filters (or the
 // same daily challenge), freshly shuffled.
 function quizPlayAgain() {
+    if (state.quizMode === 'mistakes' && typeof quizPlusStartMistakes === 'function') { quizPlusStartMistakes(); return; }
     if (state.quizIsDaily) { startDailyQuiz(); return; }
     startQuiz(state.quizCategory, state.quizDifficulty, state.quizLength);
 }
@@ -1864,6 +1891,7 @@ function quizTimerStart() {
             if (state.quizAnswered === null && state.quizPool[state.quizIndex]) {
                 state.quizAnswered = -1; // -1 = timed out, nothing picked
                 state.quizWrong.push({ q: state.quizPool[state.quizIndex], userIdx: -1 });
+                if (typeof quizPlusRecordAnswer === 'function') quizPlusRecordAnswer(state.quizPool[state.quizIndex], false);
             }
             render();
         }
@@ -1954,6 +1982,8 @@ function homeQuizAnswer(optIdx) {
 // NOTIFICATION ACTIONS
 // ============================================================================
 async function requestNotificationPermission() {
+    // v122: the full flow (settings, permission, scheduling) lives in prayer-reminders.js
+    if (typeof prSetMaster === 'function') { return prSetMaster(true); }
     if (!('Notification' in window)) {
         showToast(state.language==='bn'?'এই ব্রাউজার নোটিফিকেশন সাপোর্ট করে না':'Your browser does not support notifications','warning');
         return;
@@ -1974,6 +2004,8 @@ async function requestNotificationPermission() {
 }
 let _notifTimers = [];
 function schedulePrayerNotifications() {
+    // v122: delegate to prayer-reminders.js (SW notifications, settings, 24 h window). Old body kept as fallback.
+    if (typeof prScheduleAll === 'function') { prScheduleAll(); return; }
     if (!state.prayerTimes || state.prayerTimesSource === 'default' || Notification.permission!=='granted') return;
     _notifTimers.forEach(id => clearTimeout(id));
     _notifTimers = [];

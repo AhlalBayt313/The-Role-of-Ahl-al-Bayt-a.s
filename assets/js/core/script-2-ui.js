@@ -115,6 +115,7 @@ function setupEventListeners() {
                     render(); break; }
                 case 'openCalEvent': if(typeof calOpenEvent==='function') calOpenEvent(param); break;
                 case 'setCalSecondary': if(typeof calToggleSecondary==='function') calToggleSecondary(param); break;
+                case 'calToday': { const hn = approxHijriNow(); calState.hijriMonth = hn.month; calState.hijriYear = hn.year; calState.selDay = 0; calState.lastNavDir = null; render(); break; }
                 case 'calPrev': calState.lastNavDir='prev'; calState.hijriMonth--; if(calState.hijriMonth<1){calState.hijriMonth=12;calState.hijriYear--;} render(); break;
                 case 'calNext': calState.lastNavDir='next'; calState.hijriMonth++; if(calState.hijriMonth>12){calState.hijriMonth=1;calState.hijriYear++;} render(); break;
                 case 'showAdminLogin': state.showAdminLogin=true; render(); break;
@@ -209,6 +210,30 @@ function setupEventListeners() {
                 case 'quizPlayAgain': quizPlayAgain(); break;
                 case 'quizBackToSetup': quizBackToSetup(); break;
                 case 'quizShare': shareQuizResult(); break;
+                // v121 quiz-plus.js
+                case 'quizShowStats': quizTimerClear(); state.quizStage = 'stats'; render(); window.scrollTo(0, 0); break;
+                case 'quizStartMistakes': quizPlusStartMistakes(); break;
+                case 'quizStartFlash': quizPlusStartFlash(); break;
+                case 'quizFlashFlip': quizPlusFlashFlip(); break;
+                case 'quizFlashMark': quizPlusFlashMark(param === '1'); break;
+                case 'quizResetProgress': quizPlusReset(); break;
+                // v122 prayer-reminders.js
+                case 'prToggleMaster': prSetMaster(!prLoad().on); break;
+                case 'prTogglePrayer': prTogglePrayer(param); break;
+                case 'prSetLead': prSetLead(param); break;
+                case 'prToggleEvents': prToggleEvents(); break;
+                case 'prSetDays': prSetDays(param); break;
+                case 'prTest': prTest(); break;
+                case 'prExportIcs': prExportIcs(); break;
+                case 'prSetMethod': prSetMethod(param); break;
+                // v123 data-backup.js
+                case 'abToggleExport': abToggleExport(param); break;
+                case 'abToggleImport': abToggleImport(param); break;
+                case 'abSetMode': abSetMode(param); break;
+                case 'abExport': abExport(); break;
+                case 'abPickFile': abPickFile(); break;
+                case 'abApply': abApply(); break;
+                case 'abCancel': abCancel(); break;
                 case 'openQuizEditor': state.showQuizEditor=true; state.editingQuizQuestion={}; render(); break;
                 case 'closeQuizEditor': closeOverlayAnimated(() => { state.showQuizEditor=false; state.editingQuizQuestion=null; }); break;
                 case 'editQuizQuestion': {
@@ -598,49 +623,10 @@ function setupEventListeners() {
 // ============================================================================
 // RENDER HELPERS — Hijri Banner & Daily Ayah (avoid nested backticks)
 // ============================================================================
-function renderHijriBanner(d, l) {
-    const h = approxHijriNow();
-    const todayGreg = new Date();
-    const todayDay = todayGreg.getDate();
-    const eventKey = h.month + '-' + h.day;
-    const ev = hijriEvents[eventKey];
-
-    // ── 1st: English date ──
-    const engMonths = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    const engStr = todayDay + ' ' + engMonths[todayGreg.getMonth()] + ' ' + todayGreg.getFullYear();
-
-    // ── 2nd: Bengali date (বঙ্গাব্দ) ──
-    const bd = getBanglaDateFull(todayGreg);
-    const bnStr = bd.strFull;
-
-    // ── 3rd: Arabic/Hijri in Bengali language ──
-    const hijriStr = toBengaliDigits(h.day) + ' ' + hijriMonthsBn[h.month-1] + ' ' + toBengaliDigits(h.year) + ' হিজরি';
-
-    const textColor = d ? '#6ee7b7' : '#065f46';
-    const sepColor  = d ? 'rgba(110,231,183,.35)' : 'rgba(5,150,105,.25)';
-
-    const badgeHtml = '<span class="hijri-badge ' + (d?'text-emerald-300':'text-emerald-800') + '" style="gap:0;padding:5px 14px;flex-wrap:wrap;row-gap:2px">'
-        + '<span style="display:inline-flex;align-items:center;gap:5px">'
-        + '<span style="font-size:.75rem;font-weight:700;color:' + (d?'#93c5fd':'#1d4ed8') + '">📅 ' + engStr + '</span>'
-        + '<span style="color:' + sepColor + ';margin:0 3px">|</span>'
-        + '<span style="font-size:.75rem;font-weight:700;color:' + (d?'#6ee7b7':'#065f46') + '">🗓️ ' + bnStr + '</span>'
-        + '<span style="color:' + sepColor + ';margin:0 3px">|</span>'
-        + '<span style="font-size:.75rem;font-weight:700;color:' + (d?'#fcd34d':'#92400e') + '">🌙 ' + hijriStr + '</span>'
-        + '</span></span>';
-
-    const evHtml = ev
-        ? '<div class="event-banner flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-bold" style="background:linear-gradient(135deg,rgba(180,83,9,.15),rgba(5,150,105,.1));border:1px solid rgba(180,83,9,.3);color:' + (d?'#fcd34d':'#92400e') + '">✨ ' + (l==='bn'?ev.bn:ev.en) + ' <span style="opacity:.7">' + (l==='bn'?'আজকে':'today') + '</span></div>'
-        : '';
-    return '<div class="flex flex-wrap items-center justify-between gap-3 mb-6 px-1">'
-        + badgeHtml
-        + evHtml
-        + '</div>';
-}
-
 // ============================================================================
 // v107 — HIJRI DATE STRIP (V2) + MOON-SIGHTING ADJUSTMENT ROW
 // ----------------------------------------------------------------------------
-// renderHijriBanner() above is kept as-is (no longer called from home).
+// (The old renderHijriBanner() was removed in v119; this V2 strip replaced it.)
 // V2: one primary Hijri date (large) + one small secondary line
 // (Gregorian · Bangla). All three dates use the SAME numeral language as the
 // UI language: bn -> Bengali digits + Bengali month names, en -> Latin digits
@@ -1059,11 +1045,11 @@ function renderHeader()
 {
     const d=state.darkMode; const l=state.language;
     const mainPages=['home','blog','knowledgeCenter','dua','ahlulBaytUnified'];
-    const morePages=['tasbeeh','quiz','qibla','worldMap','calendar','bookmarks','about','contact'];
+    const morePages=['tasbeeh','quiz','qibla','khumsZakat','ramadan','worldMap','calendar','bookmarks','backup','about','contact'];
     const bg   = d ? 'rgba(6,20,16,.95)'      : 'rgba(255,255,255,.90)';
     const border = d ? 'rgba(52,211,153,.08)' : 'rgba(5,150,105,.10)';
     const pageIcons={home:'🏠',imams:'👑',dua:'🤲',knowledgeCenter:'📚',blog:'📝',tasbeeh:'📿',
-        calendar:'📅',quiz:'🧠',qibla:'🧭',worldMap:'🗺️',familyTree:'🌳',ahlulBaytUnified:'👑',bookmarks:'🔖',about:'ℹ️',contact:'📞'};
+        calendar:'📅',quiz:'🧠',qibla:'🧭',khumsZakat:'🧮',ramadan:'🌙',worldMap:'🗺️',familyTree:'🌳',ahlulBaytUnified:'👑',bookmarks:'🔖',backup:'💾',about:'ℹ️',contact:'📞'};
     return `
     <header style="background:${bg};border-bottom:1.5px solid ${border};" class="sticky top-0 z-30" id="main-header">
         <div class="max-w-7xl mx-auto px-4" style="padding-top:14px;padding-bottom:14px">
@@ -1183,9 +1169,9 @@ function renderHeader()
 function renderMobileMenu()
 {
     const d=state.darkMode; const l=state.language;
-    const allPages=['home','blog','dua','ahlulBaytUnified','worldMap','knowledgeCenter','calendar','tasbeeh','quiz','bookmarks','about','contact','searchPage','analytics'];
+    const allPages=['home','blog','dua','ahlulBaytUnified','worldMap','knowledgeCenter','calendar','tasbeeh','khumsZakat','ramadan','quiz','bookmarks','backup','about','contact','searchPage','analytics'];
     const icons={home:'🏠',blog:'📝',imams:'👑',familyTree:'🌳',ahlulBaytUnified:'👑',worldMap:'🗺️',dua:'🤲',knowledgeCenter:'📚',
-        calendar:'📅',tasbeeh:'📿',quiz:'🧠',bookmarks:'🔖',
+        calendar:'📅',tasbeeh:'📿',khumsZakat:'🧮',ramadan:'🌙',quiz:'🧠',bookmarks:'🔖',backup:'💾',
         about:'ℹ️',contact:'📞',searchPage:'🔍',analytics:'📊'};
     const border = d?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)';
     return `
@@ -1288,7 +1274,7 @@ function renderFooter()
         ['https://www.youtube.com/@Ahl_al-Bayt_a.s','#ff0000',l==='bn'?'ইউটিউব':'YouTube','<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>'],
         ['https://x.com/Ahl_al_Bayt_a_s','#e7e9ea','X / Twitter','<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>'],
     ];
-    const quickLinks=['home','blog','imams','dua','knowledgeCenter','tasbeeh','quiz','asmaul','qibla','contact'];
+    const quickLinks=['home','blog','imams','dua','knowledgeCenter','tasbeeh','quiz','asmaul','qibla','khumsZakat','backup','contact'];
     return `
     <footer class="footer-luxury mt-16" style="position:relative;overflow:hidden">
 
@@ -1511,6 +1497,7 @@ function renderPrayerWidget()
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                         ${hasGPS?(l==='bn'?'GPS সক্রিয়':'GPS Live'):(l==='bn'?'আমার লোকেশন':'My Location')}
                     </button>
+                    ${typeof prayerBellButton==='function'?prayerBellButton(d,l):''}
                     <button data-action="changePage" data-param="prayer"
                         style="font-size:.68rem;font-weight:700;padding:5px 11px;border-radius:50px;cursor:pointer;
                         background:${d?'rgba(255,255,255,.07)':'rgba(0,0,0,.04)'};
@@ -1632,8 +1619,9 @@ function renderLatestBlogWidget(d, l) {
         'ইবাদত':    {color:'#1D9E75', bg:d?'rgba(29,158,117,.18)':'#E1F5EE', fg:d?'#5DCAA5':'#0F6E56'},
         'আখলাক':    {color:'#D4537E', bg:d?'rgba(212,83,126,.18)':'#FBEAF0', fg:d?'#ED93B1':'#72243E'},
         'ইতিহাস':   {color:'#B5651D', bg:d?'rgba(181,101,29,.18)':'#FBEEDD', fg:d?'#E3A96B':'#7A4212'},
+        'ব্যক্তিত্ব':{color:'#0E8FA3', bg:d?'rgba(14,143,163,.18)':'#E0F4F7', fg:d?'#6CCBDB':'#0B5563'},
     };
-    const catIconHome = {'রমজান':'🌙','আহলে বাইত':'👑','দোয়া':'🤲','কুরআন':'📗','ইবাদত':'🕌','আখলাক':'⚖️','ইতিহাস':'📜'};
+    const catIconHome = {'রমজান':'🌙','আহলে বাইত':'👑','দোয়া':'🤲','কুরআন':'📗','ইবাদত':'🕌','আখলাক':'⚖️','ইতিহাস':'📜','ব্যক্তিত্ব':'🎓'};
     const defaultCatHome = {color:'#888780', bg:d?'rgba(136,135,128,.18)':'#F1EFE8', fg:d?'#B4B2A9':'#5F5E5A'};
     const getCatHome = c => CAT_HOME[c] || defaultCatHome;
     const fmtDateHome = (dateStr) => {
@@ -1760,6 +1748,7 @@ function renderHomePage()
         {icon:'📿',title:l==='bn'?'তাসবিহ':'Tasbeeh',          desc:l==='bn'?'ডিজিটাল তাসবিহ':'Digital counter',             page:'tasbeeh', color:'#b45309',bg:'rgba(180,83,9,.1)', faint:'rgba(180,83,9,.25)'},
         {icon:'☀️',title:l==='bn'?'৯৯ নাম':'99 Names',         desc:l==='bn'?'আসমাউল হুসনা':'Names of Allah',               page:'asmaul',  color:'#b45309',bg:'rgba(180,83,9,.1)', faint:'rgba(180,83,9,.25)'},
         {icon:'🧭',title:l==='bn'?'কিবলা':'Qibla',             desc:l==='bn'?'কিবলার দিক':'Qibla direction',                 page:'qibla',   color:'#b45309',bg:'rgba(180,83,9,.1)', faint:'rgba(180,83,9,.25)'},
+        {icon:'🧮',title:l==='bn'?'খুমুস ও যাকাত':'Khums & Zakat', desc:l==='bn'?'হিসাব ক্যালকুলেটর':'Calculator',              page:'khumsZakat', color:'#b45309',bg:'rgba(180,83,9,.1)', faint:'rgba(180,83,9,.25)'},
         {icon:'🗺️',title:l==='bn'?'বিশ্ব মানচিত্র':'World Map', desc:l==='bn'?'পবিত্র স্থানসমূহ':'Holy sites',              page:'worldMap',color:'#b45309',bg:'rgba(180,83,9,.1)', faint:'rgba(180,83,9,.25)'},
     ];
     const renderFeatureCard=(f,fi)=>`
@@ -1947,6 +1936,9 @@ function renderHomePage()
     <!-- ④ MAIN CONTENT + SIDEBAR LAYOUT -->
     <div class="home-layout-grid">
         <div class="home-main-col">
+
+            <!-- Today's Amal (v127) -->
+            ${typeof todayAmalCard==='function'?todayAmalCard(d,l):''}
 
             <!-- Today in Islamic History -->
             <div style="margin-bottom:3rem">${renderTodayInHistoryWidget(l,d)}</div>

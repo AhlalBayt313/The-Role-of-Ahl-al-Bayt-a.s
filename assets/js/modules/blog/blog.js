@@ -249,6 +249,7 @@ const BLOG_CATEGORY_NAMES = {
     'ইবাদত': 'Worship',
     'আখলাক': 'Ethics',
     'ইতিহাস': 'History',
+    'ব্যক্তিত্ব': 'Personalities',
 };
 function blogCanonicalCategory(cat) {
     if (!cat) return cat;
@@ -303,8 +304,9 @@ function renderBlogPage() {
         'ইবাদত':    {color:'#1D9E75', bg:d?'rgba(29,158,117,.18)':'#E1F5EE', fg:d?'#5DCAA5':'#0F6E56', en:BLOG_CATEGORY_NAMES['ইবাদত']},
         'আখলাক':    {color:'#D4537E', bg:d?'rgba(212,83,126,.18)':'#FBEAF0', fg:d?'#ED93B1':'#72243E', en:BLOG_CATEGORY_NAMES['আখলাক']},
         'ইতিহাস':   {color:'#B5651D', bg:d?'rgba(181,101,29,.18)':'#FBEEDD', fg:d?'#E3A96B':'#7A4212', en:BLOG_CATEGORY_NAMES['ইতিহাস']},
+        'ব্যক্তিত্ব':{color:'#0E8FA3', bg:d?'rgba(14,143,163,.18)':'#E0F4F7', fg:d?'#6CCBDB':'#0B5563', en:BLOG_CATEGORY_NAMES['ব্যক্তিত্ব']},
     };
-    const catIcon = {'রমজান':'🌙','আহলে বাইত':'👑','দোয়া':'🤲','কুরআন':'📗','ইবাদত':'🕌','আখলাক':'⚖️','ইতিহাস':'📜'};
+    const catIcon = {'রমজান':'🌙','আহলে বাইত':'👑','দোয়া':'🤲','কুরআন':'📗','ইবাদত':'🕌','আখলাক':'⚖️','ইতিহাস':'📜','ব্যক্তিত্ব':'🎓'};
     const defaultCat = {color:'#888780', bg:d?'rgba(136,135,128,.18)':'#F1EFE8', fg:d?'#B4B2A9':'#5F5E5A'};
 
     // Bug #4 fix: custom posts (added via the admin editor's free-text category
