@@ -24,46 +24,73 @@
     ],
     "siblings": [
       2
+    ],
+    "children": [
+      4
     ]
   },
   "4": {
     "parents": [
       3
+    ],
+    "children": [
+      5
     ]
   },
   "5": {
     "parents": [
       4
+    ],
+    "children": [
+      6
     ]
   },
   "6": {
     "parents": [
       5
+    ],
+    "children": [
+      7
     ]
   },
   "7": {
     "parents": [
       6
+    ],
+    "children": [
+      8
     ]
   },
   "8": {
     "parents": [
       7
+    ],
+    "children": [
+      9
     ]
   },
   "9": {
     "parents": [
       8
+    ],
+    "children": [
+      10
     ]
   },
   "10": {
     "parents": [
       9
+    ],
+    "children": [
+      11
     ]
   },
   "11": {
     "parents": [
       10
+    ],
+    "children": [
+      12
     ]
   },
   "12": {

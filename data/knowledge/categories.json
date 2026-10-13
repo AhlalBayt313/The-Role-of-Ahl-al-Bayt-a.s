@@ -49,10 +49,40 @@
       "en": "Imam Ja'far al-Sadiq (AS)"
     },
     {
-      "key": "others",
-      "icon": "⭐",
-      "bn": "বাকি ইমামগণ (আ.)",
-      "en": "Remaining Imams (AS)"
+      "key": "kazim",
+      "icon": "🌿",
+      "bn": "ইমাম মুসা আল-কাযিম (আ.)",
+      "en": "Imam Musa al-Kadhim (AS)"
+    },
+    {
+      "key": "ridha",
+      "icon": "🌟",
+      "bn": "ইমাম আলী আর-রেযা (আ.)",
+      "en": "Imam Ali al-Ridha (AS)"
+    },
+    {
+      "key": "jawad",
+      "icon": "💎",
+      "bn": "ইমাম মুহাম্মদ আল-জাওয়াদ (আ.)",
+      "en": "Imam Muhammad al-Jawad (AS)"
+    },
+    {
+      "key": "hadi",
+      "icon": "🧭",
+      "bn": "ইমাম আলী আল-হাদী (আ.)",
+      "en": "Imam Ali al-Hadi (AS)"
+    },
+    {
+      "key": "askari",
+      "icon": "📜",
+      "bn": "ইমাম হাসান আল-আসকারি (আ.)",
+      "en": "Imam Hasan al-Askari (AS)"
+    },
+    {
+      "key": "mahdi",
+      "icon": "☀️",
+      "bn": "ইমাম মাহদী (আ.)",
+      "en": "Imam al-Mahdi (AJ)"
     },
     {
       "key": "topical",
