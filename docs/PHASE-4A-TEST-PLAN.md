@@ -23,18 +23,22 @@ testing or debugging):
 8. `assets/js/core/script-1-core.js`
 9. `assets/js/core/script-2-ui.js`
 10. `assets/js/core/script-3-pages.js`
-11. `assets/js/core/search-engine.js` (takes over `performSearch`/`searchKnowledgeCenter`)
-12. `assets/js/core/world-map.js`
-13. `assets/js/core/editor-modal.js`
-14. `assets/js/core/script-4-boot.js`
-15. `assets/js/core/phase4-animations.js`
+11. `assets/js/core/quiz-plus.js` (v121 — quiz XP/levels/badges, streak, mistake bank, flashcards)
+12. `assets/js/core/prayer-reminders.js` (v122 — prayer reminders, SW notifications, .ics export, `prayer` page)
+13. `assets/js/core/data-backup.js` (v123 — backup & restore page)
+14. `assets/js/core/search-engine.js` (takes over `performSearch`/`searchKnowledgeCenter`)
+15. `assets/js/core/world-map.js`
+16. `assets/js/core/editor-modal.js`
+17. `assets/js/core/khums-zakat.js` (v120 — Khums & Zakat calculator page)
+18. `assets/js/core/script-4-boot.js`
+19. `assets/js/core/phase4-animations.js`
 
 Important: the app has **no URL/hash routing and no `popstate` handling**
 anywhere. All navigation is via `state.currentPage` / `state.previousPage`
 and explicit "← Back" buttons. This affects the History checklist below —
 there is no browser back/forward state to restore beyond what already exists.
 
-Also: `loadJSONSync()` uses synchronous XHR, which only works when served
+Also: the data loader (`loadJSONAsync()`) uses fetch(), which only works when served
 over http(s) (e.g. GitHub Pages) — it will **not** work opening `index.html`
 via `file://`. Always test on a served URL.
 
@@ -65,7 +69,7 @@ already there.
 - [ ] Site loads on the production URL with no console errors
 - [ ] `#app` mount point renders content (not blank)
 - [ ] Service worker (`sw.js`) registers without error; `offline.html` fallback works when offline
-- [ ] All 15 scripts in the load order above load with HTTP 200 (check Network tab)
+- [ ] All 19 scripts in the load order above load with HTTP 200 (check Network tab)
 - [ ] No script throws due to a missing dependency (e.g. `world-map.js` loading before `script-1-core.js`)
 - [ ] Manifest (`manifest.json`) and icons load correctly for PWA install prompt
 
@@ -185,7 +189,7 @@ introducing URL routing:
 
 ## 15. Data-Loader/Error-State Checklist
 
-- [ ] `loadJSONSync()` returns `null` (not a throw) on a 404 or malformed JSON, and logs `[data-loader] Failed to load ...`
+- [ ] `loadJSONAsync()` returns `null` (not a throw) on a 404 or malformed JSON, and logs `[data-loader] Failed to load ...`  _(v119: was loadJSONSync, removed)_
 - [ ] `loadJSONAsync()` follows the documented retry/backoff contract (3 attempts, 600ms × attempt) and resolves to `null` on total failure, without throwing
 - [ ] App does not hard-crash if a single data file fails to load (degrades gracefully — confirm which UI sections show empty vs. broken state)
 - [ ] Confirm `file://` is NOT used for testing (sync XHR requires http/https)
