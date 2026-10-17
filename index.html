@@ -221,7 +221,11 @@ if(preview) quick=has('quick');
 else if(!quick) setTimeout(mark,2400);
 /* minimum on-screen time: the splash leaves once the app is ready AND this much time has passed since it started */
 window.__spT0 = Date.now();
-window.__splashMs = reduce ? 2800 : (quick ? 2800 : (lite ? 5000 : 5500)); /* v160: long enough to read the text (was 1200 / 1500 / 2800 / 3000); tap still skips */
+/* v174: splash made longer — first visit of the day 8000 ms (lite 7000), repeat visits 4000 ms; reduced-motion stays short (2800).
+   Earlier values: v160 5500 / 5000 / 2800 / 2800. Tap/Esc/Enter still skips after 0.9 s. */
+window.__splashMs = reduce ? 2800 : (quick ? 4000 : (lite ? 7000 : 8000));
+/* stretch the progress line so it fills right up to the exit instead of finishing at ~2.7 s and sitting full (CSS: 1.18 s after a 1.49 s delay) */
+if(!quick && !reduce){ var pb=Q('.splash-progress i'); if(pb) pb.style.animationDuration=((window.__splashMs-1490)/1000-0.5).toFixed(2)+'s'; }
 if(reduce) S.classList.add('sp-reduce'); /* prefers-reduced-motion: static, short splash (CSS shows the finished frame at once) */
 if(quick) S.classList.add('sp-quick');
 /* browser chrome colour follows the splash */
