@@ -726,5 +726,245 @@
     "questionEn": "What reasoning does the Qur'an present for prohibiting interest (riba)?",
     "answerBn": "কুরআনে সুদকে আল্লাহ ও রাসূলের বিরুদ্ধে যুদ্ধ ঘোষণার শামিল বলে অভিহিত করা হয়েছে এবং একে দান-সদকার বিপরীতে স্থাপন করা হয়েছে— দান সম্পদে বরকত আনে, আর সুদ তা ধ্বংস করে, এভাবে কুরআন সুদকে অর্থনৈতিক ও আধ্যাত্মিক উভয় দিক থেকেই ক্ষতিকর হিসেবে চিত্রিত করেছে।",
     "answerEn": "The Qur'an describes taking interest as tantamount to waging war against Allah and His Messenger, and contrasts it directly with charity — charity brings blessing to wealth, while interest destroys it — framing riba as harmful both economically and spiritually."
+  },
+  {
+    "id": "q117",
+    "category": "general",
+    "questionBn": "আয়াতুল্লাহ সায়্যিদ আলী খামেনেই কে ছিলেন?",
+    "questionEn": "Who was Ayatollah Sayyid Ali Khamenei?",
+    "answerBn": "সায়্যিদ আলী হুসাইনি খামেনেই (১৯৩৯–২০২৬) ইরানের ইসলামি প্রজাতন্ত্রের দ্বিতীয় সর্বোচ্চ নেতা এবং শিয়াদের একজন মারজা ছিলেন; ১৯৮৯ সাল থেকে এই দায়িত্বে ছিলেন। উইকিশিয়ার সূত্র অনুযায়ী তিনি ২০২৬ সালের ২৮ ফেব্রুয়ারি (১০ রমজান ১৪৪৭ হি.) শাহাদাত বরণ করেন। তাঁর জীবদ্দশার ফতোয়া এখন ঐতিহাসিক ফতোয়া — নতুন বিষয়ে আপনার বর্তমান জীবিত মারজার কাছে জেনে নিন। (সূত্র: উইকিশিয়া)",
+    "answerEn": "Sayyid Ali Husayni Khamenei (1939–2026) was the second Leader of the Islamic Republic of Iran and a Shia Marja’, holding the office from 1989. According to WikiShia he was martyred on 28 February 2026 (10 Ramadan 1447 AH). His rulings are now historical — for new matters, ask your current living Marja. (Source: WikiShia)"
+  },
+  {
+    "id": "q118",
+    "category": "fiqh",
+    "questionBn": "কেন আয়াতুল্লাহ খামেনেই সুন্নিদের শ্রদ্ধেয় ব্যক্তিত্বদের অবমাননা নিষিদ্ধ করে ফতোয়া দিয়েছিলেন?",
+    "questionEn": "Why did Ayatollah Khamenei issue a fatwa prohibiting insults against the figures revered by Sunnis?",
+    "answerBn": "কুয়েতি শিয়া আলেম ইয়াসের আল-হাবিব উম্মুল মুমিনিন আয়েশার প্রতি অবমাননাকর কথা বলার পর সৌদি শিয়া আলেমরা এ বিষয়ে তাঁর ফিকহি মত জানতে চান; তারই জবাবে এই ফতোয়া আসে। উইকিশিয়া ও উইকিপিডিয়ার বর্ণনায় ফতোয়াটি ব্যাপক প্রশংসা পায়, এবং আলী মোতাহহারি এতে ইসলামি ঐক্যের ওপর জোর দেওয়ার কথা বলেন। (সূত্র: উইকিশিয়া, উইকিপিডিয়া)",
+    "answerEn": "After Kuwaiti Shia cleric Yasser al-Habib insulted Aisha, the Mother of the Faithful, Saudi Shia scholars asked for his jurisprudential opinion, and the fatwa was issued in reply. Per WikiShia and Wikipedia it received widespread praise, and Ali Motahari noted its emphasis on Islamic unity. (Sources: WikiShia, Wikipedia)"
+  },
+  {
+    "id": "q119",
+    "category": "fiqh",
+    "questionBn": "আয়াতুল্লাহ খামেনেইর মতে \"আদিল (ন্যায়পরায়ণ)\" ব্যক্তি কে?",
+    "questionEn": "Who is a \"just\" person according to Ayatollah Khamenei?",
+    "answerBn": "তাঁর সংজ্ঞায় আদিল সেই ব্যক্তি যিনি এমন পরহেজগার যে ইচ্ছাকৃতভাবে কোনো গুনাহ করেন না। (সূত্র: Practical Laws of Islam, প্রশ্ন ১৩)",
+    "answerEn": "A just person is so pious that he would not commit a sin deliberately. (Source: Practical Laws of Islam, q.13)"
+  },
+  {
+    "id": "q120",
+    "category": "fiqh",
+    "questionBn": "আয়াতুল্লাহ খামেনেইর মতে \"আ'লাম\" (সর্বাধিক জ্ঞানী মুজতাহিদ) নির্ধারণের মাপকাঠি কী?",
+    "questionEn": "What is the criterion for the \"A'lam\" (most knowledgeable mujtahid) per Ayatollah Khamenei?",
+    "answerBn": "তিনটি ক্ষেত্রে অন্য মুজতাহিদদের চেয়ে বেশি যোগ্যতা: (১) আল্লাহর বিধান চেনা, (২) প্রমাণ থেকে বিধান উদ্ঘাটন, (৩) নিজের যুগের পরিস্থিতি সম্পর্কে এতটা পরিচিতি, যা বিধানের বিষয় চিনতে ও ফতোয়া প্রকাশে প্রভাব ফেলে। (সূত্র: Practical Laws of Islam, প্রশ্ন ১৬)",
+    "answerEn": "Greater competence than other mujtahids in: (1) identifying the laws of Allah, (2) inferring obligations from their proofs, (3) familiarity with the situation of his time insofar as it affects identifying the subjects of rulings and expressing the verdict. (Source: Practical Laws of Islam, q.16)"
+  },
+  {
+    "id": "q121",
+    "category": "fiqh",
+    "questionBn": "তাকলিদ না করে নিজে ইহতিয়াত (সতর্কতা) মেনে চলা কি ভালো?",
+    "questionEn": "Is it better to just follow precaution (ihtiyat) rather than doing taqlid?",
+    "answerBn": "আয়াতুল্লাহ খামেনেই বলেন, ইহতিয়াতের ক্ষেত্র ও পদ্ধতি জানা দরকার; খুব কম মানুষ তা জানেন, আর ইহতিয়াতে সাধারণত বেশি সময় লাগে। তাই সব শর্তসম্পন্ন যোগ্য মুজতাহিদের তাকলিদ করাই ভালো। (সূত্র: Practical Laws of Islam, প্রশ্ন ২)",
+    "answerEn": "He says one must know where precaution applies and how; only a few people know this, and it usually takes more time — so it is better to follow a well-qualified mujtahid with all required conditions. (Source: Practical Laws of Islam, q.2)"
+  },
+  {
+    "id": "q122",
+    "category": "fiqh",
+    "questionBn": "কোন মুজতাহিদ আ'লাম — এ ব্যাপারে নিশ্চিত হব কীভাবে?",
+    "questionEn": "How can one be sure which mujtahid is the A'lam?",
+    "answerBn": "আয়াতুল্লাহ খামেনেইর মতে মুজতাহিদের আ'লাম হওয়া যাচাই হয় তাঁকে পরীক্ষা করে নিশ্চিত হওয়ার মাধ্যমে — প্রচারের কারণে নিশ্চিত বা আস্থাশীল হলেও চলবে — অথবা দুইজন ন্যায়পরায়ণ বিশেষজ্ঞের সাক্ষ্যে। (সূত্র: Practical Laws of Islam, প্রশ্ন ২৪-২৫)",
+    "answerEn": "A marji's ijtihad and being the most learned is verified by examining him and becoming certain — even through publicity that makes one certain or confident — or by the testimony of two just experts. (Source: Practical Laws of Islam, q.24–25)"
+  },
+  {
+    "id": "q123",
+    "category": "fiqh",
+    "questionBn": "মারজার তাকলিদের জন্য খামেনেইর মতে বিশেষ কোন শর্তগুলো আছে?",
+    "questionEn": "Which particular conditions for a Marja does Ayatollah Khamenei stress?",
+    "answerBn": "ওয়াজিব ইহতিয়াত হিসেবে মারজাকে ন্যায়পরায়ণ হওয়ার পাশাপাশি বিদ্রোহী প্রবৃত্তির ওপর পূর্ণ নিয়ন্ত্রণ ও দুনিয়াবি লোভের মুখে আত্মসংযমী হতে হবে (প্রশ্ন ১২)। আরও: একাধিক যোগ্য মুজতাহিদের ফতোয়া ভিন্ন হলে আ'লামকে অনুসরণ করা ওয়াজিব ইহতিয়াত — তবে আ'লামের ফতোয়া ইহতিয়াতবিরোধী প্রমাণিত হলে এবং অন্যজনেরটি ইহতিয়াতসম্মত হলে নয় (প্রশ্ন ২০)। (সূত্র: Practical Laws of Islam)",
+    "answerEn": "As an obligatory caution, a marji' must — besides being just — have full control over rebellious desires and self-restraint in the face of worldly aspirations (q.12). If qualified mujtahids differ, following the most learned is an obligatory caution — unless it is proven his fatwa is contrary to caution while the other's agrees with it (q.20). (Source: Practical Laws of Islam)"
+  },
+  {
+    "id": "q124",
+    "category": "general",
+    "questionBn": "আহলে কিতাব কি নাজিস? আয়াতুল্লাহ খামেনেইর মত কী?",
+    "questionEn": "Are the People of the Book najis? What was Ayatollah Khamenei's view?",
+    "answerBn": "তিনি বলেন, আহলে কিতাব সত্তাগতভাবে নাজিস — এটা প্রমাণিত নয়; বরং আমরা তাদের মূলত পাক মনে করি (প্রশ্ন ৩১২)। কেবল শেষ নবীর (সা.) নবুয়তে বিশ্বাস করলেই কেউ মুসলিম গণ্য হয় না; তবে আহলে কিতাবভুক্ত হলে তারা পাক (প্রশ্ন ৩১৩)। (সূত্র: Practical Laws of Islam)",
+    "answerEn": "He said it is not established that the People of the Book are najis in themselves; rather, we consider them pure by themselves (q.312). Merely believing in the Prophethood of the Seal of the Prophets (s) does not make one Muslim, but such persons are considered pure if they belong to the People of the Book (q.313). (Source: Practical Laws of Islam)"
+  },
+  {
+    "id": "q125",
+    "category": "fiqh",
+    "questionBn": "\"আমর বিল মারুফ ও নাহি আনিল মুনকার\"-এ ইসলামি সরকার থাকলে ব্যক্তির দায়িত্ব কতটুকু?",
+    "questionEn": "How far does an individual's duty of enjoining good and forbidding wrong extend when an Islamic government exists?",
+    "answerBn": "আয়াতুল্লাহ খামেনেইর মতে ইসলামি রাষ্ট্রে আমর বিল মারুফ ও নাহি আনিল মুনকারে জনগণের দায়িত্ব মুখে বলা পর্যন্ত সীমিত — এটি ফিকহি ফতোয়া, সরকারি আদেশ নয় (প্রশ্ন ১০৪৭)। মুখের বাইরে ব্যবস্থা (যেমন মারধর, আটক) লাগলে ইসলামি সরকারের অধীনে তা নেতার বা সংশ্লিষ্ট কর্তৃপক্ষ, পুলিশ ও বিচার বিভাগের অনুমতির ওপর নির্ভর করে (প্রশ্ন ১০৪৮)। অর্থাৎ যে স্তরে অপরাধীর জীবন বা সম্পদে প্রভাব পড়ে না, তা কারও অনুমতি ছাড়াই সবার ওপর ওয়াজিব। (সূত্র: Practical Laws of Islam)",
+    "answerEn": "Per Ayatollah Khamenei, under the Islamic state the people's duty in enjoining the good and forbidding evil is limited to oral enjoining and forbidding — this is a jurisprudential fatwa, not a governmental ordinance (q.1047). Measures beyond words (e.g. hitting, imprisoning) depend, in a country ruled by an Islamic government, on the Leader's permission or that of the police and courts (q.1048). So grades that do not affect the perpetrator's life or property need no one's permission and are obligatory on all. (Source: Practical Laws of Islam)"
+  },
+  {
+    "id": "q126",
+    "category": "fiqh",
+    "questionBn": "তাকলিদ কি শুধু যুক্তির বিষয়, নাকি ফিকহি দলিলেও প্রতিষ্ঠিত?",
+    "questionEn": "Is taqlid merely a rational matter or is it also grounded in jurisprudential evidence?",
+    "answerBn": "আয়াতুল্লাহ খামেনেই বলেন, তাকলিদের ফিকহি দলিল আছে এবং যুক্তিও তা মানে — ধর্মীয় বিধান না-জানা ব্যক্তি যোগ্য মুজতাহিদের শরণাপন্ন হবেন। (সূত্র: Practical Laws of Islam, প্রশ্ন ১)",
+    "answerEn": "He says taqlid has its jurisprudential evidence in addition to reason, which also admits that a person ignorant of religious rules should refer to a qualified mujtahid. (Source: Practical Laws of Islam, q.1)"
+  },
+  {
+    "id": "q127",
+    "category": "fiqh",
+    "questionBn": "যার সন্তান শীঘ্রই বালেগ হবে, সে মারজা নির্বাচনে কীভাবে সাহায্য করবে?",
+    "questionEn": "How should a parent help a child who is about to reach puberty choose a marji'?",
+    "answerBn": "কন্যা বা সন্তান নিজের ধর্মীয় দায়িত্ব বুঝতে না পারলে অভিভাবককে তাকে শিক্ষা ও দিকনির্দেশনা দিতে হবে। (সূত্র: Practical Laws of Islam, প্রশ্ন ৪)",
+    "answerEn": "If she cannot recognize her religious duty in this regard, you should educate and guide her. (Source: Practical Laws of Islam, q.4)"
+  },
+  {
+    "id": "q128",
+    "category": "fiqh",
+    "questionBn": "যে মুজতাহিদ মারজা নন বা যাঁর রিসালা নেই, তাঁর তাকলিদ কি জায়েজ?",
+    "questionEn": "May one follow a mujtahid who is not a marji' and has no book of practical laws?",
+    "answerBn": "হ্যাঁ — তাঁর যোগ্য মুজতাহিদ হওয়া প্রমাণিত হলে অসুবিধা নেই। মারজা হওয়া বা রিসালা থাকা তাকলিদ সহিহ হওয়ার শর্ত নয়। (সূত্র: Practical Laws of Islam, প্রশ্ন ৯)",
+    "answerEn": "Yes, if it is proven that he is a qualified mujtahid there is no problem; being a marji' or having a book of practical laws is not a condition. (Source: Practical Laws of Islam, q.9)"
+  },
+  {
+    "id": "q129",
+    "category": "fiqh",
+    "questionBn": "অন্য দেশের আলেমের তাকলিদ কি জায়েজ?",
+    "questionEn": "Is it permissible to follow a scholar from another country?",
+    "answerBn": "হ্যাঁ — যোগ্য মুজতাহিদের তাকলিদের জন্য তাঁকে একই দেশের নাগরিক বা বাসিন্দা হতে হয় না। (সূত্র: Practical Laws of Islam, প্রশ্ন ১১)",
+    "answerEn": "Following a qualified mujtahid does not require that he comes from or resides in the same country as the mukallaf. (Source: Practical Laws of Islam, q.11)"
+  },
+  {
+    "id": "q130",
+    "category": "fiqh",
+    "questionBn": "মারজার ফতোয়া কীভাবে জানা যায়?",
+    "questionEn": "How can one obtain a marji's fatwas?",
+    "answerBn": "তাঁর কাছ থেকে নিজে শুনে, একজন বা দুজন ন্যায়পরায়ণ বা নির্ভরযোগ্য ব্যক্তির মাধ্যমে, অথবা তাঁর রিসালা দেখে — যদি তাতে ভুল না থাকে। (সূত্র: Practical Laws of Islam, প্রশ্ন ২৫)",
+    "answerEn": "By hearing it from him, from one or two just persons or a reliable person, or by referring to his book of practical laws provided there is no mistake in it. (Source: Practical Laws of Islam, q.25)"
+  },
+  {
+    "id": "q131",
+    "category": "fiqh",
+    "questionBn": "ফতোয়া বর্ণনা করতে কি মুজতাহিদের অনুমতি লাগে?",
+    "questionEn": "Is a mujtahid's permission needed to relate his fatwas?",
+    "answerBn": "না, ফতোয়া বর্ণনা বা বিধান ব্যাখ্যায় অনুমতি লাগে না। তবে যিনি ভুল করেন তাঁর জন্য এ কাজ জায়েজ নয়; ভুল টের পেলে শ্রোতাকে জানানো ওয়াজিব। শ্রোতার আস্থা না এলে তাঁর কথায় আমল করা জায়েজ নয়। (সূত্র: Practical Laws of Islam, প্রশ্ন ২৮)",
+    "answerEn": "No permission is required, but it is not permissible for someone who makes mistakes; if he notices a mistake he must tell the listener, and the listener may not act on it unless confident of its correctness. (Source: Practical Laws of Islam, q.28)"
+  },
+  {
+    "id": "q132",
+    "category": "fiqh",
+    "questionBn": "সবচেয়ে জ্ঞানী মুজতাহিদ ইহতিয়াতের ফতোয়া দিলে কার কাছে ফেরা যায়?",
+    "questionEn": "If the most learned mujtahid gives an obligatory-caution ruling, whom may one refer to?",
+    "answerBn": "আ'লামের স্পষ্ট ফতোয়া না থাকলে দ্বিতীয় আ'লামের কাছে যাওয়া যায়, যাঁর স্পষ্ট ফতোয়া আছে ও যিনি ওয়াজিব ইহতিয়াত দেননি। তিনিও ইহতিয়াত দিলে তৃতীয় আ'লাম — এভাবে। (সূত্র: Practical Laws of Islam, প্রশ্ন ৮)",
+    "answerEn": "If the most learned has no fatwa, one may refer to the second most learned who has a clear-cut fatwa; if he too calls for obligatory caution, to the third, and so on. (Source: Practical Laws of Islam, q.8)"
+  },
+  {
+    "id": "q133",
+    "category": "fiqh",
+    "questionBn": "ইমাম খোমেনির অনুসারীরা কি তাঁর তাকলিদে থাকতে পারেন, নতুন সমস্যায় কী করবেন?",
+    "questionEn": "May followers of Imam Khomeini keep following him, and what about new issues?",
+    "answerBn": "আয়াতুল্লাহ খামেনেই বলেন, ইমামের তাকলিদে থাকা যায়, তা ছাড়ার কারণ নেই। নতুন বিষয়ে শরয়ি হুকুম লাগলে তাঁর দপ্তরে যোগাযোগ করা যাবে। (সূত্র: Practical Laws of Islam, প্রশ্ন ৪৩)",
+    "answerEn": "He said they may keep following the Imam and there is no reason to give up his taqlid; for new issues they may correspond with his office. (Source: Practical Laws of Islam, q.43)"
+  },
+  {
+    "id": "q134",
+    "category": "general",
+    "questionBn": "হাস্যকৌতুক অনুষ্ঠান শোনা বা দেখা কি জায়েজ?",
+    "questionEn": "Is it permissible to listen to or watch humorous programs?",
+    "answerBn": "ব্যঙ্গ ও হাস্যরসের অনুষ্ঠান শুনতে বা দেখতে সমস্যা নেই, যদি তাতে কোনো মুমিনকে অপমান না করা হয়। (সূত্র: Practical Laws of Islam, প্রশ্ন ১১৭৭)",
+    "answerEn": "There is no problem in listening to satire and humorous shows unless they involve insult to a believer. (Source: Practical Laws of Islam, q.1177)"
+  },
+  {
+    "id": "q135",
+    "category": "general",
+    "questionBn": "টিভি-ফিল্মে অপরিচিত নারীর ছবি দেখার হুকুম কী?",
+    "questionEn": "What is the ruling on watching images of unknown women on TV and films?",
+    "answerBn": "আয়াতুল্লাহ খামেনেইর মতে চলচ্চিত্র ও ছবি দেখার হুকুম বাস্তবে নন-মাহরামের দিকে তাকানোর মতো নয়; কামনা বা মন্দ উদ্দেশ্য না থাকলে এবং খারাপ পরিণতি না হলে আপত্তি নেই। তবে অশ্লীল ছবি দেখা সাধারণত কামদৃষ্টির সাথে জড়িত ও হারামের ভূমিকা, তাই হারাম। (সূত্র: Practical Laws of Islam, প্রশ্ন ১১৮০)",
+    "answerEn": "Watching moving pictures and photographs is not ruled like looking at non-mahrams in reality; there is no objection if not done with lust or evil intention and without bad results — but watching obscene pictures is haram since it is intertwined with looking with sexual urge. (Source: Practical Laws of Islam, q.1180)"
+  },
+  {
+    "id": "q136",
+    "category": "fiqh",
+    "questionBn": "অঙ্গদান বা বিক্রি সম্পর্কে আয়াতুল্লাহ খামেনেইর মত কী?",
+    "questionEn": "What was Ayatollah Khamenei's view on donating or selling organs?",
+    "answerBn": "জীবিত মুকাল্লাফ বড় ক্ষতি ছাড়া নিজের অঙ্গ রোগীর জন্য দান বা বিক্রি করতে পারেন — আপত্তি নেই। কোনো সম্মানিত প্রাণ বাঁচানোর একমাত্র উপায় হলে এবং দাতা অসহনীয় অবস্থায় না পড়লে ও ক্ষতি না হলে তা ওয়াজিব। (সূত্র: Practical Laws of Islam, প্রশ্ন ১২৮৩)",
+    "answerEn": "There is no objection to a living mukallaf donating or selling his organs for the sick to use, provided he will not be considerably harmed; it becomes obligatory when it is the only way to save a respectful life and he is not put in an unbearable situation. (Source: Practical Laws of Islam, q.1283)"
+  },
+  {
+    "id": "q137",
+    "category": "fiqh",
+    "questionBn": "স্বামী-স্ত্রীর শুক্রাণু-ডিম্বাণু দিয়ে আইভিএফ (টেস্ট-টিউব বেবি) কি জায়েজ?",
+    "questionEn": "Is IVF permissible using a married couple's own sperm and egg?",
+    "answerBn": "প্রক্রিয়াটি সত্তাগতভাবে জায়েজ। তবে নিষিদ্ধ দেখা-স্পর্শের মতো হারাম প্রাথমিক ধাপ এড়ানো ওয়াজিব। এভাবে জন্ম নেওয়া সন্তান সেই দম্পতির, যাঁদের শুক্রাণু ও ডিম্বাণু নেওয়া হয়েছে। (সূত্র: Practical Laws of Islam, প্রশ্ন ১২৬৪)",
+    "answerEn": "There is no objection to the procedure in itself, but it is obligatory to avoid preliminary steps involving haram acts like prohibited looking and touching; the child belongs to the couple from whom the sperm and egg were taken. (Source: Practical Laws of Islam, q.1264)"
+  },
+  {
+    "id": "q138",
+    "category": "fiqh",
+    "questionBn": "মৃত্যুর পর অঙ্গদানের ওসিয়ত করা কি জায়েজ?",
+    "questionEn": "Is it permissible to make a will to donate one's organs after death?",
+    "answerBn": "মৃত ব্যক্তির অঙ্গ অন্যের জীবন বাঁচাতে বা রোগ সারাতে প্রতিস্থাপনে ব্যবহারে আপত্তি নেই, এবং ওসিয়তে তা লেখাতেও আপত্তি নেই। তবে যে অঙ্গ কাটলে মৃতদেহের মুছলা (বিকৃতি) হয় বা প্রচলিত দৃষ্টিতে মৃতের মর্যাদা ক্ষুণ্ণ হয়, তা এই হুকুমের আওতায় নয়। (সূত্র: Practical Laws of Islam, প্রশ্ন ১২৮৫)",
+    "answerEn": "There is no harm in using a dead person's organs for transplantation to save lives or treat illnesses, and no objection to writing it in one's will; but this does not cover organs whose removal amounts to mutilation of the body or violates the dignity of the dead by common view. (Source: Practical Laws of Islam, q.1285)"
+  },
+  {
+    "id": "q139",
+    "category": "general",
+    "questionBn": "খ্রিস্টানদের মতো মুসলিমদের ঈসা (আ.)-এর জন্মদিন (ক্রিসমাস) উদযাপন কি সমস্যাজনক?",
+    "questionEn": "Is there a problem in Muslims celebrating Christmas along with Christians?",
+    "answerBn": "আয়াতুল্লাহ খামেনেই বলেন, হযরত ঈসা মসিহ (আ.)-এর জন্মদিন উদযাপনে কোনো ক্ষতি নেই। (সূত্র: Practical Laws of Islam, প্রশ্ন ১৩৭৩)",
+    "answerEn": "He said there is no harm in celebrating the birthday of the Holy Jesus Christ (a.s.). (Source: Practical Laws of Islam, q.1373)"
+  },
+  {
+    "id": "q140",
+    "category": "general",
+    "questionBn": "একজন মুসলিম কি অমুসলিম দেশে অভিবাসন করতে পারেন?",
+    "questionEn": "May a Muslim immigrate to a non-Muslim country?",
+    "answerBn": "নিজের ধর্মের প্রতি অনীহা ও বিচ্যুতির আশঙ্কা না থাকলে আপত্তি নেই। ঈমান ও সতর্কতা রক্ষা করে সাধ্যমতো ইসলাম ও মুসলমানদের পক্ষে দাঁড়ানো অভিবাসীর ওপর আবশ্যক। (সূত্র: Practical Laws of Islam, প্রশ্ন ১৩৭৬)",
+    "answerEn": "No objection provided there is no fear of detesting and deviating from one's religion; having preserved his faith and observed caution, it is incumbent on the immigrant, to the best of his ability, to defend Islam and Muslims. (Source: Practical Laws of Islam, q.1376)"
+  },
+  {
+    "id": "q141",
+    "category": "general",
+    "questionBn": "যে দেশে নগ্নতা ও খারাপ গান সহজলভ্য, সেখানে থাকা এবং সদ্য বালেগ হওয়া তরুণদের কর্তব্য কী?",
+    "questionEn": "What is the ruling on living in countries where sinful acts are readily available, and the duty of newly mature youths there?",
+    "answerBn": "সেখানে থাকা সত্তাগতভাবে সমস্যা নয়, তবে ইসলামি শরিয়তে হারাম কাজ থেকে বেঁচে থাকতে হবে। বাঁচতে না পারলে তাদের জন্য ইসলামি দেশে অভিবাসন ওয়াজিব হয়ে যায়। (সূত্র: Practical Laws of Islam, প্রশ্ন ১৩৭৮)",
+    "answerEn": "Residing there is no problem in itself, but they should avoid acts haram by Islamic law; if they fail, immigrating to Islamic countries becomes obligatory for them. (Source: Practical Laws of Islam, q.1378)"
+  },
+  {
+    "id": "q142",
+    "category": "fiqh",
+    "questionBn": "আয়াত নামাজ কী এবং কখন ওয়াজিব হয়?",
+    "questionEn": "What is the ayat prayer and when does it become obligatory?",
+    "answerBn": "আয়াত নামাজ দুই রাকাতের, প্রতি রাকাতে পাঁচ রুকু ও দুই সিজদা। সূর্য বা চন্দ্রগ্রহণ (আংশিকও), ভূমিকম্প এবং অধিকাংশ মানুষকে ভীত করে এমন অস্বাভাবিক ঘটনা (যেমন অস্বাভাবিক কালো-লাল-হলুদ ঝড়, গভীর অন্ধকার, ভূমিধস, আকাশের গর্জন) হলে তা ওয়াজিব। গ্রহণ ও ভূমিকম্প ছাড়া যা অধিকাংশ মানুষকে ভয় দেখায় না, তাতে ওয়াজিব নয়। (সূত্র: Practical Laws of Islam, প্রশ্ন ৭০৭)",
+    "answerEn": "It comprises two rak'ahs with five rukus and two prostrations in each; it becomes obligatory due to solar and lunar eclipses (even partial ones), an earthquake, and any abnormal phenomenon that scares most people (unusual black/red/yellow storm, intense darkness, landslide, a cry from the heavens), but not by what does not frighten most people, except eclipses and earthquakes. (Source: Practical Laws of Islam, q.707)"
+  },
+  {
+    "id": "q143",
+    "category": "fiqh",
+    "questionBn": "আয়াত নামাজ কীভাবে পড়তে হয়?",
+    "questionEn": "How is the ayat prayer performed?",
+    "answerBn": "একটি পদ্ধতি: নিয়ত ও তাকবিরের পর ফাতিহা ও আরেকটি সূরা পড়ে রুকু; রুকু থেকে উঠে আবার ফাতিহা ও সূরা পড়ে রুকু — এভাবে পাঁচ রুকু পূর্ণ করে দুই সিজদা; দ্বিতীয় রাকাতও একইভাবে, শেষে তাশাহহুদ ও সালাম। আরও কয়েকটি বৈধ পদ্ধতি আছে (যেমন একটি সূরাকে ভাগ করে পাঁচ রুকুতে পড়া) — বিস্তারিত মূল বইয়ে। (সূত্র: Practical Laws of Islam, প্রশ্ন ৭০৮)",
+    "answerEn": "One form: after intention and takbir, recite the Fatiha and another chapter then perform ruku'; rise and again recite the Fatiha and a chapter, and so on until five rukus; then two prostrations; the second rak'ah is the same, ending with tashahhud and salam. There are other valid forms (e.g. dividing one chapter across the five rukus) — details in the book. (Source: Practical Laws of Islam, q.708)"
+  },
+  {
+    "id": "q144",
+    "category": "fiqh",
+    "questionBn": "গর্ভবতী বা দুধদানকারী নারী ক্ষতির আশঙ্কা সত্ত্বেও রোজা রাখলে কী হুকুম?",
+    "questionEn": "What is the ruling if a pregnant or breast-feeding woman fasts despite fearing harm?",
+    "answerBn": "যুক্তিসঙ্গত আশঙ্কা সত্ত্বেও রোজা রাখলে, বা পরে জানলে যে রোজা তার বা সন্তানের জন্য ক্ষতিকর ছিল, ওই রোজা বাতিল এবং কাযা ওয়াজিব। রক্তপণ (দিয়াত) কিনা তা নির্ভর করে রোজাই গর্ভস্থ সন্তানের মৃত্যুর কারণ — এটি প্রমাণিত হওয়ার ওপর। (সূত্র: Practical Laws of Islam, প্রশ্ন ৭৪২)",
+    "answerEn": "If she fasted despite reasonable fears of harm, or later discovered that fasting was harmful to her or her baby, her fast is invalid and she must make it up; liability for blood money depends on proving that the fasting caused the death. (Source: Practical Laws of Islam, q.742)"
+  },
+  {
+    "id": "q145",
+    "category": "fiqh",
+    "questionBn": "কাযা রোজা কয়েক বছর পিছিয়ে গেলে ফিদইয়া কতবার দিতে হবে?",
+    "questionEn": "If qada fasts are delayed for several years, how many times is fidyah due?",
+    "answerBn": "কয়েক বছর পিছিয়ে গেলেও প্রতিদিনের জন্য শুধু একবার ফিদইয়া ওয়াজিব — এক মুদ (৭৫০ গ্রাম) খাবার। শুধু তখনই, যখন গাফলতিতে ও শরয়ি ওজর ছাড়া পরের রমজান পর্যন্ত কাযা পিছিয়েছে; বৈধ রোজা রাখতে বাধা দেওয়া ওজর থাকলে ফিদইয়া নেই। (সূত্র: Practical Laws of Islam, প্রশ্ন ৭৯৯)",
+    "answerEn": "Only one fidyah — one mudd (750 g) of food per day — is obligatory even if delayed for several years, and only if the qada was delayed until the next Ramadan due to negligence without a shar'i excuse; with an excuse preventing valid fasting no fidyah is due. (Source: Practical Laws of Islam, q.799)"
+  },
+  {
+    "id": "q146",
+    "category": "fiqh",
+    "questionBn": "আযান ও তাশাহহুদে আলী (আ.)-এর বেলায়াতের সাক্ষ্যের হুকুমে পার্থক্য কী?",
+    "questionEn": "What is the difference in ruling between the testimony to Imam Ali's wilayah in adhan and in tashahhud?",
+    "answerBn": "আযান ও ইকামতে \"আশহাদু আন্না আলিয়্যান ওয়ালিয়্যুল্লাহ\" শিয়া মাযহাবের প্রতীক হিসেবে ও আল্লাহর নৈকট্যের নিয়তে বলা ভালো ও গুরুত্বপূর্ণ, যদিও এটি আযান-ইকামতের অংশ নয় (প্রশ্ন ৪৫২)। কিন্তু নামাজের তাশাহহুদে বড় মারজাগণের রিসালায় উল্লেখিত বাক্যের বাইরে কিছু যোগ করা উচিত নয়, সেটি সত্য হলেও (প্রশ্ন ৪৯৭)। (সূত্র: Practical Laws of Islam, প্রশ্ন ৪৫২ ও ৪৯৭)",
+    "answerEn": "In adhan and iqamah, saying it as a symbol of the Shia school for the sake of nearness to Allah is good and important though not part of them (q.452); in the tashahhud of prayer, nothing should be added beyond what the great marji's mention in their books, even if true (q.497). (Source: Practical Laws of Islam, q.452 & 497)"
   }
 ]
