@@ -3792,6 +3792,10 @@ html[data-theme="dark"] .dzx-bismillah > span { color: #fcd34d; text-shadow: 0 0
 
 /* Reference / compiler / reading-time chips. */
 .dzx-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+/* v171+: reader header — title block must not be squeezed beside the action buttons on mobile.
+   Basis 280px lets flex-wrap move the buttons below the title on narrow screens;
+   on wide screens flex-grow keeps the old side-by-side layout. */
+.dzx-head-main { flex: 1 1 280px; min-width: 0; }
 .dzx-chip {
     font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px;
     color: #92400e; background: rgba(201,162,39,.12); border: 1px solid rgba(201,162,39,.30);

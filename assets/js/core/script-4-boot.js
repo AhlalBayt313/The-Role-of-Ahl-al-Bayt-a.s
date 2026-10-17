@@ -132,6 +132,8 @@ function renderReadZiyaratPage() {
     const z=state.currentZiyarat; const d=state.darkMode; const l=state.language;
     if(!z) return renderDuaPage();
     const hasVerses = Array.isArray(z.verses) && z.verses.length > 0;
+    // Count only real verses (with Arabic text); bn-only note/heading lines are not verses
+    const verseCount = hasVerses ? (z.verses.filter(v => v && v.ar).length || z.verses.length) : 0;
     // PHASE 3 (2026-08-22): identifier for the shared bookmark/favorite/copy/
     // share action bar — mirrors the id resolution already used by the
     // 'readZiyarat' dispatcher case (by id, else array position).
@@ -275,11 +277,11 @@ function renderReadZiyaratPage() {
             <div style="background:${d?'linear-gradient(135deg,#1c1a0e,#1a2219)':'linear-gradient(135deg,#fffbea,#f0fdf4)'};padding:2rem 2rem 1.5rem">
                 ${dzxBismillah()}
                 <div class="flex justify-between items-start gap-4 flex-wrap">
-                    <div class="flex-1">
+                    <div class="flex-1 dzx-head-main">
                         <div class="flex items-center gap-2 mb-3 flex-wrap">
                             <span class="text-xs px-3 py-1.5 rounded-full font-bold" style="background:rgba(180,83,9,.15);color:#b45309;border:1px solid rgba(180,83,9,.3)">☪️ ${l==='bn'?'যিয়ারত':'Ziyarat'}</span>
                             ${z.occasion?`<span class="text-xs px-2 py-1 rounded-full font-semibold" style="background:rgba(251,191,36,.15);color:#92400e;border:1px solid rgba(251,191,36,.3)">📅 ${sanitize(z.occasion)}</span>`:''}
-                            ${hasVerses?`<span class="text-xs px-2 py-1 rounded-full font-semibold" style="background:rgba(5,150,105,.12);color:#065f46;border:1px solid rgba(5,150,105,.25)">${z.verses.length} ${l==='bn'?'পঙক্তি':'verses'}</span>`:''}
+                            ${hasVerses?`<span class="text-xs px-2 py-1 rounded-full font-semibold" style="background:rgba(5,150,105,.12);color:#065f46;border:1px solid rgba(5,150,105,.25)">${verseCount} ${l==='bn'?'পঙক্তি':'verses'}</span>`:''}
                         </div>
                         <h1 class="text-2xl md:text-3xl font-black leading-tight mb-1">${sanitize(l==='bn'?z.titleBn:z.titleEn)}</h1>
                         ${z.source?`<p class="text-sm mt-2" style="color:${d?'#fbbf24':'#b45309'}">📚 ${sanitize(z.source)}</p>`:''}
@@ -311,7 +313,7 @@ function renderReadZiyaratPage() {
 
             <div style="padding:1.2rem 1.6rem;background:${d?'rgba(180,83,9,.06)':'rgba(180,83,9,.04)'};border-top:1px solid ${d?'rgba(255,255,255,.05)':'rgba(180,83,9,.08)'}">
                 <p class="text-xs text-center" style="color:${d?'#6b7280':'#9ca3af'}">
-                    ${l==='bn'?'মোট '+z.verses.length+' পঙক্তি — আরবি ও বাংলা অনুবাদ সহ':'Total '+z.verses.length+' verses with Arabic & Bengali translation'}
+                    ${l==='bn'?'মোট '+verseCount+' পঙক্তি — আরবি ও বাংলা অনুবাদ সহ':'Total '+verseCount+' verses with Arabic & Bengali translation'}
                     ${z.source?' • '+sanitize(z.source):''}
                 </p>
             </div>
@@ -565,7 +567,7 @@ function renderReadAmalPage() {
             <div style="background:${d?'linear-gradient(135deg,#1a1330,#170f2e)':'linear-gradient(135deg,#f5f3ff,#faf5ff)'};padding:2rem 2rem 1.5rem">
                 ${dzxBismillah()}
                 <div class="flex justify-between items-start gap-4 flex-wrap">
-                    <div class="flex-1">
+                    <div class="flex-1 dzx-head-main">
                         <div class="flex items-center gap-2 mb-3 flex-wrap">
                             <span class="text-xs px-3 py-1.5 rounded-full font-bold" style="background:rgba(124,58,237,.15);color:#7c3aed;border:1px solid rgba(124,58,237,.3)">📿 ${l==='bn'?'আমল':'Amal'}</span>
                             ${a.occasion?`<span class="text-xs px-2 py-1 rounded-full font-semibold" style="background:rgba(167,139,250,.15);color:#6d28d9;border:1px solid rgba(167,139,250,.3)">📅 ${sanitize(a.occasion)}</span>`:''}

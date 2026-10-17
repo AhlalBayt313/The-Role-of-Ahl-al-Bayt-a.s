@@ -956,10 +956,6 @@ const CAL_EVENT_LINKS = {
     '7-25': [['z','ziyarat-imam-kazim-1']],
     '8-3':  [['z','ziyarat-warith']],
     '8-15': [['a','amal-nisf-shaban'], ['z','ziyarat-imam-mahdi-concise'], ['z','ziyarat-aal-yasin'], ['z','ziyarat-ahad']],
-    '9-27': [['d','dua-quran-laylatul-qadr-verse']],
-    '10-1': [['d','dua-eid-takbir'], ['d','dua-al-nudbah']],
-    '12-10':[['d','dua-eid-takbir'], ['d','dua-al-nudbah']],
-    '12-24':[['d','dua-quran-mubahala']],
     '9-1':  [['a','amal-ramadan-daily']],
     '9-15': [['z','ziyarat-imam-hasan']],
     '9-19': [['a','amal-laylatul-qadr']],
@@ -977,25 +973,22 @@ function calEventLinksHtml(key, l, d) {
     const bn = l === 'bn';
     const zs = (typeof ziyarats !== 'undefined' && ziyarats) ? ziyarats : [];
     const as = (typeof amals !== 'undefined' && amals) ? amals : [];
-    const ds = (typeof duas !== 'undefined' && Array.isArray(duas)) ? duas : [];  // v168: 'd' links resolve a dua id to its index in duas
     const btns = [];
     links.forEach(function (lk) {
-        let item = null, prm = lk[1];
-        if (lk[0] === 'd') { const di = ds.findIndex(function (x) { return x && x.id === lk[1]; }); if (di >= 0) { item = ds[di]; prm = String(di); } }
-        else item = (lk[0] === 'z' ? zs : as).find(function (x) { return x && x.id === lk[1]; });
+        const item = (lk[0] === 'z' ? zs : as).find(function (x) { return x && x.id === lk[1]; });
         if (!item) return;
         const title = bn ? (item.titleBn || item.titleEn) : (item.titleEn || item.titleBn);
         if (!title) return;
-        btns.push('<button type="button" data-action="' + (lk[0] === 'z' ? 'readZiyarat' : (lk[0] === 'd' ? 'readDua' : 'readAmal')) + '" data-param="' + sanitize(prm) + '"'
+        btns.push('<button type="button" data-action="' + (lk[0] === 'z' ? 'readZiyarat' : 'readAmal') + '" data-param="' + sanitize(lk[1]) + '"'
             + ' style="display:flex;align-items:center;gap:8px;width:100%;min-height:44px;margin-top:6px;padding:8px 12px;border-radius:12px;text-align:left;cursor:pointer;'
             + 'font-size:.85rem;font-weight:600;line-height:1.35;border:1px solid ' + (d ? '#374151' : '#e2e8f0') + ';'
             + 'background:' + (d ? 'rgba(255,255,255,.05)' : '#ffffff') + ';color:' + (d ? '#f3f4f6' : '#111827') + '">'
-            + '<span aria-hidden="true">' + (lk[0] === 'z' ? '🕋' : (lk[0] === 'd' ? '📖' : '🤲')) + '</span><span style="flex:1;min-width:0">' + sanitize(title) + '</span>'
+            + '<span aria-hidden="true">' + (lk[0] === 'z' ? '🕋' : '🤲') + '</span><span style="flex:1;min-width:0">' + sanitize(title) + '</span>'
             + '<span aria-hidden="true" style="opacity:.6">›</span></button>');
     });
     if (!btns.length) return '';
     return '<div style="margin-top:10px"><div style="font-size:.75rem;font-weight:700;color:' + (d ? '#cbd5e1' : '#475569') + '">'
-        + (bn ? '🕋 সংশ্লিষ্ট যিয়ারত, আমল ও দোয়া' : '🕋 Related Ziyarat, Amal & Dua') + '</div>' + btns.join('') + '</div>';
+        + (bn ? '🕋 সংশ্লিষ্ট যিয়ারত ও আমল' : '🕋 Related Ziyarat & Amal') + '</div>' + btns.join('') + '</div>';
 }
 function calDetailHtml(day, month, year, l, d) {
     const bn = l === 'bn';
@@ -1367,11 +1360,17 @@ function renderReadDuaPage()
     // (avoids false positives if a built-in dua happens to have an id-like property)
     const isCustom = state.customDuas.some(x => x === dua) || (typeof dua.id === 'string' && dua.id.startsWith('cd_'));
     const hasVerses = Array.isArray(dua.verses) && dua.verses.length > 0;
+    // Count only real verses (with Arabic text); bn-only note/heading lines are not verses
+    const verseCount = hasVerses ? (dua.verses.filter(v => v && v.ar).length || dua.verses.length) : 0;
     // Prefix custom dua id with "c" so shareDua handler finds it correctly
     const duaIndex = isCustom ? ("c" + dua.id) : duas.indexOf(dua);
 
     // ── verse-by-verse reader (আয়াত বাই আয়াত) ──
-    const versesHtml = hasVerses ? dua.verses.map((v, i) => `
+    let _verseNo = 0;
+    const versesHtml = hasVerses ? dua.verses.map((v, i) => !v.ar ? `
+        <div class="dua-verse-note reveal" style="padding:1rem 1.4rem;border-bottom:1px solid ${d?'rgba(255,255,255,.06)':'rgba(180,83,9,.08)'};
+            ${String(v.bn||'').startsWith('▶')?'font-weight:700;color:'+(d?'#fcd34d':'#92400e')+';':'color:'+(d?'#d1d5db':'#374151')+';'}
+            font-size:.95rem;line-height:1.85">${sanitize(String(v.bn||'').replace(/^▶\s*/,''))}</div>` : (_verseNo++, `
         <div class="dua-verse-row reveal reveal-delay-${(i % 4) + 1}" style="
             display:grid;
             grid-template-columns:1fr 1fr;
@@ -1397,7 +1396,7 @@ function renderReadDuaPage()
                     color:#fff;font-size:.6rem;font-weight:700;
                     display:flex;align-items:center;justify-content:center;
                     font-family:sans-serif;direction:ltr;
-                ">${i+1}</span>
+                ">${_verseNo}</span>
                 <button class="tts-play-btn" onclick="event.stopPropagation();tts.toggle('${(v.ar||'').replace(/'/g,"\\'").replace(/"/g,'&quot;')}')"
                     title="${l==='bn'?'শুনুন':'Listen'}"
                     style="position:absolute;top:.6rem;right:.6rem;width:22px;height:22px;border-radius:50%;
@@ -1437,7 +1436,7 @@ function renderReadDuaPage()
                     font-weight:500;
                 ">${sanitize(v.bn)}</p>
             </div>
-        </div>`).join('') : '';
+        </div>`)).join('') : '';
 
     // ── single-block fallback (no verses, just arabic + meaning) ──
     const fallbackHtml = `
@@ -1476,11 +1475,11 @@ function renderReadDuaPage()
             <div style="background:${d?'linear-gradient(135deg,#1a2e24,#1c2a1c)':'linear-gradient(135deg,#fef9f0,#f0fdf4)'};padding:2rem 2rem 1.5rem">
                 ${dzxBismillah()}
                 <div class="flex justify-between items-start gap-4 flex-wrap">
-                    <div class="flex-1">
+                    <div class="flex-1 dzx-head-main">
                         <div class="flex items-center gap-2 mb-3 flex-wrap">
                             <span class="text-xs px-3 py-1.5 rounded-full font-bold" style="background:rgba(5,150,105,.15);color:#059669;border:1px solid rgba(5,150,105,.3)">🤲 ${l==='bn'?'দোয়া':'Dua'}</span>
                             ${isCustom?`<span class="${d?'gold-badge-dark':'gold-badge'}">${l==='bn'?'কাস্টম':'Custom'}</span>`:''}
-                            ${hasVerses?`<span class="text-xs px-2 py-1 rounded-full font-semibold" style="background:rgba(251,191,36,.15);color:#b45309;border:1px solid rgba(251,191,36,.3)">${dua.verses.length} ${l==='bn'?'পঙক্তি':'verses'}</span>`:''}
+                            ${hasVerses?`<span class="text-xs px-2 py-1 rounded-full font-semibold" style="background:rgba(251,191,36,.15);color:#b45309;border:1px solid rgba(251,191,36,.3)">${verseCount} ${l==='bn'?'পঙক্তি':'verses'}</span>`:''}
                         </div>
                         <h1 class="text-2xl md:text-3xl font-black leading-tight mb-1">${sanitize(l==='bn'?dua.titleBn:dua.titleEn)}</h1>
                         ${dua.source?`<p class="text-sm mt-2" style="color:${d?'#6ee7b7':'#047857'}">📚 ${sanitize(dua.source)}</p>`:''}
@@ -1535,7 +1534,7 @@ function renderReadDuaPage()
             <!-- Footer note -->
             <div style="padding:1.2rem 1.6rem;background:${d?'rgba(5,150,105,.06)':'rgba(5,150,105,.04)'};border-top:1px solid ${d?'rgba(255,255,255,.05)':'rgba(180,83,9,.08)'}">
                 <p class="text-xs text-center" style="color:${d?'#6b7280':'#9ca3af'}">
-                    ${l==='bn'?'মোট '+dua.verses.length+' পঙক্তি — আরবি ও বাংলা অনুবাদ সহ':'Total '+dua.verses.length+' verses with Arabic & Bengali translation'}
+                    ${l==='bn'?'মোট '+verseCount+' পঙক্তি — আরবি ও বাংলা অনুবাদ সহ':'Total '+verseCount+' verses with Arabic & Bengali translation'}
                     ${dua.source?' • '+sanitize(dua.source):''}
                 </p>
             </div>
