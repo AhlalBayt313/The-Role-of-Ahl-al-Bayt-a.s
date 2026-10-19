@@ -134,7 +134,7 @@ window.todayAmalCard = function (d, l) {
     if (!dayHtml && !nightHtml) return '';
     const date = `${dayName(R.dow)} · ${N(R.h.d)} ${monthName(R.h.m)} ${N(R.h.y)}`;
     const ramadanBtn = (R.h.m === 9 || R.h.m === 8)
-        ? `<button type="button" class="am-btn" data-action="changePage" data-param="ramadan">\uD83C\uDF19 ${T('রমজান মোড', 'Ramadan mode')}</button>` : '';
+        ? `<button type="button" class="am-btn" data-action="changePage" data-param="ramadan">\uD83C\uDF19 ${T('রমজান', 'Ramadan')}</button>` : '';
     return `
     <section class="am-card${d ? ' am-d' : ''}" aria-labelledby="am-h">
         <div class="am-head">
@@ -232,6 +232,7 @@ function amPaintTimes() {
         ${t.live ? '' : `<p class="am-note">${T('অফলাইন — সর্বশেষ সংরক্ষিত সময় দেখানো হচ্ছে।', 'Offline — showing the last saved times.')}</p>`}`;
     amTick();
     clearInterval(_amTimer); _amTimer = setInterval(amTick, 1000);
+    try { document.dispatchEvent(new CustomEvent('am:times')); } catch (e) { /* v188 hook for ramadan-plus.js */ }
 }
 function amPaintTimesError() {
     const box = document.getElementById('am-times'); if (!box) return;
@@ -314,7 +315,7 @@ window.renderRamadanPage = function () {
     amStartTimes();
     return `
     <div class="am-wrap${d ? ' am-d' : ''} page-enter" id="am-root">
-        <h2 class="am-title">\uD83C\uDF19 ${T('রমজান মোড', 'Ramadan mode')}</h2>
+        <h2 class="am-title">\uD83C\uDF19 ${T('রমজান', 'Ramadan')}</h2>
         <section class="am-card${d ? ' am-d' : ''}">${status}</section>
         <section class="am-card${d ? ' am-d' : ''}">
             <h3>${T('সেহরি ও ইফতার', 'Sehri and iftar')}</h3>
@@ -342,5 +343,7 @@ document.addEventListener('click', e => {
 
 // test hooks (pure, no DOM)
 window._amRules = amRules; window._amTrackLoad = amTrackLoad;
+window._amTimes = function () { return _amT; };   // v188: read-only access for ramadan-plus.js
+window._amLoadTimes = amLoadTimes;    // v194: lets ramadan-home.js load today's times for the home-page countdown
 window._amResetCache = function () { Object.keys(_monthCache).forEach(k => delete _monthCache[k]); };
 })();

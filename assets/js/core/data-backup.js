@@ -53,7 +53,7 @@ const AB_GROUPS = [
       dbn: 'বর্তমান গণনা, লক্ষ্য ও ইতিহাস', den: 'Current count, target and history' },
     { id: 'ramadan', ic: '\U0001f319', def: true,
       bn: 'রমজান ট্র্যাকার', en: 'Ramadan tracker',
-      dbn: 'রোজার হিসাব (কোন দিন রোজা রাখা হয়েছে)', den: 'Fasting days kept this Ramadan' },
+      dbn: 'রোজার হিসাব (কোন দিন রোজা রাখা হয়েছে) শবে কদরের রাতের ধাপের অগ্রগতি ও রমজানের জার্নাল (ব্যক্তিগত লেখা)', den: 'Fasting days kept this Ramadan, Qadr-night step progress and the Ramadan journal (personal text)' },
     { id: 'finance', ic: '🧮', def: false, sensitive: true,
       bn: 'খুমুস-যাকাতের ইনপুট', en: 'Khums & Zakat inputs',
       dbn: 'আয়, ব্যয়, সম্পদের সংখ্যা — ব্যক্তিগত আর্থিক তথ্য, তাই ডিফল্টে বন্ধ', den: 'Income, expense and wealth figures — personal financial data, so off by default' },
@@ -89,6 +89,10 @@ const AB_SPEC = {
     'ahlbayt_tasbeeh_selected':   { g: 'tasbeeh', t: 'count' },
 
     'ahlbayt_ramadan':            { g: 'ramadan', t: 'obj' },
+    'ahlbayt_qadr_walk':          { g: 'ramadan', t: 'obj' },
+    'ahlbayt_ramadan_journal':    { g: 'ramadan', t: 'obj' },
+    'ahlbayt_qaza_fidya':         { g: 'ramadan', t: 'obj' },
+    'ahlbayt_ramadan_hist':       { g: 'ramadan', t: 'obj' },
     'ahlbayt_khums_zakat':        { g: 'finance', t: 'obj' }
 };
 ['custom_posts', 'custom_duas', 'custom_ziyarat', 'custom_amal', 'custom_hadiths', 'custom_ayahs', 'nahjul_balagha',

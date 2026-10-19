@@ -4469,16 +4469,18 @@ html[data-theme="dark"] .uc-more-item { color: #a7f3d0; }
 html[data-dzx-view="grid"] .dzx-list .uc-card-row p.arabic-text { min-height: calc(17px * 1.95 * 2); }
 html[data-dzx-view="grid"] .dzx-list .uc-card-row > div:first-child p.font-bold { min-height: calc(14.5px * 1.4 * 2); }
 
-/* ── Home "Sections": an odd last card spans the full row, laid out horizontally ── */
-.home-subgroup .grid > .feature-card-luxury:last-child:nth-child(odd) { grid-column: 1 / -1; }
-.home-subgroup .grid > .feature-card-luxury:last-child:nth-child(odd) .feature-card-content {
-    display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: "icon title link" "icon desc link";
-    align-items: center; column-gap: 14px;
+/* ── Home "Sections": an odd last card spans the full row, laid out horizontally — v204: 2-column (phone) layout only; on md+ (4 columns) it is a normal card ── */
+@media (max-width: 767px) {
+    .home-subgroup .grid > .feature-card-luxury:last-child:nth-child(odd) { grid-column: 1 / -1; }
+    .home-subgroup .grid > .feature-card-luxury:last-child:nth-child(odd) .feature-card-content {
+        display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: "icon title link" "icon desc link";
+        align-items: center; column-gap: 14px;
+    }
+    .home-subgroup .grid > .feature-card-luxury:last-child:nth-child(odd) .feature-icon-wrap { grid-area: icon; margin-bottom: 0; }
+    .home-subgroup .grid > .feature-card-luxury:last-child:nth-child(odd) h3 { grid-area: title; margin-bottom: 0; align-self: end; }
+    .home-subgroup .grid > .feature-card-luxury:last-child:nth-child(odd) p  { grid-area: desc; align-self: start; }
+    .home-subgroup .grid > .feature-card-luxury:last-child:nth-child(odd) .feature-card-link { grid-area: link; margin-top: 0; }
 }
-.home-subgroup .grid > .feature-card-luxury:last-child:nth-child(odd) .feature-icon-wrap { grid-area: icon; margin-bottom: 0; }
-.home-subgroup .grid > .feature-card-luxury:last-child:nth-child(odd) h3 { grid-area: title; margin-bottom: 0; align-self: end; }
-.home-subgroup .grid > .feature-card-luxury:last-child:nth-child(odd) p  { grid-area: desc; align-self: start; }
-.home-subgroup .grid > .feature-card-luxury:last-child:nth-child(odd) .feature-card-link { grid-area: link; margin-top: 0; }
 
 /* ── Next-prayer card: note line + honest state ── */
 .np-note { font-size: var(--fs-label, 12px); line-height: 1.45; color: #fde68a; margin-top: 10px; flex-basis: 100%; }
@@ -5113,3 +5115,232 @@ html[data-theme="dark"] .ab-err { background: rgba(248,113,113,.12); color: #fca
    Quick intro hides the bar; reduced-motion keeps its own static rules (.01s !important). */
 #splash-screen:not(.sp-lite):not(.sp-quick) .splash-progress i { animation-duration: 3.6s; }
 #splash-screen.sp-lite:not(.sp-quick) .splash-progress i { animation-duration: 3.5s; }
+
+/* ── v188: Ramadan mode plus — Roza checker, hilal ring + time theme, 30-night journey ── */
+.rp-ring-card { position: relative; border-radius: 20px; padding: .9rem .8rem .8rem; margin-bottom: 1.2rem; color: #f8fafc; overflow: hidden; border: 1px solid rgba(255,255,255,.14); transition: background .8s ease, box-shadow .8s ease; }
+.rp-ring-card svg { display: block; width: 100%; max-width: 22rem; margin: 0 auto; height: auto; }
+.rp-ring-card .rp-track { stroke: rgba(255,255,255,.18); stroke-width: 7; stroke-linecap: round; }
+.rp-ring-card .rp-prog { stroke-width: 7; stroke-linecap: round; transition: stroke-dasharray .9s linear; }
+.rp-ring-card .rp-orb { font-size: 20px; }
+.rp-ring-card .rp-big { font-size: 19px; font-weight: 800; fill: currentColor; }
+.rp-ring-card .rp-sub { font-size: 8.5px; fill: currentColor; opacity: .85; }
+.rp-ring-card .rp-end { font-size: 7.5px; fill: currentColor; opacity: .8; }
+.rp-cap { text-align: center; margin: .35rem 0 0; font-weight: 700; font-size: .95rem; }
+.rp-ring-card.rp-night { background: radial-gradient(1.5px 1.5px at 14% 22%, #fff 99%, transparent), radial-gradient(1px 1px at 38% 14%, #fff 99%, transparent), radial-gradient(1.5px 1.5px at 62% 28%, #fde68a 99%, transparent), radial-gradient(1px 1px at 82% 16%, #fff 99%, transparent), radial-gradient(1px 1px at 90% 40%, #fff 99%, transparent), linear-gradient(160deg, #0b1437 0%, #1e2a6b 100%); }
+.rp-ring-card.rp-night .rp-prog { stroke: #a5b4fc; }
+.rp-ring-card.rp-day { background: linear-gradient(160deg, #7c5a06 0%, #c9a227 100%); color: #fffbeb; }
+.rp-ring-card.rp-day .rp-prog { stroke: #fff7d6; }
+.rp-ring-card.rp-iftar { background: linear-gradient(160deg, #7c2d12 0%, #f59e0b 100%); color: #fffbeb; box-shadow: 0 0 28px rgba(251,191,36,.55); animation: rp-glow 2.4s ease-in-out infinite; }
+.rp-ring-card.rp-iftar .rp-prog { stroke: #fffbeb; }
+@keyframes rp-glow { 0%, 100% { box-shadow: 0 0 14px rgba(251,191,36,.35); } 50% { box-shadow: 0 0 36px rgba(251,191,36,.8); } }
+.rp-iftar-note { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .6rem; margin-top: .6rem; }
+.rp-ring-card .am-btn { background: rgba(255,255,255,.18); color: inherit; border-color: rgba(255,255,255,.4); }
+.rp-input { width: 100%; box-sizing: border-box; min-height: 44px; padding: .55rem .8rem; border-radius: 12px; border: 1px solid rgba(5,150,105,.35); background: transparent; color: inherit; font: inherit; margin: .3rem 0 .5rem; }
+.rp-input:focus-visible { outline: 2px solid #059669; outline-offset: 2px; }
+.rp-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: .6rem; }
+.rp-chip { min-height: 38px; padding: .3rem .75rem; border-radius: 999px; border: 1px solid rgba(5,150,105,.35); background: rgba(5,150,105,.08); color: inherit; font: inherit; font-size: .85rem; cursor: pointer; }
+.rp-chip:hover { background: rgba(5,150,105,.2); }
+.rp-warn { color: #b45309; font-weight: 600; }
+.am-d .rp-warn, .rp-day.am-d .rp-warn { color: #fbbf24; }
+.rp-dchips { display: flex; gap: 6px; overflow-x: auto; padding: .2rem 0 .5rem; scrollbar-width: thin; }
+.rp-dchip { flex: 0 0 auto; width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(5,150,105,.35); background: transparent; color: inherit; font: inherit; font-size: .85rem; cursor: pointer; }
+.rp-dchip.today { border-color: #c9a227; box-shadow: 0 0 0 2px rgba(201,162,39,.35); }
+.rp-dchip.on { background: #059669; color: #fff; border-color: #059669; }
+.rp-day { border: 1px solid rgba(201,162,39,.35); border-radius: 16px; padding: .8rem .9rem; margin: .3rem 0 .7rem; background: rgba(201,162,39,.06); }
+.rp-day-h { display: flex; align-items: center; gap: 8px; font-size: 1.05rem; margin-bottom: .4rem; }
+.rp-today { font-size: .72rem; padding: 2px 8px; border-radius: 999px; background: #c9a227; color: #1f2937; font-weight: 800; }
+.rp-blk { margin-top: .7rem; }
+.rp-blk h4 { margin: 0 0 .3rem; font-size: .9rem; font-weight: 800; color: #047857; }
+.rp-day.am-d .rp-blk h4 { color: #34d399; }
+.rp-ev { margin: 0 0 .35rem; font-weight: 600; }
+.rp-quote { margin: 0 0 .4rem; padding: .5rem .8rem; border-left: 3px solid #c9a227; line-height: 1.65; font-style: normal; }
+.rp-jr-nav { justify-content: space-between; }
+@media (prefers-reduced-motion: reduce) { .rp-ring-card, .rp-ring-card .rp-prog { transition: none; } .rp-ring-card.rp-iftar { animation: none; } }
+
+/* ── v189: 21 Ramadan mourning mode — colours muted by a grey saturation veil (nothing hidden) ── */
+body.rp-mourn::after { content: ""; position: fixed; inset: 0; z-index: 2147483000; pointer-events: none; background: #7a7a7a; mix-blend-mode: saturation; opacity: .7; }
+.rp-mourn-card { border-color: rgba(100,116,139,.5); }
+.rp-mourn-card h3 { color: #475569; }
+.rp-mourn-card.am-d h3 { color: #cbd5e1; }
+
+/* ── v190: iftar invitation card ── */
+.ii-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; margin: .4rem 0 .7rem; }
+.ii-f { display: flex; flex-direction: column; font-size: .8rem; gap: 2px; }
+.ii-f .rp-input { margin: 0; }
+.ii-wide { grid-column: 1 / -1; }
+.ii-canvas { display: block; width: 100%; max-width: 22rem; height: auto; margin: .3rem auto .7rem; border-radius: 14px; box-shadow: 0 4px 18px rgba(0,0,0,.25); }
+@media (max-width: 420px) { .ii-grid { grid-template-columns: 1fr; } }
+
+/* ── v191: Laylatul Qadr night walk ── */
+.qw-sub { margin: .1rem 0 .4rem; }
+.qw-next { font-weight: 800; margin: .2rem 0; }
+.qw-bar { height: 8px; border-radius: 999px; background: rgba(5,150,105,.15); overflow: hidden; margin: .2rem 0 .6rem; }
+.qw-bar i { display: block; height: 100%; background: #059669; border-radius: 999px; transition: width .25s ease; }
+.qw-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
+.qw-li { margin: 0; }
+.qw-step { width: 100%; display: flex; align-items: flex-start; gap: .6rem; text-align: left; min-height: 44px; padding: .6rem .75rem; border-radius: 12px; border: 1px solid rgba(5,150,105,.22); background: rgba(5,150,105,.06); color: inherit; cursor: pointer; line-height: 1.7; }
+.qw-step:hover { background: rgba(5,150,105,.12); }
+.qw-box { flex: 0 0 1.5rem; width: 1.5rem; height: 1.5rem; margin-top: .15rem; border: 2px solid #059669; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-weight: 900; color: #fff; }
+.qw-step.qw-done { background: rgba(5,150,105,.16); }
+.qw-step.qw-done .qw-box { background: #059669; }
+.qw-tx b { display: block; font-size: .75rem; color: #047857; }
+.qw-card.am-d .qw-tx b { color: #34d399; }
+.qw-links { display: flex; flex-wrap: wrap; gap: .4rem; margin: .4rem 0 0 .2rem; }
+.qw-open { min-height: 40px; padding: 0 .75rem; font-size: .85rem; }
+.qw-caveat { margin: .4rem .2rem 0; }
+.qw-jaw { margin: .5rem 0 0 .2rem; }
+.qw-grid { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; margin: .4rem 0; }
+.qw-cell { min-height: 32px; padding: 0; border-radius: 8px; border: 1px solid rgba(5,150,105,.3); background: transparent; color: inherit; font-size: .72rem; cursor: pointer; }
+.qw-cell.qw-done { background: #059669; color: #fff; border-color: #059669; }
+.qw-cell.qw-cur { outline: 2px solid #c9a227; outline-offset: 1px; }
+.qw-read { margin-top: .6rem; padding: .6rem .8rem; border-radius: 14px; border: 1px solid rgba(201,162,39,.4); background: rgba(201,162,39,.06); }
+.qw-read h4 { margin: 0 0 .3rem; font-size: .9rem; font-weight: 800; color: #047857; }
+.qw-card.am-d .qw-read h4 { color: #34d399; }
+.qw-ar { margin: .3rem 0 0; text-align: right; }
+.qw-bn { margin: 0 0 .3rem; line-height: 1.7; font-size: .9rem; opacity: .9; }
+.qw-extra { margin-top: .8rem; padding-top: .6rem; border-top: 1px dashed rgba(5,150,105,.3); }
+.qw-extra h4 { margin: 0 0 .3rem; font-size: .9rem; font-weight: 800; color: #047857; }
+.qw-card.am-d .qw-extra h4 { color: #34d399; }
+.qw-extra p { margin: 0 0 .3rem; line-height: 1.75; }
+.qw-switch { margin-top: .6rem; }
+.qw-chip { min-height: 40px; padding: 0 .85rem; }
+.qw-chip.qw-on { background: #059669; color: #fff; border-color: #059669; }
+.qw-card.am-d .qw-chip.qw-on { color: #04261d; background: #34d399; }
+.qw-step:focus-visible, .qw-cell:focus-visible, .qw-chip:focus-visible, .qw-open:focus-visible, .qw-jtoggle:focus-visible { outline: 2px solid #059669; outline-offset: 2px; }
+@media (max-width: 420px) { .qw-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); } .qw-cell { min-height: 36px; } }
+@media (prefers-reduced-motion: reduce) { .qw-bar i { transition: none; } }
+
+/* ── v192: Ramadan journal + "My Ramadan" card ── */
+.rj-row { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: flex-end; margin: .4rem 0; }
+.rj-f { display: flex; flex-direction: column; font-size: .8rem; gap: 2px; flex: 1 1 10rem; }
+.rj-f .rp-input { margin: 0; }
+.rj-kinds { display: flex; gap: 6px; }
+.rj-k { min-height: 44px; }
+.rj-k.rj-on { background: #059669; color: #fff; border-color: #059669; }
+.rj-card.am-d .rj-k.rj-on { background: #34d399; color: #04261d; border-color: #34d399; }
+.rj-chk { display: flex; align-items: center; gap: .5rem; min-height: 44px; font-size: .9rem; }
+.rj-chk input { width: 1.2rem; height: 1.2rem; }
+.rj-list { list-style: none; margin: .6rem 0 0; padding: 0; display: flex; flex-direction: column; gap: .45rem; }
+.rj-list li { padding: .5rem .75rem; border-radius: 12px; border: 1px solid rgba(5,150,105,.22); background: rgba(5,150,105,.06); display: flex; flex-direction: column; gap: 2px; line-height: 1.65; }
+.rj-list b { font-size: .75rem; color: #047857; }
+.rj-card.am-d .rj-list b { color: #34d399; }
+.rj-card select.rp-input { margin-top: .2rem; }
+.rj-k:focus-visible, .rj-card .am-btn:focus-visible { outline: 2px solid #059669; outline-offset: 2px; }
+
+/* ── v193: Qaza & Fidya companion ── */
+.qf-wrap { margin-top: 1.2rem; }
+.qf-sum { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: .6rem 0 .9rem; }
+.qf-sum > div { padding: .6rem .7rem; border-radius: 12px; background: rgba(5,150,105,.08); line-height: 1.6; }
+.qf-sum small { display: block; opacity: .75; }
+.qf-sum b { font-size: 1.5rem; color: #047857; }
+.qf-card.am-d .qf-sum b { color: #fbbf24; }
+.qf-kg { font-size: .8rem; opacity: .85; }
+.qf-list { list-style: none; margin: 0 0 .8rem; padding: 0; display: grid; gap: 10px; }
+.qf-entry { padding: .65rem .75rem; border-radius: 12px; border: 1px solid rgba(5,150,105,.2); }
+.qf-eh { font-size: .95rem; }
+.qf-rule { margin: .3rem 0 .4rem; line-height: 1.65; }
+.qf-qn { opacity: .7; font-size: .85rem; }
+.qf-ctl { display: flex; align-items: center; gap: 8px; margin: .3rem 0; flex-wrap: wrap; }
+.qf-ctl > span { flex: 1 1 9rem; font-size: .88rem; }
+.qf-pm { width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(5,150,105,.45); background: transparent; color: #047857; font-size: 1.2rem; font-weight: 800; cursor: pointer; }
+.qf-pm:disabled { opacity: .35; cursor: default; }
+.qf-card.am-d .qf-pm { color: #34d399; border-color: rgba(52,211,153,.45); }
+.qf-flag { display: flex; gap: 8px; align-items: flex-start; margin: .35rem 0; font-size: .85rem; line-height: 1.6; }
+.qf-flag input { margin-top: .3rem; width: 20px; height: 20px; flex: 0 0 auto; }
+.qf-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: .3rem; }
+.qf-mini { min-height: 40px; padding: 0 .7rem; font-size: .8rem; }
+.qf-add { margin-top: .6rem; padding-top: .6rem; border-top: 1px dashed rgba(5,150,105,.3); }
+.qf-add h4 { margin: 0 0 .3rem; font-size: .95rem; font-weight: 800; color: #047857; }
+.qf-card.am-d .qf-add h4 { color: #34d399; }
+.qf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; margin: .3rem 0 .5rem; }
+.qf-f { display: flex; flex-direction: column; font-size: .8rem; gap: 2px; }
+.qf-f .rp-input { margin: 0; }
+.qf-wide { grid-column: 1 / -1; }
+.qf-price { margin-top: .8rem; }
+.qf-pm:focus-visible, .qf-mini:focus-visible, .qf-flag input:focus-visible { outline: 2px solid #059669; outline-offset: 2px; }
+@media (max-width: 420px) { .qf-sum { grid-template-columns: 1fr; } .qf-grid { grid-template-columns: 1fr; } }
+
+/* ── v194: Ramadan home (home countdown + fasting history) ── */
+.rh-card { margin-bottom: 1rem; }
+.rh-list { list-style: none; margin: .4rem 0 .7rem; padding: 0; display: grid; gap: 10px; }
+.rh-year { padding: .55rem .65rem; border-radius: 12px; border: 1px solid rgba(5,150,105,.2); }
+.rh-yh { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.rh-yh > span { flex: 1 1 11rem; font-size: .88rem; }
+.rh-dots { display: grid; grid-template-columns: repeat(15, minmax(0, 1fr)); gap: 3px; margin-top: .45rem; }
+.rh-dots i { display: block; height: 9px; border-radius: 50%; background: rgba(120,120,120,.28); }
+.rh-dots i.on { background: #059669; }
+.rh-card.am-d .rh-dots i.on { background: #34d399; }
+.rh-mini { min-height: 40px; padding: 0 .75rem; font-size: .8rem; }
+.rh-mini:focus-visible { outline: 2px solid #059669; outline-offset: 2px; }
+
+/* ── v197: Ramadan page — grouped layout (ramadan-layout.js): hero, quick-jump chips, titled collapsible groups ── */
+.am-wrap { max-width: 44rem; }
+.rl-tag { margin: -.6rem 0 1rem; font-size: .85rem; opacity: .7; }
+.rl-nav { display: flex; gap: 8px; overflow-x: auto; padding: .15rem .1rem .9rem; margin: 0 0 .2rem; scrollbar-width: none; }
+.rl-nav::-webkit-scrollbar { display: none; }
+.rl-chip { flex: 0 0 auto; display: inline-flex; align-items: center; gap: .4rem; min-height: 40px; padding: 0 .95rem; border-radius: 999px; border: 1px solid rgba(5,150,105,.35); background: rgba(5,150,105,.08); color: #047857; font-weight: 700; font-size: .85rem; cursor: pointer; transition: background .15s, transform .15s; }
+.rl-chip:hover { background: rgba(5,150,105,.18); transform: translateY(-1px); }
+.am-wrap.am-d .rl-chip { color: #34d399; border-color: rgba(52,211,153,.4); background: rgba(52,211,153,.08); }
+.am-wrap.am-d .rl-chip:hover { background: rgba(52,211,153,.18); }
+
+/* hero = today's status */
+.am-wrap .am-card.rl-hero { position: relative; overflow: hidden; border: 0; color: #ecfdf5; padding: 1.35rem 1.25rem 1.2rem; background: radial-gradient(120% 140% at 100% 0%, rgba(201,162,39,.38), transparent 55%), linear-gradient(135deg, #064e3b 0%, #047857 72%); box-shadow: 0 10px 28px rgba(4,120,87,.28); }
+.rl-hero::after { content: "\1F319"; position: absolute; right: -.3rem; top: -.8rem; font-size: 6.5rem; line-height: 1; opacity: .16; pointer-events: none; }
+.rl-hero .am-big { font-size: 1.1rem; color: #fff; position: relative; }
+.rl-hero .am-big b { font-size: 2.1rem; color: #fde68a; margin: 0 .2rem; }
+.rl-hero .am-bar { height: 10px; background: rgba(255,255,255,.2); }
+.rl-hero .am-bar i { background: linear-gradient(90deg, #fde68a, #c9a227); }
+.rl-hero .am-note { color: #d1fae5; opacity: .9; position: relative; }
+
+/* groups */
+.rl-group { --rl-a: #059669; --rl-b: #047857; margin: 1.9rem 0 0; scroll-margin-top: 84px; animation: rl-in .5s ease both; animation-delay: calc(var(--rl-i, 0) * 70ms); }
+.rl-g-fast    { --rl-a: #d4a017; --rl-b: #b45309; }
+.rl-g-worship { --rl-a: #0e9fb0; --rl-b: #155e75; }
+.rl-g-me      { --rl-a: #8b5cf6; --rl-b: #6d28d9; }
+.rl-gh { width: 100%; display: flex; align-items: center; gap: .75rem; text-align: left; background: none; border: 0; padding: .2rem 0 .65rem; cursor: pointer; color: inherit; }
+.rl-gi { flex: 0 0 auto; width: 42px; height: 42px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; background: linear-gradient(135deg, var(--rl-a), var(--rl-b)); box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+.rl-gt { flex: 1; min-width: 0; }
+.rl-gt b { display: block; font-weight: 800; font-size: 1.08rem; }
+.rl-gt small { display: block; opacity: .65; font-size: .76rem; line-height: 1.5; }
+.rl-chev { flex: 0 0 auto; opacity: .55; transition: transform .2s ease; }
+.rl-gh[aria-expanded="false"] .rl-chev { transform: rotate(-90deg); }
+.rl-gh:focus-visible, .rl-chip:focus-visible { outline: 2px solid #059669; outline-offset: 2px; border-radius: 12px; }
+.rl-gbar { height: 3px; border-radius: 3px; margin: 0 0 1rem; background: linear-gradient(90deg, var(--rl-a), var(--rl-b) 55%, transparent); opacity: .7; }
+.rl-gb[hidden] { display: none; }
+.rl-gb > .am-card:last-child { margin-bottom: 0; }
+.rl-group .am-card { border-radius: 20px; box-shadow: 0 4px 16px rgba(0,0,0,.06); border-left: 4px solid var(--rl-a); }
+.rl-group .am-card.rl-card, .rl-group .rp-ring-card { border-left-width: 1px; }
+.rl-group .am-card.am-d { box-shadow: none; }
+.rl-group .am-card h3 { font-size: 1.05rem; }
+.rl-group .am-times div { border: 1px solid rgba(201,162,39,.28); background: linear-gradient(160deg, rgba(5,150,105,.08), rgba(201,162,39,.10)); }
+.rl-group .am-day.on { background: linear-gradient(135deg, #059669, #047857); }
+@keyframes rl-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .rl-group { animation: none; } .rl-chip, .rl-chev { transition: none; } }
+
+/* ── v198: 30 days' duas card (ramadan-layout.js) ── */
+.rl-d30-grid { grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); }
+.rl-dd:hover { background: rgba(5,150,105,.12); }
+.rl-today { background: rgba(201,162,39,.14); border-color: rgba(201,162,39,.6); }
+.rl-dd:focus-visible, .rl-today:focus-visible { outline: 2px solid #059669; outline-offset: 2px; }
+
+/* ── v203: home hero (light mode) — Eid illustration as the background ──
+   Image: assets/images/hero-bg-eid.webp (user's illustration, 1800px). Dark mode is untouched
+   (white text would not read on a cream picture). */
+.hero-luxury-light {
+    background:
+        url('../images/hero-bg-eid.webp') 30% center / cover no-repeat,
+        linear-gradient(145deg, #fbf1dc 0%, #fff9ee 55%, #fdf3df 100%);
+}
+/* soft cream veil behind the centred text so the title/tagline/stats stay readable over the crescent */
+.hero-luxury-light::before {
+    content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    background: radial-gradient(ellipse 62% 78% at 50% 52%,
+        rgba(255,251,240,.84) 0%, rgba(255,251,240,.62) 48%, rgba(255,251,240,0) 100%);
+}
+/* the picture has its own ornaments — hide the old calligraphy watermark, corner diamonds and dots */
+.hero-luxury-light .hero-allah,
+.hero-luxury-light .hero-ornament,
+.hero-luxury-light .hero-float-dot { display: none; }
+@media (min-width: 768px) {
+    .hero-luxury-light { background-position: center center, 0 0; }
+}

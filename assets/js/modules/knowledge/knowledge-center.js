@@ -8,6 +8,15 @@
 
 const KC_PER_PAGE = 9;
 
+// v187 (additive): resolve a marja key (e.g. "khamenei") to its display name from
+// kcMaraji so the masail detail modal does not print the raw key.
+function kcMarjaLabel(key, lang) {
+    const list = (typeof kcMaraji !== 'undefined' && Array.isArray(kcMaraji)) ? kcMaraji : [];
+    const m = list.find(x => x.key === key);
+    if (!m) return key || '';
+    return lang === 'bn' ? (m.bn || m.en || key) : (m.en || m.bn || key);
+}
+
 // ---------------------------------------------------------------------------
 // FAVORITES (separate from the site-wide Bookmark system — a lighter-weight
 // "I like this" marker, purely within the Knowledge Center)
@@ -692,7 +701,7 @@ function renderKcDetailView() {
             ${(item.detailBn||item.detailEn)?`<p class="text-sm leading-relaxed p-3 rounded-xl" style="background:${d?'rgba(255,255,255,.04)':'rgba(0,0,0,.03)'};color:${d?'#9ca3af':'#6b7280'}">${sanitize(l==='bn'?item.detailBn:(item.detailEn||item.detailBn))}</p>`:''}
             <dl class="grid sm:grid-cols-2 gap-3 text-sm pt-2 border-t" style="border-color:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'}">
                 ${(item.sourceBn||item.sourceEn)?`<div><dt class="font-semibold" style="color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?'উৎস':'Source'}</dt><dd>${sanitize(l==='bn'?item.sourceBn:(item.sourceEn||item.sourceBn))}</dd></div>`:''}
-                <div><dt class="font-semibold" style="color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?'মারজা':'Marja'}</dt><dd>${item.marja==='general'?(l==='bn'?'সাধারণ নির্দেশনা':'General guidance'):sanitize(item.marja||'')}</dd></div>
+                <div><dt class="font-semibold" style="color:${d?'#9ca3af':'#6b7280'}">${l==='bn'?'মারজা':'Marja'}</dt><dd>${item.marja==='general'?(l==='bn'?'সাধারণ নির্দেশনা':'General guidance'):sanitize(kcMarjaLabel(item.marja,l))}</dd></div>
             </dl>
         </div>`;
     } else if (tab==='qa') {

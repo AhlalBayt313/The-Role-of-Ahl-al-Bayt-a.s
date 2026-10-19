@@ -1748,6 +1748,7 @@ function renderHomePage()
         {icon:'📿',title:l==='bn'?'তাসবিহ':'Tasbeeh',          desc:l==='bn'?'ডিজিটাল তাসবিহ':'Digital counter',             page:'tasbeeh', color:'#b45309',bg:'rgba(180,83,9,.1)', faint:'rgba(180,83,9,.25)'},
         {icon:'☀️',title:l==='bn'?'৯৯ নাম':'99 Names',         desc:l==='bn'?'আসমাউল হুসনা':'Names of Allah',               page:'asmaul',  color:'#b45309',bg:'rgba(180,83,9,.1)', faint:'rgba(180,83,9,.25)'},
         {icon:'🧭',title:l==='bn'?'কিবলা':'Qibla',             desc:l==='bn'?'কিবলার দিক':'Qibla direction',                 page:'qibla',   color:'#b45309',bg:'rgba(180,83,9,.1)', faint:'rgba(180,83,9,.25)'},
+        {icon:'🌙',title:l==='bn'?'রমজান':'Ramadan',          desc:l==='bn'?'রোজা, সাহরি ও ইফতার':'Fasting, Sehri & Iftar',  page:'ramadan', color:'#b45309',bg:'rgba(180,83,9,.1)', faint:'rgba(180,83,9,.25)'},
         {icon:'🧮',title:l==='bn'?'খুমুস ও যাকাত':'Khums & Zakat', desc:l==='bn'?'হিসাব ক্যালকুলেটর':'Calculator',              page:'khumsZakat', color:'#b45309',bg:'rgba(180,83,9,.1)', faint:'rgba(180,83,9,.25)'},
         {icon:'🗺️',title:l==='bn'?'বিশ্ব মানচিত্র':'World Map', desc:l==='bn'?'পবিত্র স্থানসমূহ':'Holy sites',              page:'worldMap',color:'#b45309',bg:'rgba(180,83,9,.1)', faint:'rgba(180,83,9,.25)'},
     ];
