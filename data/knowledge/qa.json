@@ -966,5 +966,45 @@
     "questionEn": "What is the difference in ruling between the testimony to Imam Ali's wilayah in adhan and in tashahhud?",
     "answerBn": "আযান ও ইকামতে \"আশহাদু আন্না আলিয়্যান ওয়ালিয়্যুল্লাহ\" শিয়া মাযহাবের প্রতীক হিসেবে ও আল্লাহর নৈকট্যের নিয়তে বলা ভালো ও গুরুত্বপূর্ণ, যদিও এটি আযান-ইকামতের অংশ নয় (প্রশ্ন ৪৫২)। কিন্তু নামাজের তাশাহহুদে বড় মারজাগণের রিসালায় উল্লেখিত বাক্যের বাইরে কিছু যোগ করা উচিত নয়, সেটি সত্য হলেও (প্রশ্ন ৪৯৭)। (সূত্র: Practical Laws of Islam, প্রশ্ন ৪৫২ ও ৪৯৭)",
     "answerEn": "In adhan and iqamah, saying it as a symbol of the Shia school for the sake of nearness to Allah is good and important though not part of them (q.452); in the tashahhud of prayer, nothing should be added beyond what the great marji's mention in their books, even if true (q.497). (Source: Practical Laws of Islam, q.452 & 497)"
+  },
+  {
+    "id": "q147",
+    "category": "fiqh",
+    "questionBn": "ফতোয়ায় \"ওয়াজিব ইহতিয়াত\", \"এতে সমস্যা আছে\" ও \"হারাম\"-এর অর্থ কী?",
+    "questionEn": "What do \"obligatory caution\", \"there is a problem in it\" and \"haram\" mean in fatwas?",
+    "answerBn": "ওয়াজিব ইহতিয়াত মানে কাজটি করা বা না-করা সতর্কতার বিষয় (প্রশ্ন ৪৮)। \"এতে সমস্যা আছে\", \"সমস্যাজনক\", \"সমস্যামুক্ত নয়\" — এসবই সতর্কতা নির্দেশ করে; কেবল \"এতে কোনো সমস্যা নেই\" ফতোয়া (প্রশ্ন ৫০)। \"সমস্যা\" যদি বৈধতার ক্ষেত্রে হয়, তবে বাস্তবে তা নিষেধ বোঝায় (প্রশ্ন ৪৯)। \"জায়েজ নয়\" ও \"হারাম\"-এর মধ্যে ব্যবহারিক পার্থক্য নেই (প্রশ্ন ৫১)। (সূত্র: Practical Laws of Islam)",
+    "answerEn": "Obligatory caution means that performing or refraining from an action is a matter of caution (q.48). Phrases such as \"there is a problem in it\", \"it is problematic\", \"it is not void of problem\" call for caution; only \"there is no problem in it\" is a fatwa (q.50); if the problem is in permissibility it indicates prohibition in practice (q.49). Practically there is no difference between \"impermissible\" and \"haram\" (q.51). (Source: Practical Laws of Islam)"
+  },
+  {
+    "id": "q148",
+    "category": "fiqh",
+    "questionBn": "\"দোষী অজ্ঞ\" ও \"নির্দোষ অজ্ঞ\" কে?",
+    "questionEn": "Who is the \"blameworthy ignorant\" and the \"unblameworthy ignorant\" person?",
+    "answerBn": "দোষী অজ্ঞ: যে নিজের অজ্ঞতা বোঝে এবং তা দূর করার উপায়ও জানে, কিন্তু শরয়ি বিধান শেখায় অবহেলা করে (প্রশ্ন ৪৬)। নির্দোষ অজ্ঞ: যে নিজের অজ্ঞতা সম্পর্কে মোটেই সচেতন নয়, অথবা সচেতন কিন্তু তা থেকে বেরোনোর কোনো পথ নেই (প্রশ্ন ৪৭)। (সূত্র: Practical Laws of Islam)",
+    "answerEn": "The blameworthy ignorant realizes his ignorance and knows ways to overcome it but deals carelessly with learning religious rulings (q.46); the unblameworthy ignorant is not at all aware of his ignorance, or is aware but there is no way out of it (q.47). (Source: Practical Laws of Islam)"
+  },
+  {
+    "id": "q149",
+    "category": "fiqh",
+    "questionBn": "বিলায়াতে ফকিহ (ন্যায়পরায়ণ ফকিহের শাসন) কি যুক্তিভিত্তিক নাকি শরিয়তভিত্তিক?",
+    "questionEn": "Is the authority of the jurist leader based on reason or derived from Islamic law?",
+    "answerBn": "আয়াতুল্লাহ খামেনেই বলেন, ন্যায়পরায়ণ ও ধর্মে বিজ্ঞ মুজতাহিদের শাসন (বিলায়াতে ফকিহ) একটি বাধ্যতামূলক শরয়ি বিধান, যা যুক্তি দ্বারাও সমর্থিত। এর বাহ্যিক দৃষ্টান্ত নির্ধারণের একটি যৌক্তিক পদ্ধতি আছে, যা ইরানের ইসলামি প্রজাতন্ত্রের সংবিধানে ব্যাখ্যা করা হয়েছে। (সূত্র: Practical Laws of Islam, প্রশ্ন ৫৬)",
+    "answerEn": "He says the authority of the jurist leader, i.e. the governance of a just mujtahid learned in religion, is a binding shar'i rule that is confirmed by reason as well; there is a rational method for determining its outer instance, elaborated in the Constitution of the Islamic Republic of Iran. (Source: Practical Laws of Islam, q.56)"
+  },
+  {
+    "id": "q150",
+    "category": "fiqh",
+    "questionBn": "যারা বিলায়াতে ফকিহ মানে না তাদের প্রতি আমাদের কর্তব্য কী?",
+    "questionEn": "What is our duty towards those who do not accept the authority of the jurist leader?",
+    "answerBn": "নেতার কর্তৃত্ব সর্বযুগে মুসলিম সমাজের নেতৃত্ব ও সামাজিক বিষয় পরিচালনায় — খাঁটি দ্বাদশী মাযহাবের মৌলিক বিশ্বাসগুলোর একটি; এর শিকড় ইমামতের নীতিতে। যে ব্যক্তি যুক্তি-প্রমাণ দ্বারা তা মানতে পারেননি, তিনি ক্ষমাযোগ্য; তবে মুসলমানদের মধ্যে বিভেদ ও বিতর্ক ছড়ানো তাঁর জন্য জায়েজ নয়। (সূত্র: Practical Laws of Islam, প্রশ্ন ৬১ ও ৬৭)",
+    "answerEn": "The authority of the jurist leader in leading the Islamic society is one of the fundamental beliefs of the true Twelver denomination, rooted in the principle of Imamate; whoever is led by reasoning and proof not to accept it is excused, but it is not permissible for him to spread disunity and controversy among Muslims. (Source: Practical Laws of Islam, q.61 & 67)"
+  },
+  {
+    "id": "q151",
+    "category": "fiqh",
+    "questionBn": "\"নিরঙ্কুশ কর্তৃত্ব\" বলতে এখন কী বোঝায়, যখন নিষ্পাপ কোনো নেতা নেই?",
+    "questionEn": "What does \"absolute authority\" mean now that no infallible leader exists?",
+    "answerBn": "মুজতাহিদের \"নিরঙ্কুশ কর্তৃত্ব\" মানে — ইসলাম চূড়ান্ত ও কিয়ামত পর্যন্ত স্থায়ী ধর্ম এবং এটি সমাজ পরিচালনা ও প্রশাসনের ধর্ম; তাই ইসলামি সমাজের সব স্তরে একজন অভিভাবক, শাসক ও নেতা থাকা আবশ্যক, যিনি ইসলাম ও মুসলমানদের শত্রুদের থেকে সমাজকে রক্ষা করবেন, ন্যায়বিচার প্রতিষ্ঠা করবেন, শক্তিশালীকে দুর্বলের ওপর অত্যাচার করতে দেবেন না এবং সাংস্কৃতিক-রাজনৈতিক-সামাজিক উন্নয়নের উপায় সংগ্রহ করবেন। বাস্তবায়নের স্তরে এসব লক্ষ্য কখনো কারও ইচ্ছা-স্বাধীনতার সাথে সংঘাতে পড়লে ফিকহ অনুযায়ী প্রয়োজনীয় ব্যবস্থা ও আদেশ জারি করা নেতার ওপর ওয়াজিব। (সূত্র: Practical Laws of Islam, প্রশ্ন ৬৩ — সংক্ষিপ্তসার)",
+    "answerEn": "The \"absolute authority\" of the qualified mujtahid means Islam, the final heavenly religion lasting till the Day of Resurrection, is a religion of governance and administration of social affairs; so the Islamic society at all levels needs a guardian, ruler and leader to defend it against enemies, preserve its social system, establish justice, prevent the strong from victimizing the weak and attain cultural, political and social development. When such goals conflict with the tendencies or liberty of some individuals, it is obligatory for the leader to take necessary measures and issue orders in accordance with Islamic jurisprudence. (Source: Practical Laws of Islam, q.63 — summary)"
   }
 ]
