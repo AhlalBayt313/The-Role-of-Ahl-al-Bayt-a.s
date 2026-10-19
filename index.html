@@ -451,6 +451,14 @@ setTimeout(function(){var s=document.getElementById('splash-screen');if(s){if(wi
      Runtime-only dependencies (fetchPrayerTimes, renderPrayerWidget, ...) — loaded next to the other page modules. -->
 <script src="assets/js/core/prayer-reminders.js"></script>
 <script src="assets/js/core/daily-amal.js"></script>
+<!-- v188: Ramadan mode plus (Roza checker, hilal ring + time theme, 30-night journey) — wraps renderRamadanPage from daily-amal.js. Runtime-only dependencies. -->
+<script src="assets/js/core/ramadan-plus.js"></script>
+<!-- v190: iftar invitation card (canvas image + text share) — wraps renderRamadanPage again; runtime-only dependencies. -->
+<!-- v199: shared canvas art for the two share cards (must load before iftar-invite.js and ramadan-journal.js). -->
+<script src="assets/js/core/ramadan-cardart.js"></script>
+<script src="assets/js/core/iftar-invite.js"></script>
+<script src="assets/js/core/qadr-walk.js"></script>
+<script src="assets/js/core/ramadan-journal.js"></script>
 <!-- v123: backup & restore page (export/import of personal data). Runtime-only dependencies. -->
 <script src="assets/js/core/data-backup.js"></script>
 <!-- Phase 7: indexed search engine — loads after script-3-pages.js so it can
@@ -473,6 +481,12 @@ setTimeout(function(){var s=document.getElementById('splash-screen');if(s){if(wi
      (script-1-core.js) and must load before script-4-boot.js, whose renderMainContent()
      page map references renderKhumsZakatPage(). -->
 <script src="assets/js/core/khums-zakat.js"></script>
+<!-- v193: Qaza & Fidya companion (missed fasts, qada/fidya ledger; device only) — wraps renderRamadanPage and renderKhumsZakatPage (must load after both khums-zakat.js and ramadan-journal.js, before script-4-boot.js); runtime-only dependencies. -->
+<script src="assets/js/core/qaza-fidya.js"></script>
+<!-- v194: Ramadan home — iftar/sehri countdown on the home page + multi-year fasting history; wraps todayAmalCard and renderRamadanPage (loads after qaza-fidya.js, before script-4-boot.js). -->
+<script src="assets/js/core/ramadan-home.js"></script>
+<!-- v197: Ramadan page layout — regroups the page into titled, collapsible groups + quick-jump chips; must be the LAST wrapper of renderRamadanPage (after ramadan-home.js, before script-4-boot.js). -->
+<script src="assets/js/core/ramadan-layout.js"></script>
 <script src="assets/js/core/script-4-boot.js"></script>
 <!-- Phase 4: lazy-image fade-in helper. Self-contained (no dependency on
      `state` or any other global), so load order relative to the files
