@@ -67,12 +67,7 @@
     <meta name="apple-mobile-web-app-title" content="আহলে বাইত">
     <meta name="mobile-web-app-capable" content="yes">
     <link rel="manifest" id="pwa-manifest" href="./manifest.json">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Amiri:wght@400;700&family=Noto+Serif+Bengali:wght@400;600;700&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Amiri:wght@400;700&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Amiri:wght@400;700&family=Noto+Serif+Bengali:wght@400;600;700&display=swap"></noscript>
     <!-- Leaflet (World Map page) — NO LONGER loaded here. It previously blocked
          initial page load for every visitor even though it's only needed on
          the World Map page. It's now lazy-loaded on demand — see
@@ -443,6 +438,8 @@ setTimeout(function(){var s=document.getElementById('splash-screen');if(s){if(wi
 <script src="assets/js/core/script-1-core.js"></script>
 <script src="assets/js/core/script-2-ui.js"></script>
 <script src="assets/js/core/script-3-pages.js"></script>
+<!-- v207: date converter card on the calendar page. Must load before script-4-boot.js (init() can render ?page=calendar immediately). -->
+<script src="assets/js/core/date-converter.js"></script>
 <!-- v121: quiz progress layer (XP/levels/badges, daily streak, mistake bank, flashcards, stats page).
      Called by hooks in script-1-core.js / script-3-pages.js at runtime only, so it just has to be loaded
      before the first render — kept right after script-3-pages.js next to the quiz screens it extends. -->
@@ -450,6 +447,8 @@ setTimeout(function(){var s=document.getElementById('splash-screen');if(s){if(wi
 <!-- v122: prayer reminders (settings, SW notifications, scheduling, .ics export) + the `prayer` page.
      Runtime-only dependencies (fetchPrayerTimes, renderPrayerWidget, ...) — loaded next to the other page modules. -->
 <script src="assets/js/core/prayer-reminders.js"></script>
+<!-- v207: prayer tracker + qaza card on the prayer page (before script-4-boot.js, same reason). -->
+<script src="assets/js/core/prayer-tracker.js"></script>
 <script src="assets/js/core/daily-amal.js"></script>
 <!-- v188: Ramadan mode plus (Roza checker, hilal ring + time theme, 30-night journey) — wraps renderRamadanPage from daily-amal.js. Runtime-only dependencies. -->
 <script src="assets/js/core/ramadan-plus.js"></script>
@@ -488,6 +487,12 @@ setTimeout(function(){var s=document.getElementById('splash-screen');if(s){if(wi
 <!-- v197: Ramadan page layout — regroups the page into titled, collapsible groups + quick-jump chips; must be the LAST wrapper of renderRamadanPage (after ramadan-home.js, before script-4-boot.js). -->
 <script src="assets/js/core/ramadan-layout.js"></script>
 <script src="assets/js/core/script-4-boot.js"></script>
+<!-- v206: reader mode (blog), my dua lists, Arabic reading corner. Loaded after script-4-boot.js because reader-mode / dua-playlist wrap the global render(); the two new pages are looked up by name at render time (see the page map in script-4-boot.js). -->
+<script src="assets/js/core/reader-mode.js"></script>
+<script src="assets/js/core/dua-playlist.js"></script>
+<script src="assets/js/core/arabic-corner.js"></script>
+<!-- v207: per-post share links + ?page=readPost&id= deep links. After script-4-boot.js: it overrides the currentPage init() took from the URL. -->
+<script src="assets/js/core/share-links.js"></script>
 <!-- Phase 4: lazy-image fade-in helper. Self-contained (no dependency on
      `state` or any other global), so load order relative to the files
      above does not matter. -->
