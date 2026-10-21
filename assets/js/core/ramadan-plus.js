@@ -209,7 +209,7 @@ function ringPhase(t) {
         const left = mg - now;
         return { mode: left <= 600000 ? 'iftar' : 'day', p: (now - f) / (mg - f), left };
     }
-    const prevMg = now < f ? new Date(mg.getTime() - 86400000) : mg;
+    const prevMg = now < f ? new Date(mg.getFullYear(), mg.getMonth(), mg.getDate() - 1, mg.getHours(), mg.getMinutes()) : mg; // v210: same clock time yesterday (was −24 h, 1 h off across a DST change)
     const nextF = now < f ? f : atTime(tom, t.tomorrow.fajr);
     return { mode: 'night', p: (now - prevMg) / (nextF - prevMg), left: nextF - now };
 }

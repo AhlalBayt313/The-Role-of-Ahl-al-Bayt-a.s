@@ -54,6 +54,12 @@ const AB_GROUPS = [
     { id: 'ramadan', ic: '\U0001f319', def: true,
       bn: 'রমজান ট্র্যাকার', en: 'Ramadan tracker',
       dbn: 'রোজার হিসাব (কোন দিন রোজা রাখা হয়েছে) শবে কদরের রাতের ধাপের অগ্রগতি ও রমজানের জার্নাল (ব্যক্তিগত লেখা)', den: 'Fasting days kept this Ramadan, Qadr-night step progress and the Ramadan journal (personal text)' },
+    { id: 'personal', ic: '🗂️', def: true,
+      bn: 'আমার দোয়া-তালিকা, আরবি শেখা ও রিডার সেটিং', en: 'My dua lists, Arabic practice & reader settings',
+      dbn: 'নিজের বানানো তালিকা, আরবি শেখার অগ্রগতি, রিডার মোডের পছন্দ', den: 'Your own lists, Arabic-corner progress and reader-mode choices' },
+    { id: 'prayer', ic: '🕌', def: true,
+      bn: 'নামাজ ট্র্যাকার ও কাযা', en: 'Prayer tracker & qaza',
+      dbn: 'দৈনিক নামাজের হিসাব (গত ৪০০ দিন) ও কাযার সংখ্যা — ব্যক্তিগত', den: 'Daily prayer log (last 400 days) and qaza counts — personal' },
     { id: 'finance', ic: '🧮', def: false, sensitive: true,
       bn: 'খুমুস-যাকাতের ইনপুট', en: 'Khums & Zakat inputs',
       dbn: 'আয়, ব্যয়, সম্পদের সংখ্যা — ব্যক্তিগত আর্থিক তথ্য, তাই ডিফল্টে বন্ধ', den: 'Income, expense and wealth figures — personal financial data, so off by default' },
@@ -93,7 +99,13 @@ const AB_SPEC = {
     'ahlbayt_ramadan_journal':    { g: 'ramadan', t: 'obj' },
     'ahlbayt_qaza_fidya':         { g: 'ramadan', t: 'obj' },
     'ahlbayt_ramadan_hist':       { g: 'ramadan', t: 'obj' },
-    'ahlbayt_khums_zakat':        { g: 'finance', t: 'obj' }
+    'ahlbayt_khums_zakat':        { g: 'finance', t: 'obj' },
+
+    'ahlbayt_dua_playlists':      { g: 'personal', t: 'obj', merge: 'playlists' },
+    'ahlbayt_arabic_corner':      { g: 'personal', t: 'obj' },
+    'ahlbayt_reader_mode':        { g: 'personal', t: 'obj' },
+
+    'ahlbayt_prayer_tracker':     { g: 'prayer', t: 'obj', merge: 'prayerTracker' }
 };
 ['custom_posts', 'custom_duas', 'custom_ziyarat', 'custom_amal', 'custom_hadiths', 'custom_ayahs', 'nahjul_balagha',
  'sahifa_sajjadiya', 'imam_hadiths', 'special_days', 'muharram_events', 'shia_special_days', 'custom_quiz'
@@ -230,6 +242,7 @@ function abValidateKey(key, v, allowHtml) {
             if (key === 'ahlbayt_prayer_remind') c.on = false;                       // permission is per device
             if (key === 'ahlbayt_quiz_profile' && typeof qpNormalizeProfile === 'function') c = qpNormalizeProfile(c);
             if (key === 'ahlbayt_quiz_mistakes' && typeof qpNormalizeMistakes === 'function') c = qpNormalizeMistakes(c);
+            if (key === 'ahlbayt_prayer_tracker' && typeof ptNormalize === 'function') c = ptNormalize(c);   // v207
             return { ok: true, value: c };
         }
     }
@@ -311,6 +324,14 @@ function abResolve(key, incoming, mode) {
             return { write: true, value: key === 'ahlbayt_quiz_history' ? u.slice(0, 20) : u.slice(0, 500) };
         }
         case 'reading': return { write: true, value: abMergeReading(local, incoming) };
+        case 'playlists': {
+            // union by list id (this device's copy wins on a clash); capped like the app itself
+            const out = (local && Array.isArray(local.lists)) ? local.lists.slice() : [];
+            const ids = {}; out.forEach(l => { if (l && l.id) ids[l.id] = 1; });
+            ((incoming && Array.isArray(incoming.lists)) ? incoming.lists : []).forEach(l => { if (l && l.id && !ids[l.id] && out.length < 30) { ids[l.id] = 1; out.push(l); } });
+            return { write: true, value: { v: 1, lists: out } };
+        }
+        case 'prayerTracker': return { write: true, value: (typeof ptMergeBackup === 'function') ? ptMergeBackup(local, incoming) : incoming };   // v207
         case 'max': return { write: true, value: Math.max(Number(local) || 0, Number(incoming) || 0) };
         case 'profile': case 'mistakes': {
             // profile + mistake bank travel together: the side with more XP wins both

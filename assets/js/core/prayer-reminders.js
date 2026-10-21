@@ -469,6 +469,7 @@ function renderPrayerPage() {
             <h1 class="text-3xl font-black" style="background:linear-gradient(135deg,#059669,#c9a227);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">🕌 ${prT('নামাজের সময় ও রিমাইন্ডার', 'Prayer Times & Reminders')}</h1>
         </div>
         <div id="prayer-widget-root">${renderPrayerWidget()}</div>
+        ${typeof prayerTrackerCard === 'function' ? prayerTrackerCard(d, l) : ''}
         ${prayerMethodCard(d, l)}
         ${prayerRemindersCard(d, l)}
     </div>`;

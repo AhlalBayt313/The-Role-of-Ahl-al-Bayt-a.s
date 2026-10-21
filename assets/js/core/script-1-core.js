@@ -597,13 +597,31 @@ const dailyAyahs = [
     // ── সূরা নাস (১১৪) ──
     {arabic:'قُلْ أَعُوذُ بِرَبِّ النَّاسِ مَلِكِ النَّاسِ إِلَٰهِ النَّاسِ',ref:'সূরা নাস: ১-৩',refEn:'Surah An-Nas: 1-3',meaningBn:'বলুন: আমি আশ্রয় নিচ্ছি মানুষের রব, মানুষের মালিক, মানুষের উপাস্যের।',meaningEn:'Say: I seek refuge in the Lord of mankind, the King of mankind, the God of mankind.'},
 ];
+
+// v209: day of the year (1 = 1 Jan) from the local calendar date, computed in UTC. The old inline form
+// floored (now − 1 Jan midnight)/86400000, which after a DST change is 1 h short for the first hour after
+// midnight, so the daily ayah / hadith / quiz picked the previous day's item. Identical result elsewhere.
+// v210: whole calendar days from local date `from` to local date `to` (negative if `to` is earlier). Computed on the
+// calendar dates in UTC, so a DST change between the two can never add or remove a day (the old
+// Math.ceil((to − from)/86400000) came out one too large when `from` was in summer time and `to` in winter time).
+function calDaysBetween(from, to) {
+    return Math.round((Date.UTC(to.getFullYear(), to.getMonth(), to.getDate()) - Date.UTC(from.getFullYear(), from.getMonth(), from.getDate())) / 86400000);
+}
+// v210: today's local date as YYYY-MM-DD (toISOString() is UTC: in Bangladesh it gives yesterday's date from 00:00 to 06:00).
+function localISODate(d) {
+    d = d || new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function dayOfYearLocal(now) {
+    return Math.round((Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) - Date.UTC(now.getFullYear(), 0, 0)) / 86400000);
+}
 function getDailyAyah() {
     const pool = (state.customAyahs && state.customAyahs.length > 0) ? state.customAyahs : dailyAyahs;
     // Manual browse mode (Next/Prev বোতামে ক্লিক করলে)
     if (state.ayahIndex >= 0) return pool[state.ayahIndex % pool.length];
     // Date-based daily rotation: প্রতিদিন স্বয়ংক্রিয়ভাবে নতুন আয়াত
     const now = new Date();
-    const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+    const dayOfYear = dayOfYearLocal(now);
     return pool[dayOfYear % pool.length];
 }
 function getAyahPoolSize() {
@@ -618,7 +636,7 @@ function getDailyHadith() {
     if (state.hadithIndex > 0) return pool[state.hadithIndex % pool.length];
     // Date-based daily rotation: প্রতিদিন স্বয়ংক্রিয়ভাবে নতুন হাদিস
     const now = new Date();
-    const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+    const dayOfYear = dayOfYearLocal(now);
     return pool[dayOfYear % pool.length];
 }
 
@@ -1194,7 +1212,7 @@ const translations = {
         lightMode:'লাইট মোড', loading:'লোড হচ্ছে...', error:'ত্রুটি',
         bookmarks:'বুকমার্ক', admin:'অ্যাডমিন',
         imams:'ইমাম ও মাসুমিন (আ.)', tasbeeh:'তাসবিহ কাউন্টার', quiz:'ইসলামিক কুইজ', asmaul:'আসমাউল হুসনা', qibla:'কিবলা নির্দেশক', familyTree:'বংশধারা',
-        worldMap:'বিশ্ব মানচিত্র', khumsZakat:'খুমুস ও যাকাত', ramadan:'রমজান', prayer:'নামাজের সময়', backup:'ডেটা ব্যাকআপ',
+        worldMap:'বিশ্ব মানচিত্র', khumsZakat:'খুমুস ও যাকাত', ramadan:'রমজান', prayer:'নামাজের সময়', backup:'ডেটা ব্যাকআপ', arabic:'আরবি পড়া শেখা', playlists:'আমার দোয়া-তালিকা',
         searchPage:'সার্চ', analytics:'পরিসংখ্যান', hadithOfDay:'আজকের হাদিস',
         newPost:'নতুন পোস্ট', editPost:'পোস্ট সম্পাদনা', deletePost:'মুছুন',
         savePost:'সংরক্ষণ করুন', cancel:'বাতিল', title:'শিরোনাম', content:'বিষয়বস্তু',
@@ -1213,7 +1231,7 @@ const translations = {
         lightMode:'Light Mode', loading:'Loading...', error:'Error',
         bookmarks:'Bookmarks', admin:'Admin',
         imams:'Imams & Masumeen (AS)', tasbeeh:'Tasbeeh Counter', quiz:'Islamic Quiz', asmaul:'Asmaul Husna', qibla:'Qibla Finder', familyTree:'Family Tree',
-        worldMap:'World Map', khumsZakat:'Khums & Zakat', ramadan:'Ramadan', prayer:'Prayer Times', backup:'Backup & Restore',
+        worldMap:'World Map', khumsZakat:'Khums & Zakat', ramadan:'Ramadan', prayer:'Prayer Times', backup:'Backup & Restore', arabic:'Learn Arabic', playlists:'My Dua Lists',
         searchPage:'Search', analytics:'Analytics', hadithOfDay:"Today's Hadith",
         newPost:'New Post', editPost:'Edit Post', deletePost:'Delete',
         savePost:'Save Post', cancel:'Cancel', title:'Title', content:'Content',
@@ -1518,7 +1536,7 @@ function shareContent(title, text, url) {
 function sharePost(post, l) {
     const title = l==='bn'?post.titleBn:post.titleEn;
     const text = post.excerpt || ((l==='bn'?post.contentBn:post.contentEn) || '').substring(0,100)+'...';
-    shareContent('📖 '+title, text, '');
+    shareContent('📖 '+title, text, (typeof slPostUrl==='function' ? slPostUrl(post) : '')); // v207: per-post share page (share-links.js)
 }
 function shareHadith(hadith, l) {
     const text = (l==='bn'?hadith.textBn:hadith.textEn) + '\n— '+(l==='bn'?hadith.sourceBn:hadith.sourceEn);
@@ -1784,7 +1802,7 @@ function startDailyQuiz() {
     const all = getAllQuizQuestions();
     if (!all.length) return;
     const now = new Date();
-    const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+    const dayOfYear = dayOfYearLocal(now);
     const seed = now.getFullYear() * 1000 + dayOfYear;
     const rng = mulberry32(seed);
     quizTimerClear();
@@ -1969,7 +1987,7 @@ function deleteQuizQuestion(idx) {
 function getHomeQuizIndex() {
     if (!quizQuestions.length) return -1;
     const now = new Date();
-    const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+    const dayOfYear = dayOfYearLocal(now);
     return dayOfYear % quizQuestions.length;
 }
 function homeQuizAnswer(optIdx) {
@@ -2476,6 +2494,10 @@ const banglaMonthNames = ['বৈশাখ','জ্যৈষ্ঠ','আষা�
 // 17 Oct, 16 Nov, 16 Dec, 15 Jan, 14 Feb, 15 Mar. (Previously West-Bengal-style starts: Bhadro–Ogrohayon +1, Magh–Choitro −1.)
 const _BN_START = [{m:3,d:14},{m:4,d:15},{m:5,d:15},{m:6,d:16},{m:7,d:16},{m:8,d:16},{m:9,d:17},{m:10,d:16},{m:11,d:16},{m:0,d:15},{m:1,d:14},{m:2,d:15}];
 function getBanglaDateFull(date) {
+    // v208: use 12:00 of the same local day. The day count below floors a millisecond difference from a
+    // local-midnight month start; across a DST change that difference is 1 h short and the day came out
+    // one too small (e.g. London, 5 Apr 2026). Noon leaves a 12 h margin. No effect where there is no DST.
+    date=new Date(date.getFullYear(),date.getMonth(),date.getDate(),12);
     const gY=date.getFullYear(),gM=date.getMonth(),gD=date.getDate();
     const bnYear=(gM<3||(gM===3&&gD<14))?gY-594:gY-593;
     let candidates=[];

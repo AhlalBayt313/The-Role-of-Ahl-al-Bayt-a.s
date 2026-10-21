@@ -352,14 +352,14 @@ function renderBlogPage() {
     const filterBar = `
     <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button data-action="setBlogFilter" data-param=""
-            style="font-size:12px;font-weight:600;padding:5px 14px;border-radius:20px;border:1px solid ${!activeFilter?'#1D9E75':cardBorder};background:${!activeFilter?(d?'#1D9E75':'#1D9E75'):(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)')};color:${!activeFilter?'#fff':textSecondary};cursor:pointer;transition:all .15s">
+            style="font-size:12px;font-weight:600;padding:5px 14px;border-radius:20px;border:1px solid ${!activeFilter?'#1D9E75':cardBorder};background:${!activeFilter?(d?'#1D9E75':'#1D9E75'):(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)')};color:${!activeFilter?'#fff':textSecondary};cursor:pointer;transition:color .15s, background .15s, border-color .15s, box-shadow .15s, transform .15s, opacity .15s">
             ${l==='bn'?'সব':'All'}
         </button>
         ${categories.map(cat=>{
             const isActive = activeFilter===cat;
             const c = getCat(cat);
             return `<button data-action="setBlogFilter" data-param="${cat}"
-                style="font-size:12px;font-weight:600;padding:5px 14px;border-radius:20px;border:1px solid ${isActive?c.color:cardBorder};background:${isActive?c.color:(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)')};color:${isActive?'#fff':textSecondary};cursor:pointer;transition:all .15s">
+                style="font-size:12px;font-weight:600;padding:5px 14px;border-radius:20px;border:1px solid ${isActive?c.color:cardBorder};background:${isActive?c.color:(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)')};color:${isActive?'#fff':textSecondary};cursor:pointer;transition:color .15s, background .15s, border-color .15s, box-shadow .15s, transform .15s, opacity .15s">
                 ${catIcon[cat]||''} ${l==='bn'?cat:(CAT[cat]?.en||cat)}
             </button>`;
         }).join('')}

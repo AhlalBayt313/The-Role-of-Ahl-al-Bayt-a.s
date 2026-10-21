@@ -688,6 +688,9 @@ function renderMainContent() {
             khumsZakat: typeof renderKhumsZakatPage === 'function' ? renderKhumsZakatPage : () => '<div class="text-center py-8">Loading...</div>',
             prayer: typeof renderPrayerPage === 'function' ? renderPrayerPage : renderHomePage,
             backup: typeof renderBackupPage === 'function' ? renderBackupPage : () => '<div class="text-center py-8">Loading...</div>',
+            // v206: looked up at call time (these modules load after this file)
+            arabic: () => typeof renderArabicPage === 'function' ? renderArabicPage() : '<div class="text-center py-8">Loading...</div>',
+            playlists: () => typeof renderPlaylistsPage === 'function' ? renderPlaylistsPage() : '<div class="text-center py-8">Loading...</div>',
             muharram:renderMuharramPage,
             'shia-days':renderShiaDaysPage,
             familyTree: typeof renderAhlulBaytFamilyTreeRedirect === 'function' ? renderAhlulBaytFamilyTreeRedirect : renderFamilyTreePage,
@@ -1046,7 +1049,7 @@ function renderMuharramPage() {
     const { date: ashuraDate, hijriYear } = getAshuraGregorianDate();
     const today = new Date(); today.setHours(0,0,0,0);
     ashuraDate.setHours(0,0,0,0);
-    const daysLeft = Math.ceil((ashuraDate - today) / 86400000);
+    const daysLeft = calDaysBetween(today, ashuraDate); // v210: DST-safe
     const isToday = daysLeft === 0;
     const isPast = daysLeft < 0;
 

@@ -399,7 +399,7 @@ function renderAhlulBaytCategoryChips() {
             onclick="ahlulBaytHandleCategoryClick('${cat.key}')"
             style="display:flex;align-items:center;gap:7px;flex-shrink:0;
                 padding:10px 18px;border-radius:50px;font-size:.82rem;font-weight:${isActive?800:700};
-                white-space:nowrap;cursor:pointer;transition:all .2s;
+                white-space:nowrap;cursor:pointer;transition:color .2s, background .2s, border-color .2s, box-shadow .2s, transform .2s, opacity .2s;
                 border:${isActive?'2px':'1.5px'} solid ${borderCol};
                 background:${bgIdle};${isActive?'box-shadow:0 2px 10px rgba(180,83,9,.25);':''}
                 color:${d?'#fde68a':'#92400e'}"
@@ -1200,7 +1200,7 @@ function getProfileBadges(personId, person) {
 // কোনো বহিঃস্থ সূত্র বানানো হয়নি; এটা "এই পৃষ্ঠাকে সূত্র হিসেবে দেখান"।
 function getCitationText(personId, person, lang) {
   const name = lang === 'bn' ? person.bengaliName : (person.englishName || person.englishAbbr || person.bengaliName);
-  const dateStr = new Date().toISOString().slice(0, 10);
+  const dateStr = (typeof localISODate === 'function') ? localISODate() : new Date().toISOString().slice(0, 10); // v210: local date, not UTC
   const birthDeath = [person.birth, person.death].filter(Boolean).join(' – ');
   const siteUrl = 'https://ahlalbayt313.github.io/The-Role-of-Ahl-al-Bayt-a.s/?page=familyTree';
   return lang === 'bn'

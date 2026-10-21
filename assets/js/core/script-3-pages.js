@@ -101,7 +101,7 @@ function renderRamadanLayout(allDuas, d, l) {
                     style="font-size:12.5px;font-weight:700;padding:7px 18px;border-radius:50px;
                     background:rgba(249,115,22,.12);color:${d?'#fb923c':'#ea580c'};
                     border:1.5px solid rgba(249,115,22,.28);cursor:pointer;
-                    display:inline-flex;align-items:center;gap:6px;transition:all .2s">
+                    display:inline-flex;align-items:center;gap:6px;transition:color .2s, background .2s, border-color .2s, box-shadow .2s, transform .2s, opacity .2s">
                     ${l==='bn'?'আরও পড়ুন':'Read More'}
                     <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
                 </button>
@@ -399,7 +399,7 @@ function renderDuaPage() {
         </div>`;
         const tabBtn2 = (key, icon, label, grad) => `
             <button data-action="setDuaTab" data-param="${key}" aria-pressed="${tab===key?'true':'false'}"
-                style="padding:9px 22px;border-radius:14px;font-size:.85rem;font-weight:700;cursor:pointer;border:none;transition:all .22s;
+                style="padding:9px 22px;border-radius:14px;font-size:.85rem;font-weight:700;cursor:pointer;border:none;transition:color .22s, background .22s, border-color .22s, box-shadow .22s, transform .22s, opacity .22s;
                 background:${tab===key?grad:'transparent'};color:${tab===key?'white':(d?'#9ca3af':'#6b7280')}">${icon} ${label}</button>`;
         return `
         <div class="space-y-6 page-enter">
@@ -443,7 +443,7 @@ function renderDuaPage() {
         const isActive=selectedCategory===f.key;
         return `<button data-action="setDuaCategory" data-param="${f.key}" aria-pressed="${isActive?'true':'false'}"
             style="flex-shrink:0;font-size:11.5px;font-weight:700;padding:6px 16px;border-radius:50px;
-            cursor:pointer;white-space:nowrap;transition:all .18s;
+            cursor:pointer;white-space:nowrap;transition:color .18s, background .18s, border-color .18s, box-shadow .18s, transform .18s, opacity .18s;
             background:${isActive?f.color:(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)')};
             color:${isActive?'#fff':(d?'#9ca3af':'#6b7280')};
             border:1.5px solid ${isActive?f.color:(d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)')}">
@@ -539,7 +539,7 @@ function renderDuaPage() {
             style="background:${d?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)'}">
             <button data-action="setDuaTab" data-param="dua" aria-pressed="${tab==='dua'?'true':'false'}"
                 style="padding:9px 22px;border-radius:14px;font-size:.85rem;font-weight:700;
-                cursor:pointer;transition:all .22s;border:none;
+                cursor:pointer;transition:color .22s, background .22s, border-color .22s, box-shadow .22s, transform .22s, opacity .22s;border:none;
                 background:${tab==='dua'?'linear-gradient(135deg,#059669,#047857)':'transparent'};
                 color:${tab==='dua'?'white':(d?'#9ca3af':'#6b7280')};
                 box-shadow:${tab==='dua'?'0 4px 14px rgba(5,150,105,.38)':'none'}">
@@ -548,7 +548,7 @@ function renderDuaPage() {
             </button>
             <button data-action="setDuaTab" data-param="ziyarat" aria-pressed="${tab==='ziyarat'?'true':'false'}"
                 style="padding:9px 22px;border-radius:14px;font-size:.85rem;font-weight:700;
-                cursor:pointer;transition:all .22s;border:none;
+                cursor:pointer;transition:color .22s, background .22s, border-color .22s, box-shadow .22s, transform .22s, opacity .22s;border:none;
                 background:${tab==='ziyarat'?'linear-gradient(135deg,#b45309,#92400e)':'transparent'};
                 color:${tab==='ziyarat'?'white':(d?'#9ca3af':'#6b7280')};
                 box-shadow:${tab==='ziyarat'?'0 4px 14px rgba(180,83,9,.35)':'none'}">
@@ -557,7 +557,7 @@ function renderDuaPage() {
             </button>
             <button data-action="setDuaTab" data-param="amal" aria-pressed="${tab==='amal'?'true':'false'}"
                 style="padding:9px 22px;border-radius:14px;font-size:.85rem;font-weight:700;
-                cursor:pointer;transition:all .22s;border:none;
+                cursor:pointer;transition:color .22s, background .22s, border-color .22s, box-shadow .22s, transform .22s, opacity .22s;border:none;
                 background:${tab==='amal'?'linear-gradient(135deg,#7c3aed,#5b21b6)':'transparent'};
                 color:${tab==='amal'?'white':(d?'#9ca3af':'#6b7280')};
                 box-shadow:${tab==='amal'?'0 4px 14px rgba(124,58,237,.38)':'none'}">
@@ -602,7 +602,7 @@ function renderDuaPage() {
                     const isActive=selectedZiyaratCategory===f.key;
                     return `<button data-action="setZiyaratCategory" data-param="${f.key}" aria-pressed="${isActive?'true':'false'}"
                         style="flex-shrink:0;font-size:11.5px;font-weight:700;padding:6px 16px;border-radius:50px;
-                        cursor:pointer;white-space:nowrap;transition:all .18s;
+                        cursor:pointer;white-space:nowrap;transition:color .18s, background .18s, border-color .18s, box-shadow .18s, transform .18s, opacity .18s;
                         background:${isActive?f.color:(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)')};
                         color:${isActive?'#fff':(d?'#9ca3af':'#6b7280')};
                         border:1.5px solid ${isActive?f.color:(d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)')}">
@@ -621,7 +621,7 @@ function renderDuaPage() {
                     const isActive=selectedAmalCategory===f.key;
                     return `<button data-action="setAmalCategory" data-param="${f.key}" aria-pressed="${isActive?'true':'false'}"
                         style="flex-shrink:0;font-size:11.5px;font-weight:700;padding:6px 16px;border-radius:50px;
-                        cursor:pointer;white-space:nowrap;transition:all .18s;
+                        cursor:pointer;white-space:nowrap;transition:color .18s, background .18s, border-color .18s, box-shadow .18s, transform .18s, opacity .18s;
                         background:${isActive?f.color:(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)')};
                         color:${isActive?'#fff':(d?'#9ca3af':'#6b7280')};
                         border:1.5px solid ${isActive?f.color:(d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)')}">
@@ -694,7 +694,7 @@ function renderDuaResultsInner() {
                 return `
                 <div class="reveal uc-card-row" data-action="readDua" data-param="${idx}" role="button" tabindex="0"
                     style="--dzx-cat:${catInfo.color};display:flex;flex-direction:column;gap:8px;padding:11px 14px 10px;border-radius:14px;cursor:pointer;
-                    background:${d?catInfo.color+'22':catInfo.bg};border:1px solid ${catInfo.color}${d?'55':'40'};transition:all .18s;box-shadow:var(--app-shadow-sm)">
+                    background:${d?catInfo.color+'22':catInfo.bg};border:1px solid ${catInfo.color}${d?'55':'40'};transition:color .18s, background .18s, border-color .18s, box-shadow .18s, transform .18s, opacity .18s;box-shadow:var(--app-shadow-sm)">
                     <div style="display:flex;align-items:center;gap:10px">
                     <div style="flex-shrink:0;width:32px;height:32px;border-radius:10px;
                         background:${catInfo.color};display:flex;align-items:center;justify-content:center;font-size:14px">
@@ -772,7 +772,7 @@ function renderZiyaratResultsInner() {
                     return `
                 <div class="reveal uc-card-row" data-action="readZiyarat" data-param="${z.id||idx}" role="button" tabindex="0"
                     style="--dzx-cat:${zCatInfo.color};display:flex;flex-direction:column;gap:8px;padding:11px 14px 10px;border-radius:14px;cursor:pointer;
-                    background:${zCatInfo.color}${d?'22':'1a'};border:1px solid ${zCatInfo.color}${d?'55':'40'};transition:all .18s;box-shadow:var(--app-shadow-sm)">
+                    background:${zCatInfo.color}${d?'22':'1a'};border:1px solid ${zCatInfo.color}${d?'55':'40'};transition:color .18s, background .18s, border-color .18s, box-shadow .18s, transform .18s, opacity .18s;box-shadow:var(--app-shadow-sm)">
                     <div style="display:flex;align-items:center;gap:10px">
                     <div style="flex-shrink:0;width:32px;height:32px;border-radius:10px;
                         background:${zCatInfo.color};display:flex;align-items:center;justify-content:center;font-size:14px">
@@ -828,7 +828,7 @@ function renderZiyaratResultsInner() {
                         ${cluster.members.map(({z,idx})=>`
                         <div class="reveal" data-action="readZiyarat" data-param="${z.id||idx}" role="button" tabindex="0"
                             style="display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;cursor:pointer;
-                            background:${d?'rgba(255,255,255,.05)':'rgba(255,255,255,.7)'};border:1px solid ${zCatInfo.color}${d?'33':'28'};transition:all .15s">
+                            background:${d?'rgba(255,255,255,.05)':'rgba(255,255,255,.7)'};border:1px solid ${zCatInfo.color}${d?'33':'28'};transition:color .15s, background .15s, border-color .15s, box-shadow .15s, transform .15s, opacity .15s">
                             <div style="flex:1;min-width:0">
                                 <p class="font-semibold" style="font-size:12.5px;color:${d?'#e5e7eb':'#1f2937'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sanitize(l==='bn'?(z.variantLabelBn||z.titleBn):(z.variantLabelEn||z.titleEn))}</p>
                                 ${z.source?`<p style="font-size:10.5px;color:${d?'#9ca3af':'#6b7280'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px">${sanitize(z.source)}</p>`:''}
@@ -873,7 +873,7 @@ function renderAmalResultsInner() {
                 return `
                 <div class="reveal uc-card-row" data-action="readAmal" data-param="${a.id!=null?a.id:i}" role="button" tabindex="0"
                     style="--dzx-cat:${catInfo.color};display:flex;flex-direction:column;gap:8px;padding:11px 14px 10px;border-radius:14px;cursor:pointer;
-                    background:${d?catInfo.color+'22':catInfo.bg};border:1px solid ${catInfo.color}${d?'55':'40'};transition:all .18s;box-shadow:var(--app-shadow-sm)">
+                    background:${d?catInfo.color+'22':catInfo.bg};border:1px solid ${catInfo.color}${d?'55':'40'};transition:color .18s, background .18s, border-color .18s, box-shadow .18s, transform .18s, opacity .18s;box-shadow:var(--app-shadow-sm)">
                     <div style="display:flex;align-items:center;gap:10px">
                     <div style="flex-shrink:0;width:32px;height:32px;border-radius:10px;
                         background:${catInfo.color};display:flex;align-items:center;justify-content:center;font-size:14px">
@@ -1239,7 +1239,7 @@ function renderCalendarPage() {
                         onclick="calSelectDay(${day})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();calSelectDay(${day});}"
                         aria-label="${lbl}"
                         title="${gDay} ${gregMonthsEnFull[gMon]} ${gYear} | ${_bd.str} | ${bnHijriDay} ${bnHijriMon} ${toBengaliDigits(year)} হিজরি${ev?' | '+sanitize(l==='bn'?ev.bn:ev.en):''}"
-                        style="background:${cellBg};min-height:72px;padding:9px 2px 5px;position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;transition:all .2s ease">
+                        style="background:${cellBg};min-height:72px;padding:9px 2px 5px;position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;transition:color .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s ease, opacity .2s ease">
                         <!-- BIG: Hijri day -->
                         <span class="cal-hijri-num" style="color:${bigColor}">${_num(day)}</span>
                         <!-- SMALL: optional Gregorian / Bangla -->
@@ -1305,6 +1305,7 @@ function renderCalendarPage() {
                 </div>`;
             })()}
         </div>
+        ${typeof dcCalendarCard==='function'?dcCalendarCard(d,l):''}<!-- v207: date converter -->
     </div>`;
 }
 
@@ -1495,7 +1496,7 @@ function renderReadDuaPage()
                             return `<button class="tts-play-btn" onclick="tts.toggle('${escaped}')"
                                 title="${l==='bn'?'পুরো দোয়া শুনুন':'Listen to full dua'}"
                                 style="display:flex;align-items:center;gap:6px;padding:.6rem 1rem;border-radius:.75rem;
-                                       font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s;
+                                       font-size:.85rem;font-weight:700;cursor:pointer;transition:color .2s, background .2s, border-color .2s, box-shadow .2s, transform .2s, opacity .2s;
                                        background:rgba(180,83,9,.1);color:#b45309;border:1px solid rgba(180,83,9,.2)">
                                 <span class="tts-icon">▶</span> ${l==='bn'?'শুনুন':'Listen'}
                             </button>`;
@@ -1628,7 +1629,7 @@ function renderImamsPage()
             onclick="(function(){if(typeof imamCoverflowGoTo==='function'){imamCoverflowGoTo(${i});}const el=document.getElementById('imam-anchor-${i+1}');scrollToImamEl(el);})()"
             style="flex-shrink:0;padding:5px 14px;border-radius:50px;font-size:.72rem;font-weight:700;
                 border:1.5px solid ${ACS[i]}50;color:${ACS[i]};background:${ACS[i]}12;
-                cursor:pointer;white-space:nowrap;transition:all .18s"
+                cursor:pointer;white-space:nowrap;transition:color .18s, background .18s, border-color .18s, box-shadow .18s, transform .18s, opacity .18s"
             onmouseover="this.style.background='${ACS[i]}28';this.style.transform='translateY(-2px)'"
             onmouseout="this.style.background='${ACS[i]}12';this.style.transform=''">
             ${i+1}. ${name}
@@ -2001,7 +2002,7 @@ function renderImamTimeline(d, l) {
                 const isActive=f.key===activeEra.key;
                 return `<button data-action="setTimelineEra" data-param="${f.key}" aria-pressed="${isActive?'true':'false'}"
                     style="font-size:11.5px;font-weight:700;padding:6px 15px;border-radius:50px;cursor:pointer;
-                    transition:all .18s;
+                    transition:color .18s, background .18s, border-color .18s, box-shadow .18s, transform .18s, opacity .18s;
                     background:${isActive?'#059669':(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)')};
                     color:${isActive?'#fff':(d?'#9ca3af':'#6b7280')};
                     border:1.5px solid ${isActive?'#059669':(d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)')}">
@@ -2503,7 +2504,7 @@ function renderTasbeehPage()
         {ar:'اَلْحَمْدُ لِلَّهِ',    bn:'আলহামদুলিল্লাহ', en:'Alhamdulillah',  target:33, color:'#0369a1'},
         {ar:'اللَّهُ أَكْبَرُ',      bn:'আল্লাহু আকবার',  en:'Allahu Akbar',   target:34, color:'#7c3aed'},
         {ar:'لَا إِلَٰهَ إِلَّا اللَّهُ',bn:'লা ইলাহা ইল্লাল্লাহ',en:'La ilaha illallah',target:100,color:'#b45309'},
-        {ar:'اَللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَآلِ مُحَمَّدٍ',bn:'দরুদে মুহম্মাদ ও আলে মুহম্মাদ',en:'Durud on Muhammad & Aal-e-Muhammad',target:10,color:'#be123c'},
+        {ar:'اَللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَآلِ مُحَمَّدٍ',bn:'দরুদে মুহম্মাদ ও আলে মুহম্মাদ',en:'Durud on Muhammad & Aal-e-Muhammad',target:100,color:'#be123c'},
         {ar:'أَسْتَغْفِرُ اللَّهَ',   bn:'আস্তাগফিরুল্লাহ',en:'Astaghfirullah', target:70, color:'#0d9488'},
     ];
     const dhikr = DHIKR[selected];
@@ -2526,7 +2527,7 @@ function renderTasbeehPage()
                 ${DHIKR.map((dk,i)=>`
                 <button data-action="selectTasbeeh" data-param="${i}" aria-pressed="${selected===i?'true':'false'}"
                     style="flex-shrink:0;padding:7px 16px;border-radius:50px;cursor:pointer;
-                    font-size:11.5px;font-weight:700;white-space:nowrap;transition:all .2s;
+                    font-size:11.5px;font-weight:700;white-space:nowrap;transition:color .2s, background .2s, border-color .2s, box-shadow .2s, transform .2s, opacity .2s;
                     background:${selected===i?dk.color:(d?'rgba(255,255,255,.07)':'rgba(0,0,0,.05)')};
                     color:${selected===i?'#fff':(d?'#9ca3af':'#6b7280')};
                     border:1.5px solid ${selected===i?dk.color:(d?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)')}">
@@ -2586,14 +2587,14 @@ function renderTasbeehPage()
                         style="padding:10px 24px;border-radius:50px;font-size:12.5px;font-weight:700;
                         background:${d?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'};
                         color:${d?'#d1d5db':'#374151'};border:1.5px solid ${d?'rgba(255,255,255,.12)':'rgba(0,0,0,.1)'};cursor:pointer;
-                        display:flex;align-items:center;gap:6px;transition:all .2s">
+                        display:flex;align-items:center;gap:6px;transition:color .2s, background .2s, border-color .2s, box-shadow .2s, transform .2s, opacity .2s">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
                         ${l==='bn'?'রিসেট':'Reset'}
                     </button>
                     <button data-action="saveTasbeehHistory"
                         style="padding:10px 24px;border-radius:50px;font-size:12.5px;font-weight:700;
                         background:${ac}18;color:${ac};border:1.5px solid ${ac}30;cursor:pointer;
-                        display:flex;align-items:center;gap:6px;transition:all .2s">
+                        display:flex;align-items:center;gap:6px;transition:color .2s, background .2s, border-color .2s, box-shadow .2s, transform .2s, opacity .2s">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                         ${l==='bn'?'সেভ করুন':'Save'}
                     </button>

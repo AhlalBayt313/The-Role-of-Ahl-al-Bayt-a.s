@@ -129,7 +129,7 @@ function setupEventListeners() {
                 case 'ayahNext': {
                     const pool = getAyahPoolSize();
                     const now = new Date();
-                    const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+                    const dayOfYear = dayOfYearLocal(now);
                     const current = state.ayahIndex >= 0 ? state.ayahIndex : dayOfYear % pool;
                     state.ayahIndex = (current + 1) % pool;
                     render(); break;
@@ -137,7 +137,7 @@ function setupEventListeners() {
                 case 'ayahPrev': {
                     const pool = getAyahPoolSize();
                     const now = new Date();
-                    const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+                    const dayOfYear = dayOfYearLocal(now);
                     const current = state.ayahIndex >= 0 ? state.ayahIndex : dayOfYear % pool;
                     state.ayahIndex = (current - 1 + pool) % pool;
                     render(); break;
@@ -154,7 +154,7 @@ function setupEventListeners() {
                 case 'hadithNext': {
                     const pool = getHadithPoolSize();
                     const now = new Date();
-                    const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+                    const dayOfYear = dayOfYearLocal(now);
                     const current = state.hadithIndex > 0 ? state.hadithIndex : dayOfYear % pool;
                     state.hadithIndex = (current + 1) % pool;
                     render(); break;
@@ -162,7 +162,7 @@ function setupEventListeners() {
                 case 'hadithPrev': {
                     const pool = getHadithPoolSize();
                     const now = new Date();
-                    const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+                    const dayOfYear = dayOfYearLocal(now);
                     const current = state.hadithIndex > 0 ? state.hadithIndex : dayOfYear % pool;
                     state.hadithIndex = (current - 1 + pool) % pool;
                     render(); break;
@@ -843,7 +843,7 @@ function renderTTSBtn(arabicText, d) {
         style="display:inline-flex;align-items:center;gap:5px;font-size:.7rem;font-weight:600;
                padding:4px 10px;border-radius:20px;border:1px solid ${d?'rgba(201,162,39,.3)':'rgba(180,83,9,.25)'};
                background:${d?'rgba(201,162,39,.08)':'rgba(180,83,9,.06)'};
-               color:${d?'#fcd34d':'#92400e'};cursor:pointer;transition:all .2s">
+               color:${d?'#fcd34d':'#92400e'};cursor:pointer;transition:color .2s, background .2s, border-color .2s, box-shadow .2s, transform .2s, opacity .2s">
         <span class="tts-icon">▶</span>
         <span>${state.language==='bn'?'শুনুন':'Listen'}</span>
     </button>`;
@@ -1045,11 +1045,11 @@ function renderHeader()
 {
     const d=state.darkMode; const l=state.language;
     const mainPages=['home','blog','knowledgeCenter','dua','ahlulBaytUnified'];
-    const morePages=['tasbeeh','quiz','qibla','khumsZakat','ramadan','worldMap','calendar','bookmarks','backup','about','contact'];
+    const morePages=['tasbeeh','playlists','arabic','quiz','qibla','khumsZakat','ramadan','worldMap','calendar','bookmarks','backup','about','contact'];
     const bg   = d ? 'rgba(6,20,16,.95)'      : 'rgba(255,255,255,.90)';
     const border = d ? 'rgba(52,211,153,.08)' : 'rgba(5,150,105,.10)';
     const pageIcons={home:'🏠',imams:'👑',dua:'🤲',knowledgeCenter:'📚',blog:'📝',tasbeeh:'📿',
-        calendar:'📅',quiz:'🧠',qibla:'🧭',khumsZakat:'🧮',ramadan:'🌙',worldMap:'🗺️',familyTree:'🌳',ahlulBaytUnified:'👑',bookmarks:'🔖',backup:'💾',about:'ℹ️',contact:'📞'};
+        calendar:'📅',quiz:'🧠',qibla:'🧭',khumsZakat:'🧮',ramadan:'🌙',worldMap:'🗺️',familyTree:'🌳',ahlulBaytUnified:'👑',bookmarks:'🔖',backup:'💾',about:'ℹ️',contact:'📞',playlists:'🗂️',arabic:'🔤'};
     return `
     <header style="background:${bg};border-bottom:1.5px solid ${border};" class="sticky top-0 z-30" id="main-header">
         <div class="max-w-7xl mx-auto px-4" style="padding-top:14px;padding-bottom:14px">
@@ -1169,10 +1169,10 @@ function renderHeader()
 function renderMobileMenu()
 {
     const d=state.darkMode; const l=state.language;
-    const allPages=['home','blog','dua','ahlulBaytUnified','worldMap','knowledgeCenter','calendar','tasbeeh','khumsZakat','ramadan','quiz','bookmarks','backup','about','contact','searchPage','analytics'];
+    const allPages=['home','blog','dua','ahlulBaytUnified','worldMap','knowledgeCenter','calendar','tasbeeh','playlists','arabic','khumsZakat','ramadan','quiz','bookmarks','backup','about','contact','searchPage','analytics'];
     const icons={home:'🏠',blog:'📝',imams:'👑',familyTree:'🌳',ahlulBaytUnified:'👑',worldMap:'🗺️',dua:'🤲',knowledgeCenter:'📚',
         calendar:'📅',tasbeeh:'📿',khumsZakat:'🧮',ramadan:'🌙',quiz:'🧠',bookmarks:'🔖',backup:'💾',
-        about:'ℹ️',contact:'📞',searchPage:'🔍',analytics:'📊'};
+        about:'ℹ️',contact:'📞',searchPage:'🔍',analytics:'📊',playlists:'🗂️',arabic:'🔤'};
     const border = d?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)';
     return `
     <!-- Backdrop -->
@@ -1489,7 +1489,7 @@ function renderPrayerWidget()
                 <div class="flex items-center gap-2">
                     <button onclick="requestGPSPrayerTimes()"
                         style="display:flex;align-items:center;gap:5px;font-size:.68rem;font-weight:700;
-                        padding:5px 11px;border-radius:50px;cursor:pointer;transition:all .2s;
+                        padding:5px 11px;border-radius:50px;cursor:pointer;transition:color .2s, background .2s, border-color .2s, box-shadow .2s, transform .2s, opacity .2s;
                         background:${hasGPS?(d?'rgba(5,150,105,.2)':'rgba(5,150,105,.1)'):(d?'rgba(255,255,255,.07)':'rgba(0,0,0,.04)')};
                         color:${hasGPS?'#059669':(d?'#9ca3af':'#6b7280')};
                         border:1.5px solid ${hasGPS?'rgba(5,150,105,.35)':(d?'rgba(255,255,255,.12)':'rgba(0,0,0,.08)')}">
@@ -1531,7 +1531,7 @@ function renderPrayerWidget()
                                     background:${isActive?prayerBg[k]:(d?'rgba(255,255,255,.06)':'rgba(0,0,0,.05)')};
                                     display:flex;align-items:center;justify-content:center;
                                     font-size:.9rem;flex-shrink:0;
-                                    transition:all var(--t-base)">
+                                    transition:color var(--t-base), background var(--t-base), border-color var(--t-base), box-shadow var(--t-base), transform var(--t-base), opacity var(--t-base)">
                                     ${prayerIcons[k]||'🕌'}
                                 </span>
                                 <div>
@@ -1742,9 +1742,11 @@ function renderHomePage()
         {icon:'📝',title:t('blog'),                              desc:l==='bn'?'ইসলামিক প্রবন্ধ':'Islamic writings',            page:'blog',    color:'#059669',bg:'rgba(5,150,105,.1)', faint:'rgba(5,150,105,.25)'},
         {icon:'📚',title:l==='bn'?'জ্ঞান কেন্দ্র':'Knowledge Center', desc:l==='bn'?'হাদিস, মাসাইল, প্রশ্নোত্তর ও ফতোয়া':'Hadith, Masail, Q&A & Fatwa', page:'knowledgeCenter', color:'#059669',bg:'rgba(5,150,105,.1)', faint:'rgba(5,150,105,.25)'},
         {icon:'🧠',title:l==='bn'?'কুইজ':'Quiz',               desc:l==='bn'?'জ্ঞান পরীক্ষা':'Test your knowledge',           page:'quiz',    color:'#059669',bg:'rgba(5,150,105,.1)', faint:'rgba(5,150,105,.25)'},
+        {icon:'🔤',title:l==='bn'?'আরবি পড়া শেখা':'Learn Arabic', desc:l==='bn'?'হরফ, চিহ্ন ও অনুশীলন':'Letters, marks & practice', page:'arabic', color:'#059669',bg:'rgba(5,150,105,.1)', faint:'rgba(5,150,105,.25)'},
     ];
     const featuresWorship=[
         {icon:'🤲',title:l==='bn'?'দোয়া ও যিয়ারত':'Dua & Ziyarat',desc:l==='bn'?'দোয়া সংকলন':'Supplications',              page:'dua',     color:'#b45309',bg:'rgba(180,83,9,.1)', faint:'rgba(180,83,9,.25)'},
+        {icon:'🗂️',title:l==='bn'?'আমার তালিকা':'My Lists',     desc:l==='bn'?'নিজের দোয়া-ক্রম':'Your own dua order', page:'playlists', color:'#b45309',bg:'rgba(180,83,9,.1)', faint:'rgba(180,83,9,.25)'},
         {icon:'📿',title:l==='bn'?'তাসবিহ':'Tasbeeh',          desc:l==='bn'?'ডিজিটাল তাসবিহ':'Digital counter',             page:'tasbeeh', color:'#b45309',bg:'rgba(180,83,9,.1)', faint:'rgba(180,83,9,.25)'},
         {icon:'☀️',title:l==='bn'?'৯৯ নাম':'99 Names',         desc:l==='bn'?'আসমাউল হুসনা':'Names of Allah',               page:'asmaul',  color:'#b45309',bg:'rgba(180,83,9,.1)', faint:'rgba(180,83,9,.25)'},
         {icon:'🧭',title:l==='bn'?'কিবলা':'Qibla',             desc:l==='bn'?'কিবলার দিক':'Qibla direction',                 page:'qibla',   color:'#b45309',bg:'rgba(180,83,9,.1)', faint:'rgba(180,83,9,.25)'},
@@ -1773,7 +1775,7 @@ function renderHomePage()
     const ashuraYear=(h.month>1||(h.month===1&&h.day>10))?h.year+1:h.year;
     const ashuraGreg=hijriToGregorian(10,1,ashuraYear);
     const todayD=new Date(); todayD.setHours(0,0,0,0); ashuraGreg.setHours(0,0,0,0);
-    const daysLeft=Math.ceil((ashuraGreg-todayD)/86400000);
+    const daysLeft=calDaysBetween(todayD,ashuraGreg); // v210: DST-safe
     const cdLabel=daysLeft===0
         ?(l==='bn'?'🔴 আজ আশুরা':'🔴 Ashura is today')
         :daysLeft<0
