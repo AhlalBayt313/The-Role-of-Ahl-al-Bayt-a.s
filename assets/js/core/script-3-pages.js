@@ -320,20 +320,85 @@ function dzxAmalCatFilters(l) {
         {key:'special',icon:'⭐', label:l==='bn'?'বিশেষ':'Special',       color:'#db2777', bg:'rgba(219,39,119,.15)'},
     ];
 }
-// Case-insensitive substring match across every searchable text field an
-// item may carry. Fields absent (e.g. meaning* before lazy-load resolves,
-// or on lite metadata entries) are simply skipped — never throws.
-function dzxSearchHay(item) {
+// v223 — SMARTER SEARCH (Bengali / Arabic / Latin tolerant).
+// Both the query and every searchable field go through dzxNorm(), so spelling
+// variants of the same word match: য/জ, য়, ড়/ঢ়, ী/ি, ূ/ু, শ/ষ/স, ণ/ন, hasanta,
+// doubled letters (তাওয়াসসুল = তাওয়াসুল), Bengali/ASCII digits (১০ = 10),
+// Arabic harakat/alef/ya/ta-marbuta forms, Latin case/diacritics/apostrophes and
+// ay/ai. Multi-word queries match in any order; a word of 4+ letters also
+// matches a title word with 1 (2 for 8+ letters) typos. Missing fields are
+// skipped (lite metadata entries before lazy-load) — never throws.
+function dzxNorm(str) {
+    let t = String(str == null ? '' : str).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').normalize('NFC');
+    t = t.replace(/[\u200b-\u200f\u2060\ufeff]/g, '');
+    // digits
+    t = t.replace(/[০-৯]/g, c => String(c.charCodeAt(0) - 0x09E6))
+         .replace(/[٠-٩]/g, c => String(c.charCodeAt(0) - 0x0660));
+    // Bengali: drop nukta/hasanta/chandrabindu/visarga, then fold look-alike sounds
+    t = t.replace(/[\u09BC\u09CD\u0981\u0983]/g, '')
+         .replace(/[ীে]/g, 'ি').replace(/ূ/g, 'ু').replace(/ঈ/g, 'ই').replace(/ঊ/g, 'উ')
+         .replace(/ণ/g, 'ন').replace(/[শষ]/g, 'স').replace(/য/g, 'জ').replace(/ৎ/g, 'ত');
+    // Arabic: harakat, tatweel, alef/ya/ta-marbuta/kaf variants
+    t = t.replace(/[\u064B-\u065F\u0670\u0640]/g, '')
+         .replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه').replace(/ک/g, 'ك').replace(/ی/g, 'ي');
+    // Latin transliteration noise
+    t = t.replace(/[\u2018\u2019\u02BB\u02BC\u02BE\u02BF'`]/g, '').replace(/ay/g, 'ai').replace(/ou/g, 'u');
+    // punctuation → space, collapse doubled letters and spaces
+    t = t.replace(/[^\p{L}\p{M}\p{N}]+/gu, ' ').replace(/([\p{L}\p{M}])\1+/gu, '$1');
+    return t.replace(/\s+/g, ' ').trim();
+}
+function dzxLev(a, b, max) {
+    if (Math.abs(a.length - b.length) > max) return max + 1;
+    let prev = Array.from({length: b.length + 1}, (_, i) => i);
+    for (let i = 1; i <= a.length; i++) {
+        const cur = [i]; let rowMin = i;
+        for (let j = 1; j <= b.length; j++) {
+            cur[j] = Math.min(prev[j] + 1, cur[j-1] + 1, prev[j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+            if (cur[j] < rowMin) rowMin = cur[j];
+        }
+        if (rowMin > max) return max + 1;
+        prev = cur;
+    }
+    return prev[b.length];
+}
+const _dzxIdx = new WeakMap();
+function dzxSearchIndex(item) {
     const parts = [
         item.titleBn, item.titleEn, item.titleAr, item.meaningBn, item.meaningEn,
         item.source, item.reference, item.occasion,
         Array.isArray(item.tags) ? item.tags.join(' ') : '',
         Array.isArray(item.searchKeywords) ? item.searchKeywords.join(' ') : '',
     ];
-    return parts.filter(Boolean).join(' ​ ').toLowerCase();
+    const raw = parts.filter(Boolean).join(' | ');
+    const hit = _dzxIdx.get(item);
+    if (hit && hit.raw === raw) return hit;
+    const title = dzxNorm([item.titleBn, item.titleEn, item.titleAr].filter(Boolean).join(' '));
+    const ix = { raw, hay: dzxNorm(raw), title, words: title.split(' ').filter(w => w.length >= 3) };
+    _dzxIdx.set(item, ix);
+    return ix;
 }
+function dzxTokenHit(ix, tok, titleOnly) {
+    if ((titleOnly ? ix.title : ix.hay).includes(tok)) return 2;
+    if (tok.length >= 4) {
+        const max = tok.length >= 8 ? 2 : 1;
+        if (ix.words.some(w => dzxLev(tok, w.length > tok.length ? w.slice(0, tok.length + max) : w, max) <= max)) return 1;
+    }
+    return 0;
+}
+// Kept for compatibility with any caller of the old name.
+function dzxSearchHay(item) { return dzxSearchIndex(item).hay; }
 function dzxMatchesSearch(item, q) {
-    return !q || dzxSearchHay(item).includes(q);
+    const toks = dzxNorm(q).split(' ').filter(Boolean);
+    if (!toks.length) return true;
+    const ix = dzxSearchIndex(item);
+    return toks.every(t => dzxTokenHit(ix, t, false) > 0);
+}
+// 0 = every word is in the title, 1 = otherwise (lower sorts first)
+function dzxSearchRank(item, q) {
+    const toks = dzxNorm(q).split(' ').filter(Boolean);
+    if (!toks.length) return 0;
+    const ix = dzxSearchIndex(item);
+    return toks.every(t => dzxTokenHit(ix, t, true) > 0) ? 0 : 1;
 }
 // Sticky search box, shared by all three tabs (only the active tab's is
 // rendered). Sits OUTSIDE the #dzx-<tab>-results container it targets, so
@@ -362,6 +427,11 @@ function dzxSearchBar(tab, d, l) {
             style="width:100%;padding:10px 14px 10px 40px;border-radius:14px;font-size:.85rem;
             background:${d?'rgba(255,255,255,.05)':'#ffffff'};border:1.5px solid ${d?'rgba(255,255,255,.12)':'rgba(0,0,0,.08)'};
             color:${d?'#f9fafb':'#111827'};outline:none" />
+      </div>
+      <div class="dzx-vt-group" role="group" aria-label="${l==='bn'?'সাজানোর ধরন':'Sort order'}">
+        <button type="button" class="dzx-vt dzx-sort" aria-pressed="${state.dzxSort==='alpha'}"
+            aria-label="${l==='bn'?'বর্ণানুক্রমে সাজান (অ-আ)':'Sort alphabetically (A-Z)'}" title="${l==='bn'?'বর্ণানুক্রমে সাজান (অ-আ)':'Sort alphabetically (A-Z)'}"
+            onclick="state.dzxSort=(state.dzxSort==='alpha'?'serial':'alpha');this.setAttribute('aria-pressed',String(state.dzxSort==='alpha'));const r=document.getElementById('${resultsId}');if(r)r.innerHTML=${renderFn}();">${l==='bn'?'অ-আ':'A-Z'}</button>
       </div>
       <div class="dzx-vt-group" role="group" aria-label="${l==='bn'?'দেখার ধরন':'View mode'}">
         <button type="button" class="dzx-vt" data-dzx-view-btn="grid" aria-pressed="${curView==='grid'}" aria-label="${vLbl.grid}" title="${vLbl.grid}">
@@ -653,6 +723,59 @@ function renderDuaPage() {
 // inline in renderDuaPage() above (unchanged card HTML) — now callable on
 // its own so a search box's oninput can refresh just its results container.
 // ============================================================================
+// v222 — FIND-IT-FAST: sort toggle (serial / alphabetical) + section headers.
+// state.dzxSort: undefined|'serial' = curated order grouped by category; 'alpha' = A-Z with letter headers.
+function dzxSortKey(item, l) {
+    let t = String((l==='bn' ? item.titleBn : item.titleEn) || item.titleBn || item.titleEn || '');
+    t = t.replace(/^[^\p{L}]+/u, '');
+    t = l==='bn' ? t.replace(/^(দোয়ায়ে|দোয়া|দুআ|যিয়ারতে|যিয়ারত|আমলে|আমল)\s+/, '')
+                 : t.replace(/^(Dua|Ziyarat|Amal)\s+(of\s+|e\s+|al-)?/i, '');
+    return t.trim();
+}
+function dzxCmp(a, b, l) {
+    return dzxSortKey(a, l).localeCompare(dzxSortKey(b, l), l==='bn' ? 'bn' : 'en');
+}
+function dzxHeader(label, count, d) {
+    return `<h3 class="dzx-gh font-bold text-sm" style="color:${d?'#fbbf24':'#92400e'}">${label}<span class="dzx-gh-n">${count}</span></h3>`;
+}
+// list → flat sequence of {hdr} / {v, n}. n = serial shown on the card.
+// opts: l, d, groupKey(item), groupLabel(key), groupOrder[], flatOnly (no grouping, serial order)
+function dzxSeq(list, o) {
+    const l=o.l, d=o.d, bn=l==='bn';
+    const numFn = n => bn && typeof toBengaliDigits==='function' ? toBengaliDigits(n) : String(n);
+    if (o.flatOnly) {
+        // active search → best (title) matches first; stable, so equal ranks keep their order
+        const q = o.q || '';
+        const arr = (q && state.dzxSort!=='alpha') ? list.slice().sort((a,b)=>dzxSearchRank(a,q)-dzxSearchRank(b,q)) : list;
+        if (state.dzxSort!=='alpha') return arr.map((v,i)=>({v, n:i+1}));
+    }
+    const out=[];
+    if (state.dzxSort==='alpha') {
+        const sorted = list.slice().sort((a,b)=>dzxCmp(a,b,l));
+        let cur=null, n=0, bucket=[];
+        const flush=()=>{ if(bucket.length){ out.push({hdr:dzxHeader(cur, numFn(bucket.length), d)}); bucket.forEach(v=>out.push({v, n:++n})); } bucket=[]; };
+        sorted.forEach(v=>{
+            const ch=(Array.from(dzxSortKey(v,l))[0]||'#').toUpperCase();
+            if (ch!==cur) { flush(); cur=ch; }
+            bucket.push(v);
+        });
+        flush();
+        return out;
+    }
+    const groups=new Map();
+    list.forEach(v=>{ const k=o.groupKey(v); if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(v); });
+    const keys=[...(o.groupOrder||[]).filter(k=>groups.has(k)), ...[...groups.keys()].filter(k=>!(o.groupOrder||[]).includes(k))];
+    keys.forEach(k=>{
+        const items=groups.get(k);
+        out.push({hdr:dzxHeader(o.groupLabel(k), numFn(items.length), d)});
+        items.forEach((v,i)=>out.push({v, n:i+1}));
+    });
+    return out;
+}
+// v221 — serial number badge shown on each card (position in the list on screen)
+function dzxNo(n, l) {
+    return `<span class="dzx-no" aria-hidden="true">${l==='bn'&&typeof toBengaliDigits==='function'?toBengaliDigits(n):n}</span>`;
+}
 function renderDuaResultsInner() {
     const d=state.darkMode, l=state.language;
     const selectedCategory = state.duaCategory || 'all';
@@ -674,7 +797,12 @@ function renderDuaResultsInner() {
                 <div style="font-size:3rem;margin-bottom:.75rem">🤲</div>
                 <p class="font-semibold">${searchQ?(l==='bn'?'কোনো ফলাফল পাওয়া যায়নি':'No results found'):(l==='bn'?'কোনো দোয়া নেই':'No duas yet')}</p>
             </div>`:
-            filteredDuas.map((dua,i)=>{
+            dzxSeq(filteredDuas, {l, d, q: searchQ, flatOnly: !!searchQ || selectedCategory!=='all',
+                groupKey: x=>x.category, groupOrder: catFilters.filter(f=>f.key!=='all').map(f=>f.key),
+                groupLabel: k=>{ const f=catFilters.find(c=>c.key===k); return f ? f.icon+' '+f.label : sanitize(String(k||'')); }
+            }).map(item=>{
+                if (item.hdr) return item.hdr;
+                const dua=item.v;
                 // Bug fix: presence of dua.id does NOT mean user-created —
                 // built-in duas in duas-data.js also carry an id for
                 // identification. "Custom" must mean it actually lives in
@@ -706,6 +834,7 @@ function renderDuaResultsInner() {
                             <p class="font-bold" style="font-size:13.5px;color:${d?'#f9fafb':'#111827'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sanitize(l==='bn'?dua.titleBn:dua.titleEn)}</p>
                         </div>
                         <p class="arabic-text" dir="rtl" lang="ar" style="font-size:12px;color:${d?'#9ca3af':'#6b7280'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sanitize(dua.arabic)}</p>
+                        ${(l==='bn'&&dua.source)?`<p class="dzx-src" title="${sanitize(dua.source).replace(/"/g,'&quot;')}">📖 ${sanitize(dua.source)}</p>`:''}
                     </div>
                     ${state.isAdmin&&isCustom?`
                     <div class="flex gap-1 flex-shrink-0" onclick="event.stopPropagation()">
@@ -719,6 +848,7 @@ function renderDuaResultsInner() {
                     <svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="${catInfo.color}" stroke-width="2.3" stroke-linecap="round" style="flex-shrink:0" aria-hidden="true"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
                     </div>
                     ${ucActionBar('dua', idx, d, l, true)}
+                    ${dzxNo(item.n, l)}
                 </div>`;
             }).join('')}
         </div>`;
@@ -739,6 +869,15 @@ function renderZiyaratResultsInner() {
     const filteredZiyarat = indexedZiyarat
         .filter(({z}) => selectedZiyaratCategory==='all' || z.category===selectedZiyaratCategory)
         .filter(({z}) => dzxMatchesSearch(z, searchQ));
+    // v221: Imams / Masumeen in the order of the Imams (Prophet, Fatima, Ali, Hasan ...);
+    // stable sort, so equal ranks and the Comprehensive group keep their curated order.
+    const zAlpha = state.dzxSort==='alpha';
+    filteredZiyarat.sort((a,b)=>{
+        if (zAlpha) return dzxCmp(a.z, b.z, l);
+        if (searchQ) { const q=dzxSearchRank(a.z,searchQ)-dzxSearchRank(b.z,searchQ); if (q) return q; }
+        const r=e=>(e.z.category==='imams'||e.z.category==='masumeen')&&e.z.sortOrder!=null?e.z.sortOrder:0;
+        return r(a)-r(b);
+    });
     const groupedZiyarat = selectedZiyaratCategory==='all'
         ? ziyaratCatOrder
             .map(cat => ({cat, items:filteredZiyarat.filter(({z})=>z.category===cat)}))
@@ -759,7 +898,7 @@ function renderZiyaratResultsInner() {
                     ${l==='bn'?ziyaratCatGroupLabel[group.cat].bn:ziyaratCatGroupLabel[group.cat].en}
                     <span style="font-size:.7rem;font-weight:600;opacity:.7;margin-left:4px">${group.items.length}</span>
                 </h3>`:''}
-                ${clusterZiyaratItems(group.items).map(cluster=>{
+                ${clusterZiyaratItems(group.items).map((cluster,ci)=>{
                     if (cluster.type==='single') {
                     const {z,idx}=cluster.entry;
                     // Compact row style ("ক"): background/border tinted per the
@@ -781,6 +920,7 @@ function renderZiyaratResultsInner() {
                     <div style="flex:1;min-width:0">
                         <p class="font-bold" style="font-size:13.5px;color:${d?'#f9fafb':'#111827'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sanitize(l==='bn'?z.titleBn:z.titleEn)}</p>
                         <p class="arabic-text" dir="rtl" lang="ar" style="font-size:12px;color:${d?'#9ca3af':'#6b7280'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sanitize(z.arabic)}</p>
+                        ${(l==='bn'&&z.source)?`<p class="dzx-src" title="${sanitize(z.source).replace(/"/g,'&quot;')}">📖 ${sanitize(z.source)}</p>`:''}
                     </div>
                     ${state.isAdmin?`
                     <div class="flex gap-1 flex-shrink-0" onclick="event.stopPropagation()">
@@ -794,6 +934,7 @@ function renderZiyaratResultsInner() {
                     <svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="${zCatInfo.color}" stroke-width="2.3" stroke-linecap="round" style="flex-shrink:0" aria-hidden="true"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
                     </div>
                     ${ucActionBar('ziyarat', z.id||idx, d, l, true)}
+                    ${dzxNo(ci+1, l)}
                 </div>`;
                     }
                     // MULTI-VARIANT GROUP (e.g. Imam Reza's 8 Ziyarat, sharing the
@@ -810,7 +951,7 @@ function renderZiyaratResultsInner() {
                         ? `${toBengaliDigits(cluster.members.length)}টি ভিন্ন যিয়ারত — ট্যাপ করে দেখুন`
                         : `${cluster.members.length} different Ziyarat — tap to view`;
                     return `
-                <div class="reveal" style="border-radius:14px;background:${zCatInfo.color}${d?'22':'1a'};border:1px solid ${zCatInfo.color}${d?'55':'40'};box-shadow:var(--app-shadow-sm)">
+                <div class="reveal dzx-grp" style="border-radius:14px;background:${zCatInfo.color}${d?'22':'1a'};border:1px solid ${zCatInfo.color}${d?'55':'40'};box-shadow:var(--app-shadow-sm)">
                     <div data-action="toggleZiyaratGroup" data-param="${cluster.key}" role="button" tabindex="0" aria-expanded="${isOpen?'true':'false'}"
                         style="display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer">
                         <div style="flex-shrink:0;width:32px;height:32px;border-radius:10px;
@@ -845,6 +986,7 @@ function renderZiyaratResultsInner() {
                             <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="${zCatInfo.color}" stroke-width="2.3" stroke-linecap="round" style="flex-shrink:0" aria-hidden="true"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
                         </div>`).join('')}
                     </div>`:''}
+                    ${dzxNo(ci+1, l)}
                 </div>`;
                 }).join('')}
             </div>`).join('')}
@@ -867,7 +1009,12 @@ function renderAmalResultsInner() {
                 <div style="font-size:3rem;margin-bottom:.75rem">📿</div>
                 <p class="font-semibold">${searchQ?(l==='bn'?'কোনো ফলাফল পাওয়া যায়নি':'No results found'):(l==='bn'?'কোনো আমল নেই':'No Amal yet')}</p>
             </div>`:
-            filteredAmals.map((a,i)=>{
+            dzxSeq(filteredAmals, {l, d, q: searchQ, flatOnly: !!searchQ || selectedAmalCategory!=='all',
+                groupKey: x=>x.category, groupOrder: amalCatFilters.filter(f=>f.key!=='all').map(f=>f.key),
+                groupLabel: k=>{ const f=amalCatFilters.find(c=>c.key===k); return f ? f.icon+' '+f.label : sanitize(String(k||'')); }
+            }).map(item=>{
+                if (item.hdr) return item.hdr;
+                const a=item.v, i=filteredAmals.indexOf(a);
                 const isCustom = a.id!=null && state.customAmal.some(x=>x.id===a.id);
                 const catInfo = amalCatFilters.find(f=>f.key===a.category) || amalCatFilters[0];
                 return `
@@ -898,6 +1045,7 @@ function renderAmalResultsInner() {
                     <svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="${catInfo.color}" stroke-width="2.3" stroke-linecap="round" style="flex-shrink:0" aria-hidden="true"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
                     </div>
                     ${ucActionBar('amal', a.id!=null?a.id:i, d, l, true)}
+                    ${dzxNo(item.n, l)}
                 </div>`;
             }).join('')}
         </div>`;

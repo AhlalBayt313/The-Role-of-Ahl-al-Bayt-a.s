@@ -2345,7 +2345,7 @@ function ucShareItem(ctype, id) {
     const meta = UC_META[ctype] || {icon:'', bn:'', en:''};
     const title = ucItemTitle(item, l);
     const meaning = ucItemMeaning(item, l);
-    shareContent(`${meta.icon} ${l==='bn'?meta.bn:meta.en}`, meaning?`${title}\n${meaning}`:title, '');
+    shareContent(`${meta.icon} ${l==='bn'?meta.bn:meta.en}`, meaning?`${title}\n${meaning}`:title, (typeof clShareUrl==='function'?clShareUrl(ctype,item):''));
 }
 // Renders the shared action bar (Bookmark / Favorite / Copy / Share) used by
 // Dua, Ziyarat & Amal cards and detail pages. Reuses the existing .kc-card-actions

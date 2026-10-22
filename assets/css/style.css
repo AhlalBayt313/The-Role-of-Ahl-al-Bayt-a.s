@@ -5841,3 +5841,368 @@ html { scroll-padding-top: 84px; }
     }
 }
 /* ═══════════ end v215 mobile finish ═══════════ */
+
+/* ════════════════════════════════════════════════════════════════════
+   v217 — PREMIUM DUA CARDS (CSS only, additive; delete block to revert)
+   Scope: GRID view of the Dua tab ONLY  →  html[data-dzx-view="grid"]
+   #dzx-dua-results. Ziyarat/Amal cards and the compact list view are not
+   touched. No markup/JS change; every colour derives from the card's own
+   --dzx-cat (category colour) so the existing palette is reused.
+   1. Surface: inner top highlight + soft category-tinted glow, lift on hover
+   2. Icon medallion: double ring + gloss
+   3. Arabic line: higher contrast (light mode), fine divider under it
+   4. Action bar: hairline above, ghost buttons, pressed state in category colour
+   ════════════════════════════════════════════════════════════════════ */
+
+/* 1 ── Surface */
+html[data-dzx-view="grid"] #dzx-dua-results .uc-card-row {
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.65),
+        0 1px 2px rgba(6,78,59,.08),
+        0 10px 24px -10px color-mix(in srgb, var(--dzx-cat, #059669) 42%, transparent) !important;
+}
+html[data-theme="dark"][data-dzx-view="grid"] #dzx-dua-results .uc-card-row {
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.09),
+        0 1px 2px rgba(0,0,0,.5),
+        0 12px 26px -12px rgba(0,0,0,.75) !important;
+}
+@media (hover: hover) and (pointer: fine) {
+    html[data-dzx-view="grid"] #dzx-dua-results .uc-card-row:hover {
+        border-color: color-mix(in srgb, var(--dzx-cat, #059669) 65%, transparent) !important;
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,.7),
+            0 2px 4px rgba(6,78,59,.08),
+            0 20px 36px -12px color-mix(in srgb, var(--dzx-cat, #059669) 55%, transparent) !important;
+    }
+    html[data-theme="dark"][data-dzx-view="grid"] #dzx-dua-results .uc-card-row:hover {
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,.12),
+            0 2px 4px rgba(0,0,0,.55),
+            0 20px 38px -12px color-mix(in srgb, var(--dzx-cat, #059669) 45%, rgba(0,0,0,.6)) !important;
+    }
+}
+
+/* 2 ── Icon medallion: gloss + double ring (white inner, category outer) */
+html[data-dzx-view="grid"] #dzx-dua-results .uc-card-row > div:first-child > div:first-child {
+    background-image:
+        radial-gradient(circle at 30% 24%, rgba(255,255,255,.55), rgba(255,255,255,0) 58%),
+        linear-gradient(150deg, rgba(255,255,255,.14), rgba(0,0,0,.16)) !important;
+    box-shadow:
+        0 0 0 3px rgba(255,255,255,.62),
+        0 0 0 4.5px color-mix(in srgb, var(--dzx-cat, #059669) 55%, transparent),
+        0 8px 16px -4px color-mix(in srgb, var(--dzx-cat, #059669) 60%, transparent) !important;
+}
+html[data-theme="dark"][data-dzx-view="grid"] #dzx-dua-results .uc-card-row > div:first-child > div:first-child {
+    box-shadow:
+        0 0 0 3px rgba(255,255,255,.14),
+        0 0 0 4.5px color-mix(in srgb, var(--dzx-cat, #059669) 60%, transparent),
+        0 8px 16px -4px rgba(0,0,0,.6) !important;
+}
+
+/* 3 ── Arabic line (light mode: category-tinted ink; dark mode keeps the
+        existing gold) + a fine fading divider between Arabic and title */
+html[data-dzx-view="grid"] #dzx-dua-results .uc-card-row p.arabic-text {
+    color: color-mix(in srgb, var(--dzx-cat, #059669) 50%, #1f2937) !important;
+}
+html[data-theme="dark"][data-dzx-view="grid"] #dzx-dua-results .uc-card-row p.arabic-text {
+    color: #fcd34d !important;
+}
+html[data-dzx-view="grid"] #dzx-dua-results .uc-card-row > div:first-child > div:nth-child(2)::before {
+    content: ""; display: block; order: 0; flex: none;
+    width: 56px; height: 1px; margin: 2px 0 8px;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--dzx-cat, #c9a227) 70%, transparent), transparent);
+}
+
+/* 4 ── Action bar: hairline above, ghost buttons, pressed state tinted */
+html[data-dzx-view="grid"] #dzx-dua-results .uc-card-row .kc-card-actions {
+    margin: auto 12px 0 !important; padding: 8px 0 10px !important;
+    border-top: 1px solid color-mix(in srgb, var(--dzx-cat, #059669) 24%, transparent);
+}
+html[data-dzx-view="grid"] #dzx-dua-results .uc-card-row .kc-card-actions .kc-act-icon {
+    background: transparent !important; border-color: transparent !important;
+    border-radius: 12px !important; font-size: 18px !important;
+    color: color-mix(in srgb, var(--dzx-cat, #059669) 70%, #111827);
+    transition: background-color .18s ease, transform .18s ease;
+}
+html[data-theme="dark"][data-dzx-view="grid"] #dzx-dua-results .uc-card-row .kc-card-actions .kc-act-icon {
+    color: color-mix(in srgb, var(--dzx-cat, #059669) 45%, #f3f4f6);
+}
+html[data-dzx-view="grid"] #dzx-dua-results .uc-card-row .kc-card-actions .kc-act-icon[aria-pressed="true"] {
+    background: color-mix(in srgb, var(--dzx-cat, #059669) 20%, transparent) !important;
+}
+@media (hover: hover) and (pointer: fine) {
+    html[data-dzx-view="grid"] #dzx-dua-results .uc-card-row .kc-card-actions .kc-act-icon:hover {
+        background: color-mix(in srgb, var(--dzx-cat, #059669) 16%, transparent) !important;
+    }
+}
+html[data-dzx-view="grid"] #dzx-dua-results .uc-card-row .kc-card-actions .kc-act-icon:active { transform: scale(.94); }
+@media (prefers-reduced-motion: reduce) {
+    html[data-dzx-view="grid"] #dzx-dua-results .uc-card-row .kc-card-actions .kc-act-icon:active { transform: none; }
+}
+/* ═══════════ end v217 premium dua cards ═══════════ */
+
+/* ════════════════════════════════════════════════════════════════════
+   v218 — SOURCE LINE ON DUA CARDS (additive; delete block + the one
+   `.dzx-src` line in renderDuaResultsInner() to revert)
+   The markup adds <p class="dzx-src"> (Bengali UI only, only when the dua
+   has a `source`). It is hidden everywhere except the GRID view of the Dua
+   tab, so the compact list rows are unchanged. One line, ellipsis; the full
+   text is in the element's title attribute.
+   ════════════════════════════════════════════════════════════════════ */
+.uc-card-row .dzx-src { display: none; }
+html[data-dzx-view="grid"] #dzx-dua-results .uc-card-row .dzx-src {
+    display: block !important; width: 100%; margin: 3px 0 0; padding: 0 2px;
+    font-size: 10.5px; line-height: 1.5; text-align: center;
+    white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis !important;
+    -webkit-line-clamp: unset; -webkit-box-orient: initial;
+    color: color-mix(in srgb, var(--dzx-cat, #059669) 45%, #4b5563);
+    opacity: .9;
+}
+html[data-theme="dark"][data-dzx-view="grid"] #dzx-dua-results .uc-card-row .dzx-src {
+    color: color-mix(in srgb, var(--dzx-cat, #059669) 35%, #d1d5db);
+}
+/* ═══════════ end v218 ═══════════ */
+
+/* ════════════════════════════════════════════════════════════════════
+   v219 — PREMIUM ZIYARAT + AMAL CARDS (additive; delete this block, the
+   one `.dzx-src` line in renderZiyaratResultsInner() and the sw.js bump
+   to revert). Scope: GRID view only → html[data-dzx-view="grid"] with
+   #dzx-ziyarat-results / #dzx-amal-results. List view, Dua cards and the
+   multi-variant Ziyarat accordion are untouched. Same recipe as v217
+   (inner highlight, tinted glow, gloss medallion, hairline action bar),
+   plus one signature detail per tab:
+     Ziyarat → gold double-ring medallion on a soft gold halo + source line
+     Amal    → the time of the amal ("প্রতি ফরজ নামাজের পর") as a pill
+   Every colour derives from the card's own --dzx-cat.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* 1 ── Surface (both tabs) */
+html[data-dzx-view="grid"] :is(#dzx-ziyarat-results, #dzx-amal-results) .uc-card-row {
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.65),
+        0 1px 2px rgba(15,23,42,.08),
+        0 10px 24px -10px color-mix(in srgb, var(--dzx-cat, #7c3aed) 45%, transparent) !important;
+}
+html[data-theme="dark"][data-dzx-view="grid"] :is(#dzx-ziyarat-results, #dzx-amal-results) .uc-card-row {
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.09),
+        0 1px 2px rgba(0,0,0,.5),
+        0 12px 26px -12px rgba(0,0,0,.75) !important;
+}
+@media (hover: hover) and (pointer: fine) {
+    html[data-dzx-view="grid"] :is(#dzx-ziyarat-results, #dzx-amal-results) .uc-card-row:hover {
+        border-color: color-mix(in srgb, var(--dzx-cat, #7c3aed) 65%, transparent) !important;
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,.7),
+            0 2px 4px rgba(15,23,42,.08),
+            0 20px 36px -12px color-mix(in srgb, var(--dzx-cat, #7c3aed) 55%, transparent) !important;
+    }
+    html[data-theme="dark"][data-dzx-view="grid"] :is(#dzx-ziyarat-results, #dzx-amal-results) .uc-card-row:hover {
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,.12),
+            0 2px 4px rgba(0,0,0,.55),
+            0 20px 38px -12px color-mix(in srgb, var(--dzx-cat, #7c3aed) 45%, rgba(0,0,0,.6)) !important;
+    }
+}
+
+/* 2 ── Medallion: gloss + double ring */
+html[data-dzx-view="grid"] :is(#dzx-ziyarat-results, #dzx-amal-results) .uc-card-row > div:first-child > div:first-child {
+    background-image:
+        radial-gradient(circle at 30% 24%, rgba(255,255,255,.55), rgba(255,255,255,0) 58%),
+        linear-gradient(150deg, rgba(255,255,255,.14), rgba(0,0,0,.16)) !important;
+    box-shadow:
+        0 0 0 3px rgba(255,255,255,.62),
+        0 0 0 4.5px color-mix(in srgb, var(--dzx-cat, #7c3aed) 55%, transparent),
+        0 8px 16px -4px color-mix(in srgb, var(--dzx-cat, #7c3aed) 60%, transparent) !important;
+}
+html[data-theme="dark"][data-dzx-view="grid"] :is(#dzx-ziyarat-results, #dzx-amal-results) .uc-card-row > div:first-child > div:first-child {
+    box-shadow:
+        0 0 0 3px rgba(255,255,255,.14),
+        0 0 0 4.5px color-mix(in srgb, var(--dzx-cat, #7c3aed) 60%, transparent),
+        0 8px 16px -4px rgba(0,0,0,.6) !important;
+}
+
+/* 3 ── Fine fading divider above the text block */
+html[data-dzx-view="grid"] :is(#dzx-ziyarat-results, #dzx-amal-results) .uc-card-row > div:first-child > div:nth-child(2)::before {
+    content: ""; display: block; order: -2; flex: none;
+    width: 56px; height: 1px; margin: 2px 0 8px;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--dzx-cat, #c9a227) 70%, transparent), transparent);
+}
+
+/* 4 ── Action bar: hairline above, ghost buttons, tinted pressed state */
+html[data-dzx-view="grid"] :is(#dzx-ziyarat-results, #dzx-amal-results) .uc-card-row .kc-card-actions {
+    margin: auto 12px 0 !important; padding: 8px 0 10px !important;
+    border-top: 1px solid color-mix(in srgb, var(--dzx-cat, #7c3aed) 24%, transparent);
+}
+html[data-dzx-view="grid"] :is(#dzx-ziyarat-results, #dzx-amal-results) .uc-card-row .kc-card-actions .kc-act-icon {
+    background: transparent !important; border-color: transparent !important;
+    border-radius: 12px !important; font-size: 18px !important;
+    color: color-mix(in srgb, var(--dzx-cat, #7c3aed) 70%, #111827);
+    transition: background-color .18s ease, transform .18s ease;
+}
+html[data-theme="dark"][data-dzx-view="grid"] :is(#dzx-ziyarat-results, #dzx-amal-results) .uc-card-row .kc-card-actions .kc-act-icon {
+    color: color-mix(in srgb, var(--dzx-cat, #7c3aed) 45%, #f3f4f6);
+}
+html[data-dzx-view="grid"] :is(#dzx-ziyarat-results, #dzx-amal-results) .uc-card-row .kc-card-actions .kc-act-icon[aria-pressed="true"] {
+    background: color-mix(in srgb, var(--dzx-cat, #7c3aed) 20%, transparent) !important;
+}
+@media (hover: hover) and (pointer: fine) {
+    html[data-dzx-view="grid"] :is(#dzx-ziyarat-results, #dzx-amal-results) .uc-card-row .kc-card-actions .kc-act-icon:hover {
+        background: color-mix(in srgb, var(--dzx-cat, #7c3aed) 16%, transparent) !important;
+    }
+}
+html[data-dzx-view="grid"] :is(#dzx-ziyarat-results, #dzx-amal-results) .uc-card-row .kc-card-actions .kc-act-icon:active { transform: scale(.94); }
+@media (prefers-reduced-motion: reduce) {
+    html[data-dzx-view="grid"] :is(#dzx-ziyarat-results, #dzx-amal-results) .uc-card-row .kc-card-actions .kc-act-icon:active { transform: none; }
+}
+
+/* ── ZIYARAT only ─────────────────────────────────────────────────── */
+/* Arabic line: category-tinted ink in light mode, existing gold in dark */
+html[data-dzx-view="grid"] #dzx-ziyarat-results .uc-card-row p.arabic-text {
+    color: color-mix(in srgb, var(--dzx-cat, #7c3aed) 55%, #1f2937) !important;
+}
+html[data-theme="dark"][data-dzx-view="grid"] #dzx-ziyarat-results .uc-card-row p.arabic-text {
+    color: #fcd34d !important;
+}
+/* Signature: gold outer ring (shrine-gold) + soft gold halo behind the medallion */
+html[data-dzx-view="grid"] #dzx-ziyarat-results .uc-card-row > div:first-child > div:first-child {
+    box-shadow:
+        0 0 0 3px rgba(255,255,255,.7),
+        0 0 0 4.5px rgba(201,162,39,.85),
+        0 8px 16px -4px color-mix(in srgb, var(--dzx-cat, #7c3aed) 60%, transparent) !important;
+}
+html[data-theme="dark"][data-dzx-view="grid"] #dzx-ziyarat-results .uc-card-row > div:first-child > div:first-child {
+    box-shadow:
+        0 0 0 3px rgba(255,255,255,.12),
+        0 0 0 4.5px rgba(252,211,77,.7),
+        0 8px 16px -4px rgba(0,0,0,.6) !important;
+}
+html[data-dzx-view="grid"] #dzx-ziyarat-results .uc-card-row > div:first-child::before {
+    content: ""; position: absolute; z-index: -1; pointer-events: none;
+    top: 2px; left: 50%; width: 104px; height: 104px; transform: translateX(-50%);
+    background: radial-gradient(circle, rgba(201,162,39,.30) 0%, rgba(201,162,39,.10) 42%, transparent 70%);
+}
+html[data-theme="dark"][data-dzx-view="grid"] #dzx-ziyarat-results .uc-card-row > div:first-child::before {
+    background: radial-gradient(circle, rgba(252,211,77,.22) 0%, rgba(252,211,77,.07) 42%, transparent 70%);
+}
+/* Source line (markup added in renderZiyaratResultsInner, Bengali UI only) */
+html[data-dzx-view="grid"] #dzx-ziyarat-results .uc-card-row .dzx-src {
+    display: block !important; width: 100%; margin: 3px 0 0; padding: 0 2px;
+    font-size: 10.5px; line-height: 1.5; text-align: center;
+    white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis !important;
+    -webkit-line-clamp: unset; -webkit-box-orient: initial;
+    color: color-mix(in srgb, var(--dzx-cat, #7c3aed) 45%, #4b5563);
+    opacity: .9;
+}
+html[data-theme="dark"][data-dzx-view="grid"] #dzx-ziyarat-results .uc-card-row .dzx-src {
+    color: color-mix(in srgb, var(--dzx-cat, #7c3aed) 35%, #d1d5db);
+}
+
+/* ── AMAL only ────────────────────────────────────────────────────── */
+/* Title a touch heavier; occasion line becomes a pill */
+html[data-dzx-view="grid"] #dzx-amal-results .uc-card-row > div:first-child p.font-bold {
+    font-size: 15px !important; letter-spacing: .1px;
+}
+html[data-dzx-view="grid"] #dzx-amal-results .uc-card-row > div:first-child > div:nth-child(2) > p:not(.arabic-text):not(.font-bold) {
+    display: block; width: auto; max-width: 100%; margin-top: 8px; padding: 3px 11px;
+    border-radius: 999px; font-size: 11px; font-weight: 600; line-height: 1.5;
+    white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis !important;
+    -webkit-line-clamp: unset; -webkit-box-orient: initial;
+    color: color-mix(in srgb, var(--dzx-cat, #7c3aed) 65%, #1f2937) !important;
+    background: color-mix(in srgb, var(--dzx-cat, #7c3aed) 13%, rgba(255,255,255,.55));
+    border: 1px solid color-mix(in srgb, var(--dzx-cat, #7c3aed) 30%, transparent);
+}
+html[data-theme="dark"][data-dzx-view="grid"] #dzx-amal-results .uc-card-row > div:first-child > div:nth-child(2) > p:not(.arabic-text):not(.font-bold) {
+    color: color-mix(in srgb, var(--dzx-cat, #7c3aed) 40%, #f3f4f6) !important;
+    background: color-mix(in srgb, var(--dzx-cat, #7c3aed) 22%, transparent);
+    border-color: color-mix(in srgb, var(--dzx-cat, #7c3aed) 45%, transparent);
+}
+/* ═══════════ end v219 premium ziyarat + amal cards ═══════════ */
+
+/* ════════════════════════════════════════════════════════════════════
+   v220 — NO ARABIC LINE ON CARDS (CSS only; delete this block + the sw.js
+   bump to bring it back). Hides the Arabic preview line on the Dua /
+   Ziyarat / Amal cards in both grid and list view. Markup is unchanged,
+   so search and the detail pages still use the Arabic text.
+   ════════════════════════════════════════════════════════════════════ */
+:is(#dzx-dua-results, #dzx-ziyarat-results, #dzx-amal-results) .uc-card-row p.arabic-text {
+    display: none !important;
+}
+/* Grid: the title is now the main line — give it a little more presence */
+html[data-dzx-view="grid"] :is(#dzx-dua-results, #dzx-ziyarat-results) .uc-card-row > div:first-child p.font-bold {
+    font-size: 15px !important;
+}
+/* ═══════════ end v220 ═══════════ */
+
+/* ════════════════════════════════════════════════════════════════════
+   v221 — SERIAL NUMBERS ON CARDS (additive; delete this block, the
+   dzxNo() calls in script-3-pages.js and the sw.js bump to revert).
+   A small numbered badge on the top-left corner of every Dua / Ziyarat /
+   Amal card = its position in the list on screen (restarts inside each
+   Ziyarat group, follows search/filter). Works in grid and list view.
+   ════════════════════════════════════════════════════════════════════ */
+:is(#dzx-dua-results, #dzx-ziyarat-results, #dzx-amal-results) .uc-card-row,
+#dzx-ziyarat-results .dzx-grp { position: relative; }
+.dzx-no { display: none; }
+:is(#dzx-dua-results, #dzx-ziyarat-results, #dzx-amal-results) .dzx-no {
+    display: flex; align-items: center; justify-content: center;
+    position: absolute; bottom: 12px; right: 12px; z-index: 3;
+    min-width: 24px; height: 24px; padding: 0 6px; border-radius: 999px;
+    font-size: 11.5px; font-weight: 800; line-height: 1; letter-spacing: 0;
+    color: color-mix(in srgb, var(--dzx-cat, #92400e) 80%, #111827);
+    background: #fff;
+    border: 1.5px solid color-mix(in srgb, var(--dzx-cat, #c9a227) 55%, transparent);
+    box-shadow: 0 2px 6px -1px color-mix(in srgb, var(--dzx-cat, #000) 40%, transparent);
+    pointer-events: none;
+}
+html[data-theme="dark"] :is(#dzx-dua-results, #dzx-ziyarat-results, #dzx-amal-results) .dzx-no {
+    color: #fcd34d; background: #1f2937;
+    border-color: color-mix(in srgb, var(--dzx-cat, #fcd34d) 60%, transparent);
+}
+/* Grid: badge sits inside the card's top-left corner (cards clip overflow) */
+html[data-dzx-view="grid"] :is(#dzx-dua-results, #dzx-ziyarat-results, #dzx-amal-results) .uc-card-row > .dzx-no {
+    top: 8px; left: 8px; bottom: auto; right: auto; min-width: 22px; height: 22px; font-size: 11px;
+}
+/* Multi-variant Ziyarat group header: badge beside the arrow */
+#dzx-ziyarat-results .dzx-grp > .dzx-no { --dzx-cat: #92400e; top: 15px; bottom: auto; right: 42px; }
+/* ═══════════ end v221 ═══════════ */
+
+/* ════════════════════════════════════════════════════════════════════
+   v222 — FIND-IT-FAST: section headers + A-Z toggle (additive; delete this
+   block, dzxSeq()/dzxSortKey()/dzxCmp()/dzxHeader() + their call sites in
+   script-3-pages.js and the sw.js bump to revert).
+   Dua / Amal "all" view = sections by category with counts (numbers restart
+   per section); the A-Z button regroups by first letter. Search or a chosen
+   category chip shows one flat numbered list.
+   ════════════════════════════════════════════════════════════════════ */
+.dzx-gh {
+    display: flex; align-items: center; gap: 8px; margin: 14px 0 2px !important; padding: 0 2px;
+    font-size: .9rem; line-height: 1.4;
+}
+.dzx-gh:first-child { margin-top: 2px !important; }
+.dzx-gh::after {
+    content: ""; flex: 1; height: 1px;
+    background: linear-gradient(90deg, rgba(201,162,39,.45), transparent);
+}
+.dzx-gh-n { order: 2; font-size: .7rem; font-weight: 700; opacity: .7; }
+.dzx-sort { width: auto; min-width: 38px; padding: 0 8px; font-size: 12.5px; font-weight: 800; }
+@media (max-width: 380px) { .dzx-search-input { padding-left: 34px !important; } }
+/* ═══════════ end v222 ═══════════ */
+
+/* ════════════════════════════════════════════════════════════════════
+   v225 — LONG-LIST PERFORMANCE (CSS only; delete this block to revert).
+   Dua list = 346 cards / ~6,600 DOM nodes. content-visibility:auto lets the
+   browser skip layout + paint for cards that are off-screen; the intrinsic
+   size keeps the scrollbar stable until a card is rendered. Browsers without
+   support ignore it (no visual change). Cards stay in the DOM, so search,
+   find-in-page and focus order are unchanged.
+   ════════════════════════════════════════════════════════════════════ */
+:is(#dzx-dua-results, #dzx-ziyarat-results, #dzx-amal-results) .uc-card-row {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 118px;                 /* list view */
+}
+html[data-dzx-view="grid"] :is(#dzx-dua-results, #dzx-ziyarat-results, #dzx-amal-results) .uc-card-row {
+    contain-intrinsic-size: auto 215px;                 /* grid view */
+}
+/* ═══════════ end v225 ═══════════ */
