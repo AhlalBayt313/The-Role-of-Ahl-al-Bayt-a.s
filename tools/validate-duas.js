@@ -28,6 +28,9 @@ const groups = [
     ['amals',    'amal',    meta.amalFile || 'data/duas/amal.json'],
 ];
 const seen = {};
+// Known, deliberate exceptions: entries that have no Arabic original by design (reported as a warning, not an error).
+// v93 added ziyarat-sayyida-ruqayya-short as an English-translation salutation (its source line says no Arabic original was found).
+const NO_ARABIC_OK = { 'ziyarat-sayyida-ruqayya-short': true };
 const hasArabic = it => !!(it.arabic || (Array.isArray(it.verses) && it.verses.some(v => v && v.ar)));
 
 groups.forEach(([key, type, file]) => {
@@ -55,7 +58,7 @@ groups.forEach(([key, type, file]) => {
         if ((f.category || '') !== (x.category || '')) E(type + ' ' + id + ': category differs (index "' + x.category + '" vs full "' + f.category + '")');
         if ((f.titleBn || '') !== (x.titleBn || '')) E(type + ' ' + id + ': titleBn differs between index and full file');
         if ((f.sortOrder == null ? null : f.sortOrder) !== (x.sortOrder == null ? null : x.sortOrder)) E(type + ' ' + id + ': sortOrder differs (index ' + x.sortOrder + ' vs full ' + f.sortOrder + ')');
-        if (!hasArabic(f) && !hasArabic(x)) (type === 'amal' ? W : E)(type + ' ' + id + ': no Arabic text' + (type === 'amal' ? ' (fine for a letter/instruction-style amal)' : ' at all'));
+        if (!hasArabic(f) && !hasArabic(x)) (type === 'amal' || NO_ARABIC_OK[id] ? W : E)(type + ' ' + id + ': no Arabic text' + (type === 'amal' ? ' (fine for a letter/instruction-style amal)' : NO_ARABIC_OK[id] ? ' (allowed: no Arabic original by design)' : ' at all'));
         if (!(x.source || f.source)) W(type + ' ' + id + ': no source');
         if (!(x.meaningBn || f.meaningBn || (Array.isArray(f.verses) && f.verses.some(v => v && v.bn)))) W(type + ' ' + id + ': no Bengali meaning');
     });
