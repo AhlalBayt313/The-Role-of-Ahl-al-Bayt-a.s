@@ -493,6 +493,8 @@ setTimeout(function(){var s=document.getElementById('splash-screen');if(s){if(wi
 <script src="assets/js/core/arabic-corner.js"></script>
 <!-- v207: per-post share links + ?page=readPost&id= deep links. After script-4-boot.js: it overrides the currentPage init() took from the URL. -->
 <script src="assets/js/core/share-links.js"></script>
+<!-- v224: per-item share links (d/<id>.html) + ?open=<type>:<id> deep links for Dua / Ziyarat / Amal. After share-links.js. -->
+<script src="assets/js/core/content-links.js"></script>
 <!-- Phase 4: lazy-image fade-in helper. Self-contained (no dependency on
      `state` or any other global), so load order relative to the files
      above does not matter. -->
