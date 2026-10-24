@@ -6206,3 +6206,192 @@ html[data-dzx-view="grid"] :is(#dzx-dua-results, #dzx-ziyarat-results, #dzx-amal
     contain-intrinsic-size: auto 215px;                 /* grid view */
 }
 /* ═══════════ end v225 ═══════════ */
+
+
+/* ===== v228  Diagnostics page (diagnostics.js, .dg-*) — builds on the .ab-* backup-page styles; delete this block to revert ===== */
+.dg-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.dg-chip { padding: 7px 14px; border-radius: 99px; border: 1.5px solid rgba(5,150,105,.28); background: transparent; color: inherit; font-weight: 700; font-size: .78rem; cursor: pointer; }
+.dg-chip.on { background: #059669; border-color: #059669; color: #fff; }
+.dg-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.dg-stat { padding: 12px 6px; border-radius: 16px; background: rgba(5,150,105,.08); text-align: center; }
+.dg-stat b { display: block; font-size: 1.25rem; font-weight: 800; color: #047857; font-variant-numeric: tabular-nums; }
+.dg-stat small { display: block; margin-top: 2px; font-size: .7rem; opacity: .72; }
+.dg-sub { margin: 18px 0 8px; font-size: .84rem; font-weight: 800; opacity: .9; }
+.dg-row { margin-bottom: 10px; }
+.dg-row-h { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 4px; font-size: .8rem; }
+.dg-row-h > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dg-row-h small { opacity: .65; font-size: .72rem; }
+.dg-row-h b { flex: 0 0 auto; color: #047857; font-variant-numeric: tabular-nums; }
+.dg-bar { height: 6px; border-radius: 99px; background: rgba(5,150,105,.13); overflow: hidden; }
+.dg-bar i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #059669, #c9a227); }
+.dg-err { padding: 12px 14px; margin-bottom: 10px; border-radius: 16px; border: 1.5px solid rgba(220,38,38,.22); background: rgba(220,38,38,.05); }
+.dg-err-h { display: flex; align-items: flex-start; gap: 8px; font-size: .84rem; line-height: 1.5; }
+.dg-err-h b { flex: 1; min-width: 0; overflow-wrap: anywhere; font-weight: 700; }
+.dg-meta { display: block; margin-top: 4px; font-size: .7rem; opacity: .7; line-height: 1.5; overflow-wrap: anywhere; }
+.dg-link { margin-top: 6px; padding: 4px 0; border: 0; background: none; color: #047857; font-weight: 700; font-size: .74rem; cursor: pointer; }
+.dg-pre { margin-top: 6px; padding: 10px; border-radius: 12px; background: rgba(0,0,0,.06); font-size: .68rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; direction: ltr; text-align: left; max-height: 220px; overflow: auto; }
+.dg-chip:focus-visible, .dg-link:focus-visible { outline: 2px solid #059669; outline-offset: 2px; }
+html[data-theme="dark"] .dg-chip { border-color: rgba(52,211,153,.3); }
+html[data-theme="dark"] .dg-chip.on { background: #059669; color: #fff; }
+html[data-theme="dark"] .dg-stat { background: rgba(52,211,153,.08); }
+html[data-theme="dark"] .dg-stat b, html[data-theme="dark"] .dg-row-h b, html[data-theme="dark"] .dg-link { color: #6ee7b7; }
+html[data-theme="dark"] .dg-bar { background: rgba(52,211,153,.14); }
+html[data-theme="dark"] .dg-err { border-color: rgba(248,113,113,.28); background: rgba(248,113,113,.07); }
+html[data-theme="dark"] .dg-pre { background: rgba(255,255,255,.07); }
+/*  end v228  */
+
+/* ===== v229  lazy-module loading card (lazy-loader.js) — delete this block to revert ===== */
+.ab-lazy { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 64px 16px; text-align: center; font-size: .9rem; opacity: .85; }
+.ab-lazy p { margin: 0; }
+.ab-lazy-spin { width: 28px; height: 28px; border-radius: 50%; border: 3px solid rgba(5,150,105,.2); border-top-color: #059669; animation: ab-lazy-rot .8s linear infinite; }
+.ab-lazy-btn { padding: 9px 20px; border-radius: 99px; border: 0; background: #059669; color: #fff; font-weight: 700; cursor: pointer; }
+.ab-lazy-btn:focus-visible { outline: 2px solid #059669; outline-offset: 2px; }
+@keyframes ab-lazy-rot { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .ab-lazy-spin { animation-duration: 2.4s; } }
+/*  end v229  */
+
+/* ══════════════════════════════════════════════════════════════════════════
+   v235 — home hero: own picture for each mode (assets/images/hero-bg-light.webp /
+   hero-bg-dark.webp, the user's illustrations). Replaces the v203 Eid picture.
+   >=768px: picture behind the centred text (soft veil keeps it readable).
+   <768px : the WHOLE picture is shown as a wide banner on top (no cropping),
+            the title / buttons / stats sit below it on a matching colour.
+   Delete this block to go back to v234. Nothing else was changed.
+   ══════════════════════════════════════════════════════════════════════════ */
+.hero-luxury-light {
+    background:
+        url('../images/hero-bg-light.webp') center center / cover no-repeat,
+        #f1ead0;
+}
+.hero-luxury {
+    background:
+        url('../images/hero-bg-dark.webp') center 62% / cover no-repeat,
+        #2a1850;
+}
+/* the pictures carry their own stars / ornaments: hide the old decorative layers */
+.hero-luxury .hero-orb, .hero-luxury .hero-particle, .hero-luxury .hero-allah,
+.hero-luxury .hero-geo-bg, .hero-luxury .hero-pattern-overlay,
+.hero-luxury-light .hero-geo-bg, .hero-luxury-light .hero-pattern-overlay { display: none; }
+.hero-luxury::after { display: none; }
+/* veil behind the text (light keeps the v203 cream veil, slightly stronger over the teal mandala) */
+.hero-luxury-light::before {
+    background: radial-gradient(ellipse 58% 80% at 50% 52%,
+        rgba(250,246,226,.90) 0%, rgba(250,246,226,.72) 50%, rgba(250,246,226,0) 100%);
+}
+.hero-luxury::before {
+    animation: none; -webkit-mask-image: none; mask-image: none;
+    background: radial-gradient(ellipse 66% 84% at 50% 52%,
+        rgba(12,6,34,.70) 0%, rgba(12,6,34,.50) 52%, rgba(12,6,34,.08) 100%);
+}
+@media (min-width: 768px) {
+    .hero-luxury-light { background-position: center center, 0 0; }
+}
+@media (max-width: 767px) {
+    .hero-luxury-light, .hero-luxury {
+        background-image: none;
+        padding-top: calc(58.84% + 20px) !important;   /* = banner height (picture ratio 1635x962) + gap */
+        align-items: flex-start !important;
+    }
+    .hero-luxury-light { background-color: #ece1bd; }
+    .hero-luxury       { background-color: #231650; padding-top: calc(59.98% + 20px) !important; }   /* dark picture ratio 1619x971 */
+    /* ::before becomes the banner: full picture, soft fade into the colour below */
+    .hero-luxury-light::before, .hero-luxury::before {
+        content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: auto; inset-inline: 0;
+        aspect-ratio: 1635 / 962; z-index: 0; pointer-events: none;
+        background-repeat: no-repeat; background-size: 100% 100%; background-position: center;
+        -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
+                mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
+    }
+    .hero-luxury-light::before { background-image: url('../images/hero-bg-light.webp'); }
+    .hero-luxury::before       { background-image: url('../images/hero-bg-dark.webp'); aspect-ratio: 1619 / 971; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   v236 — Knowledge Center hero: the user's emerald picture (golden arches + lanterns)
+   assets/images/kc-hero-bg.webp. >=768px: behind the centred text with a dark-green
+   veil; <768px: the whole picture as a wide banner on top, the text below it.
+   Delete this block to go back to the old pattern hero.
+   ══════════════════════════════════════════════════════════════════════════ */
+.kcx-hero, html[data-theme="dark"] .kcx-hero {
+    background: url('../images/kc-hero-bg.webp') center 46% / cover no-repeat, #012210;
+}
+.kcx-hero-pattern { display: none; }
+.kcx-hero::before {
+    content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background: radial-gradient(ellipse 52% 86% at 50% 50%,
+        rgba(1,26,13,.80) 0%, rgba(1,26,13,.62) 55%, rgba(1,26,13,0) 100%);
+}
+@media (max-width: 767px) {
+    .kcx-hero, html[data-theme="dark"] .kcx-hero {
+        background: #012210;
+        padding-top: calc(50% + 14px) !important;    /* banner height = hero width x 887/1774 */
+    }
+    .kcx-hero::before {
+        inset: 0 0 auto 0; aspect-ratio: 1774 / 887;
+        background: url('../images/kc-hero-bg.webp') center / 100% 100% no-repeat;
+        -webkit-mask-image: linear-gradient(to bottom, #000 80%, transparent 100%);
+                mask-image: linear-gradient(to bottom, #000 80%, transparent 100%);
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   v237 — Dua & Ziyarat page header: the user's golden desert-mosque picture
+   (assets/images/dua-hero-bg.webp). >=768px: picture behind the header, text moved
+   clear of the left palm trees, dark-brown text for contrast; <768px: whole picture
+   as a wide banner on top, text below it on a warm panel.
+   Delete this block to go back to the old gradient header.
+   ══════════════════════════════════════════════════════════════════════════ */
+.dzx-hero, html[data-theme="dark"] .dzx-hero {
+    background: url('../images/dua-hero-bg.webp') center 54% / cover no-repeat, #f6b91b;
+    border-color: rgba(120,53,15,.35);
+    min-height: 150px; align-items: center;
+    padding-inline-start: clamp(84px, 17%, 260px);
+}
+html[data-theme="dark"] .dzx-hero { box-shadow: inset 0 0 0 100vmax rgba(30,12,0,.16), var(--app-shadow-sm); }
+.dzx-hero .dzx-hero-ar, html[data-theme="dark"] .dzx-hero .dzx-hero-ar { color: #3f1805; text-shadow: none; }
+.dzx-hero h1 {
+    background: none !important; -webkit-background-clip: border-box !important; background-clip: border-box !important;
+    -webkit-text-fill-color: #3b1704 !important; color: #3b1704 !important;
+}
+.dzx-hero p.text-sm { color: #4a1d05 !important; }
+@media (max-width: 767px) {
+    .dzx-hero, html[data-theme="dark"] .dzx-hero {
+        background: #fff1c9; min-height: 0; align-items: flex-start;
+        padding: calc(39.97% + 14px) 16px 16px;        /* banner height = width x 793/1984 */
+    }
+    html[data-theme="dark"] .dzx-hero { background: #2a1c08; box-shadow: var(--app-shadow-sm); }
+    .dzx-hero::before {
+        content: ''; display: block; position: absolute; top: 0; left: 0; right: 0;
+        aspect-ratio: 1984 / 793; z-index: 0; pointer-events: none;
+        background: url('../images/dua-hero-bg.webp') center / 100% 100% no-repeat;
+    }
+    html[data-theme="dark"] .dzx-hero .dzx-hero-ar { color: #fcd34d; }
+    html[data-theme="dark"] .dzx-hero h1 { -webkit-text-fill-color: #fde68a !important; color: #fde68a !important; }
+    html[data-theme="dark"] .dzx-hero p.text-sm { color: #e7d3a0 !important; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   v238 — Ahlul Bayt (AS) page header: the user's "Luminous Saints beneath angelic wings"
+   picture (assets/images/ab-hero-bg.webp, 2171x724). All screen sizes (phones included):
+   the whole picture is a full-width wide banner on top (edge to edge inside the card,
+   figures never cropped or covered by text), title + description below it.
+   The banner is an in-flow block whose height comes from its OWN width (aspect-ratio),
+   so it stays correct whatever the parent layout is. Light + dark mode.
+   Delete this block to go back to the old pattern header.
+   ══════════════════════════════════════════════════════════════════════════ */
+.ab-hero {
+    --ab-px: clamp(1.25rem, 5vw, 3rem);               /* same side padding the markup uses */
+    background: #f8f7f3 !important;
+    -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+    padding: 0 var(--ab-px) clamp(1.5rem, 5vw, 2.5rem) !important;
+}
+html[data-theme="dark"] .ab-hero { background: #061410 !important; }
+.ab-hero .ab-hero-geo { display: none !important; }
+.ab-hero::before {
+    content: ''; display: block; position: relative; z-index: 0; pointer-events: none;
+    width: auto; aspect-ratio: 2171 / 724;
+    margin: 0 calc(-1 * var(--ab-px)) 1.1rem;         /* cancel side padding -> edge to edge */
+    background: url('../images/ab-hero-bg.webp') center / 100% 100% no-repeat;
+    -webkit-mask-image: linear-gradient(to bottom, #000 82%, transparent 100%);
+            mask-image: linear-gradient(to bottom, #000 82%, transparent 100%);
+}
