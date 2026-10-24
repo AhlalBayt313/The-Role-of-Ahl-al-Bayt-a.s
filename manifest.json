@@ -2,7 +2,9 @@
     "name": "আহলে বাইত (আ.)",
     "short_name": "আহলে বাইত",
     "description": "ইসলামিক জ্ঞান ও শিক্ষার জন্য আপনার বিশ্বস্ত উৎস",
+    "id": "./",
     "start_url": "./",
+    "scope": "./",
     "display": "standalone",
     "orientation": "portrait",
     "background_color": "#00251D",
@@ -18,20 +20,20 @@
         {
             "name": "নামাজের সময়",
             "short_name": "নামাজ",
-            "url": "./?page=home",
-            "icons": [{"src": "data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><text y=\"20\" font-size=\"20\">🕌</text></svg>", "sizes": "24x24"}]
+            "url": "./?page=prayer",
+            "icons": [{"src": "./assets/icons/shortcut-prayer.png", "sizes": "96x96", "type": "image/png"}]
         },
         {
             "name": "দোয়া",
             "short_name": "দোয়া",
             "url": "./?page=dua",
-            "icons": [{"src": "data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><text y=\"20\" font-size=\"20\">🤲</text></svg>", "sizes": "24x24"}]
+            "icons": [{"src": "./assets/icons/shortcut-dua.png", "sizes": "96x96", "type": "image/png"}]
         },
         {
             "name": "খুমুস ও যাকাত",
             "short_name": "খুমুস/যাকাত",
             "url": "./?page=khumsZakat",
-            "icons": [{"src": "data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><text y=\"20\" font-size=\"20\">🧮</text></svg>", "sizes": "24x24"}]
+            "icons": [{"src": "./assets/icons/shortcut-zakat.png", "sizes": "96x96", "type": "image/png"}]
         }
     ]
 }
