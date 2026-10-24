@@ -23,6 +23,11 @@
 //   Run it after adding or editing blog posts, then commit the p/ folder and
 //   sitemap.xml together with data/blog-posts.json.
 //
+// v230  The pages are now real landing pages (full text, own title / description / canonical /
+//   JSON-LD, an "open in the app" button, p/index.html) instead of redirect stubs: Google treats
+//   an instant redirect as a permanent one and indexes the app shell instead. The template lives
+//   in tools/seo-page.js. `--stub` writes the old redirect stubs again (the pageFor() below).
+//
 // NOTE  The og:url / og:image / sitemap addresses are absolute, so they need the
 //   real site address (SITE_BASE below, or --base / the SITE_BASE environment
 //   variable). If the site moves to a custom domain, re-run with the new base.
@@ -33,6 +38,7 @@
 const fs = require('fs');
 const path = require('path');
 
+const SEO = require('./seo-page.js');
 const ROOT = path.resolve(__dirname, '..');
 const DEFAULT_BASE = 'https://ahlalbayt313.github.io/The-Role-of-Ahl-al-Bayt-a.s/';
 const SITE_NAME = 'আহলে বাইত (আ.) | Ahl al-Bayt (a.s)';
@@ -43,6 +49,7 @@ const MARK_END = '<!-- share-pages:end -->';
 
 const args = process.argv.slice(2);
 const CHECK = args.indexOf('--check') > -1;
+const STUB = args.indexOf('--stub') > -1;   // v230: legacy redirect stubs
 let base = process.env.SITE_BASE || DEFAULT_BASE;
 args.forEach(a => { if (a.indexOf('--base=') === 0) base = a.slice(7); });
 if (!/^https?:\/\//.test(base)) { console.error('Base address must start with http:// or https://'); process.exit(2); }
@@ -104,8 +111,81 @@ function pageFor(p) {
     return lines.join('\n');
 }
 
+// ---------------------------------------------------------------------------
+// v230 landing pages (see tools/seo-page.js)
+// ---------------------------------------------------------------------------
+const bnDigits = n => String(n).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+const isDate = d => /^\d{4}-\d{2}-\d{2}$/.test(String(d || ''));
+const catOf = p => oneLine(p.category) || 'অন্যান্য';
+
+function landingFor(p, posts) {
+    const id = String(p.id);
+    const titleBn = oneLine(p.titleBn) || oneLine(p.titleEn) || SEO.BRAND;
+    const url = base + 'p/' + id + '.html';
+    const app = '../?page=readPost&id=' + id;
+    const excerpt = oneLine(p.excerpt);
+    const content = String(p.contentBn || '').trim();
+    let src = excerpt;
+    if (SEO.len(src) < 80) src = (src ? src + ' — ' : '') + oneLine(content);
+    const desc = SEO.clip(src || oneLine(p.titleEn), 150);
+    const title = SEO.makeTitle(titleBn, [' | ' + SEO.BRAND]);
+    const meta = [oneLine(p.category), oneLine(p.readTime) ? '⏱ ' + oneLine(p.readTime) : '', isDate(p.date) ? '📅 ' + p.date : ''].filter(Boolean).join(' · ');
+    const same = posts.filter(x => catOf(x) === catOf(p));
+    const at = same.indexOf(p);
+    const rel = [];
+    for (let k = 1; k < same.length && rel.length < 5; k++) rel.push(same[(at + k) % same.length]);
+    const crumbs = [
+        { name: 'হোম', href: '../', abs: base },
+        { name: 'ব্লগ', href: './', abs: base + 'p/' },
+        { name: titleBn, href: id + '.html', abs: url }
+    ];
+    const body = [
+        '<article>',
+        '<h1>' + esc(titleBn) + '</h1>',
+        meta ? '<p class="meta">' + esc(meta) + '</p>' : '',
+        excerpt ? '<p class="lead">' + esc(excerpt) + '</p>' : '',
+        '<div class="prose">' + esc(content) + '</div>',
+        oneLine(p.contentEn) ? '<section class="en" lang="en"><h2>' + esc(oneLine(p.titleEn) || 'English') + '</h2><div class="prose">' + esc(String(p.contentEn).trim()) + '</div></section>' : '',
+        '<p style="margin-top:1.6em"><a class="btn" href="' + esc(app) + '">📱 অ্যাপে পড়ুন — বুকমার্ক, শেয়ার ও আরও</a></p>',
+        rel.length ? '<nav class="related"><h2>আরও পড়ুন</h2><ul>' + rel.map(r => '<li><a href="' + esc(r.id) + '.html">' + esc(oneLine(r.titleBn) || oneLine(r.titleEn)) + '</a></li>').join('') + '</ul></nav>' : '',
+        '</article>'
+    ].filter(Boolean).join('\n');
+    const ld = {
+        '@context': 'https://schema.org', '@type': 'Article',
+        headline: SEO.clip(titleBn, 110), description: desc, inLanguage: 'bn', url: url,
+        mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+        image: [base + 'og-image.jpg'],
+        publisher: { '@type': 'Organization', name: SEO.SITE_NAME, url: base },
+        isPartOf: { '@type': 'WebSite', name: SEO.SITE_NAME, url: base }
+    };
+    if (isDate(p.date)) ld.datePublished = p.date;
+    if (oneLine(p.category)) ld.articleSection = oneLine(p.category);
+    return SEO.page({ title: title, ogTitle: titleBn, desc: desc, url: url, base: base, type: 'article',
+        published: isDate(p.date) ? p.date : '', section: oneLine(p.category), jsonld: [ld], crumbs: crumbs,
+        appHref: app, appLabel: 'অ্যাপে খুলুন', body: body });
+}
+
+function indexFor(posts) {
+    const url = base + 'p/';
+    const groups = {};
+    posts.forEach(p => { (groups[catOf(p)] = groups[catOf(p)] || []).push(p); });
+    const cats = Object.keys(groups).sort((a, b) => groups[b].length - groups[a].length || (a < b ? -1 : 1));
+    const byNew = (a, b) => (String(b.date || '') < String(a.date || '') ? -1 : String(b.date || '') > String(a.date || '') ? 1 : Number(b.id) - Number(a.id));
+    const title = 'ব্লগ — সব লেখার সূচি | ' + SEO.BRAND;
+    const desc = SEO.clip(bnDigits(posts.length) + 'টি লেখা — ' + cats.slice(0, 5).join(', ') + ' ও আরও বিষয়ে আহলে বাইত (আ.) সম্পর্কিত বাংলা ও ইংরেজি প্রবন্ধ।', 150);
+    const body = '<div class="box idx"><h1>ব্লগ — সব লেখার সূচি</h1><p class="lead">' + esc(bnDigits(posts.length) + 'টি লেখা, ' + bnDigits(cats.length) + 'টি বিষয়ে।') + '</p>' +
+        cats.map(c => '<h2 id="c' + (cats.indexOf(c) + 1) + '">' + esc(c) + ' <span class="n">(' + bnDigits(groups[c].length) + ')</span></h2><ul>' +
+            groups[c].slice().sort(byNew).map(p => '<li><a href="' + esc(p.id) + '.html">' + esc(oneLine(p.titleBn) || oneLine(p.titleEn)) + '</a></li>').join('') + '</ul>').join('') + '</div>';
+    const ld = { '@context': 'https://schema.org', '@type': 'CollectionPage', name: 'ব্লগ — সব লেখার সূচি', description: desc, url: url, inLanguage: 'bn',
+        isPartOf: { '@type': 'WebSite', name: SEO.SITE_NAME, url: base } };
+    return SEO.page({ title: title, ogTitle: 'ব্লগ — সব লেখার সূচি', desc: desc, url: url, base: base, type: 'website', jsonld: [ld],
+        crumbs: [{ name: 'হোম', href: '../', abs: base }, { name: 'ব্লগ', href: './', abs: url }],
+        appHref: '../?page=blog', appLabel: 'অ্যাপে ব্লগ খুলুন', body: body });
+}
+
 function sitemapBlock(posts) {
     const out = [MARK_START];
+    if (!STUB) { out.push('  <url>', '    <loc>' + esc(base + 'p/') + '</loc>', '    <changefreq>weekly</changefreq>', '    <priority>0.7</priority>', '  </url>'); }
     posts.forEach(p => {
         out.push('  <url>');
         out.push('    <loc>' + esc(base + 'p/' + p.id + '.html') + '</loc>');
@@ -132,14 +212,15 @@ const posts = all.filter(p => p && /^\d{1,6}$/.test(String(p.id)));
 const skipped = all.length - posts.length;
 
 const want = {};
-posts.forEach(p => { want[p.id + '.html'] = pageFor(p); });
+posts.forEach(p => { want[p.id + '.html'] = STUB ? pageFor(p) : landingFor(p, posts); });
+if (!STUB) want['index.html'] = indexFor(posts);
 
 const problems = [];
 let sitemapNow = fs.readFileSync(SITEMAP, 'utf8');
 const sitemapNew = withSitemapBlock(sitemapNow, sitemapBlock(posts));
 if (sitemapNew !== sitemapNow) problems.push('sitemap.xml is out of date');
 
-const existing = fs.existsSync(OUT_DIR) ? fs.readdirSync(OUT_DIR).filter(f => /^\d+\.html$/.test(f)) : [];
+const existing = fs.existsSync(OUT_DIR) ? fs.readdirSync(OUT_DIR).filter(f => /^(\d+|index)\.html$/.test(f)) : [];
 const stale = existing.filter(f => !(f in want));
 stale.forEach(f => problems.push('stale page: p/' + f));
 let changed = 0;

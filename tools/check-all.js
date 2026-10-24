@@ -15,6 +15,9 @@
 //   4  tools/validate-duas.js           (metadata.json index <-> full dua/ziyarat/amal
 //                                        files, and the d/ share pages are current)
 //   5  tools/build-share-pages.js --check   (blog share pages p/ are current)
+//   8  Ramadan lazy group (v232): group order, ramadan-lazy.js position, daily-amal/qaza-fidya still eager
+//   7  tools/check-seo.js              (v230: p/ d/ pages have text, unique title/description,
+//                                        self-canonical, no redirect; sitemap complete; 404.html)
 //   6  Service worker: every file listed in sw.js STATIC exists on disk, and the
 //      CACHE name is a plain 'ahlbayt-v<number>'
 //
@@ -89,6 +92,8 @@ runTool('3. smoke test (phase4a-smoke-test.js)', 'phase4a-smoke-test.js');
 runTool('4. dua data + share pages (validate-duas.js)', 'validate-duas.js');
 runTool('5. blog share pages (build-share-pages.js --check)', 'build-share-pages.js', ['--check']);
 
+runTool('7. SEO of p/ d/ pages + sitemap (check-seo.js)', 'check-seo.js');
+
 // ---- 6. service worker -------------------------------------------------------
 console.log('\n--- 6. Service worker ---');
 {
@@ -108,6 +113,23 @@ console.log('\n--- 6. Service worker ---');
         record('sw.js STATIC list (' + entries.length + ' entries all exist, no duplicates)', missing.length === 0 && dup.length === 0,
             (missing.length ? 'listed but missing on disk: ' + missing.join(', ') + '\n           ' : '') + (dup.length ? 'listed twice: ' + dup.join(', ') : ''));
     }
+}
+
+// ---- 8. Ramadan lazy group (v232) --------------------------------------------
+console.log('\n--- 8. Ramadan lazy group ---');
+{
+    const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+    const ll = fs.readFileSync(path.join(ROOT, 'assets/js/core/lazy-loader.js'), 'utf8');
+    const m = /ramadan:\s*\{\s*files:\s*\[([^\]]*)\]/.exec(ll);
+    const files = m ? (m[1].match(/'([^']+)'/g) || []).map(x => x.slice(1, -1)) : [];
+    const want = ['ramadan-plus.js', 'ramadan-cardart.js', 'iftar-invite.js', 'qadr-walk.js', 'ramadan-journal.js', 'ramadan-home.js', 'ramadan-layout.js'];
+    const pos = f => html.indexOf('src="assets/js/core/' + f + '"');
+    const probs = [];
+    if (files.join() !== want.join()) probs.push('lazy group "ramadan" is [' + files.join(', ') + '] — each file wraps renderRamadanPage, so the order must stay [' + want.join(', ') + '] (ramadan-layout.js LAST)');
+    if (!(pos('lazy-loader.js') > -1 && pos('lazy-loader.js') < pos('ramadan-lazy.js') && pos('ramadan-lazy.js') < pos('script-4-boot.js'))) probs.push('ramadan-lazy.js must be a <script> tag between lazy-loader.js and script-4-boot.js');
+    want.forEach(f => { if (pos(f) > -1) probs.push(f + ' is back in index.html (it would run twice)'); });
+    ['daily-amal.js', 'qaza-fidya.js'].forEach(f => { if (pos(f) < 0) probs.push(f + ' must stay eager (home card / Khums ledger)'); });
+    record('Ramadan group: order, gate position, eager neighbours', probs.length === 0, probs.join('\n           '));
 }
 
 // ---- summary -----------------------------------------------------------------

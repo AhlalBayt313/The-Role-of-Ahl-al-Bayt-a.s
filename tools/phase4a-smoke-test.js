@@ -298,14 +298,10 @@ const DOCUMENTED_LOAD_ORDER = [
   'assets/js/core/script-1-core.js',
   'assets/js/core/script-2-ui.js',
   'assets/js/core/script-3-pages.js',
-  'assets/js/core/quiz-plus.js',
   'assets/js/core/prayer-reminders.js',
   'assets/js/core/daily-amal.js',
   'assets/js/core/data-backup.js',
   'assets/js/core/search-engine.js',
-  'assets/js/core/world-map.js',
-  'assets/js/core/editor-modal.js',
-  'assets/js/core/khums-zakat.js',
   'assets/js/core/script-4-boot.js',
   'assets/js/core/phase4-animations.js',
 ];
@@ -318,8 +314,36 @@ function checkScriptLoadOrder() {
   const sameOrder = actual.length === DOCUMENTED_LOAD_ORDER.length &&
     actual.every((src, i) => src === DOCUMENTED_LOAD_ORDER[i]);
   return sameOrder
-    ? { status: STATUS.PASS, detail: 'index.html matches the documented 19-script load order exactly' }
+    ? { status: STATUS.PASS, detail: 'index.html matches the documented ' + DOCUMENTED_LOAD_ORDER.length + '-script load order exactly (v229: quiz-plus, world-map, editor-modal, khums-zakat are lazy)' }
     : { status: STATUS.ERROR, detail: `load order mismatch — expected:\n           ${DOCUMENTED_LOAD_ORDER.join(', ')}\n           got:\n           ${actual.join(', ')}` };
+}
+
+// =============================================================================
+// B.11  Lazy modules (v229): lazy-loader.js GROUPS vs index.html vs sw.js
+// =============================================================================
+function checkLazyModules() {
+  const html = fs.readFileSync(path.join(PROJECT_ROOT, 'index.html'), 'utf8');
+  const sw = fs.readFileSync(path.join(PROJECT_ROOT, 'sw.js'), 'utf8');
+  const ll = path.join(PROJECT_ROOT, 'assets', 'js', 'core', 'lazy-loader.js');
+  if (!fs.existsSync(ll)) return { status: STATUS.ERROR, detail: 'assets/js/core/lazy-loader.js is missing' };
+  const src = fs.readFileSync(ll, 'utf8');
+  const gm = src.match(/var GROUPS = \{([\s\S]*?)\n\};/);
+  if (!gm) return { status: STATUS.ERROR, detail: 'could not find GROUPS in lazy-loader.js' };
+  const files = [...gm[1].matchAll(/files:\s*\[([^\]]*)\]/g)].flatMap((m) => [...m[1].matchAll(/'([^']+)'/g)].map((x) => x[1]));
+  if (!files.length) return { status: STATUS.ERROR, detail: 'no lazy files found in GROUPS' };
+  const problems = [];
+  files.forEach((f) => {
+    const rel = 'assets/js/core/' + f;
+    if (!fs.existsSync(path.join(PROJECT_ROOT, rel))) problems.push(rel + ' does not exist');
+    if (html.includes('src="' + rel + '"')) problems.push(rel + ' is lazy but still a <script> tag in index.html');
+    if (!sw.includes("'./" + rel + "'")) problems.push(rel + ' is lazy but missing from the sw.js precache (offline would break)');
+  });
+  const iLazy = html.indexOf('src="assets/js/core/lazy-loader.js"');
+  const iBoot = html.indexOf('src="assets/js/core/script-4-boot.js"');
+  if (iLazy < 0 || iBoot < 0 || iLazy > iBoot) problems.push('lazy-loader.js must be a <script> tag BEFORE script-4-boot.js');
+  return problems.length
+    ? { status: STATUS.ERROR, detail: problems.join('\n           ') }
+    : { status: STATUS.PASS, detail: files.length + ' lazy files: present, not in index.html, precached; loader precedes script-4-boot.js' };
 }
 
 // =============================================================================
@@ -418,6 +442,7 @@ function main() {
     ['Duplicate ids (data/**/*.json)', checkDuplicateIds],
     ['Script load order (index.html vs doc)', checkScriptLoadOrder],
     ['Service-worker precache coverage (sw.js)', checkPrecacheCoverage],
+    ['Lazy modules (lazy-loader.js vs index.html vs sw.js)', checkLazyModules],
     ['Splash events mirror hijriEvents (index.html vs script-1-core.js)', checkSplashEventsMirror],
   ];
 

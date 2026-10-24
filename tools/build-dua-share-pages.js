@@ -13,6 +13,13 @@
 //   the block, never duplicates it). Same idea as tools/build-share-pages.js
 //   (blog posts, p/<id>.html); the two do not touch each other's files.
 //
+// v230  The pages are now real landing pages (Arabic text, Bengali translation, source, own
+//   title / description / canonical / JSON-LD, an "open in the app" button, d/index.html) instead
+//   of redirect stubs: Google treats an instant redirect as a permanent one and indexes the app
+//   shell instead. Text comes from the full files named in metadata.json (category files,
+//   ziyarat.json, amal.json); the template is in tools/seo-page.js. `--stub` writes the old
+//   redirect stubs again (the pageFor() below).
+//
 // WHEN TO RUN  (Node only, no packages)
 //   node tools/build-dua-share-pages.js           write / refresh d/*.html + sitemap block
 //   node tools/build-dua-share-pages.js --check   change nothing; exit 1 if out of date
@@ -24,6 +31,7 @@
 const fs = require('fs');
 const path = require('path');
 
+const SEO = require('./seo-page.js');
 const ROOT = path.resolve(__dirname, '..');
 const DEFAULT_BASE = 'https://ahlalbayt313.github.io/The-Role-of-Ahl-al-Bayt-a.s/';
 const SITE_NAME = 'আহলে বাইত (আ.) | Ahl al-Bayt (a.s)';
@@ -35,6 +43,7 @@ const TYPES = [['duas', 'dua', 'দোয়া'], ['ziyarats', 'ziyarat', 'য�
 
 const args = process.argv.slice(2);
 const CHECK = args.indexOf('--check') > -1;
+const STUB = args.indexOf('--stub') > -1;   // v230: legacy redirect stubs
 let base = process.env.SITE_BASE || DEFAULT_BASE;
 args.forEach(a => { if (a.indexOf('--base=') === 0) base = a.slice(7); });
 if (!/^https?:\/\//.test(base)) { console.error('Base address must start with http:// or https://'); process.exit(2); }
@@ -80,9 +89,145 @@ function pageFor(type, label, it) {
         '</article>', '</body>', '</html>', ''
     ].join('\n');
 }
+// ---------------------------------------------------------------------------
+// v230 landing pages (see tools/seo-page.js)
+// ---------------------------------------------------------------------------
+const bnDigits = n => String(n).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+const CAT_MAP = { dua: new Map(SEO.DUA_CATS), ziyarat: new Map(SEO.ZIYARAT_CATS), amal: new Map(SEO.AMAL_CATS) };
+const FULL = {};          // id -> full item (verses etc.) from the files named in metadata.json
+const CORE_INFO = {};     // bengali title -> [{type, cat}] of every item carrying it (to tell identical titles apart)
+const landingProblems = [];
+
+function loadFull(meta) {
+    const files = Object.keys(meta.categoryFiles || {}).map(k => meta.categoryFiles[k]).concat([meta.ziyaratFile, meta.amalFile]).filter(Boolean);
+    files.forEach(f => {
+        let d;
+        try { d = JSON.parse(fs.readFileSync(path.join(ROOT, f), 'utf8')); } catch (e) { landingProblems.push('cannot read ' + f + ': ' + e.message); return; }
+        (Array.isArray(d) ? d : (d.duas || d.items || d.ziyarats || d.amals || [])).forEach(x => { if (x && x.id != null) FULL[String(x.id)] = x; });
+    });
+    TYPES.forEach(([key, type]) => (meta[key] || []).forEach(it => {
+        const f = FULL[String(it.id)] || {};
+        const c = oneLine(f.titleBn || it.titleBn);
+        (CORE_INFO[c] = CORE_INFO[c] || []).push({ type: type, cat: it.category });
+    }));
+}
+const catLabel = (type, cat) => {
+    const l = CAT_MAP[type].get(cat);
+    if (!l && cat) landingProblems.push('category without a label in tools/seo-page.js: ' + type + '/' + cat);
+    return l || '';
+};
+
+function landingFor(type, label, it, meta) {
+    const id = String(it.id);
+    const f = FULL[id] || {};
+    const pick = k => (f[k] != null && String(f[k]).trim() !== '' ? f[k] : it[k]);
+    const titleBn = oneLine(pick('titleBn')) || oneLine(pick('titleEn')) || label;
+    const titleEn = oneLine(pick('titleEn')), titleAr = oneLine(pick('titleAr'));
+    const meaningBn = oneLine(pick('meaningBn')), meaningEn = oneLine(pick('meaningEn'));
+    const source = oneLine(pick('source')), reference = oneLine(pick('reference')), compiler = oneLine(pick('compiler')), occasion = oneLine(pick('occasion'));
+    const arabic = String(pick('arabic') || '').trim();
+    const verses = Array.isArray(f.verses) ? f.verses : (Array.isArray(it.verses) ? it.verses : []);
+    const cat = catLabel(type, it.category);
+    const url = base + 'd/' + id + '.html';
+    const app = '../?page=dua&open=' + type + ':' + id;
+    // identical titles: tell them apart by type, or (same type) by category
+    const same_t = CORE_INFO[titleBn] || [];
+    const core = same_t.length < 2 ? titleBn
+        : new Set(same_t.map(x => x.type)).size === same_t.length ? titleBn + ' (' + label + ')'
+        : titleBn + ' (' + (cat || label) + ')';
+    const title = SEO.makeTitle(core, [' | ' + label + ' | ' + SEO.BRAND, ' | ' + SEO.BRAND, ' | ' + label]);
+    const lead = meaningBn || titleEn || titleBn;
+    let dsrc = occasion ? occasion + ' — ' + lead : lead;
+    if (SEO.len(dsrc) < 70 && titleEn && dsrc.indexOf(titleEn) < 0) dsrc += ' — ' + titleEn;   // very short meanings make a poor search snippet
+    const desc = SEO.clip(dsrc, 150);
+    const mins = parseInt(pick('readingTimeMin'), 10);
+    const metaLine = [label, cat, occasion, mins > 0 ? '⏱ প্রায় ' + bnDigits(mins) + ' মিনিট' : ''].filter(Boolean).join(' · ');
+
+    // related: same group (ziyarat variants) first, then the next items of the same category
+    const list = meta[TYPES.filter(t => t[1] === type)[0][0]] || [];
+    const grp = f.group ? list.filter(x => x.id !== it.id && (FULL[String(x.id)] || {}).group === f.group) : [];
+    const same = list.filter(x => x.category === it.category);
+    const at = same.indexOf(it);
+    const rel = [];
+    for (let k = 1; k < same.length && rel.length < 5; k++) { const x = same[(at + k) % same.length]; if (grp.indexOf(x) < 0) rel.push(x); }
+    const nm = x => oneLine((FULL[String(x.id)] || {}).titleBn || x.titleBn) || oneLine(x.titleEn);
+    const li = x => '<li><a href="' + esc(x.id) + '.html">' + esc(nm(x)) + '</a></li>';
+
+    const out = ['<article>', '<h1>' + esc(titleBn) + '</h1>'];
+    const sub = [titleEn ? '<span lang="en">' + esc(titleEn) + '</span>' : '', titleAr ? '<span lang="ar" dir="rtl">' + esc(titleAr) + '</span>' : ''].filter(Boolean).join(' · ');
+    if (sub) out.push('<p class="sub">' + sub + '</p>');
+    out.push('<p class="meta">' + esc(metaLine) + '</p>');
+    if (verses.length) {
+        if (meaningBn && !verses.some(v => oneLine(v.bn) === meaningBn)) out.push('<p class="lead">' + esc(meaningBn) + '</p>');
+        out.push('<section class="text" aria-label="পাঠ ও অনুবাদ">');
+        verses.forEach(v => {
+            const ar = String(v.ar || '').trim(), bn = String(v.bn || '').trim(), tr = String(v.tr || '').trim(), rep = oneLine(v.repeatLabel);
+            if (!ar) {                                   // note / heading line (bengali only)
+                if (!bn) return;
+                out.push(/^▶/.test(bn) ? '<h3>' + esc(bn.replace(/^▶\s*/, '')) + '</h3>' : '<p class="note">' + esc(bn) + '</p>');
+                return;
+            }
+            out.push('<div class="v"><p class="ar" lang="ar" dir="rtl">' + esc(ar) + '</p>' + (tr ? '<p class="tr">' + esc(tr) + '</p>' : '') +
+                (bn || rep ? '<p class="bn">' + esc(bn) + (rep ? (bn ? ' ' : '') + '<span class="rep">' + esc(rep) + '</span>' : '') + '</p>' : '') + '</div>');
+        });
+        out.push('</section>');
+    } else {
+        if (arabic) out.push('<p class="ar" lang="ar" dir="rtl">' + esc(arabic) + '</p>');
+        if (meaningBn) out.push('<p class="bn">' + esc(meaningBn) + '</p>');
+    }
+    if (source || reference || compiler) {
+        out.push('<section class="src"><h2>সূত্র</h2>' + (source ? '<p>' + esc(source) + '</p>' : '') +
+            (reference ? '<p>রেফারেন্স: ' + esc(reference) + '</p>' : '') + (compiler ? '<p>সংকলক: ' + esc(compiler) + '</p>' : '') + '</section>');
+    }
+    if (meaningEn) out.push('<section class="en" lang="en"><h2>Meaning</h2><p>' + esc(meaningEn) + '</p></section>');
+    out.push('<p style="margin-top:1.6em"><a class="btn" href="' + esc(app) + '">📱 অ্যাপে খুলুন — বুকমার্ক, শুনুন ও আরও</a></p>');
+    if (grp.length) out.push('<nav class="related"><h2>' + esc(oneLine(f.groupTitleBn) || 'অন্যান্য রূপ') + ' — অন্যান্য রূপ</h2><ul>' +
+        grp.map(x => { const g = FULL[String(x.id)] || {}; return '<li><a href="' + esc(x.id) + '.html">' + esc(nm(x)) + (oneLine(g.variantLabelBn) ? ' (' + esc(oneLine(g.variantLabelBn)) + ')' : '') + '</a></li>'; }).join('') + '</ul></nav>');
+    if (rel.length) out.push('<nav class="related"><h2>আরও দেখুন' + (cat ? ' — ' + esc(cat) : '') + '</h2><ul>' + rel.map(li).join('') + '</ul></nav>');
+    out.push('</article>');
+    const crumbs = [
+        { name: 'হোম', href: '../', abs: base },
+        { name: 'দোয়া, যিয়ারত ও আমল', href: './', abs: base + 'd/' },
+        { name: titleBn, href: id + '.html', abs: url }
+    ];
+    const ld = { '@context': 'https://schema.org', '@type': 'WebPage', name: SEO.clip(titleBn, 110), description: desc, url: url, inLanguage: 'bn',
+        isPartOf: { '@type': 'WebSite', name: SEO.SITE_NAME, url: base } };
+    return SEO.page({ title: title, ogTitle: titleBn, desc: desc, url: url, base: base, type: 'article', section: label, jsonld: [ld], crumbs: crumbs,
+        appHref: app, appLabel: 'অ্যাপে খুলুন', body: out.join('\n') });
+}
+
+function indexFor(meta) {
+    const url = base + 'd/';
+    const nm = x => oneLine((FULL[String(x.id)] || {}).titleBn || x.titleBn) || oneLine(x.titleEn);
+    const order = { dua: SEO.DUA_CATS, ziyarat: SEO.ZIYARAT_CATS, amal: SEO.AMAL_CATS };
+    let html = '<div class="box idx"><h1>দোয়া, যিয়ারত ও আমলের সূচি</h1>';
+    const counts = [];
+    TYPES.forEach(([key, type, label]) => {
+        const items = meta[key] || [];
+        counts.push(bnDigits(items.length) + 'টি ' + label);
+        html += '<h2>' + esc(label) + ' <span class="n">(' + bnDigits(items.length) + ')</span></h2>';
+        const known = order[type].map(c => c[0]);
+        const cats = order[type].map(c => c[0]).concat([...new Set(items.map(x => x.category).filter(c => c && known.indexOf(c) < 0))]);
+        cats.forEach(c => {
+            const grp = items.filter(x => x.category === c);
+            if (!grp.length) return;
+            html += '<h3>' + esc(CAT_MAP[type].get(c) || c) + ' <span class="n">(' + bnDigits(grp.length) + ')</span></h3><ul>' +
+                grp.map(x => '<li><a href="' + esc(x.id) + '.html">' + esc(nm(x)) + '</a></li>').join('') + '</ul>';
+        });
+    });
+    html += '</div>';
+    const desc = SEO.clip(counts.join(', ') + ' — আরবি পাঠ, বাংলা অনুবাদ ও সূত্রসহ।', 150);
+    const ld = { '@context': 'https://schema.org', '@type': 'CollectionPage', name: 'দোয়া, যিয়ারত ও আমলের সূচি', description: desc, url: url, inLanguage: 'bn',
+        isPartOf: { '@type': 'WebSite', name: SEO.SITE_NAME, url: base } };
+    return SEO.page({ title: 'দোয়া, যিয়ারত ও আমলের সূচি | ' + SEO.BRAND, ogTitle: 'দোয়া, যিয়ারত ও আমলের সূচি', desc: desc, url: url, base: base, type: 'website', jsonld: [ld],
+        crumbs: [{ name: 'হোম', href: '../', abs: base }, { name: 'দোয়া, যিয়ারত ও আমল', href: './', abs: url }],
+        appHref: '../?page=dua', appLabel: 'অ্যাপে দোয়া খুলুন', body: html });
+}
+
 const rx = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 function withSitemapBlock(xml, items) {
     const out = [MARK_START];
+    if (!STUB) { out.push('  <url>', '    <loc>' + esc(base + 'd/') + '</loc>', '    <changefreq>weekly</changefreq>', '    <priority>0.7</priority>', '  </url>'); }
     items.forEach(id => {
         out.push('  <url>', '    <loc>' + esc(base + 'd/' + id + '.html') + '</loc>', '    <changefreq>monthly</changefreq>', '    <priority>0.5</priority>', '  </url>');
     });
@@ -96,16 +241,19 @@ function withSitemapBlock(xml, items) {
 }
 
 const meta = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'duas', 'metadata.json'), 'utf8'));
+if (!STUB) loadFull(meta);
 const want = {}; const problems = []; const seen = {};
 TYPES.forEach(([key, type, label]) => {
     (meta[key] || []).forEach(it => {
         const id = it && it.id != null ? String(it.id) : '';
         if (!/^[A-Za-z0-9_-]{1,80}$/.test(id)) { problems.push('bad or missing id in ' + key + ': ' + JSON.stringify(id)); return; }
         if (seen[id]) { problems.push('duplicate id "' + id + '" (' + seen[id] + ' and ' + type + ')'); return; }
-        seen[id] = type; want[id + '.html'] = pageFor(type, label, it);
+        seen[id] = type; want[id + '.html'] = STUB ? pageFor(type, label, it) : landingFor(type, label, it, meta);
     });
 });
-const ids = Object.keys(want).map(f => f.replace(/\.html$/, ''));
+if (!STUB) want['index.html'] = indexFor(meta);
+landingProblems.filter((x, i, a) => a.indexOf(x) === i).forEach(x => problems.push(x));
+const ids = Object.keys(want).map(f => f.replace(/\.html$/, '')).filter(id => id !== 'index');
 const sitemapNow = fs.readFileSync(SITEMAP, 'utf8');
 const sitemapNew = withSitemapBlock(sitemapNow, ids);
 if (sitemapNew !== sitemapNow) problems.push('sitemap.xml is out of date');
