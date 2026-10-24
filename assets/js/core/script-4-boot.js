@@ -668,6 +668,10 @@ function renderMobileBottomNav() {
 // every render() call (i.e. on every navigation/state change) was pure
 // repeated allocation for a mapping that never actually changes at runtime.
 let _pagesMapCache = null;
+// v229: pages whose module is loaded on demand (lazy-loader.js). Looked up at CALL time, so the cached map
+// never captures a missing function; shows a small loading card until the module has arrived.
+const _lz = (group, fn) => () => (typeof abLazy !== 'undefined') ? abLazy.page(group, fn)
+    : (typeof window[fn] === 'function' ? window[fn]() : '<div class="text-center py-8">Loading...</div>');
 function renderMainContent() {
     if (!_pagesMapCache) {
         _pagesMapCache = {
@@ -679,18 +683,20 @@ function renderMainContent() {
             contact:renderContactPage, about:renderAboutPage, bookmarks:renderBookmarksPage,
             readPost:renderReadPostPage, readDua:renderReadDuaPage,
             imams: typeof renderAhlulBaytImamsRedirect === 'function' ? renderAhlulBaytImamsRedirect : renderImamsPage, imamDetail:renderImamDetailPage,
-            tasbeeh:renderTasbeehPage, quiz:renderQuizPage,
+            tasbeeh:renderTasbeehPage, quiz:_lz('quiz','renderQuizPage'),
             searchPage:renderSearchPage, analytics:renderAnalyticsPage,
             readZiyarat:renderReadZiyaratPage,
             readAmal:renderReadAmalPage,
-            asmaul:renderAsmaulHusnaPage, qibla:renderQiblaPage, worldMap:renderWorldMapPage,
-            ramadan: typeof renderRamadanPage === 'function' ? renderRamadanPage : () => '<div class="text-center py-8">Loading...</div>',
-            khumsZakat: typeof renderKhumsZakatPage === 'function' ? renderKhumsZakatPage : () => '<div class="text-center py-8">Loading...</div>',
+            asmaul:renderAsmaulHusnaPage, qibla:renderQiblaPage, worldMap:_lz('map','renderWorldMapPage'),
+            ramadan: _lz('ramadan','renderRamadanPage'),   // v232: lazy (cluster loads on first visit; at boot during Ramadan)
+            khumsZakat: _lz('khums','renderKhumsZakatPage'),   // v229: lazy
             prayer: typeof renderPrayerPage === 'function' ? renderPrayerPage : renderHomePage,
             backup: typeof renderBackupPage === 'function' ? renderBackupPage : () => '<div class="text-center py-8">Loading...</div>',
             // v206: looked up at call time (these modules load after this file)
-            arabic: () => typeof renderArabicPage === 'function' ? renderArabicPage() : '<div class="text-center py-8">Loading...</div>',
+            arabic: _lz('arabic','renderArabicPage'),   // v229: lazy
             playlists: () => typeof renderPlaylistsPage === 'function' ? renderPlaylistsPage() : '<div class="text-center py-8">Loading...</div>',
+            // v228: looked up at call time (diagnostics.js loads after this file)
+            diagnostics: () => typeof renderDiagnosticsPage === 'function' ? renderDiagnosticsPage() : '<div class="text-center py-8">Loading...</div>',
             muharram:renderMuharramPage,
             'shia-days':renderShiaDaysPage,
             familyTree: typeof renderAhlulBaytFamilyTreeRedirect === 'function' ? renderAhlulBaytFamilyTreeRedirect : renderFamilyTreePage,
@@ -742,6 +748,7 @@ function render() {
     
     const appDiv = document.getElementById('app');
 
+    try { if (typeof abLazy !== 'undefined') abLazy.editors(); } catch (e) { /* v229: admin editor modals load on demand */ }
     appDiv.innerHTML = `
         ${renderMobileMenu()}
         ${renderHeader()}
@@ -751,13 +758,13 @@ function render() {
         ${renderFooter()}
         ${renderAdminLoginModal()}
         ${typeof renderBlogEditorModal === 'function' ? renderBlogEditorModal() : ''}
-        ${renderDuaEditorModal()}
-        ${renderHadithEditorModal()}
-        ${renderQuizEditorModal()}
-        ${renderKnowledgeEditorModal()}
-        ${renderAyahEditorModal()}
-        ${renderMuharramEditorModal()}
-        ${renderShiaDayEditorModal()}
+        ${typeof renderDuaEditorModal === 'function' ? renderDuaEditorModal() : ''}
+        ${typeof renderHadithEditorModal === 'function' ? renderHadithEditorModal() : ''}
+        ${typeof renderQuizEditorModal === 'function' ? renderQuizEditorModal() : ''}
+        ${typeof renderKnowledgeEditorModal === 'function' ? renderKnowledgeEditorModal() : ''}
+        ${typeof renderAyahEditorModal === 'function' ? renderAyahEditorModal() : ''}
+        ${typeof renderMuharramEditorModal === 'function' ? renderMuharramEditorModal() : ''}
+        ${typeof renderShiaDayEditorModal === 'function' ? renderShiaDayEditorModal() : ''}
     `;
 
     // mobile bottom nav

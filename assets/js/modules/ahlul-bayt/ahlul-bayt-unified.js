@@ -731,6 +731,11 @@ function renderAhlulBaytPlaceCard(site, d, l, si) {
 function renderAhlulBaytPlacesPage() {
     const d = state.darkMode, l = state.language;
     const sites = (typeof WORLD_MAP_SITES !== 'undefined' && Array.isArray(WORLD_MAP_SITES)) ? WORLD_MAP_SITES : [];
+    // v229: world-map.js (which owns WORLD_MAP_SITES) loads on demand; fetch it and re-render when it arrives
+    if (!sites.length && typeof abLazy !== 'undefined' && !abLazy.isLoaded('map')) {
+        const _pg = state.currentPage;
+        abLazy.load('map').then(() => { if (state.currentPage === _pg) render(); }, () => { /* keeps the placeholder */ });
+    }
 
     return `
     <div class="space-y-4 page-enter">

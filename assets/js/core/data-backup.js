@@ -11,6 +11,8 @@
 //   ahlbayt_admin (admin flag), ahlbayt_blog_worker_url/_secret (server
 //   credentials), ahlbayt_loc (GPS position), caches (prayer times / date /
 //   last_day / page views / hadith index).
+//   v228: the OPTIONAL 'diag' group (error log + usage counters, off by default) is the
+//   only diagnostics data that can travel; its values are re-normalised on import.
 //
 // Import safety — a backup file is untrusted input (someone could hand you a
 // crafted one):
@@ -63,6 +65,9 @@ const AB_GROUPS = [
     { id: 'finance', ic: '🧮', def: false, sensitive: true,
       bn: 'খুমুস-যাকাতের ইনপুট', en: 'Khums & Zakat inputs',
       dbn: 'আয়, ব্যয়, সম্পদের সংখ্যা — ব্যক্তিগত আর্থিক তথ্য, তাই ডিফল্টে বন্ধ', den: 'Income, expense and wealth figures — personal financial data, so off by default' },
+    { id: 'diag', ic: '🩺', def: false,
+      bn: 'ডায়াগনস্টিক (এরর লগ ও ব্যবহার-পরিসংখ্যান)', en: 'Diagnostics (error log & usage stats)',
+      dbn: 'এই ডিভাইসের এরর লগ ও ব্যবহারের গণনা — ব্যক্তিগত লেখা বা পরিচয় নেই; সমস্যা জানাতে বা ডিভাইস বদলাতে কাজে লাগে, তাই ডিফল্টে বন্ধ', den: 'This device\'s error log and usage counters — no personal text or identity; handy for reporting a problem or moving device, so off by default' },
     { id: 'admin', ic: '🛠️', def: true, admin: true,
       bn: 'কাস্টম কনটেন্ট (অ্যাডমিন)', en: 'Custom content (admin)',
       dbn: 'আপনার যোগ করা পোস্ট, দোয়া, জিয়ারত, আমল, হাদিস, আয়াত, কুইজ প্রশ্ন, বিশেষ দিন', den: 'Posts, duas, ziyarat, amal, hadith, ayahs, quiz questions and special days you added' }
@@ -105,7 +110,10 @@ const AB_SPEC = {
     'ahlbayt_arabic_corner':      { g: 'personal', t: 'obj' },
     'ahlbayt_reader_mode':        { g: 'personal', t: 'obj' },
 
-    'ahlbayt_prayer_tracker':     { g: 'prayer', t: 'obj', merge: 'prayerTracker' }
+    'ahlbayt_prayer_tracker':     { g: 'prayer', t: 'obj', merge: 'prayerTracker' },
+
+    'ahlbayt_errlog':             { g: 'diag', t: 'arr', merge: 'errlog' },      // v228 (error-log.js)
+    'ahlbayt_usage':              { g: 'diag', t: 'obj', merge: 'usage' }        // v228 (diagnostics.js)
 };
 ['custom_posts', 'custom_duas', 'custom_ziyarat', 'custom_amal', 'custom_hadiths', 'custom_ayahs', 'nahjul_balagha',
  'sahifa_sajjadiya', 'imam_hadiths', 'special_days', 'muharram_events', 'shia_special_days', 'custom_quiz'
@@ -154,6 +162,7 @@ function abGroupCount(gid) {
 // ---------------------------------------------------------------------------
 function abBuildBackup(groupIds) {
     try { saveState(); } catch (e) { /* flush in-memory state first */ }
+    try { if (typeof dgFlush === 'function') dgFlush(); } catch (e) { /* v228: pending usage counts */ }
     const data = {};
     groupIds.forEach(gid => {
         const g = abGroup(gid);
@@ -234,7 +243,9 @@ function abValidateKey(key, v, allowHtml) {
         case 'raw': return (typeof v === 'string' && sp.re.test(v)) ? { ok: true, value: v } : { ok: false };
         case 'arr': {
             if (!Array.isArray(v)) return { ok: false };
-            const c = abClean(v, lim, 0); return { ok: true, value: c };
+            let c = abClean(v, lim, 0);
+            if (key === 'ahlbayt_errlog' && typeof dgNormalizeLog === 'function') c = dgNormalizeLog(c);   // v228
+            return { ok: true, value: c };
         }
         case 'obj': {
             if (!v || typeof v !== 'object' || Array.isArray(v)) return { ok: false };
@@ -243,6 +254,7 @@ function abValidateKey(key, v, allowHtml) {
             if (key === 'ahlbayt_quiz_profile' && typeof qpNormalizeProfile === 'function') c = qpNormalizeProfile(c);
             if (key === 'ahlbayt_quiz_mistakes' && typeof qpNormalizeMistakes === 'function') c = qpNormalizeMistakes(c);
             if (key === 'ahlbayt_prayer_tracker' && typeof ptNormalize === 'function') c = ptNormalize(c);   // v207
+            if (key === 'ahlbayt_usage' && typeof dgNormalizeUsage === 'function') c = dgNormalizeUsage(c);   // v228
             return { ok: true, value: c };
         }
     }
@@ -284,6 +296,8 @@ async function abOnFile(input) {
     if (f.size > AB_MAX_FILE) { _ab.error = abT('ফাইলটি অনেক বড় (সর্বোচ্চ ৬ MB)।', 'The file is too large (max 6 MB).'); render(); return; }
     let text = '';
     try { text = await f.text(); } catch (e) { _ab.error = abT('ফাইলটি পড়া যায়নি।', 'Could not read the file.'); render(); return; }
+    // v229: quiz-plus.js (lazy) owns the quiz-progress normalisers used while parsing — make sure it is there
+    try { if (typeof abLazy !== 'undefined') await abLazy.load('quiz'); } catch (e) { /* parse falls back to the generic clean-up, as before */ }
     const r = abParseBackup(text);
     if (r.error) { _ab.error = r.error; render(); return; }
     _ab.preview = r;
@@ -332,6 +346,8 @@ function abResolve(key, incoming, mode) {
             return { write: true, value: { v: 1, lists: out } };
         }
         case 'prayerTracker': return { write: true, value: (typeof ptMergeBackup === 'function') ? ptMergeBackup(local, incoming) : incoming };   // v207
+        case 'errlog': return { write: true, value: (typeof dgMergeLog === 'function') ? dgMergeLog(local, incoming) : incoming };           // v228
+        case 'usage': return { write: true, value: (typeof dgMergeUsage === 'function') ? dgMergeUsage(local, incoming) : incoming };       // v228
         case 'max': return { write: true, value: Math.max(Number(local) || 0, Number(incoming) || 0) };
         case 'profile': case 'mistakes': {
             // profile + mistake bank travel together: the side with more XP wins both
@@ -376,6 +392,8 @@ function abApply() {
         _ab.error = abT('রিস্টোর ব্যর্থ — ডিভাইসের স্টোরেজ ভরে গেছে। আপনার আগের ডেটা অক্ষত আছে।', 'Restore failed — device storage is full. Your previous data is untouched.');
         render(); return;
     }
+    // v228: the diagnostics counters / error log must not flush over the restored values either.
+    try { if (typeof dgFreeze === 'function') dgFreeze(); } catch (e) { /* ignore */ }
     // Stop the old in-memory state from overwriting the restored values before the reload.
     try { window.saveState = function () {}; saveState = function () {}; } catch (e) { /* ignore */ }
     try { window.lsSet = function () {}; lsSet = function () {}; } catch (e) { /* ignore */ }
@@ -446,6 +464,7 @@ function renderBackupPage() {
                 <li>${abT('শুধু নিজের তৈরি ব্যাকআপ রিস্টোর করুন।', 'Only restore backups you made yourself.')}</li>
             </ul>
         </section>
+        ${typeof dgBackupLinkHtml === 'function' ? dgBackupLinkHtml() : ''}
     </div>`;
 }
 

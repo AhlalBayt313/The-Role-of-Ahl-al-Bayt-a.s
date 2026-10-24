@@ -103,6 +103,7 @@ const LEAFLET_CSS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/le
 const LEAFLET_JS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
 let leafletLoadState = 'idle'; // 'idle' | 'loading' | 'loaded' | 'error'
 let leafletPromise = null;
+let leafletFailRendered = false; // v229: see renderWorldMapPage()
 
 function ensureLeafletLoaded() {
     if (typeof window.L !== 'undefined') {
@@ -194,7 +195,13 @@ function renderWorldMapPage() {
         // pattern already used by the Blog/Quiz/Knowledge Center/Dua/Ahlul
         // Bayt async data loaders elsewhere in this app.
         ensureLeafletLoaded().then(() => {
-            if (state.currentPage === 'worldMap' && typeof render === 'function') render();
+            // v229 FIX: when Leaflet cannot be loaded (offline / CDN blocked) the promise resolves with null and
+            // STAYS settled, so re-rendering unconditionally called ensureLeafletLoaded().then(render) again, and
+            // again — an endless microtask loop that froze the tab. Re-render when Leaflet really arrived, and
+            // after a failure exactly ONCE (to swap "Loading map..." for the fallback message).
+            if (state.currentPage !== 'worldMap' || typeof render !== 'function') return;
+            if (typeof L !== 'undefined') { render(); return; }
+            if (!leafletFailRendered) { leafletFailRendered = true; render(); }
         });
     }
 

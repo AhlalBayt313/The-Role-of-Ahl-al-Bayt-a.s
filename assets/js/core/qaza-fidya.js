@@ -233,15 +233,23 @@ if (typeof _prevR === 'function') {
         return html;
     };
 }
-const _prevK = window.renderKhumsZakatPage;
-if (typeof _prevK === 'function') {
-    window.renderKhumsZakatPage = function () {
-        let html = _prevK.apply(this, arguments);
+// v229: khums-zakat.js is now loaded lazily (lazy-loader.js), so this wrap is a function:
+// it runs now (no-op while the Khums page is not loaded yet) and again, via
+// window._qfWrapKhums, right after khums-zakat.js arrives. Idempotent.
+function wrapKhums() {
+    const prev = window.renderKhumsZakatPage;
+    if (typeof prev !== 'function' || prev.__qf) return;
+    const wrapped = function () {
+        let html = prev.apply(this, arguments);
         if (typeof html !== 'string' || html.indexOf('id="kz-root"') < 0) return html;
         try { html = html + `<div class="qf-wrap">${section(!!state.darkMode)}</div>`; } catch (e) { /* never break the page */ }
         return html;
     };
+    wrapped.__qf = true;
+    window.renderKhumsZakatPage = wrapped;
 }
+wrapKhums();
+window._qfWrapKhums = wrapKhums;
 
 if (typeof document !== 'undefined') {
     document.addEventListener('click', ev => {

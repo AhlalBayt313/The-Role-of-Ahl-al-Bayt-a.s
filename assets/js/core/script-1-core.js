@@ -1190,9 +1190,11 @@ function setupHomeStatsCounter() {
 // DOM element on every single call. Called ~40 times per render across
 // list-heavy pages (hadiths, imam cards, family tree, blog), so this adds
 // up across a render pass.
-const _escapeHtmlMap = { '&':'&amp;', '<':'&lt;', '>':'&gt;' };
+// v233: also escapes " and ' so the result is safe inside value="..." / aria-label="..."
+// attributes (a typed quote used to cut the attribute short). Renders identically as text.
+const _escapeHtmlMap = { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' };
 function escapeHtml(text) {
-    return String(text).replace(/[&<>]/g, ch => _escapeHtmlMap[ch]);
+    return String(text).replace(/[&<>"']/g, ch => _escapeHtmlMap[ch]);
 }
 function sanitize(text) { return typeof text==='string'?escapeHtml(text):''; }
 
@@ -1212,7 +1214,7 @@ const translations = {
         lightMode:'লাইট মোড', loading:'লোড হচ্ছে...', error:'ত্রুটি',
         bookmarks:'বুকমার্ক', admin:'অ্যাডমিন',
         imams:'ইমাম ও মাসুমিন (আ.)', tasbeeh:'তাসবিহ কাউন্টার', quiz:'ইসলামিক কুইজ', asmaul:'আসমাউল হুসনা', qibla:'কিবলা নির্দেশক', familyTree:'বংশধারা',
-        worldMap:'বিশ্ব মানচিত্র', khumsZakat:'খুমুস ও যাকাত', ramadan:'রমজান', prayer:'নামাজের সময়', backup:'ডেটা ব্যাকআপ', arabic:'আরবি পড়া শেখা', playlists:'আমার দোয়া-তালিকা',
+        worldMap:'বিশ্ব মানচিত্র', khumsZakat:'খুমুস ও যাকাত', ramadan:'রমজান', prayer:'নামাজের সময়', backup:'ডেটা ব্যাকআপ', diagnostics:'ডায়াগনস্টিক', arabic:'আরবি পড়া শেখা', playlists:'আমার দোয়া-তালিকা',
         searchPage:'সার্চ', analytics:'পরিসংখ্যান', hadithOfDay:'আজকের হাদিস',
         newPost:'নতুন পোস্ট', editPost:'পোস্ট সম্পাদনা', deletePost:'মুছুন',
         savePost:'সংরক্ষণ করুন', cancel:'বাতিল', title:'শিরোনাম', content:'বিষয়বস্তু',
@@ -1231,7 +1233,7 @@ const translations = {
         lightMode:'Light Mode', loading:'Loading...', error:'Error',
         bookmarks:'Bookmarks', admin:'Admin',
         imams:'Imams & Masumeen (AS)', tasbeeh:'Tasbeeh Counter', quiz:'Islamic Quiz', asmaul:'Asmaul Husna', qibla:'Qibla Finder', familyTree:'Family Tree',
-        worldMap:'World Map', khumsZakat:'Khums & Zakat', ramadan:'Ramadan', prayer:'Prayer Times', backup:'Backup & Restore', arabic:'Learn Arabic', playlists:'My Dua Lists',
+        worldMap:'World Map', khumsZakat:'Khums & Zakat', ramadan:'Ramadan', prayer:'Prayer Times', backup:'Backup & Restore', diagnostics:'Diagnostics', arabic:'Learn Arabic', playlists:'My Dua Lists',
         searchPage:'Search', analytics:'Analytics', hadithOfDay:"Today's Hadith",
         newPost:'New Post', editPost:'Edit Post', deletePost:'Delete',
         savePost:'Save Post', cancel:'Cancel', title:'Title', content:'Content',
@@ -1553,7 +1555,7 @@ function shareDua(dua, l) {
 function changePage(page) {
     // ✅ FIXED: Cleanup listeners when leaving certain pages (Bug #25)
     if (state.currentPage === 'qibla') cleanupQiblaCompass();
-    if (state.currentPage === 'worldMap') cleanupWorldMap();
+    if (state.currentPage === 'worldMap' && typeof cleanupWorldMap === 'function') cleanupWorldMap();   // v229: world-map.js is lazy
     if (state.currentPage === 'quiz') quizTimerClear();
     
     state.previousPage=state.currentPage; state.currentPage=page;
