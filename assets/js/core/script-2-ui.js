@@ -1906,18 +1906,7 @@ function renderHomePage()
                     :"Enlighten yourself with Quran, Hadith & the Holy Imams' teachings"}
             </p>
 
-            <!-- CTA buttons -->
-            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:8px">
-                <button data-action="changePage" data-param="imams" class="btn-primary hero-cta-btn hero-cta-primary">
-                    👑 ${l==='bn'?'ইমামগণ':'The Imams'}
-                </button>
-                <button data-action="changePage" data-param="dua" class="btn-primary hero-cta-btn hero-cta-gold">
-                    🤲 ${l==='bn'?'দোয়া':'Duas'}
-                </button>
-                <button data-action="changePage" data-param="blog" class="btn-primary hero-cta-btn hero-cta-ghost">
-                    📝 ${t('blog')}
-                </button>
-            </div>
+            <!-- v241: the three hero CTA buttons (Imams / Duas / Blog) were removed on request — the same pages are one tap away in the bottom nav and the Sections grid below. -->
 
             <!-- Stats row (count-up on scroll into view) -->
             <div class="hero-stats-row">
