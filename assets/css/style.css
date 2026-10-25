@@ -6395,3 +6395,146 @@ html[data-theme="dark"] .ab-hero { background: #061410 !important; }
     -webkit-mask-image: linear-gradient(to bottom, #000 82%, transparent 100%);
             mask-image: linear-gradient(to bottom, #000 82%, transparent 100%);
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   v241 — Home hero: the CTA buttons were removed, and the 5 stat counters
+   (Allah / Prophets / Masumeen / Karbala martyrs / Names of Allah) now stay on
+   ONE line on phones instead of wrapping onto a second row. Desktop unchanged.
+   ══════════════════════════════════════════════════════════════════════════ */
+.hero-stats-row { margin-top: 6px; }          /* the tagline above already has 2rem of space */
+@media (max-width: 600px) {
+    .hero-stats-row { flex-wrap: nowrap; gap: 2px 8px; justify-content: space-between; }
+    .hero-stat-item { flex: 1 1 auto; min-width: min-content; }   /* never squeeze below the longest word/number */
+    .hero-stat-num  { white-space: nowrap; font-size: clamp(.8rem, 3.9vw, 1.2rem); }
+    .hero-stat-label { font-size: clamp(.58rem, 2.7vw, .72rem); line-height: 1.35; margin-top: 5px; letter-spacing: 0; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   v242 — MOBILE AUDIT FIXES (CSS only, appended; delete this block to revert)
+   1. Prayer page: the 5-column qaza row ("ইশা ০ − +") overflowed the screen
+      (page 451px on a 390px phone) -> wrapping grid, 44px − / + buttons.
+   2. Blog cards: the small 🤍 bookmark button gets a 44px touch area (the
+      glyph itself stays the same size).
+   3. Tiny labels raised to ~11px (calendar weekday names, calendar "আজ"
+      badge, prayer-week labels).
+   4. Header search/theme buttons and the calendar ‹ › buttons get a 44px
+      touch area without changing how they look.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* 1 — qaza counters: never wider than the card */
+.pt-qgrid { grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); }
+.pt-q { min-width: 0; }
+.pt-qb { gap: 6px; }
+.pt-qb button { width: 44px; height: 44px; }
+@media (max-width: 639px) {
+    .pt-qgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .pt-qgrid > .pt-q:last-child:nth-child(odd) { grid-column: 1 / -1; }   /* 5th card takes the full row */
+}
+
+/* 2 — blog card bookmark: invisible 44px hit area around the glyph */
+button[data-action="toggleBookmark"][style*="margin-left:auto"] { position: relative; }
+button[data-action="toggleBookmark"][style*="margin-left:auto"]::after {
+    content: ''; position: absolute; inset: -12px;
+}
+
+/* 3 — small fonts (~11px minimum) */
+.grid-cols-7 > div > span[style*="font-size:.65rem"] { font-size: .7rem !important; }   /* calendar weekday names */
+.cal-cell > div[style*="font-size:.55rem"] { font-size: .69rem !important; }            /* calendar "আজ" badge */
+.pt-dw, .pt-ds { font-size: .7rem; }                                                       /* prayer week strip */
+
+/* 4 — 44px touch areas, visual size unchanged */
+header button[data-action="toggleDarkMode"],
+header button[data-action="changePage"][data-param="searchPage"],
+button[data-action="calPrev"], button[data-action="calNext"] { position: relative; }
+button[data-action="calPrev"], button[data-action="calNext"] { flex-shrink: 0; }   /* at 320px they were squeezed to 28px wide */
+/* search + theme sit 4px apart: 8px lets both 44px touch areas sit side by side without overlapping */
+header .gap-1:has(> button[data-action="toggleDarkMode"]) { gap: 8px; }
+header button[data-action="toggleDarkMode"]::after,
+header button[data-action="changePage"][data-param="searchPage"]::after {
+    content: ''; position: absolute; inset: -4px;        /* 36 + 8 = 44 */
+}
+button[data-action="calPrev"]::after, button[data-action="calNext"]::after {
+    content: ''; position: absolute; inset: -5px;        /* 35-36 + 10 = 45-46 */
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   v243 — MOBILE AUDIT, ROUND 2 (CSS only, appended; delete this block to revert)
+   Touch areas grow to 44px with an invisible ::after (the buttons look the
+   same); text under 11px is raised to 11px.
+   Taps  : 🔕 / "আমার লোকেশন" / "বিস্তারিত" on the prayer widget, Dua grid/list/sort
+           toggles, Dua/Ziyarat card icon buttons (bookmark, favourite, more),
+           quiz difficulty + length pills.
+   Fonts : Dua-card source line, Knowledge Center tags, prayer-page stat labels and
+           the two small prayer-widget buttons, Arabic-corner letter names.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* taps — prayer widget row (inline-styled buttons, so selectors go by attribute).
+   These buttons have a 1.5px border and ::after is measured from the padding edge, so every inset below
+   includes +1.5px to land exactly on the intended 44px. */
+button[onclick="requestGPSPrayerTimes()"],
+button[data-action="changePage"][data-param="prayer"][style*="font-size:.8rem"],
+button[data-action="changePage"][data-param="prayer"][style*="font-size:.68rem"],
+.dzx-vt, .kc-act-icon, .quiz-pill { position: relative; }
+button[onclick="requestGPSPrayerTimes()"]::after,
+button[data-action="changePage"][data-param="prayer"][style*="font-size:.68rem"]::after {
+    content: ''; position: absolute; inset: -9.5px -1.5px;          /* 28 + 16 = 44 high */
+}
+button[data-action="changePage"][data-param="prayer"][style*="font-size:.8rem"]::after {
+    content: ''; position: absolute; inset: -11.5px -5.5px;         /* 36x25 -> 44x45 */
+}
+/* taps — Dua tab view/sort toggles, card icon buttons, quiz pills */
+.dzx-vt::after { content: ''; position: absolute; inset: -4.5px; }          /* 38 + 6 = 44 */
+.kc-act-icon::after { content: ''; position: absolute; inset: -3.5px 0; }   /* 40 + 4 = 44 */
+.quiz-pill::after { content: ''; position: absolute; inset: -5.5px -3.5px; } /* 37 + 8 = 45 */
+
+/* fonts — 11px minimum */
+html[data-dzx-view="grid"] #dzx-dua-results .uc-card-row .dzx-src,
+html[data-dzx-view="grid"] #dzx-ziyarat-results .uc-card-row .dzx-src,
+html[data-dzx-view="grid"] #dzx-amal-results .uc-card-row .dzx-src { font-size: 11px; }
+.kcx-tag { font-size: .6875rem; }
+.pt-stat span { font-size: .6875rem; }
+.ac-letter small, .ac-forms small { font-size: .6875rem; }
+button[onclick="requestGPSPrayerTimes()"],
+button[data-action="changePage"][data-param="prayer"][style*="font-size:.68rem"] { font-size: .6875rem !important; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   v244 — MOBILE AUDIT, ROUND 2 (rest): the two small texts of the Sehri/Iftar
+   widget (prayer page + home): label 10.5px and the "ফজরের আজানের আগে" /
+   Maghrib sub-line 9.5px -> 11px. CSS only (inline-styled, so !important);
+   delete this block to revert.
+   ══════════════════════════════════════════════════════════════════════════ */
+div[style*="grid-template-columns:1fr 1fr;gap:10px"] > div > div > span[style*="font-size:10.5px"],
+div[style*="grid-template-columns:1fr 1fr;gap:10px"] > div > p[style*="font-size:9.5px"] { font-size: .6875rem !important; }
+
+/* v244b — home: card badge (.58rem=9.3px) and hero stat labels (down to 9.3px at 320px) -> 11px */
+.feature-card-badge { font-size: .6875rem; }
+@media (max-width: 600px) {
+    .hero-stat-label { font-size: .6875rem; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   v244c — small-text CONTRAST (measured on the real background: text <18px must reach 4.5:1).
+   Colours only, no size/layout change; the texts are inline-styled, so !important.
+   Delete this block to revert.
+   ══════════════════════════════════════════════════════════════════════════ */
+/* bottom nav, inactive tabs: #9ca3af on white was 2.5:1 (dark: #6b7280 3.9:1) */
+.bnav-btn:not(.active) { color: #6b7280 !important; }
+html[data-theme="dark"] .bnav-btn:not(.active) { color: #9ca3af !important; }
+/* prayer widget */
+html:not([data-theme="dark"]) .prayer-countdown { color: #8a6a00 !important; }                 /* was gold #c9a227, 2.3:1 */
+p.text-center.text-xs[style*="rgba(0,0,0,.35)"] { color: rgba(0,0,0,.62) !important; }          /* GPS hint, 2.4:1 */
+p.text-center.text-xs[style*="rgba(255,255,255,.28)"] { color: rgba(255,255,255,.62) !important; }
+div[style*="grid-template-columns:1fr 1fr;gap:10px"] > div:nth-child(1) > p[style*="font-size:9.5px"] { color: rgba(30,58,138,.82) !important; }
+div[style*="grid-template-columns:1fr 1fr;gap:10px"] > div:nth-child(2) > p[style*="font-size:9.5px"] { color: rgba(154,52,18,.82) !important; }
+html[data-theme="dark"] div[style*="grid-template-columns:1fr 1fr;gap:10px"] > div:nth-child(1) > p[style*="font-size:9.5px"] { color: rgba(147,197,253,.88) !important; }
+html[data-theme="dark"] div[style*="grid-template-columns:1fr 1fr;gap:10px"] > div:nth-child(2) > p[style*="font-size:9.5px"] { color: rgba(252,165,165,.88) !important; }
+/* home next-prayer card "বাকি সময়" */
+p.text-xs[style*="rgba(52,211,153,.6)"] { color: rgba(110,231,183,.95) !important; }
+/* Dua section-header counts */
+.dzx-gh-n { opacity: .9; }
+/* v244c (cont.) */
+html:not([data-theme="dark"]) .bnav-btn.active { color: #047857 !important; }                  /* #059669 on white = 3.8:1 -> 5.5:1 */
+p.text-xs[style*="rgba(255,255,255,.28)"],
+button[data-action="showAdminLogin"][style*="rgba(255,255,255,.28)"] { color: rgba(255,255,255,.62) !important; }   /* footer © line + admin link on the dark footer, 2.5:1 */
+div[style*="grid-template-columns:1fr 1fr;gap:10px"] > div:nth-child(1) > p[style*="font-size:9.5px"] { color: rgba(30,58,138,.92) !important; }
+div[style*="grid-template-columns:1fr 1fr;gap:10px"] > div:nth-child(2) > p[style*="font-size:9.5px"] { color: rgba(154,52,18,.92) !important; }
