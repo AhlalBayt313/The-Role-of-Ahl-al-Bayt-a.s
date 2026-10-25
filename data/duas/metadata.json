@@ -4091,7 +4091,7 @@
       "slug": "dua-quran-liyabudoon",
       "titleBn": "ইবাদতের উদ্দেশ্য",
       "titleEn": "The Purpose of Worship",
-      "category": "sahifa-sajjadiya",
+      "category": "quranic",
       "arabic": "وَمَا خَلَقْتُ الْجِنَّ وَالْإِنسَ إِلَّا لِيَعْبُدُونِ",
       "meaningBn": "আমি জিন ও মানুষকে কেবল আমার ইবাদতের জন্যই সৃষ্টি করেছি।",
       "meaningEn": "And I did not create the jinn and mankind except to worship Me.",
@@ -4105,7 +4105,7 @@
       "slug": "dua-quran-inni-qareeb",
       "titleBn": "বান্দার নিকটবর্তী আল্লাহ",
       "titleEn": "Allah is Near to His Servant",
-      "category": "sahifa-sajjadiya",
+      "category": "quranic",
       "arabic": "وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌ أُجِيبُ دَعْوَةَ الدَّاعِ إِذَا دَعَانِ",
       "meaningBn": "এবং যখন আমার বান্দারা আমার সম্পর্কে তোমাকে জিজ্ঞাসা করে, তখন (বল) আমি নিকটেই আছি — আমি আহ্বানকারীর ডাকে সাড়া দিই, যখন সে আমাকে ডাকে।",
       "meaningEn": "And when My servants ask you concerning Me, indeed I am near. I respond to the invocation of the supplicant when he calls upon Me.",
@@ -4651,7 +4651,7 @@
       "slug": "dua-quran-ana-allah-la-ilaha",
       "titleBn": "আল্লাহর একত্বের ও নামাজ কায়েমের ঘোষণা",
       "titleEn": "Declaration of Allah's Oneness and the Command to Pray",
-      "category": "sahifa-sajjadiya",
+      "category": "quranic",
       "arabic": "إِنَّنِي أَنَا اللَّهُ لَا إِلَٰهَ إِلَّا أَنَا فَاعْبُدْنِي وَأَقِمِ الصَّلَاةَ لِذِكْرِي",
       "meaningBn": "নিশ্চয় আমিই আল্লাহ, আমি ব্যতীত কোনো উপাস্য নেই, সুতরাং আমার ইবাদত কর এবং আমার স্মরণার্থে নামাজ কায়েম কর।",
       "meaningEn": "Indeed, I am Allah. There is no deity except Me, so worship Me and establish prayer for My remembrance.",
@@ -4665,7 +4665,7 @@
       "slug": "dua-quran-surah-ikhlas",
       "titleBn": "সূরা আল-ইখলাস — তাওহীদের ঘোষণা",
       "titleEn": "Surah al-Ikhlas — The Declaration of Divine Oneness",
-      "category": "sahifa-sajjadiya",
+      "category": "quranic",
       "arabic": "قُلْ هُوَ اللَّهُ أَحَدٌ * اللَّهُ الصَّمَدُ * لَمْ يَلِدْ وَلَمْ يُولَدْ * وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ",
       "meaningBn": "বল, তিনি আল্লাহ, একক। আল্লাহ অমুখাপেক্ষী। তিনি জন্ম দেননি এবং তাঁকে জন্ম দেওয়া হয়নি। এবং তাঁর সমতুল্য কেউ নেই।",
       "meaningEn": "Say, He is Allah, [who is] One. Allah, the Eternal Refuge. He neither begets nor is born. Nor is there to Him any equivalent.",
@@ -5211,7 +5211,7 @@
       "slug": "dua-quran-ayat-an-nur",
       "titleBn": "নূরের আয়াত",
       "titleEn": "The Verse of Light",
-      "category": "sahifa-sajjadiya",
+      "category": "quranic",
       "arabic": "اللَّهُ نُورُ السَّمَاوَاتِ وَالْأَرْضِ",
       "meaningBn": "আল্লাহ আসমান ও জমিনের নূর।",
       "meaningEn": "Allah is the Light of the heavens and the earth.",
@@ -5225,7 +5225,7 @@
       "slug": "dua-quran-huwallahulladhi-la-ilaha-illa-huwa",
       "titleBn": "আল্লাহর সুন্দর নামসমূহের ঘোষণা (সূরা হাশরের সমাপনী)",
       "titleEn": "The Declaration of Allah's Beautiful Names (Closing of Surah al-Hashr)",
-      "category": "sahifa-sajjadiya",
+      "category": "quranic",
       "arabic": "هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ عَالِمُ الْغَيْبِ وَالشَّهَادَةِ ۖ هُوَ الرَّحْمَٰنُ الرَّحِيمُ",
       "meaningBn": "তিনিই আল্লাহ, তিনি ব্যতীত কোনো উপাস্য নেই, তিনি অদৃশ্য ও দৃশ্যমান সবকিছুর জ্ঞানী, তিনি পরম করুণাময়, অসীম দয়ালু।",
       "meaningEn": "He is Allah, other than whom there is no deity, Knower of the unseen and the witnessed. He is the Entirely Merciful, the Especially Merciful.",
@@ -6698,6 +6698,44 @@
       "type": "dua",
       "hasFullData": false,
       "originalIndex": 340
+    },
+    {
+      "id": "dua-sahifa-30-repaying-debts",
+      "slug": "dua-sahifa-30-repaying-debts",
+      "titleBn": "ঋণ পরিশোধে সাহায্যের দোয়া (সহিফা, দোয়া নং ৩০)",
+      "titleEn": "His Supplication for Help in Repaying Debts (Sahifa, Dua 30)",
+      "titleAr": "دعاؤه في المعونة على قضاء الدين",
+      "category": "sahifa-sajjadiya",
+      "collection": "ahlulbayt",
+      "tags": [
+        "sahifa",
+        "debt",
+        "repayment",
+        "provision",
+        "moderation"
+      ],
+      "relatedImams": [
+        "Ali ibn al-Husayn (Zayn al-Abidin)"
+      ],
+      "arabic": "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَ آلِهِ ، وَ هَبْ لِيَ الْعَافِيَةَ مِنْ دَيْنٍ تُخْلِقُ بِهِ وَجْهِي",
+      "meaningBn": "হে আল্লাহ! আমাকে সেই ঋণ থেকে মুক্তি দাও, যা আমার মর্যাদা ক্ষয় করে, মনকে দিশেহারা করে — ঋণের দুশ্চিন্তা, লাঞ্ছনা ও পরকালের দায় থেকে আশ্রয় চেয়ে এবং হালাল রিযক, মিতব্যয়িতা ও দরিদ্রদের সাহচর্যের তাওফিক চেয়ে ইমাম সাজ্জাদ (আ.)-এর দোয়া।",
+      "meaningEn": "O God, free me from a debt that wears away my dignity and bewilders my mind — Imam Sajjad's (a.s.) supplication seeking refuge from the worry, humiliation and after-death burden of debt, and asking for lawful provision, moderation in spending and the company of the poor.",
+      "source": "ইমাম আলী ইবনুল হুসাইন যাইনুল আবিদীন (আ.) — সহিফায়ে সাজ্জাদিয়া, দোয়া নং ৩০",
+      "reference": "Sahifa al-Sajjadiyya, Supplication 30 (\"His Supplication for Help in Repaying Debts\"); Arabic text from Al-Islam.org, cross-checked with WikiShia. Bengali translation prepared from the Arabic",
+      "compiler": "",
+      "searchKeywords": [
+        "sahifa dua 30",
+        "debt dua sahifa",
+        "repaying debts dua",
+        "সহিফা দোয়া ৩০",
+        "ঋণ পরিশোধের দোয়া",
+        "ঋণ মুক্তির দোয়া"
+      ],
+      "readingTimeMin": 4,
+      "audioUrl": "",
+      "type": "dua",
+      "hasFullData": false,
+      "originalIndex": 304
     }
   ],
   "ziyarats": [
@@ -7067,7 +7105,7 @@
       "group": "imam-reza",
       "groupTitleBn": "ইমাম আলী ইবনে মূসা আর-রিদা (আ.)-এর যিয়ারত",
       "groupTitleEn": "Ziyarat of Imam Ali ibn Musa al-Rida (a.s.)",
-      "variantLabelBn": "১ম রূপ (Standalone)",
+      "variantLabelBn": "১ম যিয়ারত (স্বতন্ত্র)",
       "variantLabelEn": "1st Form (Standalone)",
       "sortOrder": 10
     },
@@ -7086,6 +7124,9 @@
       "type": "ziyarat",
       "hasFullData": false,
       "originalIndex": 22,
+      "group": "imam-jawad",
+      "variantLabelBn": "১ম রূপ (স্বতন্ত্র)",
+      "variantLabelEn": "1st Form (Standalone)",
       "sortOrder": 11
     },
     {
@@ -7146,7 +7187,7 @@
       "compiler": "Traditional (reported in Mafatih al-Jinan)",
       "type": "ziyarat",
       "hasFullData": false,
-      "originalIndex": 25,
+      "originalIndex": 26,
       "group": "imam-reza",
       "groupTitleBn": "ইমাম আলী ইবনে মূসা আর-রিদা (আ.)-এর যিয়ারত",
       "groupTitleEn": "Ziyarat of Imam Ali ibn Musa al-Rida (a.s.)",
@@ -7168,7 +7209,7 @@
       "compiler": "Traditional (reported in Mafatih al-Jinan)",
       "type": "ziyarat",
       "hasFullData": false,
-      "originalIndex": 26,
+      "originalIndex": 27,
       "group": "imam-reza",
       "groupTitleBn": "ইমাম আলী ইবনে মূসা আর-রিদা (আ.)-এর যিয়ারত",
       "groupTitleEn": "Ziyarat of Imam Ali ibn Musa al-Rida (a.s.)",
@@ -7190,7 +7231,7 @@
       "compiler": "Narrated by Imam Muhammad al-Jawad (a.s.), reported by Allama Majlisi from a treatise dated 746 AH",
       "type": "ziyarat",
       "hasFullData": false,
-      "originalIndex": 27,
+      "originalIndex": 25,
       "group": "imam-reza",
       "groupTitleBn": "ইমাম আলী ইবনে মূসা আর-রিদা (আ.)-এর যিয়ারত",
       "groupTitleEn": "Ziyarat of Imam Ali ibn Musa al-Rida (a.s.)",
@@ -7213,6 +7254,9 @@
       "type": "ziyarat",
       "hasFullData": false,
       "originalIndex": 28,
+      "group": "imam-jawad",
+      "variantLabelBn": "২য় রূপ (কামিলুয যিয়ারাহ)",
+      "variantLabelEn": "2nd Form (Kamil al-Ziyarah)",
       "sortOrder": 11
     },
     {
@@ -7229,7 +7273,7 @@
       "compiler": "Traditional (reported in Mafatih al-Jinan / al-Sahifa al-Alawiyya)",
       "type": "ziyarat",
       "hasFullData": false,
-      "originalIndex": 29,
+      "originalIndex": 52,
       "group": "imam-reza",
       "groupTitleBn": "ইমাম আলী ইবনে মূসা আর-রিদা (আ.)-এর যিয়ারত",
       "groupTitleEn": "Ziyarat of Imam Ali ibn Musa al-Rida (a.s.)",
@@ -7251,7 +7295,7 @@
       "compiler": "Reported in Kamil al-Ziyarah by Ja'far ibn Muhammad ibn Qawlawayh al-Qummi",
       "type": "ziyarat",
       "hasFullData": false,
-      "originalIndex": 30,
+      "originalIndex": 53,
       "group": "imam-reza",
       "groupTitleBn": "ইমাম আলী ইবনে মূসা আর-রিদা (আ.)-এর যিয়ারত",
       "groupTitleEn": "Ziyarat of Imam Ali ibn Musa al-Rida (a.s.)",
@@ -7492,6 +7536,8 @@
       "type": "ziyarat",
       "hasFullData": false,
       "originalIndex": 31,
+      "variantLabelBn": "১ম রূপ (পূর্ণ যিয়ারত)",
+      "variantLabelEn": "1st Form (Full Ziyarat)",
       "sortOrder": 9
     },
     {
@@ -7510,6 +7556,8 @@
       "type": "ziyarat",
       "hasFullData": false,
       "originalIndex": 32,
+      "variantLabelBn": "২য় রূপ (শায়খ মুফিদের বর্ণিত)",
+      "variantLabelEn": "2nd Form (Narrated by Shaykh al-Mufid)",
       "sortOrder": 9
     },
     {
@@ -7528,6 +7576,8 @@
       "type": "ziyarat",
       "hasFullData": false,
       "originalIndex": 33,
+      "variantLabelBn": "৩য় রূপ — প্রবেশ ও সমাধির সামনে যিয়ারত (শায়খ মুফিদ)",
+      "variantLabelEn": "3rd Form — Entrance & Grave-side Ziyarat (Shaykh al-Mufid)",
       "sortOrder": 11
     },
     {
@@ -7546,6 +7596,8 @@
       "type": "ziyarat",
       "hasFullData": false,
       "originalIndex": 34,
+      "variantLabelBn": "৪র্থ রূপ — ইবনে তাউসের বিশদ যিয়ারত ও সালাওয়াত",
+      "variantLabelEn": "4th Form — Ibn Tawus's Detailed Ziyarat and Salawat",
       "sortOrder": 11
     },
     {
@@ -7564,6 +7616,8 @@
       "type": "ziyarat",
       "hasFullData": false,
       "originalIndex": 38,
+      "variantLabelBn": "৫ম রূপ — সংক্ষিপ্ত যিয়ারত (বাক্বিয়াতুস সালেহাত)",
+      "variantLabelEn": "5th Form — Concise Ziyarat (Baqiyat al-Salihat)",
       "sortOrder": 11
     },
     {
@@ -7609,6 +7663,9 @@
       "type": "ziyarat",
       "hasFullData": false,
       "originalIndex": 49,
+      "group": "imam-hadi",
+      "variantLabelBn": "১ম রূপ (পূর্ণ যিয়ারত)",
+      "variantLabelEn": "1st Form (Full Ziyarat)",
       "sortOrder": 12
     },
     {
@@ -7624,6 +7681,9 @@
       "type": "ziyarat",
       "hasFullData": false,
       "originalIndex": 50,
+      "group": "imam-mahdi",
+      "variantLabelBn": "ইমাম রিদার মাজারে পাঠণীয় যিয়ারত",
+      "variantLabelEn": "Recited at Imam Reza's Shrine",
       "sortOrder": 14
     },
     {
@@ -7639,6 +7699,9 @@
       "type": "ziyarat",
       "hasFullData": false,
       "originalIndex": 51,
+      "group": "imam-mahdi",
+      "variantLabelBn": "সংক্ষিপ্ত যিয়ারত",
+      "variantLabelEn": "Concise Ziyarat",
       "sortOrder": 14
     },
     {
@@ -7653,7 +7716,10 @@
       "source": "মিসবাহুল কাফয়ামী (র.)-এর সম্পূরক অংশে (মুলহাকাত) বর্ণিত ইমাম রিদা (আ.)-এর সপ্তম যিয়ারত",
       "type": "ziyarat",
       "hasFullData": false,
-      "originalIndex": 52,
+      "originalIndex": 29,
+      "group": "imam-reza",
+      "variantLabelBn": "৭ম যিয়ারত",
+      "variantLabelEn": "7th Ziyarat",
       "sortOrder": 10
     },
     {
@@ -7668,7 +7734,10 @@
       "source": "মাশহাদে ইমাম রিদা (আ.)-এর মাজার যিয়ারতের জন্য বর্ণিত দীর্ঘতম ও ব্যাপকতম যিয়ারতসমূহের একটি — অষ্টম যিয়ারত",
       "type": "ziyarat",
       "hasFullData": false,
-      "originalIndex": 53,
+      "originalIndex": 30,
+      "group": "imam-reza",
+      "variantLabelBn": "৮ম যিয়ারত (দীর্ঘতম রূপ)",
+      "variantLabelEn": "8th Ziyarat (Longest Form)",
       "sortOrder": 10
     },
     {
